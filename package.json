@@ -1,0 +1,21 @@
+{
+  "name": "zx",
+  "version": "1.0.1",
+  "description": "Replaces bash with js",
+  "main": "index.mjs",
+  "types": "index.d.ts",
+  "bin": {
+    "zx": "zx.mjs"
+  },
+  "scripts": {
+    "test": "zx test.mjs"
+  },
+  "dependencies": {
+    "chalk": "^4.1.1",
+    "node-fetch": "^2.6.1",
+    "uuid": "^8.3.2"
+  },
+  "repository": "google/zx",
+  "author": "Anton Medvedev <anton@medv.io>",
+  "license": "Apache-2.0"
+}
