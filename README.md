@@ -221,3 +221,5 @@ zx https://medv.io/example-script.mjs
 ## License
 
 [Apache-2.0](LICENSE)
+
+Disclaimer: _This is not an officially supported Google product._
