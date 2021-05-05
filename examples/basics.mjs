@@ -14,12 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-await $`# Hello world!
-date
-`
+await $`ls -1 | wc -l`
 
-let answer = await question('What is your name? ')
-await $`echo "Hello, ${answer}!"`
+let branch = await $`git branch --show-current`
+await $`printf ${branch} | wc`
 
 if (test('-f package.json')) {
   console.log('Yes')

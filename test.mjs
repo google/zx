@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+let foo = await $`echo Error >&2; echo Hello`
+await $`echo ${foo} | wc`
+
 await Promise.all([
   $`sleep 1; echo 1`,
   $`sleep 2; echo 2`,

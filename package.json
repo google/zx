@@ -1,7 +1,7 @@
 {
   "name": "zx",
-  "version": "1.0.1",
-  "description": "Replaces bash with js",
+  "version": "1.0.2",
+  "description": "A tool for writing better scripts",
   "main": "index.mjs",
   "types": "index.d.ts",
   "bin": {
