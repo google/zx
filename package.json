@@ -15,6 +15,13 @@
     "node-fetch": "^2.6.1",
     "uuid": "^8.3.2"
   },
+  "publishConfig": {
+    "registry": "https://wombat-dressing-room.appspot.com"
+  },
+  "files": [
+    "*.mjs",
+    "*.js"
+  ],
   "repository": "google/zx",
   "author": "Anton Medvedev <anton@medv.io>",
   "license": "Apache-2.0"
