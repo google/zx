@@ -55,7 +55,7 @@ zx ./script.mjs
 Then using `zx` bin or via shebang, all `$`, `cd`, `fetch`, etc 
 available without imports.
 
-### `$`
+### ``$`command` ``
 
 Executes given string using `exec` function
 from `child_process` package and returns `Promise<ProcessOutput>`.
@@ -74,15 +74,6 @@ await Promise.all(hosts.map(host =>
 ))
 ```
 
-```ts
-class ProcessOutput {
-  readonly exitCode: number
-  readonly stdout: string
-  readonly stderr: string
-  toString(): string
-}
-```
-
 If executed program returns non-zero exit code, `ProcessOutput` will be thrown.
 
 ```js
@@ -94,7 +85,18 @@ try {
 }
 ```
 
-### `cd`
+### `ProcessOutput`
+
+```ts
+class ProcessOutput {
+  readonly exitCode: number
+  readonly stdout: string
+  readonly stderr: string
+  toString(): string
+}
+```
+
+### `cd()`
 
 Changes working directory.
 
@@ -103,7 +105,7 @@ cd('/tmp')
 await $`pwd` // outputs /tmp 
 ```
 
-### `test`
+### `test()`
 
 Executes `test` command using `execSync` and returns `true` or `false`.
 
@@ -121,7 +123,7 @@ if test -f package.json; then
 fi
 ```
 
-### `fetch`
+### `fetch()`
 
 This is a wrapper around [node-fetch](https://www.npmjs.com/package/node-fetch) package.
 ```js
@@ -131,7 +133,7 @@ if (resp.ok) {
 }
 ```
 
-### `question`
+### `question()`
 
 This is a wrapper around [readline](https://nodejs.org/api/readline.html) package.
 
@@ -152,7 +154,7 @@ let token = await question('Choose env variable: ', {
 
 
 
-### `chalk`
+### `chalk` package
 
 The [chalk](https://www.npmjs.com/package/chalk) package available without 
 importing inside scripts.
@@ -161,7 +163,7 @@ importing inside scripts.
 console.log(chalk.blue('Hello world!'))
 ```
 
-### `fs`
+### `fs` package
 
 The [fx](https://nodejs.org/api/fs.html) package available without importing 
 inside scripts.
@@ -176,7 +178,7 @@ Promisified version imported by default. Same as if you write:
 import {promises as fs} from 'fs'
 ```
 
-### `os`
+### `os` package
 
 The [os](https://nodejs.org/api/os.html) package available without importing
 inside scripts.
