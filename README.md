@@ -18,8 +18,8 @@ await $`ssh medv.io uptime`
 ```
 
 Bash is great, but when it comes to writing scripts, 
-people usually choose a more convenient programming languages.
-JavaScript is a perfect choose, but standard Node.js library 
+people usually choose a more convenient programming language.
+JavaScript is a perfect choice, but standard Node.js library 
 requires additional hassle before using. `zx` package provides
 useful wrappers around `child_process` and gives sensible defaults. 
 
@@ -165,7 +165,7 @@ console.log(chalk.blue('Hello world!'))
 
 ### `fs` package
 
-The [fx](https://nodejs.org/api/fs.html) package available without importing 
+The [fs](https://nodejs.org/api/fs.html) package available without importing 
 inside scripts.
 
 ```js
