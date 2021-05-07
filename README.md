@@ -149,7 +149,7 @@ console.log(chalk.blue('Hello world!'))
 
 ### `fs` package
 
-The [fs](https://nodejs.org/api/fs.html) package available is without importing 
+The [fs](https://nodejs.org/api/fs.html) package is available without importing 
 inside scripts.
 
 ```js
