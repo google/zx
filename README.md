@@ -186,7 +186,7 @@ Specifies verbosity. Default: `true`.
 In verbose mode prints executed commands with outputs of it. Same as 
 `set -x` in bash.
 
-### Importing
+### Importing from other scripts
 
 It's possible to use `$` and others with explicit import.
 
@@ -194,6 +194,13 @@ It's possible to use `$` and others with explicit import.
 #!/usr/bin/env node
 import {$} from 'zx'
 await $`date`
+```
+
+### Passing env variables
+
+```js
+process.env.FOO = 'bar'
+await $`echo $FOO`
 ```
 
 ### Executing remote scripts

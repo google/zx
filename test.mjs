@@ -68,3 +68,8 @@ function assert(cond, msg) {
   }
   assert(p.exitCode === 1)
 }
+
+{
+  process.env.FOO = 'hi; exit 1'
+  await $`echo $FOO`
+}
