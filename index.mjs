@@ -116,8 +116,11 @@ export async function question(query, options) {
 
 export async function fetch(url, init) {
   if ($.verbose) {
-    if (typeof init !== 'undefined') console.log('$', colorize(`fetch ${url}`), init)
-    else console.log('$', colorize(`fetch ${url}`))
+    if (typeof init !== 'undefined') {
+      console.log('$', colorize(`fetch ${url}`), init)
+    } else {
+      console.log('$', colorize(`fetch ${url}`))
+    }
   }
   return nodeFetch(url, init)
 }
