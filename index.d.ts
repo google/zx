@@ -23,8 +23,6 @@ export const $: $
 
 export function cd(path: string)
 
-export function test(cmd: string): boolean
-
 type QuestionOptions = { choices: string[] }
 
 export function question(query: string, options?: QuestionOptions): Promise<string>

@@ -107,24 +107,6 @@ cd('/tmp')
 await $`pwd` // outputs /tmp 
 ```
 
-### `test()`
-
-Executes `test` command using `execSync` and returns `true` or `false`.
-
-```js
-if (test('-f package.json')) {
-  console.log('Yes')
-}
-```
-
-This is equivalent of next bash code:
-
-```bash
-if test -f package.json; then
-  echo Yes;
-fi
-```
-
 ### `fetch()`
 
 This is a wrapper around [node-fetch](https://www.npmjs.com/package/node-fetch) package.

@@ -18,13 +18,12 @@ import {join, basename} from 'path'
 import os, {tmpdir} from 'os'
 import {promises as fs} from 'fs'
 import {v4 as uuid} from 'uuid'
-import {$, test, cd, question, fetch, chalk, ProcessOutput} from './index.mjs'
+import {$, cd, question, fetch, chalk, ProcessOutput} from './index.mjs'
 import {version} from './version.js'
 
 Object.assign(global, {
   $,
   cd,
-  test,
   fetch,
   question,
   chalk,

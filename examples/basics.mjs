@@ -19,6 +19,4 @@ await $`ls -1 | wc -l`
 let branch = await $`git branch --show-current`
 await $`printf ${branch} | wc`
 
-if (test('-f package.json')) {
-  console.log('Yes')
-}
+await $`test -f package.json`

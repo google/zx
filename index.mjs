@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {existsSync} from 'fs'
-import {exec, execSync} from 'child_process'
+import {exec} from 'child_process'
 import {promisify} from 'util'
 import {createInterface} from 'readline'
 import {default as nodeFetch} from 'node-fetch'
@@ -82,16 +82,6 @@ export function cd(path) {
     process.exit(1)
   }
   $.cwd = path
-}
-
-export function test(cmd) {
-  if ($.verbose) console.log('$', colorize(`test ${cmd}`))
-  try {
-    execSync(`test ${cmd}`)
-    return true
-  } catch (e) {
-    return false
-  }
 }
 
 export async function question(query, options) {
