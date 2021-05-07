@@ -195,6 +195,18 @@ Specifies what shell is used. Default is `/bin/sh`.
 $.shell = '/bin/bash'
 ```
 
+### `$.quote`
+
+Specifies the function used to quote a string argument. The default is suitable
+for all POSIX-compatible shells, but other shells require a redefinition.
+
+```js
+$.shell = '/bin/fish'
+$.quote = function (arg) {
+  return arg.replace(/\\/g, '\\\\').replace(/\'/g, '\\\'')
+}
+```
+
 ### `$.verbose`
 
 Specifies verbosity. Default: `true`.

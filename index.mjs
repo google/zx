@@ -34,10 +34,14 @@ function substitute(arg) {
   return arg
 }
 
+function quote_sh(arg) {
+  return `'${arg.replace(/'/g, "'\\''")}'`;
+}
+
 export function $(pieces, ...args) {
   let __from = (new Error().stack.split('at ')[2]).trim()
   let cmd = pieces[0], i = 0
-  for (; i < args.length; i++) cmd += substitute(args[i]) + pieces[i + 1]
+  for (; i < args.length; i++) cmd += $.quote(substitute(args[i])) + pieces[i + 1]
   for (++i; i < pieces.length; i++) cmd += pieces[i]
 
   if ($.verbose) console.log('$', colorize(cmd))
@@ -71,6 +75,7 @@ export function $(pieces, ...args) {
 $.verbose = true
 $.shell = undefined
 $.cwd = undefined
+$.quote = quote_sh
 
 export function cd(path) {
   if ($.verbose) console.log('$', colorize(`cd ${path}`))

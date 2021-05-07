@@ -20,3 +20,6 @@ await Promise.all([
   $`sleep 2; echo 2`,
   $`sleep 3; echo 3`,
 ])
+
+let deviously_hidden_code = 'hello; exit 1'
+await $`echo ${deviously_hidden_code}`
