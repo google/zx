@@ -23,7 +23,7 @@ people usually choose a more convenient programming language.
 JavaScript is a perfect choice, but standard Node.js library 
 requires additional hassle before using. `zx` package provides
 useful wrappers around `child_process`, escapes arguments and 
-gives sensible defaults like `set -o pipefail`.
+gives sensible defaults.
 
 ## Install
 
