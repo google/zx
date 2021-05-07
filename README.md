@@ -14,14 +14,16 @@ await Promise.all([
   $`sleep 3; echo 3`,
 ])
 
-await $`ssh medv.io uptime`
+let name = 'foo bar'
+await $`mkdir /tmp/${name}`
 ```
 
 Bash is great, but when it comes to writing scripts, 
 people usually choose a more convenient programming language.
 JavaScript is a perfect choice, but standard Node.js library 
 requires additional hassle before using. `zx` package provides
-useful wrappers around `child_process` and gives sensible defaults. 
+useful wrappers around `child_process`, escapes arguments and 
+gives sensible defaults like `set -o pipefail`.
 
 ## Install
 

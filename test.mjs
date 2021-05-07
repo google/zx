@@ -12,11 +12,59 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-let foo = await $`echo Error >&2; echo Hello`
-await $`echo ${foo} | wc`
+function assert(cond, msg) {
+  if (cond) return
+  console.error('Assertion failed')
+  if (msg) console.error(msg)
+  process.exit(1)
 
-await Promise.all([
-  $`sleep 1; echo 1`,
-  $`sleep 2; echo 2`,
-  $`sleep 3; echo 3`,
-])
+}
+
+{
+  let hello = await $`echo Error >&2; echo Hello`
+  let len = parseInt(await $`echo ${hello} | wc -c`)
+  assert(len === 6)
+}
+
+{
+  process.env.FOO = 'foo'
+  let foo = await $`echo $FOO`
+  assert(foo.stdout === 'foo\n')
+}
+
+{
+  let greeting = `"quota'" & pwd`
+  let {stdout} = await $`echo ${greeting}`
+  assert(stdout === greeting + '\n')
+}
+
+{
+  let foo = 'hi; ls'
+  let len = parseInt(await $`echo ${foo} | wc -l`)
+  assert(len === 1)
+}
+
+{
+  let bar = 'bar"";baz!$#^$\'&*~*%)({}||\\/'
+  assert((await $`echo ${bar}`).stdout.trim() === bar)
+}
+
+{
+  let name = 'foo bar'
+  try {
+    await $`mkdir /tmp/${name}`
+  } finally {
+    await fs.rmdir('/tmp/' + name)
+  }
+}
+
+{
+  let p
+  try {
+    p = await $`cat /dev/not_found | sort`
+  } catch (e) {
+    console.log('Caught an exception -> ok')
+    p = e
+  }
+  assert(p.exitCode === 1)
+}
