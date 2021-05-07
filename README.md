@@ -18,7 +18,7 @@ await $`ssh medv.io uptime`
 ```
 
 Bash is great, but when it comes to writing scripts, 
-people usually choose a more convenient programming languages.
+people usually choose a more convenient programming language.
 JavaScript is a perfect choice, but standard Node.js library 
 requires additional hassle before using. `zx` package provides
 useful wrappers around `child_process` and gives sensible defaults. 
