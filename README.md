@@ -32,7 +32,7 @@ npm i -g zx
 ## Documentation
 
 Write your scripts in a file with `.mjs` extension in order to 
-be able to use `await` on top level. In you prefer `.js` extension,
+be able to use `await` on top level. If you prefer `.js` extension,
 wrap your script in something like `void async function () {...}()`.
 
 Add next shebang at the beginning of your script:
