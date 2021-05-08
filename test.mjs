@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+let FAILS = 0
 function assert(cond, msg) {
   if (cond) return
   console.error('Assertion failed')
   if (msg) console.error(msg)
-  process.exit(1)
-
+  FAILS += 1
 }
 
 {
@@ -73,3 +73,6 @@ function assert(cond, msg) {
   process.env.FOO = 'hi; exit 1'
   await $`echo $FOO`
 }
+
+if (FAILS > 0)
+  process.exit(1)
