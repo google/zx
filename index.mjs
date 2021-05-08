@@ -70,7 +70,7 @@ export function $(pieces, ...args) {
 }
 
 $.verbose = true
-$.shell = '/bin/bash'
+$.shell = child_process.execSync('which bash', { encoding: 'utf8' }).trim()
 $.cwd = undefined
 
 export function cd(path) {
