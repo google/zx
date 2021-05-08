@@ -14,7 +14,6 @@
 
 import {existsSync} from 'fs'
 import {exec, execSync} from 'child_process'
-import {promisify} from 'util'
 import {createInterface} from 'readline'
 import {default as nodeFetch} from 'node-fetch'
 import chalk from 'chalk'
@@ -103,7 +102,7 @@ export async function question(query, options) {
     output: process.stdout,
     completer,
   })
-  const question = promisify(rl.question).bind(rl)
+  const question = (q) => new Promise((resolve) => rl.question(q, resolve));
   let answer = await question(query)
   rl.close()
   return answer
