@@ -54,8 +54,8 @@ Or via `zx` bin:
 zx ./script.mjs
 ```
 
-Then using `zx` bin or via shebang, all `$`, `cd`, `fetch`, etc 
-available without imports.
+When using `zx` via bin or shebang, all `$`, `cd`, `fetch`, etc 
+are available without imports.
 
 ### ``$`command` ``
 
