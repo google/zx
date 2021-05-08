@@ -18,7 +18,7 @@ import {promisify} from 'util'
 import {createInterface} from 'readline'
 import {default as nodeFetch} from 'node-fetch'
 import chalk from 'chalk'
-import {default as escape} from 'shq'
+import shq from 'shq'
 
 export {chalk}
 
@@ -38,7 +38,7 @@ function substitute(arg) {
 export function $(pieces, ...args) {
   let __from = (new Error().stack.split('at ')[2]).trim()
   let cmd = pieces[0], i = 0
-  while (i < args.length) cmd += escape(substitute(args[i])) + pieces[++i]
+  while (i < args.length) cmd += $.quote(substitute(args[i])) + pieces[++i]
 
   if ($.verbose) console.log('$', colorize(cmd))
 
@@ -49,7 +49,7 @@ export function $(pieces, ...args) {
     if (typeof $.shell !== 'undefined') options.shell = $.shell
     if (typeof $.cwd !== 'undefined') options.cwd = $.cwd
 
-    let child = exec('set -euo pipefail;' + cmd, options)
+    let child = exec($.prefix + cmd, options)
     let stdout = '', stderr = '', combined = ''
     child.stdout.on('data', data => {
       if ($.verbose) process.stdout.write(data)
@@ -74,6 +74,8 @@ $.verbose = true
 // Try `which`, should cover most other cases.
 // Try `type` command, if the rest fails.
 $.shell = `${execSync('command -v bash || which bash || type -p bash')}`.trim()
+$.prefix = 'set -euo pipefail;'
+$.quote = shq
 $.cwd = undefined
 
 export function cd(path) {

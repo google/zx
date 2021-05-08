@@ -179,6 +179,17 @@ Specifies what shell is used. Default is `which bash`.
 $.shell = '/usr/bin/bash'
 ```
 
+### `$.prefix`
+
+Specifies command what will be added to all command. Default is 
+`set -euo pipefail;`.
+
+### `$.quote`
+
+Specifies a function what will be used for escaping special characters in 
+command substitution. Default is [shq](https://www.npmjs.com/package/shq) 
+package.
+
 ### `$.verbose`
 
 Specifies verbosity. Default: `true`.
