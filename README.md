@@ -173,7 +173,7 @@ await $`cd ${os.homedir()} && mkdir example`
 
 ### `$.shell`
 
-Specifies what shell is used. Default is `/bin/bash`.
+Specifies what shell is used. Default is `which bash`.
 
 ```js
 $.shell = '/usr/bin/bash'

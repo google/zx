@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {existsSync} from 'fs'
-import {exec} from 'child_process'
+import {exec, execSync} from 'child_process'
 import {promisify} from 'util'
 import {createInterface} from 'readline'
 import {default as nodeFetch} from 'node-fetch'
@@ -70,7 +70,10 @@ export function $(pieces, ...args) {
 }
 
 $.verbose = true
-$.shell = '/bin/bash'
+// Try `command`, should cover all Bourne-like shells.
+// Try `which`, should cover most other cases.
+// Try `type` command, if the rest fails.
+$.shell = `${execSync('command -v bash || which bash || type -p bash')}`.trim()
 $.cwd = undefined
 
 export function cd(path) {
