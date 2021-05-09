@@ -21,7 +21,8 @@
   },
   "files": [
     "*.mjs",
-    "*.js"
+    "*.js",
+    "*.d.ts"
   ],
   "repository": "google/zx",
   "author": "Anton Medvedev <anton@medv.io>",
