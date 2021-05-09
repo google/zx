@@ -21,7 +21,10 @@ import {v4 as uuid} from 'uuid'
 import {$, cd, question, fetch, chalk, ProcessOutput} from './index.mjs'
 import {version} from './version.js'
 
-Object.assign(global, {
+const {assign, entries, values, keys} = Object
+const {parse, stringify} = JSON
+
+assign(global, {
   $,
   cd,
   fetch,
@@ -29,6 +32,12 @@ Object.assign(global, {
   chalk,
   fs,
   os,
+  assign,
+  entries,
+  values,
+  keys,
+  parse,
+  stringify,
 })
 
 try {

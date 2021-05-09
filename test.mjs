@@ -64,6 +64,23 @@ import {strict as assert} from 'assert'
 }
 
 {
+  let obj = {foo: 1, bar: 2}
+  assign(obj, {xyz: 3})
+  assert(obj.xyz === 3)
+  let e = entries(obj)
+  assert(e[2].length === 2)
+  assert(e.length === 3)
+  let v = values(obj)
+  assert(v.length === 3)
+  let k = keys(obj)
+  assert(k.length === 3)
+  let s = stringify(obj)
+  assert(s === JSON.stringify(obj))
+  let p = parse(s)
+  assert(obj.foo === p.foo)
+}
+
+{
   process.env.FOO = 'hi; exit 1'
   await $`echo $FOO`
 }

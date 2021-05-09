@@ -87,6 +87,15 @@ try {
 }
 ```
 
+### Object and JSON globals
+
+The following utilities are deestructured and made available globally:
+
+```js
+const {assign, entries, values, keys} = Object
+const {parse, stringify} = JSON
+```
+
 ### `ProcessOutput`
 
 ```ts
