@@ -162,7 +162,7 @@ import {promises as fs} from 'fs'
 
 ### `readJSON` convenience
 
-This is a convenience function that runs `JSON.parse(await fs.readFile(path, utf8))`:
+This is a convenience function that runs `JSON.parse(await fs.readFile(path, 'utf8'))`:
 
 ```js
 let obj = await readJSON('./package.json')
