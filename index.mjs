@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {existsSync} from 'fs'
+import {existsSync, promises as fs} from 'fs'
 import {exec, execSync} from 'child_process'
 import {createInterface} from 'readline'
 import {default as nodeFetch} from 'node-fetch'
@@ -106,6 +106,11 @@ export async function question(query, options) {
   let answer = await question(query)
   rl.close()
   return answer
+}
+
+export async function readJSON(path) {
+  const json = await fs.readFile(path, 'utf8')
+  return JSON.stringify(json)
 }
 
 export async function fetch(url, init) {
