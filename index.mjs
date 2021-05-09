@@ -110,7 +110,7 @@ export async function question(query, options) {
 
 export async function readJSON(path) {
   const json = await fs.readFile(path, 'utf8')
-  return JSON.stringify(json)
+  return JSON.parse(json)
 }
 
 export async function fetch(url, init) {

@@ -29,6 +29,7 @@ Object.assign(global, {
   chalk,
   fs,
   os,
+  readJSON,
 })
 
 try {

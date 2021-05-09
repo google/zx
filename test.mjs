@@ -68,4 +68,9 @@ import {strict as assert} from 'assert'
   await $`echo $FOO`
 }
 
+{
+  let pkg = await readJSON('package.json')
+  assert(pkg.name === 'zx')
+}
+
 console.log(chalk.green('🍺 Success!'))
