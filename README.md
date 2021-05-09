@@ -136,8 +136,6 @@ let token = await question('Choose env variable: ', {
 })
 ```
 
-
-
 ### `chalk` package
 
 The [chalk](https://www.npmjs.com/package/chalk) package available without 
@@ -160,6 +158,14 @@ Promisified version imported by default. Same as if you write:
 
 ```js
 import {promises as fs} from 'fs'
+```
+
+### `readJSON` utility
+
+This is atility function that runs `JSON.parse(await fs.readFile(path, utf8))`:
+
+```js
+let obj = await readJSON('./package.json')
 ```
 
 ### `os` package
