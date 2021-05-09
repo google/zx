@@ -160,9 +160,9 @@ Promisified version imported by default. Same as if you write:
 import {promises as fs} from 'fs'
 ```
 
-### `readJSON` utility
+### `readJSON` convenience
 
-This is atility function that runs `JSON.parse(await fs.readFile(path, utf8))`:
+This is a convenience function that runs `JSON.parse(await fs.readFile(path, utf8))`:
 
 ```js
 let obj = await readJSON('./package.json')
