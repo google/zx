@@ -18,6 +18,7 @@ import {createInterface} from 'readline'
 import {default as nodeFetch} from 'node-fetch'
 import chalk from 'chalk'
 import shq from 'shq'
+import which from 'which'
 
 export {chalk}
 
@@ -32,6 +33,14 @@ function substitute(arg) {
     return arg.stdout.replace(/\n$/, '')
   }
   return arg
+}
+
+function whichSyncFallback(cmds) {
+  for (const cmd of cmds) {
+    let result = which.sync(cmd, { nothrow: true })
+    if (result !== null)
+      return result
+  }
 }
 
 export function $(pieces, ...args) {
@@ -69,13 +78,22 @@ export function $(pieces, ...args) {
 }
 
 $.verbose = true
-// Try `command`, should cover all Bourne-like shells.
-// Try `which`, should cover most other cases.
-// Try `type` command, if the rest fails.
-$.shell = `${execSync('command -v bash || which bash || type -p bash')}`.trim()
-$.prefix = 'set -euo pipefail;'
-$.quote = shq
 $.cwd = undefined
+
+$.quote = (s) => s
+$.prefix = ''
+if ($.shell = which.sync('bash', { nothrow: true })) {
+  $.prefix = 'set -euo pipefail;'
+  $.quote = shq
+} else if ($.shell = whichSyncFallback(['pwsh', 'powershell'])) {
+  // Powershell is found on Windows. It has the required support for -c, unlike
+  // cmd.
+  // Prefer 'pwsh', which points to a newer version, for a higher likelihood of
+  // getting "correct" argument passing (PSNativeCommandArgumentPassing).
+  console.warn("Using powershell: no built-in quoting available yet.")
+} else {
+  console.warn("Unknown shell. Falling back to nodejs default. No quoting available.")
+}
 
 export function cd(path) {
   if ($.verbose) console.log('$', colorize(`cd ${path}`))
