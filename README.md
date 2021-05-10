@@ -140,7 +140,7 @@ let token = await question('Choose env variable: ', {
 
 ### `chalk` package
 
-The [chalk](https://www.npmjs.com/package/chalk) package available without 
+The [chalk](https://www.npmjs.com/package/chalk) package is available without 
 importing inside scripts.
 
 ```js
@@ -149,7 +149,7 @@ console.log(chalk.blue('Hello world!'))
 
 ### `fs` package
 
-The [fs](https://nodejs.org/api/fs.html) package available without importing 
+The [fs](https://nodejs.org/api/fs.html) package is available without importing 
 inside scripts.
 
 ```js
@@ -164,7 +164,7 @@ import {promises as fs} from 'fs'
 
 ### `os` package
 
-The [os](https://nodejs.org/api/os.html) package available without importing
+The [os](https://nodejs.org/api/os.html) package is available without importing
 inside scripts.
 
 ```js
