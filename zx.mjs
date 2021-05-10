@@ -48,7 +48,13 @@ try {
   } else if (firstArg.startsWith('http://') || firstArg.startsWith('https://')) {
     await scriptFromHttp(firstArg)
   } else {
-    await import(join(process.cwd(), firstArg))
+    let path
+    if (firstArg.startsWith('/') || firstArg.startsWith('file:///')) {
+      path = firstArg
+    } else {
+      path = join(process.cwd(), firstArg)
+    }
+    await import(path)
   }
 
 } catch (p) {

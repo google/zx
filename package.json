@@ -1,6 +1,6 @@
 {
   "name": "zx",
-  "version": "1.1.0",
+  "version": "1.2.2",
   "description": "A tool for writing better scripts",
   "main": "index.mjs",
   "types": "index.d.ts",
@@ -21,7 +21,8 @@
   },
   "files": [
     "*.mjs",
-    "*.js"
+    "*.js",
+    "*.d.ts"
   ],
   "repository": "google/zx",
   "author": "Anton Medvedev <anton@medv.io>",
