@@ -17,6 +17,7 @@
 import {join, basename} from 'path'
 import os, {tmpdir} from 'os'
 import {promises as fs} from 'fs'
+import {pathToFileURL} from 'url'
 import {v4 as uuid} from 'uuid'
 import {$, cd, question, fetch, chalk, ProcessOutput} from './index.mjs'
 import {version} from './version.js'
@@ -30,6 +31,10 @@ Object.assign(global, {
   fs,
   os,
 })
+
+function urlJoin(...paths) {
+  return pathToFileURL(join(...paths))
+}
 
 try {
   let firstArg = process.argv[2]
@@ -52,7 +57,7 @@ try {
     if (firstArg.startsWith('/') || firstArg.startsWith('file:///')) {
       path = firstArg
     } else {
-      path = join(process.cwd(), firstArg)
+      path = urlJoin(process.cwd(), firstArg)
     }
     await import(path)
   }
@@ -75,7 +80,7 @@ async function scriptFromStdin() {
     }
 
     if (script.length > 0) {
-      let filepath = join(tmpdir(), uuid() + '.mjs')
+      let filepath = urlJoin(tmpdir(), uuid() + '.mjs')
       await writeAndImport(filepath, script)
       return true
     }
@@ -90,7 +95,7 @@ async function scriptFromHttp(firstArg) {
     process.exit(1)
   }
   let script = await res.text()
-  let filepath = join(tmpdir(), basename(firstArg))
+  let filepath = urlJoin(tmpdir(), basename(firstArg))
   await writeAndImport(filepath, script)
 }
 
