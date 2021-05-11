@@ -13,9 +13,10 @@
 // limitations under the License.
 
 import {existsSync} from 'fs'
-import {exec, execSync} from 'child_process'
+import {exec} from 'child_process'
 import {createInterface} from 'readline'
 import {default as nodeFetch} from 'node-fetch'
+import which from 'which'
 import chalk from 'chalk'
 import shq from 'shq'
 
@@ -72,7 +73,7 @@ $.verbose = true
 // Try `command`, should cover all Bourne-like shells.
 // Try `which`, should cover most other cases.
 // Try `type` command, if the rest fails.
-$.shell = `${execSync('command -v bash || which bash || type -p bash')}`.trim()
+$.shell = which.sync('bash', {nothrow: true})
 $.prefix = 'set -euo pipefail;'
 $.quote = shq
 $.cwd = undefined
