@@ -14,6 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
 await $`ls -1 | wc -l`
 
 let branch = await $`git branch --show-current`
