@@ -2,33 +2,40 @@
   "name": "zx",
   "version": "1.4.0",
   "description": "A tool for writing better scripts",
-  "main": "index.mjs",
-  "types": "index.d.ts",
-  "bin": {
-    "zx": "zx.mjs"
+  "repository": "google/zx",
+  "license": "Apache-2.0",
+  "author": "Anton Medvedev <anton@medv.io>",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs"
+    },
+    "./zx": {
+      "import": "./dist/zx.mjs"
+    }
   },
-  "engines": {
-    "node": ">= 14.8.0"
-  },
+  "files": [
+    "dist",
+    "*.d.ts"
+  ],
   "scripts": {
-    "test": "node zx.mjs test.mjs"
+    "prepack": "rollup -c",
+    "test": "rollup -c && node ./dist/zx.mjs test.mjs"
   },
-  "dependencies": {
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^19.0.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^13.0.0",
     "chalk": "^4.1.1",
     "node-fetch": "^2.6.1",
+    "rollup": "^2.47.0",
     "shq": "^1.0.2",
     "uuid": "^8.3.2",
     "which": "^2.0.2"
   },
+  "engines": {
+    "node": ">= 14.8.0"
+  },
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"
-  },
-  "files": [
-    "*.mjs",
-    "*.js",
-    "*.d.ts"
-  ],
-  "repository": "google/zx",
-  "author": "Anton Medvedev <anton@medv.io>",
-  "license": "Apache-2.0"
+  }
 }
