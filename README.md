@@ -30,6 +30,7 @@ gives sensible defaults.
 ```bash
 npm i -g zx
 ```
+_zx is only compatible with nodejs >=14.8_
 
 ## Documentation
 
