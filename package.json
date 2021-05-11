@@ -8,7 +8,7 @@
     "zx": "zx.mjs"
   },
   "engines": {
-    "node": ">= 12.12.0"
+    "node": ">= 14.8.0"
   },
   "scripts": {
     "test": "node zx.mjs test.mjs"
