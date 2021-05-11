@@ -1,6 +1,6 @@
 {
   "name": "zx",
-  "version": "1.2.2",
+  "version": "1.3.0",
   "description": "A tool for writing better scripts",
   "main": "index.mjs",
   "types": "index.d.ts",
