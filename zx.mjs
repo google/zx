@@ -17,6 +17,7 @@
 import {join, basename} from 'path'
 import os, {tmpdir} from 'os'
 import {promises as fs} from 'fs'
+import url from 'url'
 import {v4 as uuid} from 'uuid'
 import {$, cd, question, fetch, chalk, ProcessOutput} from './index.mjs'
 import {version} from './version.js'
@@ -54,7 +55,7 @@ try {
     } else {
       path = join(process.cwd(), firstArg)
     }
-    await import(path)
+    await import(url.pathToFileURL(path))
   }
 
 } catch (p) {
@@ -98,7 +99,7 @@ async function writeAndImport(filepath, script) {
   await fs.mkdtemp(filepath)
   try {
     await fs.writeFile(filepath, script)
-    await import(filepath)
+    await import(url.pathToFileURL(filepath))
   } finally {
     await fs.rm(filepath)
   }
