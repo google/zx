@@ -70,11 +70,13 @@ export function $(pieces, ...args) {
 }
 
 $.verbose = true
-// Try `command`, should cover all Bourne-like shells.
-// Try `which`, should cover most other cases.
-// Try `type` command, if the rest fails.
-$.shell = which.sync('bash', {nothrow: true})
-$.prefix = 'set -euo pipefail;'
+try {
+  $.shell = await which('bash')
+  $.prefix = 'set -euo pipefail;'
+} catch (e) {
+  // Bash not found, no prefix.
+  $.prefix = ''
+}
 $.quote = shq
 $.cwd = undefined
 
