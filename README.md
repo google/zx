@@ -124,7 +124,7 @@ This is a wrapper around [readline](https://nodejs.org/api/readline.html) packag
 ```ts
 type QuestionOptions = { choices: string[] }
 
-function question(query: string, options?: QuestionOptions): Promise<string>
+function question(query?: string, options?: QuestionOptions): Promise<string>
 ```
 
 Usage:
