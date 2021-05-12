@@ -76,6 +76,7 @@ try {
 } catch (e) {
   // Bash not found, no prefix.
   $.prefix = ''
+  console.warn("Bash not found, using nodejs default. Quoting is now unreliable.")
 }
 $.quote = shq
 $.cwd = undefined
