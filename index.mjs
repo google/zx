@@ -105,7 +105,7 @@ export async function question(query, options) {
     output: process.stdout,
     completer,
   })
-  const question = (q) => new Promise((resolve) => rl.question(q, resolve))
+  const question = (q) => new Promise((resolve) => rl.question(q ?? '', resolve))
   let answer = await question(query)
   rl.close()
   return answer
