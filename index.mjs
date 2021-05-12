@@ -85,11 +85,6 @@ $.prefix = ''
 if ($.shell = which.sync('bash', { nothrow: true })) {
   $.prefix = 'set -euo pipefail;'
   $.quote = shq
-} else if ($.shell = whichSyncFallback(['pwsh', 'powershell'])) {
-  // Powershell is found on Windows, and is its "modern" shell of choice.
-  // Prefer 'pwsh', which points to a newer version, for a higher likelihood of
-  // getting "correct" argument passing (PSNativeCommandArgumentPassing).
-  console.warn("Using powershell: no built-in quoting available yet.")
 } else {
   console.warn("Unknown shell. Falling back to nodejs default. No quoting available.")
 }
