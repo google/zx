@@ -68,4 +68,8 @@ import {strict as assert} from 'assert'
   await $`echo $FOO`
 }
 
+{
+  console.log(__filename, __dirname)
+}
+
 console.log(chalk.green('🍺 Success!'))

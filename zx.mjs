@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {join, basename} from 'path'
+import {join, basename, resolve, dirname} from 'path'
 import os, {tmpdir} from 'os'
 import {promises as fs} from 'fs'
 import url from 'url'
@@ -55,7 +55,7 @@ try {
     } else {
       path = join(process.cwd(), firstArg)
     }
-    await import(url.pathToFileURL(path))
+    await importPath(path)
   }
 
 } catch (p) {
@@ -103,4 +103,11 @@ async function writeAndImport(filepath, script) {
   } finally {
     await fs.rm(filepath)
   }
+}
+
+async function importPath(filepath) {
+  let __filename = resolve(filepath)
+  let __dirname = dirname(__filename)
+  Object.assign(global, {__filename, __dirname})
+  await import(url.pathToFileURL(filepath))
 }

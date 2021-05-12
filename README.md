@@ -200,6 +200,13 @@ Specifies verbosity. Default: `true`.
 In verbose mode prints executed commands with outputs of it. Same as 
 `set -x` in bash.
 
+### `__filename` & `__dirname`
+
+In [ESM](https://nodejs.org/api/esm.html) modules, Node.js does not provide
+`__filename` and `__dirname` globals. As such globals really handy in scripts,
+`zx` provides such globals, so they can be used in `.mjs` files (via using `zx`
+binary).
+
 ### Importing from other scripts
 
 It's possible to use `$` and others with explicit import.
