@@ -164,7 +164,7 @@ console.log(chalk.blue('Hello world!'))
 ### `fs` package
 
 The [fs](https://nodejs.org/api/fs.html) package is available without importing 
-inside scripts. It is asyncronous by default.
+inside scripts. It is asynchronous by default.
 
 ```js
 let content = await fs.readFile('./package.json')
@@ -198,14 +198,14 @@ Default is `set -euo pipefail;`.
 Specifies a function what will be used for escaping special characters during 
 command substitution.
 
-Default is the [shq](https://www.npmjs.com/package/shq)  package.
+Default is the [shq](https://www.npmjs.com/package/shq) package.
 
 ### `$.verbose`
 
 Specifies verbosity. Default is `true`.
 
-Verbose mode prints all executed commands along with their outputs.
-The is the same as using `set -x` in Bash.
+In verbose mode, the `zx` prints all executed commands alongside with their outputs.
+This is the same as using `set -x` in Bash.
 
 ### `__filename` & `__dirname`
 
@@ -215,8 +215,10 @@ In [ESM](https://nodejs.org/api/esm.html) modules, Node.js does not provide
 
 ### `require()`
 
-In [ESM](https://nodejs.org/api/modules.html#modules_module_createrequire_filename) `require` is not defined.
-The `zx` provides `require` function so it can be used with imports in `.mjs` files (when using `zx` executable).
+In [ESM](https://nodejs.org/api/modules.html#modules_module_createrequire_filename)
+modules, the `require()` function is not defined.
+The `zx` provides `require()` function, so it can be used with imports in `.mjs`
+files (when using `zx` executable).
 
 ```js
 let {version} = require('./package.json')
@@ -241,7 +243,8 @@ await $`echo $FOO`
 
 ### Executing remote scripts
 
-If the argument to the `zx` executable starts with `https://`, the file will be downloaded and executed.
+If the argument to the `zx` executable starts with `https://`, the file will be 
+downloaded and executed.
 
 ```bash
 zx https://medv.io/example-script.mjs
