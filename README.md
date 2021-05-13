@@ -138,6 +138,20 @@ let token = await question('Choose env variable: ', {
 })
 ```
 
+### `sleep()`
+
+A wrapper around the `setTimeout` function.
+
+```ts
+function sleep(ms: number): Promise<void>
+```
+
+Usage:
+
+```js
+await sleep(1000)
+```
+
 ### `chalk` package
 
 The [chalk](https://www.npmjs.com/package/chalk) package is available without 
