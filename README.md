@@ -21,8 +21,8 @@ await $`mkdir /tmp/${name}`
 Bash is great, but when it comes to writing scripts, 
 people usually choose a more convenient programming language.
 JavaScript is a perfect choice, but standard Node.js library 
-requires additional hassle before using. `zx` package provides
-useful wrappers around `child_process`, escapes arguments and 
+requires additional hassle before using. The `zx` package provides
+useful wrappers around `child_process`, escapes arguments and
 gives sensible defaults.
 
 ## Install
@@ -34,40 +34,40 @@ npm i -g zx
 ## Documentation
 
 Write your scripts in a file with `.mjs` extension in order to 
-be able to use `await` on top level. If you prefer `.js` extension,
-wrap your script in something like `void async function () {...}()`.
+be able to use `await` on top level. If you prefer the `.js` extension,
+wrap your scripts in something like `void async function () {...}()`.
 
-Add next shebang at the beginning of your script:
+Add the following shebang to the beginning of your `zx` scripts:
 ```bash
 #!/usr/bin/env zx
 ```
 
-Now you will be able to run your script as:
+Now you will be able to run your script like so:
 ```bash
 chmod +x ./script.mjs
 ./script.mjs
 ```
 
-Or via `zx` bin:
+Or via the `zx` executable:
 
 ```bash
 zx ./script.mjs
 ```
 
-When using `zx` via bin or shebang, all `$`, `cd`, `fetch`, etc 
-are available without imports.
+When using `zx` via the executable or a shebang, all of the functions
+(`$`, `cd`, `fetch`, etc) are available straight away without any imports.
 
 ### ``$`command` ``
 
-Executes given string using `exec` function
-from `child_process` package and returns `Promise<ProcessOutput>`.
+Executes a given string using the `exec` function from the
+`child_process` package and returns `Promise<ProcessOutput>`.
 
 ```js
 let count = parseInt(await $`ls -1 | wc -l`)
 console.log(`Files count: ${count}`)
 ```
 
-Example. Upload files in parallel:
+For example, to upload files in parallel:
 
 ```js
 let hosts = [...]
@@ -76,7 +76,8 @@ await Promise.all(hosts.map(host =>
 ))
 ```
 
-If executed program returns non-zero exit code, `ProcessOutput` will be thrown.
+If the executed program returns a non-zero exit code,
+`ProcessOutput` will be thrown.
 
 ```js
 try {
@@ -100,16 +101,17 @@ class ProcessOutput {
 
 ### `cd()`
 
-Changes working directory.
+Changes the current working directory.
 
 ```js
 cd('/tmp')
-await $`pwd` // outputs /tmp 
+await $`pwd` // outputs /tmp
 ```
 
 ### `fetch()`
 
-This is a wrapper around [node-fetch](https://www.npmjs.com/package/node-fetch) package.
+A wrapper around the [node-fetch](https://www.npmjs.com/package/node-fetch) package.
+
 ```js
 let resp = await fetch('http://wttr.in')
 if (resp.ok) {
@@ -119,7 +121,7 @@ if (resp.ok) {
 
 ### `question()`
 
-This is a wrapper around [readline](https://nodejs.org/api/readline.html) package.
+A wrapper around the [readline](https://nodejs.org/api/readline.html) package.
 
 ```ts
 type QuestionOptions = { choices: string[] }
@@ -138,7 +140,7 @@ let token = await question('Choose env variable: ', {
 
 ### `sleep()`
 
-This is a wrapper around setTimeout.
+A wrapper around the `setTimeout` function.
 
 ```ts
 function sleep(ms: number): Promise<void>
@@ -162,16 +164,10 @@ console.log(chalk.blue('Hello world!'))
 ### `fs` package
 
 The [fs](https://nodejs.org/api/fs.html) package is available without importing 
-inside scripts.
+inside scripts. It is asyncronous by default.
 
 ```js
 let content = await fs.readFile('./package.json')
-```
-
-Promisified version imported by default. Same as if you write: 
-
-```js
-import {promises as fs} from 'fs'
 ```
 
 ### `os` package
@@ -193,35 +189,33 @@ $.shell = '/usr/bin/bash'
 
 ### `$.prefix`
 
-Specifies command what will be added to all command. 
+Specifies the command what will be prefixed to all commands run.
 
 Default is `set -euo pipefail;`.
 
 ### `$.quote`
 
-Specifies a function what will be used for escaping special characters in 
-command substitution. 
+Specifies a function what will be used for escaping special characters during 
+command substitution.
 
-Default is [shq](https://www.npmjs.com/package/shq) 
-package.
+Default is the [shq](https://www.npmjs.com/package/shq)  package.
 
 ### `$.verbose`
 
-Specifies verbosity. Default: `true`.
+Specifies verbosity. Default is `true`.
 
-In verbose mode prints executed commands with outputs of it. Same as 
-`set -x` in bash.
+Verbose mode prints all executed commands along with their outputs.
+The is the same as using `set -x` in Bash.
 
 ### `__filename` & `__dirname`
 
 In [ESM](https://nodejs.org/api/esm.html) modules, Node.js does not provide
 `__filename` and `__dirname` globals. As such globals are really handy in scripts,
-`zx` provides such globals, so they can be used in `.mjs` files (via using `zx`
-binary).
+`zx` provides these for use in `.mjs` files (when using the `zx` executable).
 
 ### Importing from other scripts
 
-It's possible to use `$` and others with explicit import.
+It is possible to make use of `$` and other functions via explicit imports:
 
 ```js
 #!/usr/bin/env node
@@ -238,7 +232,7 @@ await $`echo $FOO`
 
 ### Executing remote scripts
 
-If arg to `zx` bin starts with `https://`, it will be downloaded and executed.
+If the argument to the `zx` executable starts with `https://`, the file will be downloaded and executed.
 
 ```bash
 zx https://medv.io/example-script.mjs
