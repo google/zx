@@ -207,6 +207,14 @@ In [ESM](https://nodejs.org/api/esm.html) modules, Node.js does not provide
 `zx` provides such globals, so they can be used in `.mjs` files (via using `zx`
 binary).
 
+### `require`
+
+In [ESM](https://nodejs.org/api/modules.html#modules_module_createrequire_filename) `require` is not defined,
+but sometimes it's convenient to have this legacy api in global.
+```js
+require('./version.js')
+```
+
 ### Importing from other scripts
 
 It's possible to use `$` and others with explicit import.

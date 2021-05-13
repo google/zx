@@ -17,6 +17,7 @@
 import {join, basename, resolve, dirname} from 'path'
 import os, {tmpdir} from 'os'
 import {promises as fs} from 'fs'
+import { createRequire } from 'module'
 import url from 'url'
 import {v4 as uuid} from 'uuid'
 import {$, cd, question, fetch, chalk, ProcessOutput} from './index.mjs'
@@ -30,6 +31,7 @@ Object.assign(global, {
   chalk,
   fs,
   os,
+  require: createRequire(import.meta.url)
 })
 
 try {

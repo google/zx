@@ -72,4 +72,8 @@ import {strict as assert} from 'assert'
   console.log(__filename, __dirname)
 }
 
+{
+  console.log('require("./version.js") =', require('./version.js'))
+}
+
 console.log(chalk.green('🍺 Success!'))
