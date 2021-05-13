@@ -33,7 +33,7 @@ function substitute(arg) {
   if (arg instanceof ProcessOutput) {
     return arg.stdout.replace(/\n$/, '')
   }
-  return arg
+  return arg.toString()
 }
 
 export function $(pieces, ...args) {
