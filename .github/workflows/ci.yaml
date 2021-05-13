@@ -1,0 +1,49 @@
+# This is a Github Workflow that runs tests on any push or pull request.
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
+      - name: npm install
+        run: npm i
+
+      - name: Run unit tests
+        run: npm test
+
+  test_pr:
+    if: github.event_name == 'pull_request'
+    strategy:
+      matrix:
+        os: [ ubuntu-20.04 ] # TODO add windows-2019
+        node-version: [ 14, 16 ]
+
+    name: Test (Node.js v${{ matrix.node-version }}, OS ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: npm install
+        run: npm i
+
+      - name: Run unit tests
+        run: npm test
