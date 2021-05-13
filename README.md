@@ -136,7 +136,19 @@ let token = await question('Choose env variable: ', {
 })
 ```
 
+### `sleep()`
 
+This is a wrapper around setTimeout.
+
+```ts
+function sleep(ms: number): Promise<void>
+```
+
+Usage:
+
+```js
+await sleep(1000)
+```
 
 ### `chalk` package
 
