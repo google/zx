@@ -21,7 +21,6 @@ import { createRequire } from 'module'
 import url from 'url'
 import {v4 as uuid} from 'uuid'
 import {$, cd, question, fetch, chalk, sleep, ProcessOutput} from './index.mjs'
-import {version} from './version.js'
 
 Object.assign(global, {
   $,
@@ -38,7 +37,7 @@ try {
   let firstArg = process.argv[2]
 
   if (['-v', '-V', '--version'].includes(firstArg)) {
-    console.log(`zx version ${version}`)
+    console.log(`zx version ${createRequire(import.meta.url)('./package.json').version}`)
     process.exit(0)
   }
 

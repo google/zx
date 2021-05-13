@@ -73,9 +73,9 @@ import {strict as assert} from 'assert'
 }
 
 {
-  const versionModule = require('./version.js')
-  console.log('require("./version.js") ->', versionModule)
-  assert(typeof versionModule.version === 'string')
+  const {name, version} = require('./package.json')
+  assert(typeof name === 'string')
+  console.log(chalk.black.bgYellowBright(` ${name} version is ${version} `))
 }
 
-console.log(chalk.green('🍺 Success!'))
+console.log(chalk.greenBright(' 🍺 Success!'))
