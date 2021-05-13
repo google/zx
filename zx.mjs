@@ -19,7 +19,7 @@ import os, {tmpdir} from 'os'
 import {promises as fs} from 'fs'
 import url from 'url'
 import {v4 as uuid} from 'uuid'
-import {$, cd, question, fetch, chalk, ProcessOutput} from './index.mjs'
+import {$, cd, question, fetch, chalk, sleep, ProcessOutput} from './index.mjs'
 import {version} from './version.js'
 
 Object.assign(global, {
@@ -28,6 +28,7 @@ Object.assign(global, {
   fetch,
   question,
   chalk,
+  sleep,
   fs,
   os,
 })
