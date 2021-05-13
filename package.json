@@ -11,7 +11,9 @@
     "node": ">= 14.8.0"
   },
   "scripts": {
-    "test": "node zx.mjs test.mjs"
+    "lint": "eslint examples ./*.mjs",
+    "test": "node zx.mjs test.mjs",
+    "prepare": "husky install"
   },
   "dependencies": {
     "chalk": "^4.1.1",
@@ -19,6 +21,11 @@
     "shq": "^1.0.2",
     "uuid": "^8.3.2",
     "which": "^2.0.2"
+  },
+  "devDependencies": {
+    "eslint": "^7.26.0",
+    "eslint-config-google": "^0.14.0",
+    "husky": "^6.0.0"
   },
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"

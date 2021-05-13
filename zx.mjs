@@ -30,7 +30,7 @@ Object.assign(global, {
   chalk,
   sleep,
   fs,
-  os
+  os,
 })
 
 try {
