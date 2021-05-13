@@ -11,4 +11,3 @@ The danger is still present, in your time, as it was in ours.
 The danger is to the body, and it can kill.
 
 The form of the danger is an emanation of energy.
-
