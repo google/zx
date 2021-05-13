@@ -1,11 +1,11 @@
 // Copyright 2021 Google LLC
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //     https://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -106,7 +106,7 @@ export async function question(query, options) {
   if (Array.isArray(options?.choices)) {
     completer = function completer(line) {
       const completions = options.choices
-      const hits = completions.filter((c) => c.startsWith(line))
+      const hits = completions.filter(c => c.startsWith(line))
       return [hits.length ? hits : completions, line]
     }
   }
@@ -115,7 +115,7 @@ export async function question(query, options) {
     output: process.stdout,
     completer,
   })
-  const question = (q) => new Promise((resolve) => rl.question(q ?? '', resolve))
+  const question = q => new Promise(resolve => rl.question(q ?? '', resolve))
   let answer = await question(query)
   rl.close()
   return answer

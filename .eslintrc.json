@@ -1,7 +1,20 @@
 {
   "extends": "google",
+  "parser": "@babel/eslint-parser",
   "parserOptions": {
+    "babelOptions": {
+      "plugins": ["@babel/plugin-syntax-top-level-await"]
+    },
+    "requireConfigFile": false,
     "ecmaVersion": 2020,
     "sourceType": "module"
+  },
+  "rules": {
+    "semi": "off",
+    "prefer-const": "off",
+    "require-jsdoc": "off",
+    "one-var": "off",
+    "padded-blocks": "off",
+    "arrow-parens": ["error", "as-needed"]
   }
 }

@@ -12,6 +12,7 @@
   },
   "scripts": {
     "lint": "eslint examples ./*.mjs",
+    "lint:fix": "npm run lint -- --fix",
     "test": "node zx.mjs test.mjs",
     "prepare": "husky install"
   },
@@ -23,6 +24,8 @@
     "which": "^2.0.2"
   },
   "devDependencies": {
+    "@babel/eslint-parser": "^7.14.2",
+    "@babel/plugin-syntax-top-level-await": "^7.12.13",
     "eslint": "^7.26.0",
     "eslint-config-google": "^0.14.0",
     "husky": "^6.0.0"
