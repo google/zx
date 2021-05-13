@@ -17,6 +17,7 @@
 import {join, basename, resolve, dirname} from 'path'
 import os, {tmpdir} from 'os'
 import {promises as fs} from 'fs'
+import { createRequire } from 'module'
 import url from 'url'
 import {v4 as uuid} from 'uuid'
 import {$, cd, question, fetch, chalk, sleep, ProcessOutput} from './index.mjs'
@@ -30,7 +31,7 @@ Object.assign(global, {
   chalk,
   sleep,
   fs,
-  os,
+  os
 })
 
 try {
@@ -109,6 +110,7 @@ async function writeAndImport(filepath, script) {
 async function importPath(filepath) {
   let __filename = resolve(filepath)
   let __dirname = dirname(__filename)
-  Object.assign(global, {__filename, __dirname})
+  let require = createRequire(filepath)
+  Object.assign(global, {__filename, __dirname, require})
   await import(url.pathToFileURL(filepath))
 }

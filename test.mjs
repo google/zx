@@ -72,4 +72,10 @@ import {strict as assert} from 'assert'
   console.log(__filename, __dirname)
 }
 
+{
+  const versionModule = require('./version.js')
+  console.log('require("./version.js") ->', versionModule)
+  assert(typeof versionModule.version === 'string')
+}
+
 console.log(chalk.green('🍺 Success!'))

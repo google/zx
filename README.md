@@ -213,6 +213,14 @@ In [ESM](https://nodejs.org/api/esm.html) modules, Node.js does not provide
 `__filename` and `__dirname` globals. As such globals are really handy in scripts,
 `zx` provides these for use in `.mjs` files (when using the `zx` executable).
 
+### `require`
+
+In [ESM](https://nodejs.org/api/modules.html#modules_module_createrequire_filename) `require` is not defined,
+but sometimes it's convenient to have this legacy api in global.
+```js
+require('./version.js')
+```
+
 ### Importing from other scripts
 
 It is possible to make use of `$` and other functions via explicit imports:
