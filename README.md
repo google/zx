@@ -1,7 +1,5 @@
 # 🐚 zx
 
-> Hassle-free CLI scripting
-
 ```js
 #!/usr/bin/env zx
 
