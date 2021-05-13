@@ -123,7 +123,7 @@ export async function fetch(url, init) {
   return nodeFetch(url, init)
 }
 
-export const sleep = promisify(setTimeout);
+export const sleep = promisify(setTimeout)
 
 export class ProcessOutput {
   #code = 0
