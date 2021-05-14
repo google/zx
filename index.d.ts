@@ -25,7 +25,7 @@ export const $: $
 
 export function cd(path: string)
 
-type QuestionOptions = { choices: string[] }
+type QuestionOptions = { choices?: string[], type?: string, default?: string, pageSize?: number, prefix?: string, suffix?: string, loop?: boolean }
 
 export function sleep(ms: number): Promise<void>
 

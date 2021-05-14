@@ -93,23 +93,19 @@ export function cd(path) {
 }
 
 export async function question(query, options) {
-  let completer = undefined
-  if (Array.isArray(options?.choices)) {
-    completer = function completer(line) {
-      const completions = options.choices
-      const hits = completions.filter((c) => c.startsWith(line))
-      return [hits.length ? hits : completions, line]
-    }
-  }
-  const rl = createInterface({
-    input: process.stdin,
-    output: process.stdout,
-    completer,
-  })
-  const question = (q) => new Promise((resolve) => rl.question(q ?? '', resolve))
-  let answer = await question(query)
-  rl.close()
-  return answer
+  const defaultType = options && options.choices.length ? 'rawlist' : 'input';
+  const answers = await inquirer.prompt([
+    {
+      prefix: '',
+      choices: [],
+      type: defaultType,
+      ...options,
+      name: 'question',
+      message: query || '',
+    },
+  ]);
+
+  return answers.question;
 }
 
 export async function fetch(url, init) {

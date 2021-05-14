@@ -124,7 +124,7 @@ if (resp.ok) {
 A wrapper around the [readline](https://nodejs.org/api/readline.html) package.
 
 ```ts
-type QuestionOptions = { choices: string[] }
+type QuestionOptions = { choices: string[], type: string, default: string, pageSize: number, prefix: string, suffix: string, loop: boolean }
 
 function question(query?: string, options?: QuestionOptions): Promise<string>
 ```
