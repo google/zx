@@ -10,7 +10,7 @@
     "sourceType": "module"
   },
   "rules": {
-    "semi": "off",
+    "semi": ["error", "never"],
     "prefer-const": "off",
     "require-jsdoc": "off",
     "one-var": "off",

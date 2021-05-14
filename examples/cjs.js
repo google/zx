@@ -18,6 +18,6 @@
 // so wrap in in async function.
 
 void async function() {
-  await $`echo "Hello, CommonJS!"`;
+  await $`echo "Hello, CommonJS!"`
 }()
-    .catch(console.error);
+    .catch(console.error)
