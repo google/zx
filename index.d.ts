@@ -18,6 +18,8 @@ interface $ {
   shell: string
   cwd: string
   prefix: string
+  env: { [key: string]: string | undefined }
+  argv: string[]
   quote: (input: string) => string
 }
 
