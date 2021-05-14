@@ -17,10 +17,10 @@
 import {join, basename, resolve, dirname} from 'path'
 import os, {tmpdir} from 'os'
 import {promises as fs} from 'fs'
+import {createRequire} from 'module'
 import url from 'url'
 import {v4 as uuid} from 'uuid'
-import {$, cd, question, fetch, chalk, ProcessOutput} from './index.mjs'
-import {version} from './version.js'
+import {$, cd, question, fetch, chalk, sleep, ProcessOutput} from './index.mjs'
 
 Object.assign(global, {
   $,
@@ -28,15 +28,16 @@ Object.assign(global, {
   fetch,
   question,
   chalk,
+  sleep,
   fs,
-  os,
+  os
 })
 
 try {
   let firstArg = process.argv[2]
 
   if (['-v', '-V', '--version'].includes(firstArg)) {
-    console.log(`zx version ${version}`)
+    console.log(`zx version ${createRequire(import.meta.url)('./package.json').version}`)
     process.exit(0)
   }
 
@@ -108,6 +109,7 @@ async function writeAndImport(filepath, script) {
 async function importPath(filepath) {
   let __filename = resolve(filepath)
   let __dirname = dirname(__filename)
-  Object.assign(global, {__filename, __dirname})
+  let require = createRequire(filepath)
+  Object.assign(global, {__filename, __dirname, require})
   await import(url.pathToFileURL(filepath))
 }

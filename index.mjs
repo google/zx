@@ -16,6 +16,7 @@ import {existsSync} from 'fs'
 import {exec} from 'child_process'
 import {createInterface} from 'readline'
 import {default as nodeFetch} from 'node-fetch'
+import {promisify} from 'util'
 import which from 'which'
 import chalk from 'chalk'
 import shq from 'shq'
@@ -32,7 +33,7 @@ function substitute(arg) {
   if (arg instanceof ProcessOutput) {
     return arg.stdout.replace(/\n$/, '')
   }
-  return arg
+  return arg.toString()
 }
 
 export function $(pieces, ...args) {
@@ -121,6 +122,8 @@ export async function fetch(url, init) {
   }
   return nodeFetch(url, init)
 }
+
+export const sleep = promisify(setTimeout)
 
 export class ProcessOutput {
   #code = 0

@@ -72,4 +72,16 @@ import {strict as assert} from 'assert'
   console.log(__filename, __dirname)
 }
 
-console.log(chalk.green('🍺 Success!'))
+{
+  let foo = 0
+  let p = await $`echo -n ${foo}`
+  assert(p.stdout === '0')
+}
+
+{
+  const {name, version} = require('./package.json')
+  assert(typeof name === 'string')
+  console.log(chalk.black.bgYellowBright(` ${name} version is ${version} `))
+}
+
+console.log(chalk.greenBright(' 🍺 Success!'))

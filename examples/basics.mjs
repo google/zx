@@ -17,6 +17,12 @@
 await $`ls -1 | wc -l`
 
 let branch = await $`git branch --show-current`
-await $`printf ${branch} | wc`
+await $`printf ${branch} | wc` // The new line trimmed from stdout.
 
-await $`test -f package.json`
+let foo = `hi; echo 'oops'`
+await $`echo ${foo} | wc` // Vars properly quoted.
+
+// We can use import and require together.
+let path = await import('path')
+let {version} = require(path.join(__dirname, '..', 'package.json'))
+console.log(chalk.black.bgYellowBright(version))
