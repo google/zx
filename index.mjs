@@ -80,6 +80,8 @@ try {
 }
 $.quote = shq
 $.cwd = undefined
+$.env = process.env
+$.argv = process.argv.slice(2)
 
 export function cd(path) {
   if ($.verbose) console.log('$', colorize(`cd ${path}`))
