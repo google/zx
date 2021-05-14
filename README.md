@@ -207,6 +207,19 @@ Specifies verbosity. Default is `true`.
 In verbose mode, the `zx` prints all executed commands alongside with their outputs.
 This is the same as using `set -x` in Bash.
 
+### `$.env`
+
+It's an alias for `process.env`.
+
+### `$.argv`
+
+It is an array containing arguments received by the current script.
+
+```shell
+./script.mjs hello world
+# $.argv = ['./script/mjs', 'hello', 'world']
+```
+
 ### `__filename` & `__dirname`
 
 In [ESM](https://nodejs.org/api/esm.html) modules, Node.js does not provide
