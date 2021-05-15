@@ -209,16 +209,22 @@ This is the same as using `set -x` in Bash.
 
 ### `$.env`
 
-It's an alias for `process.env`.
+An alias for `process.env`.
 
 ### `$.argv`
 
-It is an array containing arguments received by the current script.
+An array containing arguments received by the current script.
 
 ```shell
 ./script.mjs hello world
 # $.argv = ['./script/mjs', 'hello', 'world']
 ```
+
+The difference between `$.argv` and `process.argv` in a **zx script**:
+
+- `process.argv` is `[node executable path, zx path, script path, ...arguments to script]`,
+
+- `$.argv` is `[script path, ...arguments to script]`.
 
 ### `__filename` & `__dirname`
 
