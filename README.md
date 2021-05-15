@@ -217,7 +217,7 @@ An array containing arguments received by the current script.
 
 ```shell
 ./script.mjs hello world
-# $.argv = ['./script/mjs', 'hello', 'world']
+# $.argv == ['./script.mjs', 'hello', 'world']
 ```
 
 The difference between `$.argv` and `process.argv` in a **zx script**:
