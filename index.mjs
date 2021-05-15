@@ -101,7 +101,7 @@ export async function question(query, options) {
       type: defaultType,
       ...options,
       name: 'question',
-      message: query || '',
+      message: query ?? '',
     },
   ]);
 
