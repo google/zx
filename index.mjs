@@ -39,7 +39,15 @@ function substitute(arg) {
 export function $(pieces, ...args) {
   let __from = (new Error().stack.split('at ')[2]).trim()
   let cmd = pieces[0], i = 0
-  while (i < args.length) cmd += $.quote(substitute(args[i])) + pieces[++i]
+  while (i < args.length) {
+    let s
+    if (Array.isArray(args[i])) {
+      s = args[i].map(x => $.quote(substitute(x))).join(' ')
+    } else {
+      s = $.quote(substitute(args[i]))
+    }
+    cmd += s + pieces[++i]
+  }
 
   if ($.verbose) console.log('$', colorize(cmd))
 

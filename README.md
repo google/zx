@@ -241,6 +241,17 @@ process.env.FOO = 'bar'
 await $`echo $FOO`
 ```
 
+### Passing array of values
+
+If array of values passed as argument to `$`, items of the array will be escaped
+individually and concatenated via space.
+
+Example:
+```js
+let files = [...]
+await $`tar cz ${files}`
+```
+
 ### Executing remote scripts
 
 If the argument to the `zx` executable starts with `https://`, the file will be 
