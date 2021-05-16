@@ -71,10 +71,12 @@ export function $(pieces, ...args) {
       combined += data
     })
     child.on('exit', code => {
+      /* eslint-disable */
       child.on('close', () => {
         (code === 0 ? resolve : reject)
         (new ProcessOutput({code, stdout, stderr, combined, __from}))
       })
+      /* eslint-enable */
     })
   })
 }
