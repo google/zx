@@ -74,8 +74,17 @@ import {strict as assert} from 'assert'
 
 {
   let foo = 0
-  let p = await $`echo -n ${foo}`
-  assert(p.stdout === '0')
+  let p = await $`echo ${foo}`
+  assert(p.stdout === '0\n')
+}
+
+{
+  try {
+    let files = ['./index.mjs', './zx.mjs', './package.json']
+    await $`tar czf archive ${files}`
+  } finally {
+    await $`rm archive`
+  }
 }
 
 {
