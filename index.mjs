@@ -73,7 +73,7 @@ export function $(pieces, ...args) {
     child.on('exit', code => {
       child.on('close', () => {
         (code === 0 ? resolve : reject)
-        (new ProcessOutput({code, stdout, stderr, combined, __from}))
+        (new ProcessOutput({code, stdout, stderr, combined: combined.replace(/\n$/, ''), __from}))
       })
     })
   })
