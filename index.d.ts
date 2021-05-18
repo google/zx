@@ -25,11 +25,10 @@ export const $: $
 
 export function cd(path: string)
 
-type QuestionOptions = { choices: string[] }
+export function question(query?: string, options?: QuestionOptions): Promise<string>
+export type QuestionOptions = { choices: string[] }
 
 export function sleep(ms: number): Promise<void>
-
-export function question(query?: string, options?: QuestionOptions): Promise<string>
 
 export class ProcessOutput {
   readonly exitCode: number
