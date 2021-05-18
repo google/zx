@@ -30,8 +30,12 @@ jobs:
       - name: Checkout # full depth checkout is needed to get all tags for semantic release
         uses: actions/checkout@v2
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
       - name: Semantic Release
-        uses: cycjimmy/semantic-release-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -40,3 +44,4 @@ jobs:
           GIT_COMMITTER_EMAIL: ${{ secrets.GIT_COMMITTER_EMAIL }}
           GIT_AUTHOR_NAME: ${{ secrets.GIT_AUTHOR_NAME }}
           GIT_COMMITTER_NAME: ${{ secrets.GIT_COMMITTER_NAME }}
+        run: npx semantic-release
