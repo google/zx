@@ -1,5 +1,8 @@
 name: CI-CD
-on: [push]
+on:
+  push:
+    branches:
+      - master
 jobs:
   test_push:
     runs-on: ubuntu-20.04
@@ -14,7 +17,7 @@ jobs:
         with:
           node-version: 14
 
-      - name: npm install
+      - name: Install package deps
         run: npm i
 
       - name: Run unit tests
@@ -22,8 +25,6 @@ jobs:
 
   release:
     name: Release
-    # https://github.community/t/trigger-job-on-tag-push-only/18076
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     needs: test_push
     runs-on: ubuntu-20.04
     steps:
