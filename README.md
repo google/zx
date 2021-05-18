@@ -123,19 +123,20 @@ if (resp.ok) {
 
 A wrapper around the [readline](https://nodejs.org/api/readline.html) package.
 
-```ts
-type QuestionOptions = { choices: string[] }
-
-function question(query?: string, options?: QuestionOptions): Promise<string>
-```
-
 Usage:
 
 ```js
-let username = await question('What is your username? ')
+let bear = await question('What kind of bear is best? ')
 let token = await question('Choose env variable: ', {
   choices: Object.keys(process.env)
 })
+```
+
+In second argument, array of choices for Tab autocompletion can be specified.
+  
+```ts
+function question(query?: string, options?: QuestionOptions): Promise<string>
+type QuestionOptions = { choices: string[] }
 ```
 
 ### `sleep()`
