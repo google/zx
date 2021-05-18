@@ -17,7 +17,6 @@
     "chalk": "^4.1.1",
     "node-fetch": "^2.6.1",
     "shq": "^1.0.2",
-    "uuid": "^8.3.2",
     "which": "^2.0.2"
   },
   "publishConfig": {
