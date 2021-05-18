@@ -114,11 +114,6 @@ try {
     await parseArgv();
   
 
-  if (['-v', '-V', '--version'].includes(firstArg)) {
-    console.log(`zx version ${createRequire(import.meta.url)('./package.json').version}`)
-    process.exit(0)
-  }
-
   if (typeof firstArg === 'undefined') {
     let ok = await scriptFromStdin()
     if (!ok) {
