@@ -14,36 +14,24 @@
 
 import {strict as assert} from 'assert'
 
-{
+{ // Only stdout is used during command substitution
   let hello = await $`echo Error >&2; echo Hello`
   let len = parseInt(await $`echo ${hello} | wc -c`)
   assert(len === 6)
 }
 
-{
+{ // Pass env var
   process.env.FOO = 'foo'
   let foo = await $`echo $FOO`
   assert(foo.stdout === 'foo\n')
 }
 
-{
-  let greeting = `"quota'" & pwd`
-  let {stdout} = await $`echo ${greeting}`
-  assert(stdout === greeting + '\n')
-}
-
-{
-  let foo = 'hi; ls'
-  let len = parseInt(await $`echo ${foo} | wc -l`)
-  assert(len === 1)
-}
-
-{
+{ // Arguments are quoted
   let bar = 'bar"";baz!$#^$\'&*~*%)({}||\\/'
   assert((await $`echo ${bar}`).stdout.trim() === bar)
 }
 
-{
+{ // Can create a dir with a space in the name
   let name = 'foo bar'
   try {
     await $`mkdir /tmp/${name}`
@@ -52,7 +40,7 @@ import {strict as assert} from 'assert'
   }
 }
 
-{
+{ // Pipefail is on
   let p
   try {
     p = await $`cat /dev/not_found | sort`
@@ -63,22 +51,22 @@ import {strict as assert} from 'assert'
   assert(p.exitCode === 1)
 }
 
-{
+{ // Env vars is safe to pass
   process.env.FOO = 'hi; exit 1'
   await $`echo $FOO`
 }
 
-{
+{ // Globals are defined
   console.log(__filename, __dirname)
 }
 
-{
+{ // toString() is called on arguments
   let foo = 0
   let p = await $`echo ${foo}`
   assert(p.stdout === '0\n')
 }
 
-{
+{ // Can use array as an argument
   try {
     let files = ['./index.mjs', './zx.mjs', './package.json']
     await $`tar czf archive ${files}`
@@ -87,7 +75,7 @@ import {strict as assert} from 'assert'
   }
 }
 
-{
+{ // require() is working in ESM
   const {name, version} = require('./package.json')
   assert(typeof name === 'string')
   console.log(chalk.black.bgYellowBright(` ${name} version is ${version} `))
