@@ -57,6 +57,25 @@ zx ./script.mjs
 When using `zx` via the executable or a shebang, all of the functions
 (`$`, `cd`, `fetch`, etc) are available straight away without any imports.
 
+### Options
+
+| option | Description |
+|--------|-------------|
+| `-v, -V, --version` | Print zx version |
+| `-h, -H, --help` | Print usage |
+| `-q, -Q, --quiet` | Run with [`$.verbose`](#verbose) set to `false`|
+| `-s, -S, --shell` | Specify [`$.shell`](#shell) |
+
+Use zsh.
+```bash
+zx -s zsh ./script.mjs
+```
+
+Run with [`$.verbose`](#verbose) using zsh.
+```bash
+zx -q -s zsh ./script.mjs
+```
+
 ### ``$`command` ``
 
 Executes a given string using the `exec` function from the

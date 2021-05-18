@@ -20,6 +20,7 @@ import {promises as fs} from 'fs'
 import {createRequire} from 'module'
 import url from 'url'
 import {v4 as uuid} from 'uuid'
+import which from "which"
 import {$, cd, question, fetch, chalk, sleep, ProcessOutput} from './index.mjs'
 
 Object.assign(global, {
@@ -33,8 +34,85 @@ Object.assign(global, {
   os
 })
 
+const helpText = `
+${chalk.bold("Usage: ")}
+    zx [options] <script>
+
+${chalk.bold("Options:")}
+    -v, -V, --version           Print zx version
+    -h, -H, --help              This help text
+    -q, -Q, --quiet             Run with $.verbose set to false
+    -s, -S, --shell   <shell>   Specify $.shell
+
+${chalk.bold("Use zsh:")}
+    zx -s zsh ./script.mjs
+
+${chalk.bold("Run with $.verbose using zsh:")}
+    zx -q -s zsh ./script.mjs
+`
+
 try {
-  let firstArg = process.argv[2]
+    let argind = 2;
+    let firstArg = process.argv[2];
+  
+    const OPTS = [
+      {
+        opts: ["-v", "-V", "--version"],
+        action: async () => {
+          console.log(
+            `zx version ${
+              createRequire(import.meta.url)("./package.json").version
+            }`
+          );
+          process.exit(0);
+        },
+      },
+      {
+        opts: ["-h", "-H", "--help"],
+        action: async () => {
+          console.log(helpText);
+          process.exit(0);
+        },
+      },
+      {
+        opts: ["-q", "-Q", "--quiet"],
+        action: async () => {
+          $.verbose = false;
+          argind++;
+          firstArg = process.argv[argind];
+        },
+      },
+      {
+        opts: ["-s", "-S", "--shell"],
+        action: async (i) => {
+          try {
+            $.shell = await which(process.argv[i + 1]);
+            argind += 2;
+            firstArg = process.argv[argind];
+          } catch (error) {
+            console.log(chalk.red(`Shell ${error.message}`));
+            process.exit(1);
+          }
+        },
+      },
+    ];
+  
+    async function parseArgv() {
+      return await Promise.all(
+        process.argv.map(async (arg, i) => {
+          await Promise.all(
+            OPTS.map(async (f) => {
+              if (f.opts.includes(arg)) {
+                await f.action(i);
+              }
+            })
+          );
+        })
+      );
+    }
+  
+    await parseArgv();
+  
 
   if (['-v', '-V', '--version'].includes(firstArg)) {
     console.log(`zx version ${createRequire(import.meta.url)('./package.json').version}`)
@@ -44,7 +122,7 @@ try {
   if (typeof firstArg === 'undefined') {
     let ok = await scriptFromStdin()
     if (!ok) {
-      console.log(`usage: zx <script>`)
+      console.log(helpText)
       process.exit(2)
     }
   } else if (firstArg.startsWith('http://') || firstArg.startsWith('https://')) {
