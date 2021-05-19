@@ -17,7 +17,7 @@ jobs:
       - run: npm version ${{ github.event.release.tag_name }}
       - run: npm publish
         env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
       - run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
