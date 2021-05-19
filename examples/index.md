@@ -10,8 +10,12 @@ await $`ls -la ${__dirname}`
 
 The `__filename` will be pointed to **index.md**:
 
-    console.log(chalk.yellowBright(__filename))
+```js
+console.log(chalk.yellowBright(__filename))
+```
 
 We can use imports here as well:
 
-    await import('./basics.mjs')
+```js
+await import('./basics.mjs')
+```
