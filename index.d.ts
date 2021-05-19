@@ -13,7 +13,7 @@
 // limitations under the License.
 
 interface $ {
-  (pieces: TemplateStringsArray, ...args: string[]): Promise<ProcessOutput>
+  (pieces: TemplateStringsArray, ...args: any[]): Promise<ProcessOutput>
   verbose: boolean
   shell: string
   cwd: string
