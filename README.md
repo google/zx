@@ -205,8 +205,8 @@ Default is the [shq](https://www.npmjs.com/package/shq) package.
 
 Specifies verbosity. Default is `true`.
 
-In verbose mode, the `zx` prints all executed commands alongside with their outputs.
-This is the same as using `set -x` in Bash.
+In verbose mode, the `zx` prints all executed commands alongside with their 
+outputs.
 
 ### `__filename` & `__dirname`
 
