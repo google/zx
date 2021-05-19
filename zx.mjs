@@ -19,7 +19,6 @@ import os, {tmpdir} from 'os'
 import {promises as fs} from 'fs'
 import {createRequire} from 'module'
 import url from 'url'
-import {v4 as uuid} from 'uuid'
 import {$, cd, question, fetch, chalk, sleep, ProcessOutput} from './index.mjs'
 import which from "which"
 
