@@ -1,0 +1,26 @@
+name: Publish
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
+      - run: npm i
+      - run: npm test
+      - run: npm version ${{ github.event.release.tag_name }}
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+      - run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+      - run: git push
+        env:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
