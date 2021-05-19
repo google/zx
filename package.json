@@ -1,6 +1,6 @@
 {
   "name": "zx",
-  "version": "1.7.0",
+  "version": "1.7.6",
   "description": "A tool for writing better scripts",
   "main": "index.mjs",
   "types": "index.d.ts",
@@ -17,7 +17,6 @@
     "chalk": "^4.1.1",
     "node-fetch": "^2.6.1",
     "shq": "^1.0.2",
-    "uuid": "^8.3.2",
     "which": "^2.0.2"
   },
   "publishConfig": {

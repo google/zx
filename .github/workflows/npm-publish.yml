@@ -1,0 +1,20 @@
+name: Publish
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
+      - run: npm i
+      - run: npm test
+      - run: echo "//wombat-dressing-room.appspot.com/:_authToken=$AUTH_TOKEN" >> .npmrc
+        env:
+          AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}      
+      - run: npm publish

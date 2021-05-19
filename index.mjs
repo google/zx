@@ -24,7 +24,7 @@ import shq from 'shq'
 export {chalk}
 
 function colorize(cmd) {
-  return cmd.replace(/^\w+\s/, substr => {
+  return cmd.replace(/^\w+(\s|$)/, substr => {
     return chalk.greenBright(substr)
   })
 }

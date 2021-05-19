@@ -14,12 +14,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {join, basename, resolve, dirname} from 'path'
+import {join, basename, extname, resolve, dirname} from 'path'
 import os, {tmpdir} from 'os'
 import {promises as fs} from 'fs'
 import {createRequire} from 'module'
 import url from 'url'
-import {v4 as uuid} from 'uuid'
 import {$, cd, question, fetch, chalk, sleep, ProcessOutput} from './index.mjs'
 
 Object.assign(global, {
@@ -50,13 +49,15 @@ try {
   } else if (firstArg.startsWith('http://') || firstArg.startsWith('https://')) {
     await scriptFromHttp(firstArg)
   } else {
-    let path
-    if (firstArg.startsWith('/') || firstArg.startsWith('file:///')) {
-      path = firstArg
+    let filepath
+    if (firstArg.startsWith('/')) {
+      filepath = firstArg
+    } else if (firstArg.startsWith('file:///')) {
+      filepath = url.fileURLToPath(firstArg)
     } else {
-      path = join(process.cwd(), firstArg)
+      filepath = join(process.cwd(), firstArg)
     }
-    await importPath(path)
+    await importPath(filepath)
   }
 
 } catch (p) {
@@ -77,39 +78,97 @@ async function scriptFromStdin() {
     }
 
     if (script.length > 0) {
-      let filepath = join(tmpdir(), uuid() + '.mjs')
-      await writeAndImport(filepath, script)
+      let filepath = join(
+        tmpdir(),
+        Math.random().toString(36).substr(2) + '.mjs'
+      )
+      await fs.mkdtemp(filepath)
+      await writeAndImport(script, filepath, join(process.cwd(), 'stdin.mjs'))
       return true
     }
   }
   return false
 }
 
-async function scriptFromHttp(firstArg) {
-  let res = await fetch(firstArg)
+async function scriptFromHttp(remote) {
+  let res = await fetch(remote)
   if (!res.ok) {
-    console.error(`Error: Can't get ${firstArg}`)
+    console.error(`Error: Can't get ${remote}`)
     process.exit(1)
   }
   let script = await res.text()
-  let filepath = join(tmpdir(), basename(firstArg))
-  await writeAndImport(filepath, script)
-}
-
-async function writeAndImport(filepath, script) {
+  let filepath = join(tmpdir(), basename(remote))
   await fs.mkdtemp(filepath)
-  try {
-    await fs.writeFile(filepath, script)
-    await import(url.pathToFileURL(filepath))
-  } finally {
-    await fs.rm(filepath)
-  }
+  await writeAndImport(script, filepath, join(process.cwd(), basename(remote)))
 }
 
-async function importPath(filepath) {
-  let __filename = resolve(filepath)
+async function writeAndImport(script, filepath, origin = filepath) {
+  await fs.writeFile(filepath, script)
+  let wait = importPath(filepath, origin)
+  await fs.rm(filepath)
+  await wait
+}
+
+async function importPath(filepath, origin = filepath) {
+  let ext = extname(filepath)
+  if (ext === '') {
+    return await writeAndImport(
+      await fs.readFile(filepath),
+      join(dirname(filepath), basename(filepath) + '.mjs'),
+      origin,
+    )
+  }
+  if (ext === '.md') {
+    return await writeAndImport(
+      transformMarkdown((await fs.readFile(filepath)).toString()),
+      join(dirname(filepath), basename(filepath) + '.mjs'),
+      origin,
+    )
+  }
+  let __filename = resolve(origin)
   let __dirname = dirname(__filename)
-  let require = createRequire(filepath)
+  let require = createRequire(origin)
   Object.assign(global, {__filename, __dirname, require})
   await import(url.pathToFileURL(filepath))
+}
+
+function transformMarkdown(source) {
+  let output = []
+  let state = 'root'
+  let prevLineIsEmpty = true
+  for (let line of source.split('\n')) {
+    switch (state) {
+      case 'root':
+        if (/^( {4}|\t)/.test(line) && prevLineIsEmpty) {
+          output.push(line)
+          state = 'tab'
+        } else if (/^```(js)?$/.test(line)) {
+          output.push('')
+          state = 'code'
+        } else {
+          prevLineIsEmpty = line === ''
+          output.push('// ' + line)
+        }
+        break
+      case 'tab':
+        if (/^( +|\t)/.test(line)) {
+          output.push(line)
+        } else if (line === '') {
+          output.push('')
+        } else {
+          output.push('// ' + line)
+          state = 'root'
+        }
+        break
+      case 'code':
+        if (/^```$/.test(line)) {
+          output.push('')
+          state = 'root'
+        } else {
+          output.push(line)
+        }
+        break
+    }
+  }
+  return output.join('\n')
 }

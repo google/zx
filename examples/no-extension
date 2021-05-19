@@ -1,3 +1,5 @@
+#!/usr/bin/env zx
+
 // Copyright 2021 Google LLC
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,27 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-interface $ {
-  (pieces: TemplateStringsArray, ...args: any[]): Promise<ProcessOutput>
-  verbose: boolean
-  shell: string
-  cwd: string
-  prefix: string
-  quote: (input: string) => string
-}
-
-export const $: $
-
-export function cd(path: string): void
-
-export function question(query?: string, options?: QuestionOptions): Promise<string>
-export type QuestionOptions = { choices: string[] }
-
-export function sleep(ms: number): Promise<void>
-
-export class ProcessOutput {
-  readonly exitCode: number
-  readonly stdout: string
-  readonly stderr: string
-  toString(): string
-}
+console.log(chalk.yellowBright`If file has no extension, zx assumes it's ESM.`)
+await $`pwd`
+console.log('__filename =', __filename)
+console.log('__dirname  =', __dirname)
