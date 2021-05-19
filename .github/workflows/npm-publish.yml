@@ -12,16 +12,9 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 14
-      - run: |
-          git config user.name Anton Medvedev
-          git config user.email antonmedv@google.com
       - run: npm i
       - run: npm test
-      - run: npm version ${{ github.event.release.tag_name }}
       - run: echo "//wombat-dressing-room.appspot.com/:_authToken=$AUTH_TOKEN" >> .npmrc
         env:
           AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}      
       - run: npm publish
-      - run: git push origin HEAD:main
-        env:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
