@@ -20,8 +20,8 @@ import {promises as fs} from 'fs'
 import {createRequire} from 'module'
 import url from 'url'
 import {v4 as uuid} from 'uuid'
-import which from "which"
 import {$, cd, question, fetch, chalk, sleep, ProcessOutput} from './index.mjs'
+import which from "which"
 
 Object.assign(global, {
   $,
@@ -150,7 +150,7 @@ async function scriptFromStdin() {
     }
 
     if (script.length > 0) {
-      let filepath = join(tmpdir(), uuid() + '.mjs')
+      let filepath = join(tmpdir(), randomId() + '.mjs')
       await writeAndImport(filepath, script)
       return true
     }
@@ -185,4 +185,8 @@ async function importPath(filepath) {
   let require = createRequire(filepath)
   Object.assign(global, {__filename, __dirname, require})
   await import(url.pathToFileURL(filepath))
+}
+
+function randomId() {
+  return Math.random().toString(36).substr(2)
 }
