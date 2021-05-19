@@ -18,9 +18,10 @@ jobs:
       - run: npm i
       - run: npm test
       - run: npm version ${{ github.event.release.tag_name }}
-      - run: npm publish
+      - run: echo "//wombat-dressing-room.appspot.com/:_authToken=$AUTH_TOKEN" >> .npmrc
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+          AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}      
+      - run: npm publish
       - run: git push
         env:
           github-token: ${{ secrets.GITHUB_TOKEN }}
