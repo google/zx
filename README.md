@@ -225,16 +225,6 @@ files (when using `zx` executable).
 let {version} = require('./package.json')
 ```
 
-### Importing from other scripts
-
-It is possible to make use of `$` and other functions via explicit imports:
-
-```js
-#!/usr/bin/env node
-import {$} from 'zx'
-await $`date`
-```
-
 ### Passing env variables
 
 ```js
@@ -253,9 +243,34 @@ let files = [...]
 await $`tar cz ${files}`
 ```
 
+### Importing from other scripts
+
+It is possible to make use of `$` and other functions via explicit imports:
+
+```js
+#!/usr/bin/env node
+import {$} from 'zx'
+await $`date`
+```
+
+### Scripts without extensions
+
+If script does not have a file extension (like `.git/hooks/pre-commit`), zx
+assumes what it is a [ESM](https://nodejs.org/api/modules.html#modules_module_createrequire_filename)
+module.
+
+### Markdown scripts
+
+The `zx` can execute scripts written in markdown 
+([examples/index.md](examples/index.md)):
+
+```bash
+zx examples/index.md
+```
+
 ### Executing remote scripts
 
-If the argument to the `zx` executable starts with `https://`, the file will be 
+If the argument to the `zx` executable starts with `https://`, the file will be
 downloaded and executed.
 
 ```bash

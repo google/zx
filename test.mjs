@@ -75,6 +75,18 @@ import {strict as assert} from 'assert'
   }
 }
 
+{ // Scripts with no extension are working
+  await $`node zx.mjs examples/no-extension`
+}
+
+{ // require() is working from stdin
+  await $`node zx.mjs <<< 'require("./package.json").name'`
+}
+
+{ // Markdown scripts are working
+  await $`node zx.mjs examples/index.md`
+}
+
 { // require() is working in ESM
   const {name, version} = require('./package.json')
   assert(typeof name === 'string')
