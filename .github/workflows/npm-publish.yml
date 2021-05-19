@@ -13,8 +13,8 @@ jobs:
         with:
           node-version: 14
       - run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
+          git config user.name Anton Medvedev
+          git config user.email antonmedv@google.com
       - run: npm i
       - run: npm test
       - run: npm version ${{ github.event.release.tag_name }}
