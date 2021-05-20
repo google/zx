@@ -48,7 +48,7 @@ import {strict as assert} from 'assert'
     console.log('Caught an exception -> ok')
     p = e
   }
-  assert(p.exitCode === 1)
+  assert(p.exitCode !== 0)
 }
 
 { // Env vars is safe to pass
