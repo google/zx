@@ -16,7 +16,7 @@
 
 import {join, basename, extname, resolve, dirname} from 'path'
 import os, {tmpdir} from 'os'
-import {promises as fs} from 'fs'
+import {promises as fs, createWriteStream, createReadStream} from 'fs'
 import {createRequire} from 'module'
 import url from 'url'
 import {$, cd, question, fetch, chalk, sleep, ProcessOutput} from './index.mjs'
@@ -28,7 +28,7 @@ Object.assign(global, {
   question,
   chalk,
   sleep,
-  fs,
+  fs: {...fs, createWriteStream, createReadStream},
   os
 })
 

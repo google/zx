@@ -51,25 +51,29 @@ export function $(pieces, ...args) {
 
   if ($.verbose) console.log('$', colorize(cmd))
 
-  return new Promise((resolve, reject) => {
-    let options = {
-      windowsHide: true,
-    }
-    if (typeof $.shell !== 'undefined') options.shell = $.shell
-    if (typeof $.cwd !== 'undefined') options.cwd = $.cwd
+  let options = {
+    windowsHide: true,
+    maxBuffer: 100e6,
+  }
+  if (typeof $.shell !== 'undefined') options.shell = $.shell
+  if (typeof $.cwd !== 'undefined') options.cwd = $.cwd
 
-    let child = exec($.prefix + cmd, options)
-    let stdout = '', stderr = '', combined = ''
-    child.stdout.on('data', data => {
-      if ($.verbose) process.stdout.write(data)
-      stdout += data
-      combined += data
-    })
-    child.stderr.on('data', data => {
-      if ($.verbose) process.stderr.write(data)
-      stderr += data
-      combined += data
-    })
+  let child = exec($.prefix + cmd, options)
+  process.stdin.pipe(child.stdin)
+
+  let stdout = '', stderr = '', combined = ''
+  child.stdout.on('data', data => {
+    if ($.verbose) process.stdout.write(data)
+    stdout += data
+    combined += data
+  })
+  child.stderr.on('data', data => {
+    if ($.verbose) process.stderr.write(data)
+    stderr += data
+    combined += data
+  })
+
+  let promise = new ProcessPromise((resolve, reject) => {
     child.on('exit', code => {
       child.on('close', () => {
         (code === 0 ? resolve : reject)
@@ -77,6 +81,8 @@ export function $(pieces, ...args) {
       })
     })
   })
+  promise.child = child
+  return promise
 }
 
 $.verbose = true
@@ -133,6 +139,40 @@ export async function fetch(url, init) {
 }
 
 export const sleep = promisify(setTimeout)
+
+export class ProcessPromise extends Promise {
+  child = undefined
+
+  get stdin() {
+    return this.child.stdin
+  }
+
+  get stdout() {
+    return this.child.stdout
+  }
+
+  get stderr() {
+    return this.child.stderr
+  }
+
+  pipe(dest) {
+    if (typeof dest === 'string') return this.pipe($([dest]))
+    if (dest instanceof ProcessPromise) {
+      process.stdin.unpipe(dest.stdin)
+      this.stdout.pipe(dest.stdin)
+      let combinedPromise = new ProcessPromise((resolve, reject) => {
+        Promise.all([this, dest])
+          .then(() => resolve(this))
+          .catch(reject)
+      })
+      combinedPromise.child = this.child
+      return combinedPromise
+    } else {
+      this.stdout.pipe(dest)
+    }
+    return this
+  }
+}
 
 export class ProcessOutput {
   #code = 0

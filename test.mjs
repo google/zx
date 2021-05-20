@@ -87,6 +87,12 @@ import {strict as assert} from 'assert'
   await $`node zx.mjs examples/index.md`
 }
 
+{ // Pipes works both ways
+  let p = $`read foo; echo "$foo"`.pipe($`cat | wc`).pipe('wc -c')
+  p.stdin.write('hello\n')
+  assert((await p).stdout === 'hello\n')
+}
+
 { // require() is working in ESM
   const {name, version} = require('./package.json')
   assert(typeof name === 'string')
