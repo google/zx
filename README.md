@@ -54,6 +54,12 @@ Or via the `zx` executable:
 zx ./script.mjs
 ```
 
+Or on a target machine without `zx` installed:
+
+```bash
+npx zx ./script.mjs
+```
+
 When using `zx` via the executable or a shebang, all of the functions
 (`$`, `cd`, `fetch`, etc) are available straight away without any imports.
 
