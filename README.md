@@ -256,7 +256,7 @@ await $`date`
 ### Scripts without extensions
 
 If script does not have a file extension (like `.git/hooks/pre-commit`), zx
-assumes what it is a [ESM](https://nodejs.org/api/modules.html#modules_module_createrequire_filename)
+assumes that it is an [ESM](https://nodejs.org/api/modules.html#modules_module_createrequire_filename)
 module.
 
 ### Markdown scripts
