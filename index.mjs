@@ -156,7 +156,9 @@ export class ProcessPromise extends Promise {
   }
 
   pipe(dest) {
-    if (typeof dest === 'string') return this.pipe($([dest]))
+    if (typeof dest === 'string') {
+      throw new Error('The pipe() method does not take strings. Forgot $?')
+    }
     if (dest instanceof ProcessPromise) {
       process.stdin.unpipe(dest.stdin)
       this.stdout.pipe(dest.stdin)

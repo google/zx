@@ -88,7 +88,7 @@ import {strict as assert} from 'assert'
 }
 
 { // Pipes works both ways
-  let p = $`read foo; echo "$foo"`.pipe($`cat | wc`).pipe('wc -c')
+  let p = $`read foo; echo "$foo"`.pipe($`cat | wc`).pipe($`wc -c`)
   p.stdin.write('hello\n')
   assert((await p).stdout === 'hello\n')
 }
