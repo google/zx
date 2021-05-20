@@ -13,7 +13,7 @@
 // limitations under the License.
 
 interface $ {
-  (pieces: TemplateStringsArray, ...args: string[]): Promise<ProcessOutput>
+  (pieces: TemplateStringsArray, ...args: any[]): Promise<ProcessOutput>
   verbose: boolean
   shell: string
   cwd: string
@@ -25,13 +25,12 @@ interface $ {
 
 export const $: $
 
-export function cd(path: string)
-
-type QuestionOptions = { choices: string[] }
-
-export function sleep(ms: number): Promise<void>
+export function cd(path: string): void
 
 export function question(query?: string, options?: QuestionOptions): Promise<string>
+export type QuestionOptions = { choices: string[] }
+
+export function sleep(ms: number): Promise<void>
 
 export class ProcessOutput {
   readonly exitCode: number

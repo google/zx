@@ -123,19 +123,20 @@ if (resp.ok) {
 
 A wrapper around the [readline](https://nodejs.org/api/readline.html) package.
 
-```ts
-type QuestionOptions = { choices: string[] }
-
-function question(query?: string, options?: QuestionOptions): Promise<string>
-```
-
 Usage:
 
 ```js
-let username = await question('What is your username? ')
+let bear = await question('What kind of bear is best? ')
 let token = await question('Choose env variable: ', {
   choices: Object.keys(process.env)
 })
+```
+
+In second argument, array of choices for Tab autocompletion can be specified.
+  
+```ts
+function question(query?: string, options?: QuestionOptions): Promise<string>
+type QuestionOptions = { choices: string[] }
 ```
 
 ### `sleep()`
@@ -204,8 +205,8 @@ Default is the [shq](https://www.npmjs.com/package/shq) package.
 
 Specifies verbosity. Default is `true`.
 
-In verbose mode, the `zx` prints all executed commands alongside with their outputs.
-This is the same as using `set -x` in Bash.
+In verbose mode, the `zx` prints all executed commands alongside with their 
+outputs.
 
 ### `$.env`
 
@@ -243,16 +244,6 @@ files (when using `zx` executable).
 let {version} = require('./package.json')
 ```
 
-### Importing from other scripts
-
-It is possible to make use of `$` and other functions via explicit imports:
-
-```js
-#!/usr/bin/env node
-import {$} from 'zx'
-await $`date`
-```
-
 ### Passing env variables
 
 ```js
@@ -271,9 +262,34 @@ let files = [...]
 await $`tar cz ${files}`
 ```
 
+### Importing from other scripts
+
+It is possible to make use of `$` and other functions via explicit imports:
+
+```js
+#!/usr/bin/env node
+import {$} from 'zx'
+await $`date`
+```
+
+### Scripts without extensions
+
+If script does not have a file extension (like `.git/hooks/pre-commit`), zx
+assumes what it is a [ESM](https://nodejs.org/api/modules.html#modules_module_createrequire_filename)
+module.
+
+### Markdown scripts
+
+The `zx` can execute scripts written in markdown 
+([examples/index.md](examples/index.md)):
+
+```bash
+zx examples/index.md
+```
+
 ### Executing remote scripts
 
-If the argument to the `zx` executable starts with `https://`, the file will be 
+If the argument to the `zx` executable starts with `https://`, the file will be
 downloaded and executed.
 
 ```bash
