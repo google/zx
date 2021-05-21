@@ -60,7 +60,7 @@ When using `zx` via the executable or a shebang, all of the functions
 ### ``$`command` ``
 
 Executes a given string using the `exec` function from the
-`child_process` package and returns `Promise<ProcessOutput>`.
+`child_process` package and returns `ProcessPromise<ProcessOutput>`.
 
 ```js
 let count = parseInt(await $`ls -1 | wc -l`)
@@ -87,6 +87,25 @@ try {
   console.log(`Error: ${p.stderr}`)
 }
 ```
+
+### `ProcessPromise`
+
+```ts
+class ProcessPromise<T> extends Promise<T> {
+  readonly stdin: Writable
+  readonly stdout: Readable
+  readonly stderr: Readable
+  pipe(dest): ProcessPromise<T>
+}
+```
+
+The `pipe()` method can be used to redirect stdout:
+
+```js
+await $`cat file.txt`.pipe(process.stdout)
+```
+
+Read more about [pipelines](examples/pipelines.md).
 
 ### `ProcessOutput`
 

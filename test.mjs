@@ -87,10 +87,36 @@ import {strict as assert} from 'assert'
   await $`node zx.mjs examples/index.md`
 }
 
-{ // Pipes works both ways
-  let p = $`read foo; echo "$foo"`.pipe($`cat | wc`).pipe($`wc -c`)
-  p.stdin.write('hello\n')
-  assert((await p).stdout === 'hello\n')
+{ // Pipes are working
+  let {stdout} = await $`echo "hello"`
+    .pipe($`awk '{print $1" world"}'`)
+    .pipe($`tr '[a-z]' '[A-Z]'`)
+  assert(stdout === 'HELLO WORLD\n')
+
+  try {
+    let w = await $`echo foo`
+      .pipe(fs.createWriteStream('/tmp/output.txt'))
+    assert((await w).stdout === 'foo\n')
+
+    let r = $`cat`
+    fs.createReadStream('/tmp/output.txt')
+      .pipe(r.stdin)
+    assert((await r).stdout === 'foo\n')
+  } finally {
+    await fs.rm('/tmp/output.txt')
+  }
+}
+
+{ // ProcessOutput thrown as error
+  let err
+  try {
+    await $`wtf`
+  } catch (p) {
+    err = p
+  }
+  console.log(err)
+  assert(err.exitCode > 0)
+  console.log('☝️ Error above is expected')
 }
 
 { // require() is working in ESM
