@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import {existsSync} from 'fs'
+import {promisify} from 'util'
 import {exec} from 'child_process'
 import {createInterface} from 'readline'
 import {default as nodeFetch} from 'node-fetch'
-import {promisify} from 'util'
 import which from 'which'
 import chalk from 'chalk'
 import shq from 'shq'
@@ -51,32 +51,43 @@ export function $(pieces, ...args) {
 
   if ($.verbose) console.log('$', colorize(cmd))
 
-  return new Promise((resolve, reject) => {
-    let options = {
-      windowsHide: true,
-    }
-    if (typeof $.shell !== 'undefined') options.shell = $.shell
-    if (typeof $.cwd !== 'undefined') options.cwd = $.cwd
+  let options = {
+    windowsHide: true,
+    maxBuffer: 100e6,
+  }
+  if (typeof $.shell !== 'undefined') options.shell = $.shell
+  if (typeof $.cwd !== 'undefined') options.cwd = $.cwd
 
-    let child = exec($.prefix + cmd, options)
-    let stdout = '', stderr = '', combined = ''
-    child.stdout.on('data', data => {
-      if ($.verbose) process.stdout.write(data)
-      stdout += data
-      combined += data
-    })
-    child.stderr.on('data', data => {
-      if ($.verbose) process.stderr.write(data)
-      stderr += data
-      combined += data
-    })
+  let child = exec($.prefix + cmd, options)
+  if (process.stdin.isTTY) {
+    process.stdin.pipe(child.stdin)
+  }
+
+  let stdout = '', stderr = '', combined = ''
+  child.stdout.on('data', data => {
+    if ($.verbose) process.stdout.write(data)
+    stdout += data
+    combined += data
+  })
+  child.stderr.on('data', data => {
+    if ($.verbose) process.stderr.write(data)
+    stderr += data
+    combined += data
+  })
+
+  let promise = new ProcessPromise((resolve, reject) => {
     child.on('exit', code => {
       child.on('close', () => {
-        (code === 0 ? resolve : reject)
-        (new ProcessOutput({code, stdout, stderr, combined, __from}))
+        let output = new ProcessOutput({
+          code, stdout, stderr, combined,
+          message: `${stderr || '\n'}    at ${__from}`
+        });
+        (code === 0 ? resolve : reject)(output)
       })
     })
   })
+  promise.child = child
+  return promise
 }
 
 $.verbose = true
@@ -95,7 +106,7 @@ export function cd(path) {
   if (!existsSync(path)) {
     let __from = (new Error().stack.split('at ')[2]).trim()
     console.error(`cd: ${path}: No such directory`)
-    console.error(`  at ${__from}`)
+    console.error(`    at ${__from}`)
     process.exit(1)
   }
   $.cwd = path
@@ -134,19 +145,47 @@ export async function fetch(url, init) {
 
 export const sleep = promisify(setTimeout)
 
-export class ProcessOutput {
+export class ProcessPromise extends Promise {
+  child = undefined
+
+  get stdin() {
+    return this.child.stdin
+  }
+
+  get stdout() {
+    return this.child.stdout
+  }
+
+  get stderr() {
+    return this.child.stderr
+  }
+
+  pipe(dest) {
+    if (typeof dest === 'string') {
+      throw new Error('The pipe() method does not take strings. Forgot $?')
+    }
+    if (dest instanceof ProcessPromise) {
+      process.stdin.unpipe(dest.stdin)
+      this.stdout.pipe(dest.stdin)
+      return dest
+    }
+    this.stdout.pipe(dest)
+    return this
+  }
+}
+
+export class ProcessOutput extends Error {
   #code = 0
   #stdout = ''
   #stderr = ''
   #combined = ''
-  #__from = ''
 
-  constructor({code, stdout, stderr, combined, __from}) {
+  constructor({code, stdout, stderr, combined, message}) {
+    super(message)
     this.#code = code
     this.#stdout = stdout
     this.#stderr = stderr
     this.#combined = combined
-    this.#__from = __from
   }
 
   toString() {
@@ -163,9 +202,5 @@ export class ProcessOutput {
 
   get exitCode() {
     return this.#code
-  }
-
-  get __from() {
-    return this.#__from
   }
 }
