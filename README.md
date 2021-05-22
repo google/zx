@@ -66,7 +66,7 @@ When using `zx` via the executable or a shebang, all of the functions
 ### ``$`command` ``
 
 Executes a given string using the `exec` function from the
-`child_process` package and returns `Promise<ProcessOutput>`.
+`child_process` package and returns `ProcessPromise<ProcessOutput>`.
 
 ```js
 let count = parseInt(await $`ls -1 | wc -l`)
@@ -93,6 +93,25 @@ try {
   console.log(`Error: ${p.stderr}`)
 }
 ```
+
+### `ProcessPromise`
+
+```ts
+class ProcessPromise<T> extends Promise<T> {
+  readonly stdin: Writable
+  readonly stdout: Readable
+  readonly stderr: Readable
+  pipe(dest): ProcessPromise<T>
+}
+```
+
+The `pipe()` method can be used to redirect stdout:
+
+```js
+await $`cat file.txt`.pipe(process.stdout)
+```
+
+Read more about [pipelines](examples/pipelines.md).
 
 ### `ProcessOutput`
 
@@ -196,13 +215,13 @@ $.shell = '/usr/bin/bash'
 
 ### `$.prefix`
 
-Specifies the command what will be prefixed to all commands run.
+Specifies the command that will be prefixed to all commands run.
 
 Default is `set -euo pipefail;`.
 
 ### `$.quote`
 
-Specifies a function what will be used for escaping special characters during 
+Specifies a function for escaping special characters during 
 command substitution.
 
 Default is the [shq](https://www.npmjs.com/package/shq) package.

@@ -1,6 +1,6 @@
 {
   "name": "zx",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "A tool for writing better scripts",
   "main": "index.mjs",
   "types": "index.d.ts",
@@ -14,6 +14,7 @@
     "test": "node zx.mjs test.mjs"
   },
   "dependencies": {
+    "@types/node": "^15.3",
     "chalk": "^4.1.1",
     "node-fetch": "^2.6.1",
     "shq": "^1.0.2",

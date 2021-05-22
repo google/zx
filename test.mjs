@@ -48,7 +48,7 @@ import {strict as assert} from 'assert'
     console.log('Caught an exception -> ok')
     p = e
   }
-  assert(p.exitCode === 1)
+  assert(p.exitCode !== 0)
 }
 
 { // Env vars is safe to pass
@@ -85,6 +85,38 @@ import {strict as assert} from 'assert'
 
 { // Markdown scripts are working
   await $`node zx.mjs examples/index.md`
+}
+
+{ // Pipes are working
+  let {stdout} = await $`echo "hello"`
+    .pipe($`awk '{print $1" world"}'`)
+    .pipe($`tr '[a-z]' '[A-Z]'`)
+  assert(stdout === 'HELLO WORLD\n')
+
+  try {
+    let w = await $`echo foo`
+      .pipe(fs.createWriteStream('/tmp/output.txt'))
+    assert((await w).stdout === 'foo\n')
+
+    let r = $`cat`
+    fs.createReadStream('/tmp/output.txt')
+      .pipe(r.stdin)
+    assert((await r).stdout === 'foo\n')
+  } finally {
+    await fs.rm('/tmp/output.txt')
+  }
+}
+
+{ // ProcessOutput thrown as error
+  let err
+  try {
+    await $`wtf`
+  } catch (p) {
+    err = p
+  }
+  console.log(err)
+  assert(err.exitCode > 0)
+  console.log('☝️ Error above is expected')
 }
 
 { // require() is working in ESM
