@@ -88,9 +88,9 @@ import {strict as assert} from 'assert'
 }
 
 { // Pipes are working
-  let {stdout} = await $`echo "hello"`
-    .pipe($`awk '{print $1" world"}'`)
-    .pipe($`tr '[a-z]' '[A-Z]'`)
+  let {stdout} = await $`echo "hello world"`
+    .pipe($`cat`)
+    .pipe($`cat`)
   assert(stdout === 'HELLO WORLD\n')
 
   try {
