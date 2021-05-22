@@ -97,11 +97,11 @@ import {strict as assert} from 'assert'
     let w = await $`echo foo`
       .pipe(fs.createWriteStream('/tmp/output.txt'))
     assert((await w).stdout === 'foo\n')
-  //
-  //   let r = $`cat`
-  //   fs.createReadStream('/tmp/output.txt')
-  //     .pipe(r.stdin)
-  //   assert((await r).stdout === 'foo\n')
+
+    let r = $`cat`
+    fs.createReadStream('/tmp/output.txt')
+      .pipe(r.stdin)
+    assert((await r).stdout === 'foo\n')
   // } finally {
   //   await fs.rm('/tmp/output.txt')
   // }
