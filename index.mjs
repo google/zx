@@ -59,7 +59,7 @@ export function $(pieces, ...args) {
   if (typeof $.cwd !== 'undefined') options.cwd = $.cwd
 
   let child = exec($.prefix + cmd, options)
-  process.stdin.pipe(child.stdin)
+  //process.stdin.pipe(child.stdin)
 
   let stdout = '', stderr = '', combined = ''
   child.stdout.on('data', data => {
