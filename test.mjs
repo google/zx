@@ -88,21 +88,19 @@ import {strict as assert} from 'assert'
 }
 
 { // Pipes are working
-  // let {stdout} = await $`echo "hello"`
-  //   .pipe($`awk '{print $1" world"}'`)
-  //   .pipe($`tr '[a-z]' '[A-Z]'`)
-  // assert(stdout === 'HELLO WORLD\n')
+  let {stdout} = await $`echo "hello"`
+    .pipe($`cat`)
+  console.log(stdout)
 
   // try {
-    let w = await $`echo foo`
-      .pipe(fs.createWriteStream('/tmp/output.txt'))
-    assert((await w).stdout === 'foo\n')
+  //   let w = await $`echo foo`
+  //     .pipe(fs.createWriteStream('/tmp/output.txt'))
+  //   assert((await w).stdout === 'foo\n')
 
-    let r = $`cat`
-  process.stdin.unpipe(r.stdin)
-    fs.createReadStream('/tmp/output.txt')
-      .pipe(r.stdin)
-    assert((await r).stdout === 'foo\n')
+    // let r = $`cat`
+    // fs.createReadStream('/tmp/output.txt')
+    //   .pipe(r.stdin)
+    // assert((await r).stdout === 'foo\n')
   // } finally {
   //   await fs.rm('/tmp/output.txt')
   // }
