@@ -209,13 +209,13 @@ $.shell = '/usr/bin/bash'
 
 ### `$.prefix`
 
-Specifies the command what will be prefixed to all commands run.
+Specifies the command that will be prefixed to all commands run.
 
 Default is `set -euo pipefail;`.
 
 ### `$.quote`
 
-Specifies a function what will be used for escaping special characters during 
+Specifies a function for escaping special characters during 
 command substitution.
 
 Default is the [shq](https://www.npmjs.com/package/shq) package.
