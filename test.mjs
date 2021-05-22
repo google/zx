@@ -99,6 +99,7 @@ import {strict as assert} from 'assert'
     assert((await w).stdout === 'foo\n')
 
     let r = $`cat`
+  process.stdin.unpipe(r.stdin)
     fs.createReadStream('/tmp/output.txt')
       .pipe(r.stdin)
     assert((await r).stdout === 'foo\n')
