@@ -14,7 +14,7 @@
 
 import {existsSync} from 'fs'
 import {promisify} from 'util'
-import {exec} from 'child_process'
+import {spawn} from 'child_process'
 import {createInterface} from 'readline'
 import {default as nodeFetch} from 'node-fetch'
 import which from 'which'
@@ -48,33 +48,13 @@ export function $(pieces, ...args) {
     }
     cmd += s + pieces[++i]
   }
-
   if ($.verbose) console.log('$', colorize(cmd))
-
   let options = {
+    cwd: $.cwd,
+    shell: typeof $.shell === 'string' ? $.shell : true,
     windowsHide: true,
-    maxBuffer: 100e6,
   }
-  if (typeof $.shell !== 'undefined') options.shell = $.shell
-  if (typeof $.cwd !== 'undefined') options.cwd = $.cwd
-
-  let child = exec($.prefix + cmd, options)
-  if (process.stdin.isTTY) {
-    process.stdin.pipe(child.stdin)
-  }
-
-  let stdout = '', stderr = '', combined = ''
-  child.stdout.on('data', data => {
-    if ($.verbose) process.stdout.write(data)
-    stdout += data
-    combined += data
-  })
-  child.stderr.on('data', data => {
-    if ($.verbose) process.stderr.write(data)
-    stderr += data
-    combined += data
-  })
-
+  let child = spawn($.prefix + cmd, options)
   let promise = new ProcessPromise((resolve, reject) => {
     child.on('exit', code => {
       child.on('close', () => {
@@ -86,6 +66,26 @@ export function $(pieces, ...args) {
       })
     })
   })
+  if (process.stdin.isTTY) {
+    process.stdin.pipe(child.stdin)
+  }
+  let stdout = '', stderr = '', combined = ''
+  function onStdout(data) {
+    if ($.verbose) process.stdout.write(data)
+    stdout += data
+    combined += data
+  }
+  function onStderr(data) {
+    if ($.verbose) process.stderr.write(data)
+    stderr += data
+    combined += data
+  }
+  child.stdout.on('data', onStdout)
+  child.stderr.on('data', onStderr)
+  promise._stop = () => {
+    child.stdout.off('data', onStdout)
+    child.stderr.off('data', onStderr)
+  }
   promise.child = child
   return promise
 }
@@ -147,6 +147,7 @@ export const sleep = promisify(setTimeout)
 
 export class ProcessPromise extends Promise {
   child = undefined
+  _stop = () => void 0
 
   get stdin() {
     return this.child.stdin
@@ -164,6 +165,7 @@ export class ProcessPromise extends Promise {
     if (typeof dest === 'string') {
       throw new Error('The pipe() method does not take strings. Forgot $?')
     }
+    this._stop()
     if (dest instanceof ProcessPromise) {
       process.stdin.unpipe(dest.stdin)
       this.stdout.pipe(dest.stdin)

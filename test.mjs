@@ -96,7 +96,7 @@ import {strict as assert} from 'assert'
   try {
     let w = await $`echo foo`
       .pipe(fs.createWriteStream('/tmp/output.txt'))
-    assert((await w).stdout === 'foo\n')
+    assert((await fs.readFile('/tmp/output.txt')).toString() === 'foo\n')
 
     let r = $`cat`
     fs.createReadStream('/tmp/output.txt')
