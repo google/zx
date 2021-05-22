@@ -93,18 +93,18 @@ import {strict as assert} from 'assert'
   //   .pipe($`tr '[a-z]' '[A-Z]'`)
   // assert(stdout === 'HELLO WORLD\n')
 
-  try {
-    let w = await $`echo foo`
-      .pipe(fs.createWriteStream('/tmp/output.txt'))
-    assert((await w).stdout === 'foo\n')
-
-    let r = $`cat`
-    fs.createReadStream('/tmp/output.txt')
-      .pipe(r.stdin)
-    assert((await r).stdout === 'foo\n')
-  } finally {
-    await fs.rm('/tmp/output.txt')
-  }
+  // try {
+  //   let w = await $`echo foo`
+  //     .pipe(fs.createWriteStream('/tmp/output.txt'))
+  //   assert((await w).stdout === 'foo\n')
+  //
+  //   let r = $`cat`
+  //   fs.createReadStream('/tmp/output.txt')
+  //     .pipe(r.stdin)
+  //   assert((await r).stdout === 'foo\n')
+  // } finally {
+  //   await fs.rm('/tmp/output.txt')
+  // }
 }
 
 { // ProcessOutput thrown as error
