@@ -54,8 +54,8 @@ Or via the `zx` executable:
 zx ./script.mjs
 ```
 
-When using `zx` via the executable or a shebang, all of the functions
-(`$`, `cd`, `fetch`, etc) are available straight away without any imports.
+All functions (`$`, `cd`, `fetch`, etc) are available straight away 
+without any imports.
 
 ### ``$`command` ``
 
@@ -286,6 +286,37 @@ The `zx` can execute scripts written in markdown
 ```bash
 zx examples/index.md
 ```
+
+### TypeScript scripts
+
+The `zx` can compile `.ts` scripts to `.mjs` by running `tsc` (should be 
+installed on local machine).
+
+```bash
+zx examples/typescript.ts
+```
+
+In TypeScript file include the `zx` package to import types:
+
+```ts
+import 'zx'
+```
+
+Or reference the `zx` package via:
+
+```js
+/// <reference types="zx"/>
+```
+
+Example: 
+```ts
+#!/usr/bin/env zx
+import 'zx'
+
+void async function () {
+  await $`ls -la`
+}()
+``` 
 
 ### Executing remote scripts
 
