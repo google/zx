@@ -117,7 +117,7 @@ async function importPath(filepath, origin = filepath) {
   if (ext === '.ts') {
     let {dir, name} = parse(filepath)
     let outFile = join(dir, name + '.mjs')
-    await $`tsc --target esnext --module esnext --moduleResolution node ${filepath}`
+    await run`npx --yes tsc --target esnext --module esnext --moduleResolution node ${filepath}`
     await fs.rename(join(dir, name + '.js'), outFile)
     let wait = importPath(outFile, filepath)
     await fs.rm(outFile)
@@ -169,4 +169,12 @@ function transformMarkdown(source) {
     }
   }
   return output.join('\n')
+}
+
+async function run(pieces, ...args) {
+  let v = $.verbose
+  $.verbose = false
+  let p = $(pieces, ...args)
+  $.verbose = v
+  return p
 }
