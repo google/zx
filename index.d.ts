@@ -28,6 +28,9 @@ interface $ {
   quote: (input: string) => string
 }
 
+// @ts-ignore because #110(https://github.com/google/zx/issues/110)
+export const $: $
+
 export type cd = (path: string) => void
 export type sleep = (ms: number) => Promise<void>
 export type question = (query?: string, options?: QuestionOptions) => Promise<string>
