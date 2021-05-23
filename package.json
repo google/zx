@@ -11,7 +11,9 @@
     "node": ">= 14.8.0"
   },
   "scripts": {
-    "test": "node zx.mjs test.mjs"
+    "test": "npm run test:mjs && npm run test:ts",
+    "test:mjs": "node zx.mjs test.mjs",
+    "test:ts": "node zx.mjs test-tsc.ts"
   },
   "dependencies": {
     "@types/node": "^15.3",
