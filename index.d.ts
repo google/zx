@@ -14,9 +14,13 @@
 
 import {ChildProcess} from 'child_process'
 import {Readable, Writable} from 'stream'
+import {createReadStream, createWriteStream, promises as _fs} from 'fs'
+import * as _os from 'os'
+import * as _chalk from 'chalk'
 
 interface $ {
   (pieces: TemplateStringsArray, ...args: any[]): ProcessPromise<ProcessOutput>
+
   verbose: boolean
   shell: string
   cwd: string
@@ -24,26 +28,37 @@ interface $ {
   quote: (input: string) => string
 }
 
-export const $: $
-
-export function cd(path: string): void
-
-export function question(query?: string, options?: QuestionOptions): Promise<string>
+export type cd = (path: string) => void
+export type sleep = (ms: number) => Promise<void>
+export type question = (query?: string, options?: QuestionOptions) => Promise<string>
 export type QuestionOptions = { choices: string[] }
-
-export function sleep(ms: number): Promise<void>
 
 export interface ProcessPromise<T> extends Promise<T> {
   child: ChildProcess
   readonly stdin: Writable
   readonly stdout: Readable
   readonly stderr: Readable
-  pipe(dest: ProcessPromise<ProcessOutput>|Writable): ProcessPromise<ProcessOutput>
+
+  pipe(dest: ProcessPromise<ProcessOutput> | Writable): ProcessPromise<ProcessOutput>
 }
 
 export class ProcessOutput {
   readonly exitCode: number
   readonly stdout: string
   readonly stderr: string
+
   toString(): string
+}
+
+declare global {
+  export const $: $
+  export const cd: cd
+  export const sleep: sleep
+  export const question: question
+  export const chalk: typeof _chalk
+  export const fs: typeof _fs & {
+    createWriteStream: typeof createWriteStream
+    createReadStream: typeof createReadStream
+  }
+  export const os: typeof _os
 }

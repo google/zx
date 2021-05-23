@@ -12,7 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {existsSync} from 'fs'
+import {
+  createReadStream,
+  createWriteStream,
+  existsSync,
+  promises as fs
+} from 'fs'
+import os from 'os'
 import {promisify} from 'util'
 import {spawn} from 'child_process'
 import {createInterface} from 'readline'
@@ -20,21 +26,6 @@ import {default as nodeFetch} from 'node-fetch'
 import which from 'which'
 import chalk from 'chalk'
 import shq from 'shq'
-
-export {chalk}
-
-function colorize(cmd) {
-  return cmd.replace(/^\w+(\s|$)/, substr => {
-    return chalk.greenBright(substr)
-  })
-}
-
-function substitute(arg) {
-  if (arg instanceof ProcessOutput) {
-    return arg.stdout.replace(/\n$/, '')
-  }
-  return arg.toString()
-}
 
 export function $(pieces, ...args) {
   let __from = (new Error().stack.split('at ')[2]).trim()
@@ -206,3 +197,29 @@ export class ProcessOutput extends Error {
     return this.#code
   }
 }
+
+function colorize(cmd) {
+  return cmd.replace(/^\w+(\s|$)/, substr => {
+    return chalk.greenBright(substr)
+  })
+}
+
+function substitute(arg) {
+  if (arg instanceof ProcessOutput) {
+    return arg.stdout.replace(/\n$/, '')
+  }
+  return arg.toString()
+}
+
+Object.assign(global, {
+  $,
+  cd,
+  chalk,
+  fetch,
+  fs: {...fs, createWriteStream, createReadStream},
+  os,
+  question,
+  sleep,
+})
+
+export {chalk}
