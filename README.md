@@ -112,9 +112,9 @@ Read more about [pipelines](examples/pipelines.md).
 
 ```ts
 class ProcessOutput {
-  readonly exitCode: number
   readonly stdout: string
   readonly stderr: string
+  readonly exitCode: number
   toString(): string
 }
 ```
@@ -178,7 +178,7 @@ await sleep(1000)
 Changes behavior of `$` to not throw an exception on non-zero exit codes.
 
 ```ts
-function nothrow(p: ProcessPromise<ProcessOutput>): ProcessPromise<ProcessOutput>
+function nothrow<P>(p: P): P
 ```
 
 Usage:
@@ -196,9 +196,15 @@ await $`find ./examples -type f -print0`
 If only the `exitCode` is needed, you can use the next code instead:
 
 ```js
-if (await $`[[ -d path ]]`.exitCode == 0) {...}
+if (await $`[[ -d path ]]`.exitCode == 0) {
+  ...
+}
+
 // Equivalent of:
-if ((await nothrow($`[[ -d path ]]`)).exitCode == 0) {...}
+
+if ((await nothrow($`[[ -d path ]]`)).exitCode == 0) {
+  ...
+}
 ```
 
 ### `chalk` package
