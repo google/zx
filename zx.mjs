@@ -117,7 +117,7 @@ async function importPath(filepath, origin = filepath) {
   if (ext === '.ts') {
     let {dir, name} = parse(filepath)
     let outFile = join(dir, name + '.mjs')
-    await run`npx --yes tsc --target esnext --module esnext --moduleResolution node ${filepath}`
+    await run`npm_config_yes=true npx tsc --target esnext --module esnext --moduleResolution node ${filepath}`
     await fs.rename(join(dir, name + '.js'), outFile)
     let wait = importPath(outFile, filepath)
     await fs.rm(outFile)
