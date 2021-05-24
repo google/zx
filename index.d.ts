@@ -38,6 +38,7 @@ export interface ProcessPromise<T> extends Promise<T> {
   readonly stdin: Writable
   readonly stdout: Readable
   readonly stderr: Readable
+  readonly exitCode: Promise<number>
 
   pipe(dest: ProcessPromise<ProcessOutput> | Writable): ProcessPromise<ProcessOutput>
 }

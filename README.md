@@ -95,6 +95,7 @@ class ProcessPromise<T> extends Promise<T> {
   readonly stdin: Writable
   readonly stdout: Readable
   readonly stderr: Readable
+  readonly exitCode: Promise<number>
   pipe(dest): ProcessPromise<T>
 }
 ```
@@ -170,6 +171,34 @@ Usage:
 
 ```js
 await sleep(1000)
+```
+
+### `nothrow()`
+
+Changes behavior of `$` to not throw an exception on non-zero exit codes.
+
+```ts
+function nothrow(p: ProcessPromise<ProcessOutput>): ProcessPromise<ProcessOutput>
+```
+
+Usage:
+
+```js
+await nothrow($`grep something from-file`)
+
+// Inside a pipe():
+
+await $`find ./examples -type f -print0`
+  .pipe(nothrow($`xargs -0 grep something`))
+  .pipe($`wc -l`)
+```
+
+If only the `exitCode` is needed, you can use the next code instead:
+
+```js
+if (await $`[[ -d path ]]`.exitCode == 0) {...}
+// Equivalent of:
+if ((await nothrow($`[[ -d path ]]`)).exitCode == 0) {...}
 ```
 
 ### `chalk` package
@@ -289,8 +318,7 @@ zx examples/index.md
 
 ### TypeScript scripts
 
-The `zx` can compile `.ts` scripts to `.mjs` by running `tsc` (should be 
-installed on local machine).
+The `zx` can compile `.ts` scripts to `.mjs` and execute them.
 
 ```bash
 zx examples/typescript.ts

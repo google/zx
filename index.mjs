@@ -53,7 +53,7 @@ export function $(pieces, ...args) {
           code, stdout, stderr, combined,
           message: `${stderr || '\n'}    at ${__from}`
         });
-        (code === 0 ? resolve : reject)(output)
+        (code === 0 || promise._nothrow ? resolve : reject)(output)
       })
     })
   })
@@ -136,9 +136,15 @@ export async function fetch(url, init) {
 
 export const sleep = promisify(setTimeout)
 
+export function nothrow(promise) {
+  promise._nothrow = true
+  return promise
+}
+
 export class ProcessPromise extends Promise {
   child = undefined
   _stop = () => void 0
+  _nothrow = false
 
   get stdin() {
     return this.child.stdin
@@ -150,6 +156,12 @@ export class ProcessPromise extends Promise {
 
   get stderr() {
     return this.child.stderr
+  }
+
+  get exitCode() {
+    return this
+      .then(p => p.exitCode)
+      .catch(p => p.exitCode)
   }
 
   pipe(dest) {
@@ -217,6 +229,7 @@ Object.assign(global, {
   chalk,
   fetch,
   fs: {...fs, createWriteStream, createReadStream},
+  nothrow,
   os,
   question,
   sleep,

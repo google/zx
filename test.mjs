@@ -119,6 +119,16 @@ import {strict as assert} from 'assert'
   console.log('☝️ Error above is expected')
 }
 
+{ // ProcessOutput::exitCode doesn't throw
+  assert(await $`grep qwerty README.md`.exitCode !== 0)
+  assert(await $`[[ -f ${__filename} ]]`.exitCode === 0)
+}
+
+{ // nothrow() doesn't throw
+  let {exitCode} = await nothrow($`exit 42`)
+  assert(exitCode === 42)
+}
+
 { // require() is working in ESM
   const {name, version} = require('./package.json')
   assert(typeof name === 'string')
