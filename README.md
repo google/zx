@@ -316,10 +316,10 @@ module.
 ### Markdown scripts
 
 The `zx` can execute scripts written in markdown 
-([examples/index.md](examples/index.md)):
+([examples/index.md](examples/markdown.md)):
 
 ```bash
-zx examples/index.md
+zx examples/markdown.md
 ```
 
 ### TypeScript scripts

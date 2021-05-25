@@ -84,7 +84,7 @@ import {strict as assert} from 'assert'
 }
 
 { // Markdown scripts are working
-  await $`node zx.mjs examples/index.md`
+  await $`node zx.mjs examples/markdown.md`
 }
 
 { // Pipes are working

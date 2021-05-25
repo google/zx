@@ -40,3 +40,11 @@ let greeting = await $`printf "hello"`
 
 console.log(greeting.stdout)
 ```
+
+Use combinations of `pipe()` and [`nothrow()`](https://github.com/google/zx#nothrow):
+
+```js
+await $`find ./examples -type f -print0`
+  .pipe(nothrow($`xargs -0 grep ${'missing' + 'part'}`))
+  .pipe($`wc -l`)
+```

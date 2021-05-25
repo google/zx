@@ -14,9 +14,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// <reference types=".." />
+import {ProcessOutput, ProcessPromise} from '..'
 
 void async function () {
-  await $`pwd`
+  let p: ProcessPromise<ProcessOutput> = $`cat`
+  p.pipe(process.stderr)
+
+  p.stdin.write('Hello, World!\n')
+  p.stdin.end()
+
+  let out: ProcessOutput = await p
+  console.log(chalk.red(out.exitCode))
 }()
 
