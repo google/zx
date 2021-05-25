@@ -20,9 +20,11 @@ import {promises as fs} from 'fs'
 import {createRequire} from 'module'
 import url from 'url'
 import {$, fetch, ProcessOutput} from './index.mjs'
+import https from 'https'
 
 try {
-  let firstArg = process.argv[2]
+  let args = process.argv.slice(2);
+  let firstArg = args[0];
 
   if (['-v', '-V', '--version'].includes(firstArg)) {
     console.log(`zx version ${createRequire(import.meta.url)('./package.json').version}`)
@@ -32,11 +34,14 @@ try {
   if (typeof firstArg === 'undefined') {
     let ok = await scriptFromStdin()
     if (!ok) {
-      console.log(`usage: zx <script>`)
+      console.log(`Usage: zx <script> [--allowUnauthorized]`)
+      console.log('')
+      console.log('Specify --allowUnauthorized to ignore self-signed or invalid SSL certificates')
       process.exit(2)
     }
   } else if (firstArg.startsWith('http://') || firstArg.startsWith('https://')) {
-    await scriptFromHttp(firstArg)
+    const rejectUnauthorized = !args.includes('--allowUnauthorized');
+    await scriptFromHttp(firstArg, {rejectUnauthorized})
   } else {
     let filepath
     if (firstArg.startsWith('/')) {
@@ -79,8 +84,11 @@ async function scriptFromStdin() {
   return false
 }
 
-async function scriptFromHttp(remote) {
-  let res = await fetch(remote)
+async function scriptFromHttp(remote, { rejectUnauthorized }) {
+  let agent = new https.Agent({ rejectUnauthorized })
+  $.verbose = false;
+  let res = await fetch(remote, { agent })
+  $.verbose = true;
   if (!res.ok) {
     console.error(`Error: Can't get ${remote}`)
     process.exit(1)

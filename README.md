@@ -54,6 +54,19 @@ Or via the `zx` executable:
 zx ./script.mjs
 ```
 
+Or download and execute a script from a remote web server
+
+```bash
+zx https://example.com/script.mjs
+```
+
+You can specify `--allowUnauthorized` to allow self-signed certificates, or 
+other certificate problems. 
+
+```bash
+zx https://example.com/script.mjs --allowUnauthorized
+```
+
 All functions (`$`, `cd`, `fetch`, etc) are available straight away 
 without any imports.
 
