@@ -119,7 +119,9 @@ class ProcessOutput {
 }
 ```
 
-### `cd()`
+### Functions
+
+#### `cd()`
 
 Changes the current working directory.
 
@@ -128,7 +130,7 @@ cd('/tmp')
 await $`pwd` // outputs /tmp
 ```
 
-### `fetch()`
+#### `fetch()`
 
 A wrapper around the [node-fetch](https://www.npmjs.com/package/node-fetch) package.
 
@@ -139,7 +141,7 @@ if (resp.ok) {
 }
 ```
 
-### `question()`
+#### `question()`
 
 A wrapper around the [readline](https://nodejs.org/api/readline.html) package.
 
@@ -159,21 +161,15 @@ function question(query?: string, options?: QuestionOptions): Promise<string>
 type QuestionOptions = { choices: string[] }
 ```
 
-### `sleep()`
+#### `sleep()`
 
 A wrapper around the `setTimeout` function.
-
-```ts
-function sleep(ms: number): Promise<void>
-```
-
-Usage:
 
 ```js
 await sleep(1000)
 ```
 
-### `nothrow()`
+#### `nothrow()`
 
 Changes behavior of `$` to not throw an exception on non-zero exit codes.
 
@@ -207,19 +203,21 @@ if ((await nothrow($`[[ -d path ]]`)).exitCode == 0) {
 }
 ```
 
-### `chalk` package
+### Packages
 
-The [chalk](https://www.npmjs.com/package/chalk) package is available without 
-importing inside scripts.
+Next packages is available without importing inside scripts.
+
+#### `chalk` package
+
+The [chalk](https://www.npmjs.com/package/chalk) package.
 
 ```js
 console.log(chalk.blue('Hello world!'))
 ```
 
-### `fs` package
+#### `fs` package
 
-The [fs](https://nodejs.org/api/fs.html) package is available without importing 
-inside scripts. It is asynchronous by default.
+The [fs](https://nodejs.org/api/fs.html) package.
 
 ```js
 let content = await fs.readFile('./package.json')
@@ -227,14 +225,15 @@ let content = await fs.readFile('./package.json')
 
 ### `os` package
 
-The [os](https://nodejs.org/api/os.html) package is available without importing
-inside scripts.
+The [os](https://nodejs.org/api/os.html) package.
 
 ```js
 await $`cd ${os.homedir()} && mkdir example`
 ```
 
-### `$.shell`
+### Configuration
+
+#### `$.shell`
 
 Specifies what shell is used. Default is `which bash`.
 
@@ -242,33 +241,35 @@ Specifies what shell is used. Default is `which bash`.
 $.shell = '/usr/bin/bash'
 ```
 
-### `$.prefix`
+#### `$.prefix`
 
 Specifies the command that will be prefixed to all commands run.
 
 Default is `set -euo pipefail;`.
 
-### `$.quote`
+#### `$.quote`
 
 Specifies a function for escaping special characters during 
 command substitution.
 
 Default is the [shq](https://www.npmjs.com/package/shq) package.
 
-### `$.verbose`
+#### `$.verbose`
 
 Specifies verbosity. Default is `true`.
 
 In verbose mode, the `zx` prints all executed commands alongside with their 
 outputs.
 
-### `__filename` & `__dirname`
+### Polyfills 
+
+#### `__filename` & `__dirname`
 
 In [ESM](https://nodejs.org/api/esm.html) modules, Node.js does not provide
 `__filename` and `__dirname` globals. As such globals are really handy in scripts,
 `zx` provides these for use in `.mjs` files (when using the `zx` executable).
 
-### `require()`
+#### `require()`
 
 In [ESM](https://nodejs.org/api/modules.html#modules_module_createrequire_filename)
 modules, the `require()` function is not defined.
@@ -279,14 +280,16 @@ files (when using `zx` executable).
 let {version} = require('./package.json')
 ```
 
-### Passing env variables
+### FAQ
+
+#### Passing env variables
 
 ```js
 process.env.FOO = 'bar'
 await $`echo $FOO`
 ```
 
-### Passing array of values
+#### Passing array of values
 
 If array of values passed as argument to `$`, items of the array will be escaped
 individually and concatenated via space.
@@ -297,7 +300,7 @@ let files = [...]
 await $`tar cz ${files}`
 ```
 
-### Importing from other scripts
+#### Importing from other scripts
 
 It is possible to make use of `$` and other functions via explicit imports:
 
@@ -307,13 +310,13 @@ import {$} from 'zx'
 await $`date`
 ```
 
-### Scripts without extensions
+#### Scripts without extensions
 
 If script does not have a file extension (like `.git/hooks/pre-commit`), zx
 assumes that it is an [ESM](https://nodejs.org/api/modules.html#modules_module_createrequire_filename)
 module.
 
-### Markdown scripts
+#### Markdown scripts
 
 The `zx` can execute scripts written in markdown 
 ([examples/index.md](examples/markdown.md)):
@@ -322,7 +325,7 @@ The `zx` can execute scripts written in markdown
 zx examples/markdown.md
 ```
 
-### TypeScript scripts
+#### TypeScript scripts
 
 The `zx` can compile `.ts` scripts to `.mjs` and execute them.
 
@@ -352,7 +355,7 @@ void async function () {
 }()
 ``` 
 
-### Executing remote scripts
+#### Executing remote scripts
 
 If the argument to the `zx` executable starts with `https://`, the file will be
 downloaded and executed.
