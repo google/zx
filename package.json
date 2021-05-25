@@ -13,7 +13,7 @@
   "scripts": {
     "test": "npm run test:mjs && npm run test:ts",
     "test:mjs": "node zx.mjs test.mjs",
-    "test:ts": "node zx.mjs test-tsc.ts"
+    "test:ts": "cp ./test.mjs ./test-tsc.ts && node zx.mjs test-tsc.ts && rm -f ./test-tsc.ts"
   },
   "dependencies": {
     "@types/node": "^15.3",

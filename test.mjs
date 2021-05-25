@@ -12,11 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///<reference path="./index"/>
+
 import {strict as assert} from 'assert'
+import { fileURLToPath } from 'url'
+import { basename } from 'path'
+
+console.log(chalk.bold(`Running ${basename(fileURLToPath(import.meta.url))}`))
 
 { // Only stdout is used during command substitution
   let hello = await $`echo Error >&2; echo Hello`
-  let len = parseInt(await $`echo ${hello} | wc -c`)
+  let len = +(await $`echo ${hello} | wc -c`)
   assert(len === 6)
 }
 
