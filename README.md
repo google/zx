@@ -88,7 +88,7 @@ try {
 }
 ```
 
-### `ProcessPromise`
+#### `ProcessPromise`
 
 ```ts
 class ProcessPromise<T> extends Promise<T> {
@@ -108,7 +108,7 @@ await $`cat file.txt`.pipe(process.stdout)
 
 Read more about [pipelines](examples/pipelines.md).
 
-### `ProcessOutput`
+#### `ProcessOutput`
 
 ```ts
 class ProcessOutput {
