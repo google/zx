@@ -5,7 +5,7 @@
 
 await $`cat package.json | grep name`
 
-let branch = await $`git branch --show-current`
+const branch = await $`git branch --show-current`
 await $`dep deploy --branch=${branch}`
 
 await Promise.all([
@@ -14,7 +14,7 @@ await Promise.all([
   $`sleep 3; echo 3`,
 ])
 
-let name = 'foo bar'
+const name = 'foo bar'
 await $`mkdir /tmp/${name}`
 ```
 
@@ -63,14 +63,14 @@ Executes a given string using the `exec` function from the
 `child_process` package and returns `ProcessPromise<ProcessOutput>`.
 
 ```js
-let count = parseInt(await $`ls -1 | wc -l`)
+const count = parseInt(await $`ls -1 | wc -l`)
 console.log(`Files count: ${count}`)
 ```
 
 For example, to upload files in parallel:
 
 ```js
-let hosts = [...]
+const hosts = [...]
 await Promise.all(hosts.map(host =>
   $`rsync -azP ./src ${host}:/var/www`  
 ))
@@ -133,7 +133,7 @@ await $`pwd` // outputs /tmp
 A wrapper around the [node-fetch](https://www.npmjs.com/package/node-fetch) package.
 
 ```js
-let resp = await fetch('http://wttr.in')
+const resp = await fetch('http://wttr.in')
 if (resp.ok) {
   console.log(await resp.text())
 }
@@ -146,8 +146,8 @@ A wrapper around the [readline](https://nodejs.org/api/readline.html) package.
 Usage:
 
 ```js
-let bear = await question('What kind of bear is best? ')
-let token = await question('Choose env variable: ', {
+const bear = await question('What kind of bear is best? ')
+const token = await question('Choose env variable: ', {
   choices: Object.keys(process.env)
 })
 ```
@@ -222,7 +222,7 @@ The [fs](https://nodejs.org/api/fs.html) package is available without importing
 inside scripts. It is asynchronous by default.
 
 ```js
-let content = await fs.readFile('./package.json')
+const content = await fs.readFile('./package.json')
 ```
 
 ### `os` package
@@ -276,7 +276,7 @@ The `zx` provides `require()` function, so it can be used with imports in `.mjs`
 files (when using `zx` executable).
 
 ```js
-let {version} = require('./package.json')
+const {version} = require('./package.json')
 ```
 
 ### Passing env variables
@@ -293,7 +293,7 @@ individually and concatenated via space.
 
 Example:
 ```js
-let files = [...]
+const files = [...]
 await $`tar cz ${files}`
 ```
 
