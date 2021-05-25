@@ -28,11 +28,6 @@ interface $ {
   quote: (input: string) => string
 }
 
-export type cd = (path: string) => void
-export type sleep = (ms: number) => Promise<void>
-export type question = (query?: string, options?: QuestionOptions) => Promise<string>
-export type QuestionOptions = { choices: string[] }
-
 export interface ProcessPromise<T> extends Promise<T> {
   child: ChildProcess
   readonly stdin: Writable
@@ -51,11 +46,14 @@ export class ProcessOutput {
   toString(): string
 }
 
+export type QuestionOptions = { choices: string[] }
+
 declare global {
   export const $: $
-  export const cd: cd
-  export const sleep: sleep
-  export const question: question
+  export const cd: (path: string) => void
+  export const nothrow: (p: ProcessPromise<ProcessOutput>) => ProcessPromise<ProcessOutput>
+  export const sleep: (ms: number) => Promise<void>
+  export const question: (query?: string, options?: QuestionOptions) => Promise<string>
   export const chalk: typeof _chalk
   export const fs: typeof _fs & {
     createWriteStream: typeof createWriteStream
