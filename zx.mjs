@@ -117,7 +117,7 @@ async function importPath(filepath, origin = filepath) {
   if (ext === '.ts') {
     let {dir, name} = parse(filepath)
     let outFile = join(dir, name + '.mjs')
-    await run`npm_config_yes=true npx -p typescript tsc --target esnext --module esnext --moduleResolution node ${filepath}`
+    await compile(filepath)
     await fs.rename(join(dir, name + '.js'), outFile)
     let wait = importPath(outFile, filepath)
     await fs.rm(outFile)
@@ -171,10 +171,23 @@ function transformMarkdown(source) {
   return output.join('\n')
 }
 
-async function run(pieces, ...args) {
+async function compile(input) {
   let v = $.verbose
   $.verbose = false
-  let p = $(pieces, ...args)
+  let tsc = $`npm_config_yes=true npx -p typescript tsc --target esnext --module esnext --moduleResolution node ${input}`
   $.verbose = v
-  return p
+
+  let i = 0, color = [chalk.magentaBright, chalk.cyanBright, chalk.yellowBright,
+      chalk.greenBright, chalk.blueBright][new Date().getMinutes() % 5],
+    interval = setInterval(() => {
+      process.stdout.write(color('  '
+        + ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'][i++ % 10]
+        + '\r'
+      ))
+    }, 100)
+
+  await tsc
+
+  clearInterval(interval)
+  process.stdout.write('   \r')
 }
