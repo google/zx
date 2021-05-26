@@ -29,7 +29,7 @@ try {
     process.exit(0)
   }
 
-  if (typeof firstArg === 'undefined') {
+  if (typeof firstArg === 'undefined' || firstArg[0] === '-') {
     let ok = await scriptFromStdin()
     if (!ok) {
       console.log(`usage: zx <script>`)
