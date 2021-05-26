@@ -12,31 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-///<reference path="./index.mjs.d.ts"/>
-
 import {strict as assert} from 'assert'
-import { fileURLToPath } from 'url'
-import { basename } from 'path'
-import {
-  $ as _$,
-  cd as _cd,
-  chalk as _chalk,
-  nothrow as _nothrow,
-  question as _question,
-  sleep as _sleep,
-} from './index.mjs'
-
-console.log(chalk.bold(`Running ${basename(fileURLToPath(import.meta.url))}`))
-
-// Named exports match to injected global vars
-{
-  assert(_$ === $)
-  assert(_cd === cd)
-  assert(_chalk === chalk)
-  assert(_nothrow === nothrow)
-  assert(_question === question)
-  assert(_sleep === sleep)
-}
 
 { // Only stdout is used during command substitution
   let hello = await $`echo Error >&2; echo Hello`
