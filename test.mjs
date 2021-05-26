@@ -87,6 +87,10 @@ import {strict as assert} from 'assert'
   await $`node zx.mjs examples/markdown.md`
 }
 
+{ // TypeScript scripts are working
+  await $`node zx.mjs examples/typescript.ts`
+}
+
 { // Pipes are working
   let {stdout} = await $`echo "hello"`
     .pipe($`awk '{print $1" world"}'`)
