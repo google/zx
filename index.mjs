@@ -19,7 +19,7 @@ import {
   promises as fs
 } from 'fs'
 import os from 'os'
-import {promisify} from 'util'
+import {promisify, inspect} from 'util'
 import {spawn} from 'child_process'
 import {createInterface} from 'readline'
 import {default as nodeFetch} from 'node-fetch'
@@ -207,6 +207,14 @@ export class ProcessOutput extends Error {
 
   get exitCode() {
     return this.#code
+  }
+
+  [inspect.custom]() {
+    return `ProcessOutput {
+  stdout: ${this.stdout.length === 0 ? "''" : chalk.green(inspect(this.stdout))},
+  stderr: ${this.stderr.length === 0 ? "''" : chalk.red(inspect(this.stderr))},
+  exitCode: ${(this.exitCode === 0 ? chalk.green : chalk.red)(this.exitCode)}
+}`
   }
 }
 
