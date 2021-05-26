@@ -210,9 +210,10 @@ export class ProcessOutput extends Error {
   }
 
   [inspect.custom]() {
+    let stringify = (s, c) => s.length === 0 ? "''" : c(inspect(s))
     return `ProcessOutput {
-  stdout: ${this.stdout.length === 0 ? "''" : chalk.green(inspect(this.stdout))},
-  stderr: ${this.stderr.length === 0 ? "''" : chalk.red(inspect(this.stderr))},
+  stdout: ${stringify(this.stdout, chalk.green)},
+  stderr: ${stringify(this.stderr, chalk.red)},
   exitCode: ${(this.exitCode === 0 ? chalk.green : chalk.red)(this.exitCode)}
 }`
   }
