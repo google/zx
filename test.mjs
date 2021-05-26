@@ -16,7 +16,7 @@ import {strict as assert} from 'assert'
 
 { // Only stdout is used during command substitution
   let hello = await $`echo Error >&2; echo Hello`
-  let len = parseInt(await $`echo ${hello} | wc -c`)
+  let len = +(await $`echo ${hello} | wc -c`)
   assert(len === 6)
 }
 

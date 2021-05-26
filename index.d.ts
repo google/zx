@@ -48,16 +48,31 @@ export class ProcessOutput {
 
 export type QuestionOptions = { choices: string[] }
 
+type cd = (path: string) => void
+type nothrow = (p: ProcessPromise<ProcessOutput>) => ProcessPromise<ProcessOutput>
+type sleep =(ms: number) => Promise<void>
+type question = (query?: string, options?: QuestionOptions) => Promise<string>
+type fs = typeof _fs & {
+  createWriteStream: typeof createWriteStream
+  createReadStream: typeof createReadStream
+}
+
+export const $: $
+export const cd: cd
+export const nothrow: nothrow
+export const sleep: sleep
+export const question: question
+export const chalk: typeof _chalk
+export const fs: fs
+export const os: typeof _os
+
 declare global {
-  export const $: $
-  export const cd: (path: string) => void
-  export const nothrow: (p: ProcessPromise<ProcessOutput>) => ProcessPromise<ProcessOutput>
-  export const sleep: (ms: number) => Promise<void>
-  export const question: (query?: string, options?: QuestionOptions) => Promise<string>
-  export const chalk: typeof _chalk
-  export const fs: typeof _fs & {
-    createWriteStream: typeof createWriteStream
-    createReadStream: typeof createReadStream
-  }
-  export const os: typeof _os
+  const $: $
+  const cd: cd
+  const nothrow: nothrow
+  const sleep: sleep
+  const question: question
+  const chalk: typeof _chalk
+  const fs: fs
+  const os: typeof _os
 }
