@@ -56,7 +56,7 @@ type fs = typeof _fs & {
 }
 type nothrow = (p: ProcessPromise<ProcessOutput>) => ProcessPromise<ProcessOutput>
 type question = (query?: string, options?: QuestionOptions) => Promise<string>
-type sleep =(ms: number) => Promise<void>
+type sleep = (ms: number) => Promise<void>
 
 export const $: $
 export const cd: cd
