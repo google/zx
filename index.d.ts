@@ -72,6 +72,7 @@ declare global {
   const $: $
   const cd: cd
   const chalk: typeof _chalk
+  // @ts-ignore
   const fetch: typeof _fetch
   const fs: fs
   const nothrow: nothrow
