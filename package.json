@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@types/node": "^15.3",
+    "@types/node-fetch": "^2.5.10",
     "chalk": "^4.1.1",
     "node-fetch": "^2.6.1",
     "shq": "^1.0.2",

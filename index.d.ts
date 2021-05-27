@@ -17,6 +17,7 @@ import {Readable, Writable} from 'stream'
 import {createReadStream, createWriteStream, promises as _fs} from 'fs'
 import * as _os from 'os'
 import * as _chalk from 'chalk'
+import _fetch from 'node-fetch'
 
 interface $ {
   (pieces: TemplateStringsArray, ...args: any[]): ProcessPromise<ProcessOutput>
@@ -49,30 +50,32 @@ export class ProcessOutput {
 export type QuestionOptions = { choices: string[] }
 
 type cd = (path: string) => void
-type nothrow = (p: ProcessPromise<ProcessOutput>) => ProcessPromise<ProcessOutput>
-type sleep =(ms: number) => Promise<void>
-type question = (query?: string, options?: QuestionOptions) => Promise<string>
 type fs = typeof _fs & {
   createWriteStream: typeof createWriteStream
   createReadStream: typeof createReadStream
 }
+type nothrow = (p: ProcessPromise<ProcessOutput>) => ProcessPromise<ProcessOutput>
+type question = (query?: string, options?: QuestionOptions) => Promise<string>
+type sleep =(ms: number) => Promise<void>
 
 export const $: $
 export const cd: cd
-export const nothrow: nothrow
-export const sleep: sleep
-export const question: question
 export const chalk: typeof _chalk
+export const fetch: typeof _fetch
 export const fs: fs
+export const nothrow: nothrow
 export const os: typeof _os
+export const question: question
+export const sleep: sleep
 
 declare global {
   const $: $
   const cd: cd
-  const nothrow: nothrow
-  const sleep: sleep
-  const question: question
   const chalk: typeof _chalk
+  const fetch: typeof _fetch
   const fs: fs
+  const nothrow: nothrow
   const os: typeof _os
+  const question: question
+  const sleep: sleep
 }
