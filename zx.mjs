@@ -180,10 +180,10 @@ async function compile(input) {
   let i = 0, color = [chalk.magentaBright, chalk.cyanBright, chalk.yellowBright,
       chalk.greenBright, chalk.blueBright][new Date().getMinutes() % 5],
     interval = setInterval(() => {
-      process.stdout.write(color('  '
-        + ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'][i++ % 10]
+      process.stdout.write('  '
+        + color(['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'][i++ % 10])
         + '\r'
-      ))
+      )
     }, 100)
 
   await tsc
