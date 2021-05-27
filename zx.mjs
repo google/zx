@@ -174,7 +174,7 @@ function transformMarkdown(source) {
 async function compile(input) {
   let v = $.verbose
   $.verbose = false
-  let tsc = $`npm_config_yes=true npx -p typescript tsc --target esnext --module esnext --moduleResolution node ${input}`
+  let tsc = $`npm_config_yes=true npx -p typescript tsc --target esnext --lib esnext --module esnext --moduleResolution node ${input}`
   $.verbose = v
 
   let i = 0, color = [chalk.magentaBright, chalk.cyanBright, chalk.yellowBright,
