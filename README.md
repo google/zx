@@ -59,7 +59,7 @@ without any imports.
 
 ### ``$`command` ``
 
-Executes a given string using the `exec` function from the
+Executes a given string using the `spawn` function from the
 `child_process` package and returns `ProcessPromise<ProcessOutput>`.
 
 ```js
@@ -319,7 +319,7 @@ module.
 #### Markdown scripts
 
 The `zx` can execute scripts written in markdown 
-([examples/index.md](examples/markdown.md)):
+([examples/markdown.md](examples/markdown.md)):
 
 ```bash
 zx examples/markdown.md
