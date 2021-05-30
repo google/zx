@@ -111,6 +111,21 @@ import {strict as assert} from 'assert'
   }
 }
 
+{
+  const processPromise = $`echo "Hello"`;
+  await processPromise // after awaiting promise, pipe doesn't receive output
+  let processOutput;
+  try {
+    processOutput = await processPromise
+      .pipe($`less`)
+  } catch (e) {
+    console.log("This was expected", e)
+  }
+  assert(processOutput.exitCode === 0)
+  assert(processOutput.stdout === '') // this is unexpected - intuitively would expect "Hello"
+  assert(processOutput.stderr === '')
+}
+
 { // ProcessOutput thrown as error
   let err
   try {
