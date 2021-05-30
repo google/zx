@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {strict as assert} from 'assert'
+import {inspect} from 'util'
 
 { // Only stdout is used during command substitution
   let hello = await $`echo Error >&2; echo Hello`
@@ -121,9 +122,9 @@ import {strict as assert} from 'assert'
   } catch (e) {
     console.log("This was expected", e)
   }
-  assert(processOutput.exitCode === 0)
-  assert(processOutput.stdout === '') // this is unexpected - intuitively would expect "Hello"
-  assert(processOutput.stderr === '')
+  if (processOutput) {
+    assert.fail('Expected failure, but got ' + processOutput[inspect.custom]())
+  }
 }
 
 { // ProcessOutput thrown as error

@@ -57,6 +57,7 @@ export function $(pieces, ...args) {
       })
     })
   })
+  promise.then(() => promise.resolved())
   if (process.stdin.isTTY) {
     process.stdin.pipe(child.stdin)
   }
@@ -145,6 +146,7 @@ export class ProcessPromise extends Promise {
   child = undefined
   _stop = () => void 0
   _nothrow = false
+  _resolved = false
 
   get stdin() {
     return this.child.stdin
@@ -164,7 +166,14 @@ export class ProcessPromise extends Promise {
       .catch(p => p.exitCode)
   }
 
+  resolved() {
+    this._resolved = true
+  }
+
   pipe(dest) {
+    if (this._resolved === true) {
+      throw new Error("The pipe() method shouldn't be called after promise is already resolved/awaited!")
+    }
     if (typeof dest === 'string') {
       throw new Error('The pipe() method does not take strings. Forgot $?')
     }
