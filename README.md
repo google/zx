@@ -31,6 +31,9 @@ gives sensible defaults.
 npm i -g zx
 ```
 
+## Requirements
+Node.js >= 14.8.0
+
 ## Documentation
 
 Write your scripts in a file with `.mjs` extension in order to 
