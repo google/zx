@@ -30,6 +30,7 @@ import shq from 'shq'
 export function $(pieces, ...args) {
   let __from = (new Error().stack.split('at ')[2]).trim()
   let cmd = pieces[0], i = 0
+  const verbose = $.verbose
   while (i < args.length) {
     let s
     if (Array.isArray(args[i])) {
@@ -39,7 +40,7 @@ export function $(pieces, ...args) {
     }
     cmd += s + pieces[++i]
   }
-  if ($.verbose) console.log('$', colorize(cmd))
+  if (verbose) console.log('$', colorize(cmd))
   let options = {
     cwd: $.cwd,
     shell: typeof $.shell === 'string' ? $.shell : true,
@@ -62,12 +63,12 @@ export function $(pieces, ...args) {
   }
   let stdout = '', stderr = '', combined = ''
   function onStdout(data) {
-    if ($.verbose) process.stdout.write(data)
+    if (verbose) process.stdout.write(data)
     stdout += data
     combined += data
   }
   function onStderr(data) {
-    if ($.verbose) process.stderr.write(data)
+    if (verbose) process.stderr.write(data)
     stderr += data
     combined += data
   }
