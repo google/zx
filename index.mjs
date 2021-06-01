@@ -30,7 +30,7 @@ import shq from 'shq'
 export function $(pieces, ...args) {
   let __from = (new Error().stack.split('at ')[2]).trim()
   let cmd = pieces[0], i = 0
-  const verbose = $.verbose
+  let verbose = $.verbose
   while (i < args.length) {
     let s
     if (Array.isArray(args[i])) {
