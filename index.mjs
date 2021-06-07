@@ -123,7 +123,7 @@ export async function question(query, options) {
   return answer
 }
 
-export async function fetch(url, init) {
+export function fetch(url, init) {
   if ($.verbose) {
     if (typeof init !== 'undefined') {
       console.log('$', colorize(`fetch ${url}`), init)
