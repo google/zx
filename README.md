@@ -221,7 +221,7 @@ console.log(chalk.blue('Hello world!'))
 
 #### `fs` package
 
-The [fs](https://nodejs.org/api/fs.html) package.
+The `promises` of [fs](https://nodejs.org/api/fs.html#fs_promises_api) package.
 
 ```js
 let content = await fs.readFile('./package.json')
