@@ -14,7 +14,7 @@
 
 import {ChildProcess} from 'child_process'
 import {Readable, Writable} from 'stream'
-import {createReadStream, createWriteStream, promises as _fs} from 'fs'
+import {createReadStream, createWriteStream, promises as fsPromises, constants as fsConstants} from 'fs'
 import * as _os from 'os'
 import * as _chalk from 'chalk'
 import _fetch from 'node-fetch'
@@ -50,7 +50,8 @@ export class ProcessOutput {
 export type QuestionOptions = { choices: string[] }
 
 type cd = (path: string) => void
-type fs = typeof _fs & {
+type fs = typeof fsPromises & {
+  constants: typeof fsConstants
   createWriteStream: typeof createWriteStream
   createReadStream: typeof createReadStream
 }
