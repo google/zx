@@ -16,7 +16,8 @@ import {
   createReadStream,
   createWriteStream,
   existsSync,
-  promises as fs
+  promises as fsPromises,
+  constants as fsConstants,
 } from 'fs'
 import os from 'os'
 import {promisify, inspect} from 'util'
@@ -103,6 +104,8 @@ export function cd(path) {
   }
   $.cwd = path
 }
+
+export const fs = {...fsPromises, constants: fsConstants, createWriteStream, createReadStream}
 
 export async function question(query, options) {
   let completer = undefined
@@ -238,7 +241,7 @@ Object.assign(global, {
   cd,
   chalk,
   fetch,
-  fs: {...fs, createWriteStream, createReadStream},
+  fs,
   nothrow,
   os,
   question,
