@@ -70,14 +70,14 @@ export const question: question
 export const sleep: sleep
 
 declare global {
-  const $: $
-  const cd: cd
-  const chalk: typeof _chalk
+  var $: $
+  var cd: cd
+  var chalk: typeof _chalk
   // @ts-ignore
-  const fetch: typeof _fetch
-  const fs: fs
-  const nothrow: nothrow
-  const os: typeof _os
-  const question: question
-  const sleep: sleep
+  var fetch: typeof _fetch
+  var fs: fs
+  var nothrow: nothrow
+  var os: typeof _os
+  var question: question
+  var sleep: sleep
 }
