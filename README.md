@@ -221,7 +221,12 @@ console.log(chalk.blue('Hello world!'))
 
 #### `fs` package
 
-The `promises` of [fs](https://nodejs.org/api/fs.html#fs_promises_api) package.
+The [fs](https://nodejs.org/api/fs.html#fs_promises_api) package.
+
+> Same as if you write:
+> ```js
+> import {promises as fs} from 'fs'
+> ```
 
 ```js
 let content = await fs.readFile('./package.json')
