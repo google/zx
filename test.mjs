@@ -31,6 +31,12 @@ import {strict as assert} from 'assert'
   assert((await $`echo ${bar}`).stdout.trim() === bar)
 }
 
+{ // $.raw passes arguments as is
+  let ch = 'ch'
+  let cmd = `e${ch}o foo`
+  assert((await $.raw`${cmd}`).stdout.trim() === 'foo')
+}
+
 { // Can create a dir with a space in the name
   let name = 'foo bar'
   try {

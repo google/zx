@@ -94,6 +94,16 @@ try {
 $.quote = shq
 $.cwd = undefined
 
+$.raw = async (...args) => {
+  const q = $.quote
+  $.quote = v => v
+  try {
+    return $(...args)
+  } finally {
+    $.quote = q
+  }
+}
+
 export function cd(path) {
   if ($.verbose) console.log('$', colorize(`cd ${path}`))
   if (!existsSync(path)) {

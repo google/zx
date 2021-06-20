@@ -22,6 +22,7 @@ import _fetch from 'node-fetch'
 interface $ {
   (pieces: TemplateStringsArray, ...args: any[]): ProcessPromise<ProcessOutput>
 
+  raw: $
   verbose: boolean
   shell: string
   cwd: string
