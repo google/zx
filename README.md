@@ -22,7 +22,7 @@ Bash is great, but when it comes to writing scripts,
 people usually choose a more convenient programming language.
 JavaScript is a perfect choice, but standard Node.js library 
 requires additional hassle before using. The `zx` package provides
-useful wrappers around `child_process`, escapes arguments and
+useful wrappers around `child_process`, escapes arguments (⚠️ please, see `$.qoute` notes) and
 gives sensible defaults.
 
 ## Install
@@ -262,6 +262,21 @@ Specifies a function for escaping special characters during
 command substitution.
 
 Default is the [shq](https://www.npmjs.com/package/shq) package.
+
+Please take in mind than disabling this feature might be unsafe. 
+If you really need, you may apply this snippet to turn off `shq` for a single invocation:
+```ts
+$.raw = async (...args) => {
+  const q = $.quote
+  $.quote = v => v
+  try {
+    return $(...args)
+  } finally {
+    $.quote = q
+  }
+}
+$.raw`execute cmd ${without} ${escaping}`
+```
 
 #### `$.verbose`
 
