@@ -23,7 +23,7 @@ people usually choose a more convenient programming language.
 JavaScript is a perfect choice, but standard Node.js library 
 requires additional hassle before using. The `zx` package provides
 useful wrappers around `child_process`,
-escapes arguments (⚠️ please, see `$.qoute` and `$.raw` notes)
+escapes arguments (⚠️ please, see `$.quote` and `$.raw` notes)
 and gives sensible defaults.
 
 ## Install
