@@ -232,7 +232,7 @@ The [fs](https://nodejs.org/api/fs.html#fs_promises_api) package.
 let content = await fs.readFile('./package.json')
 ```
 
-### `os` package
+#### `os` package
 
 The [os](https://nodejs.org/api/os.html) package.
 
