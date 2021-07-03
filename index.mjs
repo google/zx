@@ -26,7 +26,6 @@ import {createInterface} from 'readline'
 import {default as nodeFetch} from 'node-fetch'
 import which from 'which'
 import chalk from 'chalk'
-import shq from 'shq'
 
 export function $(pieces, ...args) {
   let __from = (new Error().stack.split('at ')[2]).trim()
@@ -91,7 +90,7 @@ try {
   // Bash not found, no prefix.
   $.prefix = ''
 }
-$.quote = shq
+$.quote = quote
 $.cwd = undefined
 
 export function cd(path) {
@@ -234,6 +233,24 @@ function substitute(arg) {
     return arg.stdout.replace(/\n$/, '')
   }
   return arg.toString()
+}
+
+function quote(arg) {
+  if (/^[a-z0-9_.-]+$/i.test(arg)) {
+    return arg
+  }
+  return `$'`
+    + arg
+      .replaceAll('\\', '\\\\')
+      .replaceAll('\'', '\\\'')
+      .replaceAll('\b', '\\b')
+      .replaceAll('\f', '\\f')
+      .replaceAll('\n', '\\n')
+      .replaceAll('\r', '\\r')
+      .replaceAll('\t', '\\t')
+      .replaceAll('\v', '\\v')
+      .replaceAll('\u0000', '\\0')
+    + `'`
 }
 
 Object.assign(global, {

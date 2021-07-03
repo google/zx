@@ -14,11 +14,10 @@
     "test": "node zx.mjs test.mjs"
   },
   "dependencies": {
-    "@types/node": "^15.3",
+    "@types/node": "^16.0",
     "@types/node-fetch": "^2.5.10",
     "chalk": "^4.1.1",
     "node-fetch": "^2.6.1",
-    "shq": "^1.0.2",
     "which": "^2.0.2"
   },
   "publishConfig": {

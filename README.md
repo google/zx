@@ -261,8 +261,6 @@ Default is `set -euo pipefail;`.
 Specifies a function for escaping special characters during 
 command substitution.
 
-Default is the [shq](https://www.npmjs.com/package/shq) package.
-
 #### `$.verbose`
 
 Specifies verbosity. Default is `true`.
