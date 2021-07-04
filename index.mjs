@@ -20,6 +20,7 @@ import {createInterface} from 'readline'
 import {default as nodeFetch} from 'node-fetch'
 import which from 'which'
 import chalk from 'chalk'
+import minimist from 'minimist'
 
 export function $(pieces, ...args) {
   let __from = (new Error().stack.split('at ')[2]).trim()
@@ -76,13 +77,22 @@ export function $(pieces, ...args) {
   return promise
 }
 
-$.verbose = true
-try {
-  $.shell = await which('bash')
-  $.prefix = 'set -euo pipefail;'
-} catch (e) {
-  // Bash not found, no prefix.
+export const argv = minimist(process.argv.slice(2))
+
+$.verbose = !argv.quiet
+if (typeof argv.shell === 'string') {
+  $.shell = argv.shell
   $.prefix = ''
+} else {
+  try {
+    $.shell = await which('bash')
+    $.prefix = 'set -euo pipefail;'
+  } catch (e) {
+    $.prefix = '' // Bash not found, no prefix.
+  }
+}
+if (typeof argv.prefix === 'string') {
+  $.prefix = argv.prefix
 }
 $.quote = quote
 $.cwd = undefined
@@ -205,7 +215,7 @@ export class ProcessOutput extends Error {
   }
 
   [inspect.custom]() {
-    let stringify = (s, c) => s.length === 0 ? "''" : c(inspect(s))
+    let stringify = (s, c) => s.length === 0 ? '\'\'' : c(inspect(s))
     return `ProcessOutput {
   stdout: ${stringify(this.stdout, chalk.green)},
   stderr: ${stringify(this.stderr, chalk.red)},
@@ -247,6 +257,7 @@ function quote(arg) {
 
 Object.assign(global, {
   $,
+  argv,
   cd,
   chalk,
   fetch,

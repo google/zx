@@ -15,10 +15,12 @@
   },
   "dependencies": {
     "@types/fs-extra": "^9.0.11",
+    "@types/minimist": "^1.2.1",
     "@types/node": "^16.0",
     "@types/node-fetch": "^2.5.10",
     "chalk": "^4.1.1",
     "fs-extra": "^10.0.0",
+    "minimist": "^1.2.5",
     "node-fetch": "^2.6.1",
     "which": "^2.0.2"
   },

@@ -18,6 +18,7 @@ import * as _fs from 'fs-extra'
 import * as _os from 'os'
 import * as _chalk from 'chalk'
 import _fetch from 'node-fetch'
+import {ParsedArgs} from 'minimist'
 
 interface $ {
   (pieces: TemplateStringsArray, ...args: any[]): ProcessPromise<ProcessOutput>
@@ -55,6 +56,7 @@ type question = (query?: string, options?: QuestionOptions) => Promise<string>
 type sleep = (ms: number) => Promise<void>
 
 export const $: $
+export const argv: ParsedArgs
 export const cd: cd
 export const chalk: typeof _chalk
 export const fetch: typeof _fetch
@@ -66,6 +68,7 @@ export const sleep: sleep
 
 declare global {
   var $: $
+  var argv: ParsedArgs
   var cd: cd
   var chalk: typeof _chalk
   // @ts-ignore
