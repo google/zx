@@ -14,7 +14,7 @@
 
 import {ChildProcess} from 'child_process'
 import {Readable, Writable} from 'stream'
-import {createReadStream, createWriteStream, promises as fsPromises, constants as fsConstants} from 'fs'
+import * as _fs from 'fs-extra'
 import * as _os from 'os'
 import * as _chalk from 'chalk'
 import _fetch from 'node-fetch'
@@ -50,11 +50,6 @@ export class ProcessOutput {
 export type QuestionOptions = { choices: string[] }
 
 type cd = (path: string) => void
-type fs = typeof fsPromises & {
-  constants: typeof fsConstants
-  createWriteStream: typeof createWriteStream
-  createReadStream: typeof createReadStream
-}
 type nothrow = (p: ProcessPromise<ProcessOutput>) => ProcessPromise<ProcessOutput>
 type question = (query?: string, options?: QuestionOptions) => Promise<string>
 type sleep = (ms: number) => Promise<void>
@@ -63,7 +58,7 @@ export const $: $
 export const cd: cd
 export const chalk: typeof _chalk
 export const fetch: typeof _fetch
-export const fs: fs
+export const fs: typeof _fs
 export const nothrow: nothrow
 export const os: typeof _os
 export const question: question
@@ -75,7 +70,7 @@ declare global {
   var chalk: typeof _chalk
   // @ts-ignore
   var fetch: typeof _fetch
-  var fs: fs
+  var fs: typeof _fs
   var nothrow: nothrow
   var os: typeof _os
   var question: question

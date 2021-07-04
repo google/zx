@@ -12,13 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  createReadStream,
-  createWriteStream,
-  existsSync,
-  promises as fsPromises,
-  constants as fsConstants,
-} from 'fs'
+import fs from 'fs-extra'
 import os from 'os'
 import {promisify, inspect} from 'util'
 import {spawn} from 'child_process'
@@ -95,7 +89,7 @@ $.cwd = undefined
 
 export function cd(path) {
   if ($.verbose) console.log('$', colorize(`cd ${path}`))
-  if (!existsSync(path)) {
+  if (!fs.existsSync(path)) {
     let __from = (new Error().stack.split('at ')[2]).trim()
     console.error(`cd: ${path}: No such directory`)
     console.error(`    at ${__from}`)
@@ -103,8 +97,6 @@ export function cd(path) {
   }
   $.cwd = path
 }
-
-export const fs = {...fsPromises, constants: fsConstants, createWriteStream, createReadStream}
 
 export async function question(query, options) {
   let completer = undefined
@@ -265,4 +257,4 @@ Object.assign(global, {
   sleep,
 })
 
-export {chalk}
+export {chalk, fs}

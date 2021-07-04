@@ -16,7 +16,7 @@
 
 import {basename, dirname, extname, join, parse, resolve} from 'path'
 import {tmpdir} from 'os'
-import {promises as fs} from 'fs'
+import fs from 'fs-extra'
 import {createRequire} from 'module'
 import url from 'url'
 import {$, fetch, ProcessOutput} from './index.mjs'
