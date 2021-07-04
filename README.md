@@ -221,12 +221,7 @@ console.log(chalk.blue('Hello world!'))
 
 #### `fs` package
 
-The [fs](https://nodejs.org/api/fs.html#fs_promises_api) package.
-
-> Same as if you write:
-> ```js
-> import {promises as fs} from 'fs'
-> ```
+The [fs-extra](https://www.npmjs.com/package/fs-extra) package.
 
 ```js
 let content = await fs.readFile('./package.json')
@@ -239,6 +234,12 @@ The [os](https://nodejs.org/api/os.html) package.
 ```js
 await $`cd ${os.homedir()} && mkdir example`
 ```
+
+#### `minimist` package
+
+The [minimist](https://www.npmjs.com/package/minimist) package.
+
+Available as global const `argv`.
 
 ### Configuration
 
