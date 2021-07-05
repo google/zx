@@ -259,7 +259,7 @@ Specifies the command that will be prefixed to all commands run.
 
 Default is `set -euo pipefail;`.
 
-Or use a CLI argument: `--prefix='set -e'`
+Or use a CLI argument: `--prefix='set -e;'`
 
 #### `$.quote`
 
