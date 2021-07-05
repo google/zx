@@ -142,7 +142,12 @@ import {strict as assert} from 'assert'
 { // require() is working in ESM
   const {name, version} = require('./package.json')
   assert(typeof name === 'string')
-  console.log(chalk.black.bgYellowBright(` ${name} version is ${version} `))
+}
+
+{ // pkg version is present the global
+  const {version: _version} = require('./package.json')
+  assert(_version === version)
+  console.log(chalk.black.bgYellowBright(`zx version is ${version} `))
 }
 
 { // index.mjs exports some vars
@@ -157,7 +162,7 @@ import {strict as assert} from 'assert'
     os: _os,
     question: _question,
     sleep: _sleep,
-    version,
+    version: _version,
     ProcessOutput,
     ProcessPromise,
   } = await import('./index.mjs')
@@ -171,7 +176,7 @@ import {strict as assert} from 'assert'
   assert(_nothrow === nothrow)
   assert(_question === question)
   assert(_sleep === sleep)
-  assert(version === require('./package.json').version)
+  assert(_version === version)
   assert(typeof ProcessOutput === 'function')
   assert(typeof ProcessPromise === 'function')
 }

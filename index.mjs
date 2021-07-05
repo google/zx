@@ -269,6 +269,7 @@ Object.assign(global, {
   os,
   question,
   sleep,
+  version
 })
 
 export {chalk, fs}

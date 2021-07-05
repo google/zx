@@ -207,9 +207,26 @@ if ((await nothrow($`[[ -d path ]]`)).exitCode == 0) {
 }
 ```
 
+#### `version`
+
+`zx` package version is available as global const.
+
+```js
+const requiredVersion = '1.15.2'
+if (semver.lt(version, requiredVersion)) {
+  throw new Error(`Minimal required 'zx' version is ${requiredVersion}`)
+}
+```
+
+You can also obtain this value from the CLI.
+```shell
+zx --version
+zx -v
+```
+
 ### Packages
 
-Next packages is available without importing inside scripts.
+Next packages are available without importing inside scripts.
 
 #### `chalk` package
 
