@@ -251,11 +251,15 @@ Specifies what shell is used. Default is `which bash`.
 $.shell = '/usr/bin/bash'
 ```
 
+Or use a CLI argument: `--shell=/bin/bash`
+
 #### `$.prefix`
 
 Specifies the command that will be prefixed to all commands run.
 
 Default is `set -euo pipefail;`.
+
+Or use a CLI argument: `--prefix='set -e'`
 
 #### `$.quote`
 
@@ -268,6 +272,8 @@ Specifies verbosity. Default is `true`.
 
 In verbose mode, the `zx` prints all executed commands alongside with their 
 outputs.
+
+Or use a CLI argument `--quiet` to set `$.verbose = false`.
 
 ### Polyfills 
 
