@@ -79,4 +79,5 @@ declare global {
   var os: typeof _os
   var question: question
   var sleep: sleep
+  var version: string
 }
