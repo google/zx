@@ -243,15 +243,14 @@ function quote(arg) {
   }
   return `$'`
     + arg
-      .replaceAll('\\', '\\\\')
-      .replaceAll('\'', '\\\'')
-      .replaceAll('\b', '\\b')
-      .replaceAll('\f', '\\f')
-      .replaceAll('\n', '\\n')
-      .replaceAll('\r', '\\r')
-      .replaceAll('\t', '\\t')
-      .replaceAll('\v', '\\v')
-      .replaceAll('\u0000', '\\0')
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, '\\\'')
+      .replace(/\f/g, '\\f')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\t/g, '\\t')
+      .replace(/\v/g, '\\v')
+      .replace(/\0/g, '\\0')
     + `'`
 }
 
