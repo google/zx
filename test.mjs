@@ -133,10 +133,47 @@ import {strict as assert} from 'assert'
   assert(exitCode === 42)
 }
 
+{
+  // argv is present in the global
+  assert(typeof argv === 'object')
+  console.log('argv', argv)
+}
+
 { // require() is working in ESM
   const {name, version} = require('./package.json')
   assert(typeof name === 'string')
   console.log(chalk.black.bgYellowBright(` ${name} version is ${version} `))
+}
+
+{ // index.mjs exports some vars
+  const {
+    $: _$,
+    argv: _argv,
+    cd: _cd,
+    chalk: _chalk,
+    fetch: _fetch,
+    fs: _fs,
+    nothrow: _nothrow,
+    os: _os,
+    question: _question,
+    sleep: _sleep,
+    version,
+    ProcessOutput,
+    ProcessPromise,
+  } = await import('./index.mjs')
+
+  assert(_$ === $)
+  assert(_argv === argv)
+  assert(_cd === cd)
+  assert(_chalk === chalk)
+  assert(_fetch === fetch)
+  assert(_fs === fs)
+  assert(_nothrow === nothrow)
+  assert(_question === question)
+  assert(_sleep === sleep)
+  assert(version === require('./package.json').version)
+  assert(typeof ProcessOutput === 'function')
+  assert(typeof ProcessPromise === 'function')
 }
 
 console.log(chalk.greenBright(' 🍺 Success!'))

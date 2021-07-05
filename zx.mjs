@@ -19,11 +19,11 @@ import {tmpdir} from 'os'
 import fs from 'fs-extra'
 import {createRequire} from 'module'
 import url from 'url'
-import {$, fetch, ProcessOutput, argv} from './index.mjs'
+import {$, fetch, ProcessOutput, argv, version} from './index.mjs'
 
 try {
   if (argv.version || argv.v || argv.V) {
-    console.log(`zx version ${createRequire(import.meta.url)('./package.json').version}`)
+    console.log(`zx version ${version}`)
     process.exit(0)
   }
   let firstArg = process.argv[2]

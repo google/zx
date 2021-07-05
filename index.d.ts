@@ -65,6 +65,7 @@ export const nothrow: nothrow
 export const os: typeof _os
 export const question: question
 export const sleep: sleep
+export const version: string
 
 declare global {
   var $: $

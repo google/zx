@@ -21,6 +21,9 @@ import {default as nodeFetch} from 'node-fetch'
 import which from 'which'
 import chalk from 'chalk'
 import minimist from 'minimist'
+import {createRequire} from 'module'
+
+export const version = createRequire(import.meta.url)('./package.json').version
 
 export function $(pieces, ...args) {
   let __from = (new Error().stack.split('at ')[2]).trim()
