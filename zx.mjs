@@ -30,7 +30,7 @@ try {
   if (typeof firstArg === 'undefined' || firstArg[0] === '-') {
     let ok = await scriptFromStdin()
     if (!ok) {
-      console.log(`usage: zx <script>`)
+      printUsage()
       process.exit(2)
     }
   } else if (firstArg.startsWith('http://') || firstArg.startsWith('https://')) {
@@ -188,4 +188,12 @@ async function compile(input) {
 
   clearInterval(interval)
   process.stdout.write('   \r')
+}
+
+function printUsage() {
+  console.log(
+    'usage: zx [--quiet] [--shell=<path>]\n' +
+    '          [--prefix=<command>]\n' +
+    '          <script>'
+  )
 }
