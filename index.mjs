@@ -225,7 +225,7 @@ export class ProcessOutput extends Error {
 }
 
 function colorize(cmd) {
-  return cmd.replace(/^\w+(\s|$)/, substr => {
+  return cmd.replace(/^[\w_.-]+(\s|$)/, substr => {
     return chalk.greenBright(substr)
   })
 }
