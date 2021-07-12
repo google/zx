@@ -253,3 +253,18 @@ function quote(arg) {
       .replace(/\0/g, '\\0')
     + `'`
 }
+
+export function populateGlobal() {
+  Object.assign(global, {
+    $,
+    argv,
+    cd,
+    chalk,
+    fetch,
+    fs,
+    nothrow,
+    os,
+    question,
+    sleep,
+  })
+}

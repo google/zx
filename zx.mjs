@@ -15,19 +15,19 @@
 // limitations under the License.
 
 import {basename, dirname, extname, join, parse, resolve} from 'path'
-import os, {tmpdir} from 'os'
+import {tmpdir} from 'os'
 import fs from 'fs-extra'
 import chalk from 'chalk'
 import {createRequire} from 'module'
 import url from 'url'
-import {$, cd, fetch, nothrow, question, sleep, ProcessOutput, argv} from './index.mjs'
+import {$, populateGlobal, fetch, ProcessOutput, argv} from './index.mjs'
 
 try {
   if (argv.version || argv.v || argv.V) {
     console.log(`zx version ${createRequire(import.meta.url)('./package.json').version}`)
     process.exit(0)
   }
-  assignGlobal()
+  populateGlobal()
   let firstArg = process.argv[2]
   if (typeof firstArg === 'undefined' || firstArg[0] === '-') {
     let ok = await scriptFromStdin()
@@ -56,21 +56,6 @@ try {
   } else {
     throw p
   }
-}
-
-function assignGlobal() {
-  Object.assign(global, {
-    $,
-    argv,
-    cd,
-    chalk,
-    fetch,
-    fs,
-    nothrow,
-    os,
-    question,
-    sleep,
-  })
 }
 
 async function scriptFromStdin() {
