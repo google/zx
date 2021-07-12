@@ -253,18 +253,3 @@ function quote(arg) {
       .replace(/\0/g, '\\0')
     + `'`
 }
-
-Object.assign(global, {
-  $,
-  argv,
-  cd,
-  chalk,
-  fetch,
-  fs,
-  nothrow,
-  os,
-  question,
-  sleep,
-})
-
-export {chalk, fs}
