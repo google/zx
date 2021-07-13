@@ -12,5 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import './global'
-export * from './internal'
+import {
+  $,
+  argv as _argv,
+  cd as _cd,
+  chalk as _chalk,
+  fetch as _fetch,
+  fs as _fs,
+  nothrow,
+  os as _os,
+  question,
+  sleep
+} from './internal'
+
+declare global {
+  var $: $
+  var argv: typeof _argv
+  var cd: typeof _cd
+  var chalk: typeof _chalk
+  // @ts-ignore
+  var fetch: typeof _fetch
+  var fs: typeof _fs
+  var nothrow: nothrow
+  var os: typeof _os
+  var question: question
+  var sleep: sleep
+}
