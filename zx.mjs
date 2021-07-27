@@ -26,8 +26,8 @@ try {
     console.log(`zx version ${createRequire(import.meta.url)('./package.json').version}`)
     process.exit(0)
   }
-  let firstArg = process.argv[2]
-  if (typeof firstArg === 'undefined' || firstArg[0] === '-') {
+  let firstArg = process.argv.slice(2).find(a => !a.startsWith('--'));
+  if (typeof firstArg === 'undefined' || firstArg === '-') {
     let ok = await scriptFromStdin()
     if (!ok) {
       printUsage()
