@@ -139,4 +139,8 @@ import {strict as assert} from 'assert'
   console.log(chalk.black.bgYellowBright(` ${name} version is ${version} `))
 }
 
+{ // test quote regex
+  assert(await $`ls ${('./*.mjs')}`.exitCode === 0)
+}
+
 console.log(chalk.greenBright(' 🍺 Success!'))
