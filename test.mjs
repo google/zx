@@ -140,7 +140,7 @@ import path from 'path'
   console.log(chalk.black.bgYellowBright(` ${name} version is ${version} `))
 }
 
-{ // executes a script from PATH.
+{ // Executes a script from PATH.
   const isWindows = process.platform === 'win32'
   const oldPath = process.env.PATH
 
@@ -156,11 +156,11 @@ import path from 'path'
 
   try {
     await $`echo ${scriptCode}`
-      .pipe(fs.createWriteStream('/tmp/script-from-path.js', { mode: 0o744 }))
-    await $`script-from-path.js`
+      .pipe(fs.createWriteStream('/tmp/script-from-path', { mode: 0o744 }))
+    await $`script-from-path`
   } finally {
     process.env.PATH = oldPath
-    fs.rm('/tmp/script-from-path.js')
+    fs.rm('/tmp/script-from-path')
   }
 }
 
