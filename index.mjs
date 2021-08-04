@@ -80,7 +80,9 @@ export function $(pieces, ...args) {
 
 export const argv = minimist(process.argv.slice(2))
 
-export const globby = Object.assign(globbyModule.globby, globbyModule)
+export const globby = Object.assign(function globby(...args) {
+  return globbyModule.globby(...args)
+}, globbyModule)
 
 $.verbose = !argv.quiet
 if (typeof argv.shell === 'string') {
