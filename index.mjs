@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import fs from 'fs-extra'
+import * as globbyModule from 'globby'
 import os from 'os'
 import {promisify, inspect} from 'util'
 import {spawn} from 'child_process'
@@ -78,6 +79,10 @@ export function $(pieces, ...args) {
 }
 
 export const argv = minimist(process.argv.slice(2))
+
+export const globby = Object.assign(function globby(...args) {
+  return globbyModule.globby(...args)
+}, globbyModule)
 
 $.verbose = !argv.quiet
 if (typeof argv.shell === 'string') {
@@ -261,6 +266,7 @@ Object.assign(global, {
   chalk,
   fetch,
   fs,
+  globby,
   nothrow,
   os,
   question,

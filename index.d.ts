@@ -15,6 +15,7 @@
 import {ChildProcess} from 'child_process'
 import {Readable, Writable} from 'stream'
 import * as _fs from 'fs-extra'
+import * as _globby from 'globby'
 import * as _os from 'os'
 import * as _chalk from 'chalk'
 import _fetch from 'node-fetch'
@@ -61,6 +62,7 @@ export const cd: cd
 export const chalk: typeof _chalk
 export const fetch: typeof _fetch
 export const fs: typeof _fs
+export const globby: typeof _globby.globby & typeof _globby
 export const nothrow: nothrow
 export const os: typeof _os
 export const question: question
@@ -74,6 +76,7 @@ declare global {
   // @ts-ignore
   var fetch: typeof _fetch
   var fs: typeof _fs
+  var globby: typeof _globby.globby & typeof _globby
   var nothrow: nothrow
   var os: typeof _os
   var question: question

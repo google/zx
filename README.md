@@ -227,6 +227,16 @@ The [fs-extra](https://www.npmjs.com/package/fs-extra) package.
 let content = await fs.readFile('./package.json')
 ```
 
+#### `globby` package
+
+The [globby](https://github.com/sindresorhus/globby) package.
+
+```js
+let packages = await globby(['package.json', 'packages/*/package.json'])
+
+let pictures = globby.globbySync('content/*.(jpg|png)')
+```
+
 #### `os` package
 
 The [os](https://nodejs.org/api/os.html) package.
