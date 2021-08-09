@@ -243,7 +243,7 @@ function substitute(arg) {
 }
 
 function quote(arg) {
-  if (/^[a-z0-9/_.-]+$/i.test(arg)) {
+  if (/^[a-z0-9/_.\-]+$/i.test(arg)) {
     return arg
   }
   return `$'`
