@@ -16,23 +16,21 @@
 
 import {basename, dirname, extname, join, parse, resolve} from 'path'
 import {tmpdir} from 'os'
-import {promises as fs} from 'fs'
+import fs from 'fs-extra'
 import {createRequire} from 'module'
 import url from 'url'
-import {$, fetch, ProcessOutput} from './index.mjs'
+import {$, fetch, ProcessOutput, argv} from './index.mjs'
 
 try {
-  let firstArg = process.argv[2]
-
-  if (['-v', '-V', '--version'].includes(firstArg)) {
+  if (argv.version || argv.v || argv.V) {
     console.log(`zx version ${createRequire(import.meta.url)('./package.json').version}`)
     process.exit(0)
   }
-
-  if (typeof firstArg === 'undefined' || firstArg[0] === '-') {
+  let firstArg = process.argv.slice(2).find(a => !a.startsWith('--'));
+  if (typeof firstArg === 'undefined' || firstArg === '-') {
     let ok = await scriptFromStdin()
     if (!ok) {
-      console.log(`usage: zx <script>`)
+      printUsage()
       process.exit(2)
     }
   } else if (firstArg.startsWith('http://') || firstArg.startsWith('https://')) {
@@ -44,7 +42,7 @@ try {
     } else if (firstArg.startsWith('file:///')) {
       filepath = url.fileURLToPath(firstArg)
     } else {
-      filepath = join(process.cwd(), firstArg)
+      filepath = resolve(firstArg)
     }
     await importPath(filepath)
   }
@@ -190,4 +188,12 @@ async function compile(input) {
 
   clearInterval(interval)
   process.stdout.write('   \r')
+}
+
+function printUsage() {
+  console.log(
+    'usage: zx [--quiet] [--shell=<path>]\n' +
+    '          [--prefix=<command>]\n' +
+    '          <script>'
+  )
 }

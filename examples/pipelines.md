@@ -31,6 +31,15 @@ await $`echo 1; sleep 1; echo 2; sleep 1; echo 3;`
   .pipe(process.stdout)
 ```
 
+Pipe both stdout and stderr:
+
+```js
+let echo = $`echo stdout; echo stderr 1>&2`
+echo.stdout.pipe(process.stdout)
+echo.stderr.pipe(process.stdout)
+await echo
+```
+
 Also, the `pipe()` method can combine `$` programs. Same as `|` in bash:
 
 ```js

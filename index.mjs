@@ -12,12 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  createReadStream,
-  createWriteStream,
-  existsSync,
-  promises as fs
-} from 'fs'
+import fs from 'fs-extra'
+import * as globbyModule from 'globby'
 import os from 'os'
 import {promisify, inspect} from 'util'
 import {spawn} from 'child_process'
@@ -25,11 +21,12 @@ import {createInterface} from 'readline'
 import {default as nodeFetch} from 'node-fetch'
 import which from 'which'
 import chalk from 'chalk'
-import shq from 'shq'
+import minimist from 'minimist'
 
 export function $(pieces, ...args) {
   let __from = (new Error().stack.split('at ')[2]).trim()
   let cmd = pieces[0], i = 0
+  let verbose = $.verbose
   while (i < args.length) {
     let s
     if (Array.isArray(args[i])) {
@@ -39,7 +36,7 @@ export function $(pieces, ...args) {
     }
     cmd += s + pieces[++i]
   }
-  if ($.verbose) console.log('$', colorize(cmd))
+  if (verbose) console.log('$', colorize(cmd))
   let options = {
     cwd: $.cwd,
     shell: typeof $.shell === 'string' ? $.shell : true,
@@ -63,12 +60,12 @@ export function $(pieces, ...args) {
   }
   let stdout = '', stderr = '', combined = ''
   function onStdout(data) {
-    if ($.verbose) process.stdout.write(data)
+    if (verbose) process.stdout.write(data)
     stdout += data
     combined += data
   }
   function onStderr(data) {
-    if ($.verbose) process.stderr.write(data)
+    if (verbose) process.stderr.write(data)
     stderr += data
     combined += data
   }
@@ -82,20 +79,33 @@ export function $(pieces, ...args) {
   return promise
 }
 
-$.verbose = true
-try {
-  $.shell = await which('bash')
-  $.prefix = 'set -euo pipefail;'
-} catch (e) {
-  // Bash not found, no prefix.
+export const argv = minimist(process.argv.slice(2))
+
+export const globby = Object.assign(function globby(...args) {
+  return globbyModule.globby(...args)
+}, globbyModule)
+
+$.verbose = !argv.quiet
+if (typeof argv.shell === 'string') {
+  $.shell = argv.shell
   $.prefix = ''
+} else {
+  try {
+    $.shell = await which('bash')
+    $.prefix = 'set -euo pipefail;'
+  } catch (e) {
+    $.prefix = '' // Bash not found, no prefix.
+  }
 }
-$.quote = shq
+if (typeof argv.prefix === 'string') {
+  $.prefix = argv.prefix
+}
+$.quote = quote
 $.cwd = undefined
 
 export function cd(path) {
   if ($.verbose) console.log('$', colorize(`cd ${path}`))
-  if (!existsSync(path)) {
+  if (!fs.existsSync(path)) {
     let __from = (new Error().stack.split('at ')[2]).trim()
     console.error(`cd: ${path}: No such directory`)
     console.error(`    at ${__from}`)
@@ -219,7 +229,7 @@ export class ProcessOutput extends Error {
   }
 
   [inspect.custom]() {
-    let stringify = (s, c) => s.length === 0 ? "''" : c(inspect(s))
+    let stringify = (s, c) => s.length === 0 ? '\'\'' : c(inspect(s))
     return `ProcessOutput {
   stdout: ${stringify(this.stdout, chalk.green)},
   stderr: ${stringify(this.stderr, chalk.red)},
@@ -229,7 +239,7 @@ export class ProcessOutput extends Error {
 }
 
 function colorize(cmd) {
-  return cmd.replace(/^\w+(\s|$)/, substr => {
+  return cmd.replace(/^[\w_.-]+(\s|$)/, substr => {
     return chalk.greenBright(substr)
   })
 }
@@ -241,16 +251,35 @@ function substitute(arg) {
   return arg.toString()
 }
 
+function quote(arg) {
+  if (/^[a-z0-9/_.-]+$/i.test(arg)) {
+    return arg
+  }
+  return `$'`
+    + arg
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, '\\\'')
+      .replace(/\f/g, '\\f')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\t/g, '\\t')
+      .replace(/\v/g, '\\v')
+      .replace(/\0/g, '\\0')
+    + `'`
+}
+
 Object.assign(global, {
   $,
+  argv,
   cd,
   chalk,
   fetch,
-  fs: {...fs, createWriteStream, createReadStream},
+  fs,
+  globby,
   nothrow,
   os,
   question,
   sleep,
 })
 
-export {chalk}
+export {chalk, fs}

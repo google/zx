@@ -31,6 +31,10 @@ gives sensible defaults.
 npm i -g zx
 ```
 
+### Requirement
+
+Node.js >= 14.8.0
+
 ## Documentation
 
 Write your scripts in a file with `.mjs` extension in order to 
@@ -217,19 +221,35 @@ console.log(chalk.blue('Hello world!'))
 
 #### `fs` package
 
-The [fs](https://nodejs.org/api/fs.html) package.
+The [fs-extra](https://www.npmjs.com/package/fs-extra) package.
 
 ```js
 let content = await fs.readFile('./package.json')
 ```
 
-### `os` package
+#### `globby` package
+
+The [globby](https://github.com/sindresorhus/globby) package.
+
+```js
+let packages = await globby(['package.json', 'packages/*/package.json'])
+
+let pictures = globby.globbySync('content/*.(jpg|png)')
+```
+
+#### `os` package
 
 The [os](https://nodejs.org/api/os.html) package.
 
 ```js
 await $`cd ${os.homedir()} && mkdir example`
 ```
+
+#### `minimist` package
+
+The [minimist](https://www.npmjs.com/package/minimist) package.
+
+Available as global const `argv`.
 
 ### Configuration
 
@@ -241,18 +261,20 @@ Specifies what shell is used. Default is `which bash`.
 $.shell = '/usr/bin/bash'
 ```
 
+Or use a CLI argument: `--shell=/bin/bash`
+
 #### `$.prefix`
 
 Specifies the command that will be prefixed to all commands run.
 
 Default is `set -euo pipefail;`.
 
+Or use a CLI argument: `--prefix='set -e;'`
+
 #### `$.quote`
 
 Specifies a function for escaping special characters during 
 command substitution.
-
-Default is the [shq](https://www.npmjs.com/package/shq) package.
 
 #### `$.verbose`
 
@@ -260,6 +282,8 @@ Specifies verbosity. Default is `true`.
 
 In verbose mode, the `zx` prints all executed commands alongside with their 
 outputs.
+
+Or use a CLI argument `--quiet` to set `$.verbose = false`.
 
 ### Polyfills 
 

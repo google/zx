@@ -14,10 +14,12 @@
 
 import {ChildProcess} from 'child_process'
 import {Readable, Writable} from 'stream'
-import {createReadStream, createWriteStream, promises as _fs} from 'fs'
+import * as _fs from 'fs-extra'
+import * as _globby from 'globby'
 import * as _os from 'os'
 import * as _chalk from 'chalk'
 import _fetch from 'node-fetch'
+import {ParsedArgs} from 'minimist'
 
 interface $ {
   (pieces: TemplateStringsArray, ...args: any[]): ProcessPromise<ProcessOutput>
@@ -50,33 +52,33 @@ export class ProcessOutput {
 export type QuestionOptions = { choices: string[] }
 
 type cd = (path: string) => void
-type fs = typeof _fs & {
-  createWriteStream: typeof createWriteStream
-  createReadStream: typeof createReadStream
-}
 type nothrow = (p: ProcessPromise<ProcessOutput>) => ProcessPromise<ProcessOutput>
 type question = (query?: string, options?: QuestionOptions) => Promise<string>
 type sleep = (ms: number) => Promise<void>
 
 export const $: $
+export const argv: ParsedArgs
 export const cd: cd
 export const chalk: typeof _chalk
 export const fetch: typeof _fetch
-export const fs: fs
+export const fs: typeof _fs
+export const globby: typeof _globby.globby & typeof _globby
 export const nothrow: nothrow
 export const os: typeof _os
 export const question: question
 export const sleep: sleep
 
 declare global {
-  const $: $
-  const cd: cd
-  const chalk: typeof _chalk
+  var $: $
+  var argv: ParsedArgs
+  var cd: cd
+  var chalk: typeof _chalk
   // @ts-ignore
-  const fetch: typeof _fetch
-  const fs: fs
-  const nothrow: nothrow
-  const os: typeof _os
-  const question: question
-  const sleep: sleep
+  var fetch: typeof _fetch
+  var fs: typeof _fs
+  var globby: typeof _globby.globby & typeof _globby
+  var nothrow: nothrow
+  var os: typeof _os
+  var question: question
+  var sleep: sleep
 }
