@@ -92,6 +92,11 @@ import path from 'path'
   await $`node zx.mjs examples/typescript.ts`
 }
 
+{ // Quiet mode is working
+  let {stdout} = await $`node zx.mjs --quiet examples/markdown.md`
+  assert(!stdout.includes('whoami'))
+}
+
 { // Pipes are working
   let {stdout} = await $`echo "hello"`
     .pipe($`awk '{print $1" world"}'`)
