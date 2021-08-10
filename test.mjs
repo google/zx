@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {strict as assert, deepEqual} from 'assert'
+import path from 'path'
 
 { // Only stdout is used during command substitution
   let hello = await $`echo Error >&2; echo Hello`
@@ -149,6 +150,30 @@ import {strict as assert, deepEqual} from 'assert'
   const {name, version} = require('./package.json')
   assert(typeof name === 'string')
   console.log(chalk.black.bgYellowBright(` ${name} version is ${version} `))
+}
+
+{ // Executes a script from PATH.
+  const isWindows = process.platform === 'win32'
+  const oldPath = process.env.PATH
+
+  const envPathSeparator = isWindows ? ';' : ':'
+  process.env.PATH +=  envPathSeparator + path.resolve('/tmp/')
+
+  const toPOSIXPath = (_path) =>
+    _path.split(path.sep).join(path.posix.sep)
+
+  const zxPath = path.resolve('./zx.mjs')
+  const zxLocation = isWindows ? toPOSIXPath(zxPath) : zxPath
+  const scriptCode = `#!/usr/bin/env ${zxLocation}\nconsole.log('The script from path runs.')`
+
+  try {
+    await $`echo ${scriptCode}`
+      .pipe(fs.createWriteStream('/tmp/script-from-path', { mode: 0o744 }))
+    await $`script-from-path`
+  } finally {
+    process.env.PATH = oldPath
+    fs.rm('/tmp/script-from-path')
+  }
 }
 
 console.log(chalk.greenBright(' 🍺 Success!'))

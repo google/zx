@@ -42,7 +42,7 @@ try {
     } else if (firstArg.startsWith('file:///')) {
       filepath = url.fileURLToPath(firstArg)
     } else {
-      filepath = join(process.cwd(), firstArg)
+      filepath = resolve(firstArg)
     }
     await importPath(filepath)
   }
