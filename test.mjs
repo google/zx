@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {strict as assert} from 'assert'
+import {strict as assert, deepEqual} from 'assert'
 import path from 'path'
 
 { // Only stdout is used during command substitution
@@ -132,6 +132,18 @@ import path from 'path'
 { // nothrow() doesn't throw
   let {exitCode} = await nothrow($`exit 42`)
   assert(exitCode === 42)
+}
+
+{ // globby available
+  assert(typeof globby === 'function')
+  assert(typeof globby.globbySync === 'function')
+  assert(typeof globby.globbyStream === 'function')
+  assert(typeof globby.generateGlobTasks === 'function')
+  assert(typeof globby.isDynamicPattern === 'function')
+  assert(typeof globby.isGitIgnored === 'function')
+  assert(typeof globby.isGitIgnoredSync === 'function')
+  deepEqual(await globby('*.mjs'), ['index.mjs', 'test.mjs', 'zx.mjs'])
+  console.log(chalk.greenBright('globby available'))
 }
 
 { // require() is working in ESM
