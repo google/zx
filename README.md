@@ -67,7 +67,7 @@ Executes a given string using the `spawn` function from the
 `child_process` package and returns `ProcessPromise<ProcessOutput>`.
 
 ```js
-let count = parseInt(await $`ls -1 | wc -l`)
+let count = parseInt(await $`ls -1 | wc -l`, 10)
 console.log(`Files count: ${count}`)
 ```
 
