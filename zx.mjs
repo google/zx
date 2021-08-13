@@ -84,9 +84,10 @@ async function scriptFromHttp(remote) {
     process.exit(1)
   }
   let script = await res.text()
-  let filepath = join(tmpdir(), basename(remote))
+  let filename = new URL(remote).pathname
+  let filepath = join(tmpdir(), basename(filename))
   await fs.mkdtemp(filepath)
-  await writeAndImport(script, filepath, join(process.cwd(), basename(remote)))
+  await writeAndImport(script, filepath, join(process.cwd(), basename(filename)))
 }
 
 async function writeAndImport(script, filepath, origin = filepath) {
