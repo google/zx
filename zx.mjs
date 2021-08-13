@@ -198,14 +198,13 @@ async function compile(input) {
   let tsc = $`npm_config_yes=true npx -p typescript tsc --target esnext --lib esnext --module esnext --moduleResolution node ${input}`
   $.verbose = v
 
-  let i = 0, color = [chalk.magentaBright, chalk.cyanBright, chalk.yellowBright,
-      chalk.greenBright, chalk.blueBright][new Date().getMinutes() % 5],
-    interval = setInterval(() => {
-      process.stdout.write('  '
-        + color(['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'][i++ % 10])
-        + '\r'
-      )
-    }, 100)
+  let i = 0
+  let interval = setInterval(() => {
+    process.stdout.write('  '
+      + ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'][i++ % 10]
+      + '\r'
+    )
+  }, 100)
 
   try {
     await tsc

@@ -354,7 +354,7 @@ zx examples/markdown.md
 The `zx` can compile `.ts` scripts to `.mjs` and execute them.
 
 ```bash
-zx examples/typescript.ts
+zx script.ts
 ```
 
 In TypeScript file include the `zx` package to import types:

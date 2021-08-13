@@ -5,7 +5,7 @@ by zx. Try to run `zx examples/markdown.md`.
 
 ```js
 await $`whoami`
-await $`ls -la ${__dirname}`
+await $`echo ${__dirname}`
 ```
 
 The `__filename` will be pointed to **markdown.md**:
@@ -17,7 +17,7 @@ console.log(chalk.yellowBright(__filename))
 We can use imports here as well:
 
 ```js
-await import('./basics.mjs')
+await import('chalk')
 ```
 
 A bash code (with `bash` or `sh` language tags) also will be executed:

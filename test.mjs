@@ -82,7 +82,7 @@ import path from 'path'
 }
 
 { // Scripts with no extension are working
-  await $`node zx.mjs examples/no-extension`
+  await $`node zx.mjs tests/no-extension`
 }
 
 { // require() is working from stdin
@@ -94,7 +94,7 @@ import path from 'path'
 }
 
 { // TypeScript scripts are working
-  await $`node zx.mjs examples/typescript.ts`
+  await $`node zx.mjs tests/typescript.ts`
 }
 
 { // Quiet mode is working
