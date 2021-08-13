@@ -138,9 +138,15 @@ function transformMarkdown(source) {
         if (/^( {4}|\t)/.test(line) && prevLineIsEmpty) {
           output.push(line)
           state = 'tab'
-        } else if (/^```(js)?$/.test(line)) {
+        } else if (/^```(js|javascript)$/.test(line)) {
           output.push('')
-          state = 'code'
+          state = 'js'
+        } else if (/^```(sh|bash)$/.test(line)) {
+          output.push('await $`')
+          state = 'bash'
+        } else if (/^```.*$/.test(line)) {
+          output.push('')
+          state = 'other'
         } else {
           prevLineIsEmpty = line === ''
           output.push('// ' + line)
@@ -156,7 +162,7 @@ function transformMarkdown(source) {
           state = 'root'
         }
         break
-      case 'code':
+      case 'js':
         if (/^```$/.test(line)) {
           output.push('')
           state = 'root'
@@ -164,8 +170,25 @@ function transformMarkdown(source) {
           output.push(line)
         }
         break
+      case 'bash':
+        if (/^```$/.test(line)) {
+          output.push('`')
+          state = 'root'
+        } else {
+          output.push(line)
+        }
+        break
+      case 'other':
+        if (/^```$/.test(line)) {
+          output.push('')
+          state = 'root'
+        } else {
+          output.push('// ' + line)
+        }
+        break
     }
   }
+  console.log(output.join('\n'))
   return output.join('\n')
 }
 

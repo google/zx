@@ -19,3 +19,18 @@ We can use imports here as well:
 ```js
 await import('./basics.mjs')
 ```
+
+A bash code (with `bash` or `sh` language tags) also will be executed:
+
+```bash
+VAR=$(date)
+echo "$VAR" | wc -c
+```
+
+Other code blocks are ignored:
+
+```css
+body .hero {
+    margin: 42px;
+}
+```

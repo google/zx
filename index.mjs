@@ -36,7 +36,16 @@ export function $(pieces, ...args) {
     }
     cmd += s + pieces[++i]
   }
-  if (verbose) console.log('$', colorize(cmd))
+  if (verbose) {
+    if (/\n/.test(cmd)) {
+      console.log(cmd
+        .split('\n')
+        .map((line, i) => (i === 0 ? '$' : '>') + ' ' + colorize(line))
+        .join('\n'))
+    } else {
+      console.log('$', colorize(cmd))
+    }
+  }
   let options = {
     cwd: $.cwd,
     shell: typeof $.shell === 'string' ? $.shell : true,
@@ -60,16 +69,19 @@ export function $(pieces, ...args) {
     process.stdin.pipe(child.stdin)
   }
   let stdout = '', stderr = '', combined = ''
+
   function onStdout(data) {
     if (verbose) process.stdout.write(data)
     stdout += data
     combined += data
   }
+
   function onStderr(data) {
     if (verbose) process.stderr.write(data)
     stderr += data
     combined += data
   }
+
   child.stdout.on('data', onStdout)
   child.stderr.on('data', onStderr)
   promise._stop = () => {
