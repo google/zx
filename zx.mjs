@@ -206,7 +206,11 @@ async function compile(input) {
       )
     }, 100)
 
-  await tsc
+  try {
+    await tsc
+  } catch (err) {
+    console.error(err.toString())
+  }
 
   clearInterval(interval)
   process.stdout.write('   \r')
