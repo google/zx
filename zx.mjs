@@ -188,7 +188,6 @@ function transformMarkdown(source) {
         break
     }
   }
-  console.log(output.join('\n'))
   return output.join('\n')
 }
 
