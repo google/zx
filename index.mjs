@@ -239,11 +239,11 @@ function substitute(arg) {
   if (arg instanceof ProcessOutput) {
     return arg.stdout.replace(/\n$/, '')
   }
-  return arg.toString()
+  return `${arg}`
 }
 
 function quote(arg) {
-  if (/^[a-z0-9/_.-]+$/i.test(arg)) {
+  if (/^[a-z0-9/_.-]+$/i.test(arg) || arg === '') {
     return arg
   }
   return `$'`

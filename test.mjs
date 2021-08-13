@@ -32,6 +32,11 @@ import path from 'path'
   assert((await $`echo ${bar}`).stdout.trim() === bar)
 }
 
+{ // Undefined and empty string correctly quoted
+  $`echo ${undefined}`
+  $`echo ${''}`
+}
+
 { // Can create a dir with a space in the name
   let name = 'foo bar'
   try {

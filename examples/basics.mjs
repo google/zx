@@ -16,12 +16,6 @@
 
 await $`ls -1 | wc -l`
 
-await Promise.all([
-  $`sleep 1; echo 1`,
-  $`sleep 2; echo 2`,
-  $`sleep 3; echo 3`,
-])
-
 let branch = await $`git branch --show-current`
 await $`printf ${branch} | wc` // The new line trimmed from stdout.
 
