@@ -24,7 +24,7 @@ import chalk from 'chalk'
 import minimist from 'minimist'
 
 export function $(pieces, ...args) {
-  let __from = (new Error().stack.split('at ')[2]).trim()
+  let __from = (new Error().stack.split(/^\s*at\s/m)[2]).trim()
   let cmd = pieces[0], i = 0
   let verbose = $.verbose
   while (i < args.length) {
@@ -106,7 +106,7 @@ $.cwd = undefined
 export function cd(path) {
   if ($.verbose) console.log('$', colorize(`cd ${path}`))
   if (!fs.existsSync(path)) {
-    let __from = (new Error().stack.split('at ')[2]).trim()
+    let __from = (new Error().stack.split(/^\s*at\s/m)[2]).trim()
     console.error(`cd: ${path}: No such directory`)
     console.error(`    at ${__from}`)
     process.exit(1)
