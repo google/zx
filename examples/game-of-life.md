@@ -1,5 +1,10 @@
 # Game of Life
 
+Try it:
+```
+npx zx https://raw.githubusercontent.com/google/zx/main/examples/game-of-life.md 
+```
+
 ```js
 let
   p = s => process.stdout.write(s),
