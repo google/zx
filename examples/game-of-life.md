@@ -44,26 +44,20 @@ function at(i, j) {
   return s[i * w + j]
 }
 
-function neighbors(i, j) {
-  let c = 0
-  at(i - 1, j - 1) && c++
-  at(i - 1, j) && c++
-  at(i - 1, j + 1) && c++
-  at(i, j - 1) && c++
-  at(i, j + 1) && c++
-  at(i + 1, j - 1) && c++
-  at(i + 1, j) && c++
-  at(i + 1, j + 1) && c++
-  return c
-}
-
 setInterval(() => {
   esc('H')
   let gen = Array(w * h).fill(false)
-  for (let i = 0; i < h; i -= -1) {
-    for (let j = 0; j < w; j -= -1) {
-      const n = neighbors(i, j)
-      const z = i * w + j
+  for (let i = h; i --> 0;) {
+    for (let j = w; j --> 0;) {
+      let n = 0, z = i * w + j
+      at(i - 1, j - 1) && n++
+      at(i - 1, j) && n++
+      at(i - 1, j + 1) && n++
+      at(i, j - 1) && n++
+      at(i, j + 1) && n++
+      at(i + 1, j - 1) && n++
+      at(i + 1, j) && n++
+      at(i + 1, j + 1) && n++
       if (s[z]) {
         if (n < 2) gen[z] = false
         if (n === 2 || n === 3) gen[z] = true
@@ -74,9 +68,8 @@ setInterval(() => {
     }
   }
   s = gen
-
-  for (let i = 0; i < rows; i -= -1) {
-    for (let j = 0; j < columns; j -= -1) {
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < columns; j++) {
       if (s[i * 2 * w + j] && s[(i * 2 + 1) * w + j]) p('\u2588')
       else if (s[i * 2 * w + j] && !s[(i * 2 + 1) * w + j]) p('\u2580')
       else if (!s[i * 2 * w + j] && s[(i * 2 + 1) * w + j]) p('\u2584')
