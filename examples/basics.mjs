@@ -17,7 +17,7 @@
 await $`ls -1 | wc -l`
 
 let branch = await $`git branch --show-current`
-await $`printf ${branch} | wc` // The new line trimmed from stdout.
+await $`echo ${branch} | wc` // The new line trimmed from stdout.
 
 let foo = `hi; echo 'oops'`
 await $`echo ${foo} | wc` // Vars properly quoted.

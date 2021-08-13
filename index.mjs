@@ -23,6 +23,14 @@ import which from 'which'
 import chalk from 'chalk'
 import minimist from 'minimist'
 
+export {chalk, fs}
+
+export const argv = minimist(process.argv.slice(2))
+
+export const globby = Object.assign(function globby(...args) {
+  return globbyModule.globby(...args)
+}, globbyModule)
+
 export function $(pieces, ...args) {
   let __from = (new Error().stack.split(/^\s*at\s/m)[2]).trim()
   let cmd = pieces[0], i = 0
@@ -37,14 +45,7 @@ export function $(pieces, ...args) {
     cmd += s + pieces[++i]
   }
   if (verbose) {
-    if (/\n/.test(cmd)) {
-      console.log(cmd
-        .split('\n')
-        .map((line, i) => (i === 0 ? '$' : '>') + ' ' + colorize(line))
-        .join('\n'))
-    } else {
-      console.log('$', colorize(cmd))
-    }
+    printCmd(cmd)
   }
   let options = {
     cwd: $.cwd,
@@ -55,21 +56,19 @@ export function $(pieces, ...args) {
   let promise = new ProcessPromise((resolve, reject) => {
     child.on('exit', code => {
       child.on('close', () => {
-        if(piped) process.stdin.unpipe(child.stdin)
+        if (piped) process.stdin.unpipe(child.stdin)
         let output = new ProcessOutput({
           code, stdout, stderr, combined,
-          message: `${stderr || '\n'}    at ${__from}`
+          message: `${stderr || '\n'}    at ${__from}\n    exit code: ${code}` + (exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : '')
         });
         (code === 0 || promise._nothrow ? resolve : reject)(output)
         promise._resolved = true
       })
     })
   })
-  let piped = process.stdin.isTTY
-  if (piped) {
-    process.stdin.pipe(child.stdin)
-  }
-  let stdout = '', stderr = '', combined = ''
+
+  let stdout = '', stderr = '', combined = '', piped = process.stdin.isTTY
+  if (piped) process.stdin.pipe(child.stdin)
 
   function onStdout(data) {
     if (verbose) process.stdout.write(data)
@@ -92,12 +91,6 @@ export function $(pieces, ...args) {
   promise.child = child
   return promise
 }
-
-export const argv = minimist(process.argv.slice(2))
-
-export const globby = Object.assign(function globby(...args) {
-  return globbyModule.globby(...args)
-}, globbyModule)
 
 $.verbose = !argv.quiet
 if (typeof argv.shell === 'string') {
@@ -247,8 +240,19 @@ export class ProcessOutput extends Error {
     return `ProcessOutput {
   stdout: ${stringify(this.stdout, chalk.green)},
   stderr: ${stringify(this.stderr, chalk.red)},
-  exitCode: ${(this.exitCode === 0 ? chalk.green : chalk.red)(this.exitCode)}
+  exitCode: ${(this.exitCode === 0 ? chalk.green : chalk.red)(this.exitCode)}${(exitCodeInfo(this.exitCode) ? chalk.grey(' (' + exitCodeInfo(this.exitCode) + ')') : '')}
 }`
+  }
+}
+
+function printCmd(cmd) {
+  if (/\n/.test(cmd)) {
+    console.log(cmd
+      .split('\n')
+      .map((line, i) => (i === 0 ? '$' : '>') + ' ' + colorize(line))
+      .join('\n'))
+  } else {
+    console.log('$', colorize(cmd))
   }
 }
 
@@ -282,6 +286,43 @@ function quote(arg) {
     + `'`
 }
 
+function exitCodeInfo(exitCode) {
+  return {
+    2: 'Misuse of shell builtins',
+    126: 'Invoked command cannot execute',
+    127: 'Command not found',
+    128: 'Invalid exit argument',
+    129: 'Hangup',
+    130: 'Interrupt',
+    131: 'Quit and dump core',
+    132: 'Illegal instruction',
+    133: 'Trace/breakpoint trap',
+    134: 'Process aborted',
+    135: 'Bus error: "access to undefined portion of memory object"',
+    136: 'Floating point exception: "erroneous arithmetic operation"',
+    137: 'Kill (terminate immediately)',
+    138: 'User-defined 1',
+    139: 'Segmentation violation',
+    140: 'User-defined 2',
+    141: 'Write to pipe with no one reading',
+    142: 'Signal raised by alarm',
+    143: 'Termination (request to terminate)',
+    145: 'Child process terminated, stopped (or continued*)',
+    146: 'Continue if stopped',
+    147: 'Stop executing temporarily',
+    148: 'Terminal stop signal',
+    149: 'Background process attempting to read from tty ("in")',
+    150: 'Background process attempting to write to tty ("out")',
+    151: 'Urgent data available on socket',
+    152: 'CPU time limit exceeded',
+    153: 'File size limit exceeded',
+    154: 'Signal raised by timer counting virtual time: "virtual timer expired"',
+    155: 'Profiling timer expired',
+    157: 'Pollable event',
+    159: 'Bad syscall',
+  }[exitCode]
+}
+
 Object.assign(global, {
   $,
   argv,
@@ -295,5 +336,3 @@ Object.assign(global, {
   question,
   sleep,
 })
-
-export {chalk, fs}
