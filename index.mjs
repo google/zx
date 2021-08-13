@@ -54,8 +54,8 @@ export function $(pieces, ...args) {
   let child = spawn($.prefix + cmd, options)
   let promise = new ProcessPromise((resolve, reject) => {
     child.on('exit', code => {
-      if(piped) process.stdin.unpipe(child.stdin)
       child.on('close', () => {
+        if(piped) process.stdin.unpipe(child.stdin)
         let output = new ProcessOutput({
           code, stdout, stderr, combined,
           message: `${stderr || '\n'}    at ${__from}`
