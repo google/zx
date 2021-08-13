@@ -134,6 +134,20 @@ import path from 'path'
   console.log('☝️ Error above is expected')
 }
 
+{ // The pipe() throws if already resolved
+  let out, p = $`echo "Hello"`
+  await p
+  try {
+    out = await p.pipe($`less`)
+  } catch (err) {
+    console.log(err)
+    console.log('☝️ Error above is expected')
+  }
+  if (out) {
+    assert.fail('Expected failure!')
+  }
+}
+
 { // ProcessOutput::exitCode doesn't throw
   assert(await $`grep qwerty README.md`.exitCode !== 0)
   assert(await $`[[ -f ${__filename} ]]`.exitCode === 0)
@@ -156,18 +170,12 @@ import path from 'path'
   console.log(chalk.greenBright('globby available'))
 }
 
-{ // require() is working in ESM
-  const {name, version} = require('./package.json')
-  assert(typeof name === 'string')
-  console.log(chalk.black.bgYellowBright(` ${name} version is ${version} `))
-}
-
 { // Executes a script from PATH.
   const isWindows = process.platform === 'win32'
   const oldPath = process.env.PATH
 
   const envPathSeparator = isWindows ? ';' : ':'
-  process.env.PATH +=  envPathSeparator + path.resolve('/tmp/')
+  process.env.PATH += envPathSeparator + path.resolve('/tmp/')
 
   const toPOSIXPath = (_path) =>
     _path.split(path.sep).join(path.posix.sep)
@@ -178,12 +186,18 @@ import path from 'path'
 
   try {
     await $`echo ${scriptCode}`
-      .pipe(fs.createWriteStream('/tmp/script-from-path', { mode: 0o744 }))
+      .pipe(fs.createWriteStream('/tmp/script-from-path', {mode: 0o744}))
     await $`script-from-path`
   } finally {
     process.env.PATH = oldPath
     fs.rm('/tmp/script-from-path')
   }
+}
+
+{ // require() is working in ESM
+  const {name, version} = require('./package.json')
+  assert(typeof name === 'string')
+  console.log(chalk.black.bgYellowBright(` ${name} version is ${version} `))
 }
 
 console.log(chalk.greenBright(' 🍺 Success!'))

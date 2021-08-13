@@ -60,6 +60,7 @@ export function $(pieces, ...args) {
           message: `${stderr || '\n'}    at ${__from}`
         });
         (code === 0 || promise._nothrow ? resolve : reject)(output)
+        promise._resolved = true
       })
     })
   })
@@ -167,6 +168,7 @@ export class ProcessPromise extends Promise {
   child = undefined
   _stop = () => void 0
   _nothrow = false
+  _resolved = false
 
   get stdin() {
     return this.child.stdin
@@ -189,6 +191,13 @@ export class ProcessPromise extends Promise {
   pipe(dest) {
     if (typeof dest === 'string') {
       throw new Error('The pipe() method does not take strings. Forgot $?')
+    }
+    if (this._resolved === true) {
+      if (dest instanceof ProcessPromise) {
+        nothrow(dest)
+        dest.child.kill()
+      }
+      throw new Error('The pipe() method shouldn\'t be called after promise is already resolved!')
     }
     this._stop()
     if (dest instanceof ProcessPromise) {
