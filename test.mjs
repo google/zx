@@ -141,6 +141,7 @@ import path from 'path'
     out = await p.pipe($`less`)
   } catch (err) {
     console.log(err)
+    assert.equal(err.message, `The pipe() method shouldn't be called after promise is already resolved!`)
     console.log('☝️ Error above is expected')
   }
   if (out) {
