@@ -32,9 +32,10 @@ export const globby = Object.assign(function globby(...args) {
 }, globbyModule)
 
 export function $(pieces, ...args) {
+  let {verbose, cwd, shell, prefix} = $
   let __from = (new Error().stack.split(/^\s*at\s/m)[2]).trim()
+
   let cmd = pieces[0], i = 0
-  let verbose = $.verbose
   while (i < args.length) {
     let s
     if (Array.isArray(args[i])) {
@@ -44,19 +45,26 @@ export function $(pieces, ...args) {
     }
     cmd += s + pieces[++i]
   }
-  if (verbose) {
-    printCmd(cmd)
-  }
-  let options = {
-    cwd: $.cwd,
-    shell: typeof $.shell === 'string' ? $.shell : true,
-    windowsHide: true,
-  }
-  let child = spawn($.prefix + cmd, options)
-  let promise = new ProcessPromise((resolve, reject) => {
+
+  let resolve, reject
+  let promise = new ProcessPromise((...args) => [resolve, reject] = args)
+
+  promise._run = () => {
+    if (promise.child) return
+    if (promise._prerun) promise._prerun()
+    if (verbose) {
+      printCmd(cmd)
+    }
+
+    let child = spawn(prefix + cmd, {
+      cwd,
+      shell: typeof shell === 'string' ? shell : true,
+      stdio: [promise._inheritStdin ? 'inherit' : 'pipe', 'pipe', 'pipe'],
+      windowsHide: true,
+    })
+
     child.on('exit', code => {
       child.on('close', () => {
-        if (piped) process.stdin.unpipe(child.stdin)
         let output = new ProcessOutput({
           code, stdout, stderr, combined,
           message: `${stderr || '\n'}    at ${__from}\n    exit code: ${code}` + (exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : '')
@@ -65,30 +73,23 @@ export function $(pieces, ...args) {
         promise._resolved = true
       })
     })
-  })
 
-  let stdout = '', stderr = '', combined = '', piped = process.stdin.isTTY
-  if (piped) process.stdin.pipe(child.stdin)
-
-  function onStdout(data) {
-    if (verbose) process.stdout.write(data)
-    stdout += data
-    combined += data
+    let stdout = '', stderr = '', combined = ''
+    let onStdout = data => {
+      if (verbose) process.stdout.write(data)
+      stdout += data
+      combined += data
+    }
+    let onStderr = data => {
+      if (verbose) process.stderr.write(data)
+      stderr += data
+      combined += data
+    }
+    if (!promise._piped) child.stdout.on('data', onStdout)
+    child.stderr.on('data', onStderr)
+    promise.child = child
+    if (promise._postrun) promise._postrun()
   }
-
-  function onStderr(data) {
-    if (verbose) process.stderr.write(data)
-    stderr += data
-    combined += data
-  }
-
-  child.stdout.on('data', onStdout)
-  child.stderr.on('data', onStderr)
-  promise._stop = () => {
-    child.stdout.off('data', onStdout)
-    child.stderr.off('data', onStderr)
-  }
-  promise.child = child
   return promise
 }
 
@@ -161,19 +162,26 @@ export function nothrow(promise) {
 
 export class ProcessPromise extends Promise {
   child = undefined
-  _stop = () => void 0
   _nothrow = false
   _resolved = false
+  _inheritStdin = true
+  _piped = false
+  _prerun = undefined
+  _postrun = undefined
 
   get stdin() {
+    this._inheritStdin = false
+    this._run()
     return this.child.stdin
   }
 
   get stdout() {
+    this._run()
     return this.child.stdout
   }
 
   get stderr() {
+    this._run()
     return this.child.stderr
   }
 
@@ -183,25 +191,28 @@ export class ProcessPromise extends Promise {
       .catch(p => p.exitCode)
   }
 
+  then(onfulfilled, onrejected) {
+    if (this._run) this._run()
+    return super.then(onfulfilled, onrejected)
+  }
+
   pipe(dest) {
     if (typeof dest === 'string') {
       throw new Error('The pipe() method does not take strings. Forgot $?')
     }
     if (this._resolved === true) {
-      if (dest instanceof ProcessPromise) {
-        nothrow(dest)
-        dest.child.kill()
-      }
       throw new Error('The pipe() method shouldn\'t be called after promise is already resolved!')
     }
-    this._stop()
+    this._piped = true
     if (dest instanceof ProcessPromise) {
-      process.stdin.unpipe(dest.stdin)
-      this.stdout.pipe(dest.stdin)
+      dest._inheritStdin = false
+      dest._prerun = this._run
+      dest._postrun = () => this.stdout.pipe(dest.child.stdin)
       return dest
+    } else {
+      this._postrun = () => this.stdout.pipe(dest)
+      return this
     }
-    this.stdout.pipe(dest)
-    return this
   }
 }
 
