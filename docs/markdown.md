@@ -1,7 +1,13 @@
 # Markdown Scripts
 
 It's possible to write scripts using markdown. Only code blocks will be executed
-by zx. Try to run `zx examples/markdown.md`.
+by zx. 
+
+> You can run this markdown file:
+>
+> ```
+> zx docs/markdown.md
+> ```
 
 ```js
 await $`whoami`

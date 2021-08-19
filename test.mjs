@@ -90,7 +90,7 @@ import path from 'path'
 }
 
 { // Markdown scripts are working
-  await $`node zx.mjs examples/markdown.md`
+  await $`node zx.mjs docs/markdown.md`
 }
 
 { // TypeScript scripts are working
@@ -98,7 +98,7 @@ import path from 'path'
 }
 
 { // Quiet mode is working
-  let {stdout} = await $`node zx.mjs --quiet examples/markdown.md`
+  let {stdout} = await $`node zx.mjs --quiet docs/markdown.md`
   assert(!stdout.includes('whoami'))
 }
 

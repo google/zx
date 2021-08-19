@@ -1,6 +1,10 @@
 # Pipelines
 
-> You can run this markdown file: `zx examples/pipelines.md`
+> You can run this markdown file: 
+> 
+> ```
+> zx docs/pipelines.md
+> ```
 
 The `zx` supports Node.js streams and special `pipe()` method can be used to
 redirect stdout.

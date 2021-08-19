@@ -110,7 +110,7 @@ The `pipe()` method can be used to redirect stdout:
 await $`cat file.txt`.pipe(process.stdout)
 ```
 
-Read more about [pipelines](examples/pipelines.md).
+Read more about [pipelines](docs/pipelines.md).
 
 #### `ProcessOutput`
 
@@ -343,10 +343,10 @@ module.
 #### Markdown scripts
 
 The `zx` can execute scripts written in markdown 
-([examples/markdown.md](examples/markdown.md)):
+([docs/markdown.md](docs/markdown.md)):
 
 ```bash
-zx examples/markdown.md
+zx docs/markdown.md
 ```
 
 #### TypeScript scripts
