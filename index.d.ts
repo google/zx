@@ -63,6 +63,7 @@ export const chalk: typeof _chalk
 export const fetch: typeof _fetch
 export const fs: typeof _fs
 export const globby: typeof _globby.globby & typeof _globby
+export const glob: typeof _globby.globby & typeof _globby
 export const nothrow: nothrow
 export const os: typeof _os
 export const question: question
@@ -77,6 +78,7 @@ declare global {
   var fetch: typeof _fetch
   var fs: typeof _fs
   var globby: typeof _globby.globby & typeof _globby
+  var glob: typeof _globby.globby & typeof _globby
   var nothrow: nothrow
   var os: typeof _os
   var question: question

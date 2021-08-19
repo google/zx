@@ -31,6 +31,8 @@ export const globby = Object.assign(function globby(...args) {
   return globbyModule.globby(...args)
 }, globbyModule)
 
+export const glob = globby
+
 export function $(pieces, ...args) {
   let {verbose, cwd, shell, prefix} = $
   let __from = (new Error().stack.split(/^\s*at\s/m)[2]).trim()
@@ -341,6 +343,7 @@ Object.assign(global, {
   chalk,
   fetch,
   fs,
+  glob,
   globby,
   nothrow,
   os,

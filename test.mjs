@@ -14,6 +14,7 @@
 
 import {strict as assert, deepEqual} from 'assert'
 import path from 'path'
+import {glob} from './index.mjs'
 
 { // Only stdout is used during command substitution
   let hello = await $`echo Error >&2; echo Hello`
@@ -160,6 +161,7 @@ import path from 'path'
 }
 
 { // globby available
+  assert(globby === glob)
   assert(typeof globby === 'function')
   assert(typeof globby.globbySync === 'function')
   assert(typeof globby.globbyStream === 'function')

@@ -237,6 +237,12 @@ let packages = await globby(['package.json', 'packages/*/package.json'])
 let pictures = globby.globbySync('content/*.(jpg|png)')
 ```
 
+Also, globby available via the `glob` shortcut:
+
+```js
+await $`svgo ${await glob('*.svg')}`
+```
+
 #### `os` package
 
 The [os](https://nodejs.org/api/os.html) package.
