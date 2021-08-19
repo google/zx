@@ -388,6 +388,10 @@ downloaded and executed.
 zx https://medv.io/example-script.mjs
 ```
 
+```bash
+zx https://medv.io/game-of-life.mjs
+```
+
 ## License
 
 [Apache-2.0](LICENSE)
