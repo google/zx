@@ -392,6 +392,16 @@ zx https://medv.io/example-script.mjs
 zx https://medv.io/game-of-life.mjs
 ```
 
+#### Executing scripts from STDIN
+
+The `zx` supports executing scripts from STDIN.
+
+```js
+zx <<'EOF'
+await $`pwd`
+EOF
+```
+
 ## License
 
 [Apache-2.0](LICENSE)
