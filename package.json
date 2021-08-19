@@ -1,9 +1,15 @@
 {
-  "name": "zx",
+  "name": "@cspotcode/zx",
   "version": "3.0.0",
   "description": "A tool for writing better scripts",
-  "main": "index.mjs",
+  "main": "index.js",
   "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./import.mjs",
+      "require": "./index.js"
+    }
+  },
   "bin": {
     "zx": "zx.mjs"
   },
@@ -11,6 +17,7 @@
     "node": ">= 14.8.0"
   },
   "scripts": {
+    "build": "swc -o index.js index.mjs",
     "test": "node zx.mjs test.mjs"
   },
   "dependencies": {
@@ -25,15 +32,17 @@
     "node-fetch": "^2.6.1",
     "which": "^2.0.2"
   },
-  "publishConfig": {
-    "registry": "https://wombat-dressing-room.appspot.com"
+  "devDependencies": {
+    "@swc/cli": "^0.1.49",
+    "@swc/core": "^1.2.80"
   },
   "files": [
     "*.mjs",
+    "!index.mjs",
     "*.js",
     "*.d.ts"
   ],
-  "repository": "google/zx",
+  "repository": "cspotcode/zx",
   "author": "Anton Medvedev <anton@medv.io>",
   "license": "Apache-2.0"
 }

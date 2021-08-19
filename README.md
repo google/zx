@@ -1,5 +1,7 @@
 # 🐚 zx
 
+> Fork of [`zx`](https://github.com/google/zx) with CommonJS support, so it can be used with `#!/usr/bin/env ts-node`
+
 ```js
 #!/usr/bin/env zx
 
@@ -28,7 +30,7 @@ gives sensible defaults.
 ## Install
 
 ```bash
-npm i -g zx
+npm i -g @cspotcode/zx
 ```
 
 ### Requirement
@@ -343,7 +345,7 @@ It is possible to make use of `$` and other functions via explicit imports:
 
 ```js
 #!/usr/bin/env node
-import {$} from 'zx'
+import {$} from '@cspotcode/zx'
 await $`date`
 ```
 

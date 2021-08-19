@@ -14,7 +14,7 @@
 
 import {strict as assert, deepEqual} from 'assert'
 import path from 'path'
-import {glob} from './index.mjs'
+import {glob} from './import.mjs'
 
 { // Only stdout is used during command substitution
   let hello = await $`echo Error >&2; echo Hello`
@@ -169,7 +169,7 @@ import {glob} from './index.mjs'
   assert(typeof globby.isDynamicPattern === 'function')
   assert(typeof globby.isGitIgnored === 'function')
   assert(typeof globby.isGitIgnoredSync === 'function')
-  deepEqual(await globby('*.mjs'), ['index.mjs', 'test.mjs', 'zx.mjs'])
+  deepEqual(await globby('*.mjs'), ['import.mjs', 'index.mjs', 'test.mjs', 'zx.mjs'])
   console.log(chalk.greenBright('globby available'))
 }
 

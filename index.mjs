@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import fs from 'fs-extra'
-import * as globbyModule from 'globby'
 import os from 'os'
 import {promisify, inspect} from 'util'
 import {spawn} from 'child_process'
@@ -22,14 +21,23 @@ import {default as nodeFetch} from 'node-fetch'
 import which from 'which'
 import chalk from 'chalk'
 import minimist from 'minimist'
+import asyncDeps from './async-deps.js'
 
 export {chalk, fs}
 
 export const argv = minimist(process.argv.slice(2))
 
-export const globby = Object.assign(function globby(...args) {
+export const globby = Object.assign(async function globby(...args) {
+  const {globbyModule} = await asyncDeps
   return globbyModule.globby(...args)
-}, globbyModule)
+}, {
+  then(...args) {
+    return asyncInit.then(() => {delete globby.then; return globby}).then(...args)
+  }
+})
+const asyncInit = asyncDeps.then(({globbyModule}) => {
+  Object.assign(globby, globbyModule)
+})
 
 export const glob = globby
 
@@ -101,7 +109,7 @@ if (typeof argv.shell === 'string') {
   $.prefix = ''
 } else {
   try {
-    $.shell = await which('bash')
+    $.shell = which.sync('bash')
     $.prefix = 'set -euo pipefail;'
   } catch (e) {
     $.prefix = '' // Bash not found, no prefix.
