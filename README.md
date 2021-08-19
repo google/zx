@@ -66,9 +66,25 @@ without any imports.
 Executes a given string using the `spawn` function from the
 `child_process` package and returns `ProcessPromise<ProcessOutput>`.
 
+Everything passed through `${...}` will be automatically escaped and quoted.
+
 ```js
-let count = parseInt(await $`ls -1 | wc -l`)
-console.log(`Files count: ${count}`)
+let name = 'foo & bar'
+await $`mkdir ${name}`
+```
+
+There is no need to add extra quotes. Read more about it in 
+[quotes](docs/quotes.md).
+
+You can pass an array of arguments if needed:
+
+```js
+let flags = [
+  '--oneline',
+  '--decorate',
+  '--color',
+]
+await $`git log ${flags}`
 ```
 
 For example, to upload files in parallel:
