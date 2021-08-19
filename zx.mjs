@@ -220,6 +220,7 @@ function printUsage() {
   console.log(
     'usage: zx [--quiet] [--shell=<path>]\n' +
     '          [--prefix=<command>]\n' +
-    '          <script>'
+    '          <script>\n' +
+    '       zx <<< <script>'
   )
 }

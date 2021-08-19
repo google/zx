@@ -392,9 +392,9 @@ zx https://medv.io/example-script.mjs
 zx https://medv.io/game-of-life.mjs
 ```
 
-#### Executing scripts from STDIN
+#### Executing scripts from stdin
 
-The `zx` supports executing scripts from STDIN.
+The `zx` supports executing scripts from stdin.
 
 ```js
 zx <<'EOF'
