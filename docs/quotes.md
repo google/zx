@@ -32,7 +32,9 @@ await $`mkdir path/to-dir/${name}`
 ### Array of arguments
 
 The `zx` can also take an array or arguments in the `${...}`. Items of the array
-will be quoted separately and concatenated via a space. Do **not** add a `.join(' ')`.
+will be quoted separately and concatenated via a space. 
+
+Do **not** add a `.join(' ')`.
 
 ```js
 let flags = [
@@ -52,14 +54,16 @@ await $`git log ${'--oneline --decorate --color'.split(' ')}`
 
 ### globbing and `~`
 
-As everything passed through `${...}` will be escaped, you can't use `~` 
-or glob syntax. In order for this to work the zx provides 
+As everything passed through `${...}` will be escaped, you can't use `~` or glob
+syntax. 
+
+In order for this to work the zx provides 
 [globby package](../README.md#globby-package).
 
 For instead of this:
 
 ```js
-let files = '~/dev/**/*.md'
+let files = '~/dev/**/*.md' // wrong
 await $`ls ${files}`
 ```
 
