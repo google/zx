@@ -87,15 +87,6 @@ let flags = [
 await $`git log ${flags}`
 ```
 
-For example, to upload files in parallel:
-
-```js
-let hosts = [...]
-await Promise.all(hosts.map(host =>
-  $`rsync -azP ./src ${host}:/var/www`  
-))
-```
-
 If the executed program returns a non-zero exit code,
 `ProcessOutput` will be thrown.
 
