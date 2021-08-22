@@ -24,13 +24,12 @@ import chalk from 'chalk'
 import minimist from 'minimist'
 
 export {chalk, fs}
-
+export const sleep = promisify(setTimeout)
 export const argv = minimist(process.argv.slice(2))
 
 export const globby = Object.assign(function globby(...args) {
   return globbyModule.globby(...args)
 }, globbyModule)
-
 export const glob = globby
 
 export function $(pieces, ...args) {
@@ -154,8 +153,6 @@ export async function fetch(url, init) {
   }
   return nodeFetch(url, init)
 }
-
-export const sleep = promisify(setTimeout)
 
 export function nothrow(promise) {
   promise._nothrow = true
