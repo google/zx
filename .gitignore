@@ -1,4 +1,5 @@
 /node_modules/
 /.idea/
+index.cjs
 package-lock.json
 yarn.lock

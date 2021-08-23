@@ -14,7 +14,6 @@
 
 import {strict as assert, deepEqual} from 'assert'
 import path from 'path'
-import {glob} from './index.mjs'
 
 { // Only stdout is used during command substitution
   let hello = await $`echo Error >&2; echo Hello`
@@ -195,6 +194,10 @@ import {glob} from './index.mjs'
     process.env.PATH = oldPath
     fs.rm('/tmp/script-from-path')
   }
+}
+
+{ // CommonJS is working
+  await $`node tests/commonjs.cjs`
 }
 
 { // require() is working in ESM

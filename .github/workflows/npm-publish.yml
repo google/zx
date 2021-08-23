@@ -13,6 +13,7 @@ jobs:
         with:
           node-version: 14
       - run: npm i
+      - run: npm run build
       - run: npm test
       - run: echo "//wombat-dressing-room.appspot.com/:_authToken=$AUTH_TOKEN" >> .npmrc
         env:
