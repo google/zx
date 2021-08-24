@@ -12,7 +12,7 @@ console.log('   input:', input)
 console.log('  output:', output)
 
 let i = 0,
-  spin = () => process.stdout.write(`  ${[...'⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'][i++ % 10]}\r`),
+  spin = () => process.stdout.write(`  ${'⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'[i++ % 10]}\r`),
   stop = (id => () => clearInterval(id))(setInterval(spin, 100))
 
 let {stdout: code} = await $`rollup --format cjs --plugin commonjs,node-resolve ${input}`
