@@ -29,8 +29,8 @@ const resolveNodeBuiltinsForOlderNodeVersion = {
 }
 
 const code = await (await import('esbuild')).build({
-  entryPoints: [input],
   bundle: true,
+  entryPoints: [input],
   outfile: cjsOutput,
   platform: 'node',
   target: 'node12',

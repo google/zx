@@ -16,10 +16,9 @@
 
 import {basename, dirname, extname, join, parse, resolve} from 'path'
 import {tmpdir} from 'os'
-import fs from 'fs-extra'
 import {createRequire} from 'module'
 import url from 'url'
-import {$, fetch, ProcessOutput, argv} from './import.mjs'
+import {$, fetch, ProcessOutput, argv, fs} from './import.mjs'
 
 try {
   if (argv.version || argv.v || argv.V) {
