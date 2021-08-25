@@ -2,12 +2,12 @@
   "name": "@cspotcode/zx",
   "version": "3.0.0",
   "description": "A tool for writing better scripts",
-  "main": "index.js",
+  "main": "index.cjs",
   "types": "index.d.ts",
   "exports": {
     ".": {
       "import": "./import.mjs",
-      "require": "./index.js"
+      "require": "./index.cjs"
     }
   },
   "bin": {
@@ -17,7 +17,7 @@
     "node": ">= 14.8.0"
   },
   "scripts": {
-    "build": "swc -o index.js index.mjs",
+    "build": ".github/scripts/build.mjs",
     "test": "node zx.mjs test.mjs"
   },
   "dependencies": {
@@ -26,15 +26,14 @@
     "@types/node": "^16.6",
     "@types/node-fetch": "^2.5.12",
     "chalk": "^4.1.2",
-    "fs-extra": "^10.0.0",
-    "globby": "^12.0.1",
-    "minimist": "^1.2.5",
-    "node-fetch": "^2.6.1",
-    "which": "^2.0.2"
+    "globby": "^12.0.1"
   },
   "devDependencies": {
-    "@swc/cli": "^0.1.49",
-    "@swc/core": "^1.2.80"
+    "esbuild": "^0.12.22",
+    "fs-extra": "^10.0.0",
+    "node-fetch": "^2.6.1",
+    "minimist": "^1.2.5",
+    "which": "^2.0.2"
   },
   "files": [
     "*.mjs",
