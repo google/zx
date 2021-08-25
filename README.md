@@ -75,7 +75,7 @@ let name = 'foo & bar'
 await $`mkdir ${name}`
 ```
 
-There is no need to add extra quotes. Read more about it in 
+**There is no need to add extra quotes.** Read more about it in 
 [quotes](docs/quotes.md).
 
 You can pass an array of arguments if needed:
