@@ -38,7 +38,7 @@
   "files": [
     "*.mjs",
     "!index.mjs",
-    "*.js",
+    "*.cjs",
     "*.d.ts"
   ],
   "repository": "cspotcode/zx",

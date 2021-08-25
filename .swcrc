@@ -1,8 +1,0 @@
-{
-    "module": {
-      "type": "commonjs"
-    },
-    "jsc": {
-        "target": "es2021"
-    }
-}
