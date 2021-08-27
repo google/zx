@@ -99,7 +99,7 @@ if (typeof argv.shell === 'string') {
   $.prefix = ''
 } else {
   try {
-    $.shell = await which('bash')
+    $.shell = which.sync('bash')
     $.prefix = 'set -euo pipefail;'
   } catch (e) {
     $.prefix = '' // Bash not found, no prefix.

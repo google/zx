@@ -1,8 +1,12 @@
 {
   "name": "zx",
-  "version": "3.1.0",
+  "version": "4.0.0",
   "description": "A tool for writing better scripts",
-  "main": "index.mjs",
+  "main": "dist/index.cjs",
+  "exports": {
+    "import": "./index.mjs",
+    "require": "./dist/index.cjs"
+  },
   "types": "index.d.ts",
   "bin": {
     "zx": "zx.mjs"
@@ -11,7 +15,8 @@
     "node": ">= 14.8.0"
   },
   "scripts": {
-    "test": "node zx.mjs test.mjs"
+    "test": "node zx.mjs test.mjs",
+    "build": "node zx.mjs .github/scripts/build.mjs"
   },
   "dependencies": {
     "@types/fs-extra": "^9.0.12",
@@ -25,13 +30,18 @@
     "node-fetch": "^2.6.1",
     "which": "^2.0.2"
   },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^20.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.4",
+    "rollup": "^2.56.3"
+  },
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"
   },
   "files": [
     "*.mjs",
-    "*.js",
-    "*.d.ts"
+    "*.d.ts",
+    "dist"
   ],
   "repository": "google/zx",
   "author": "Anton Medvedev <anton@medv.io>",

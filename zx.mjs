@@ -197,22 +197,13 @@ async function compile(input) {
   $.verbose = false
   let tsc = $`npm_config_yes=true npx -p typescript tsc --target esnext --lib esnext --module esnext --moduleResolution node ${input}`
   $.verbose = v
-
-  let i = 0
-  let interval = setInterval(() => {
-    process.stdout.write('  '
-      + ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'][i++ % 10]
-      + '\r'
-    )
-  }, 100)
-
+  let i= 0, spinner = setInterval(() => process.stdout.write(`  ${'⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'[i++ % 10]}\r`), 100)
   try {
     await tsc
   } catch (err) {
     console.error(err.toString())
   }
-
-  clearInterval(interval)
+  clearInterval(spinner)
   process.stdout.write('   \r')
 }
 
