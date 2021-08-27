@@ -15,6 +15,7 @@
 import fs from 'fs-extra'
 import * as globbyModule from 'globby'
 import os from 'os'
+import path from 'path'
 import {promisify, inspect} from 'util'
 import {spawn} from 'child_process'
 import {createInterface} from 'readline'
@@ -23,7 +24,7 @@ import which from 'which'
 import chalk from 'chalk'
 import minimist from 'minimist'
 
-export {chalk, fs}
+export {chalk, fs, os, path}
 export const sleep = promisify(setTimeout)
 export const argv = minimist(process.argv.slice(2))
 export const globby = Object.assign(function globby(...args) {

@@ -258,6 +258,14 @@ The [os](https://nodejs.org/api/os.html) package.
 await $`cd ${os.homedir()} && mkdir example`
 ```
 
+#### `path` package
+
+The [path](https://nodejs.org/api/path.html) package.
+
+```js
+await $`mkdir ${path.join(basedir, 'output')}`
+```
+
 #### `minimist` package
 
 The [minimist](https://www.npmjs.com/package/minimist) package.

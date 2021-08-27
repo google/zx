@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {strict as assert, deepEqual} from 'assert'
-import path from 'path'
 
 { // Only stdout is used during command substitution
   let hello = await $`echo Error >&2; echo Hello`
