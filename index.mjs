@@ -46,6 +46,7 @@ export function registerGlobals() {
     globby,
     nothrow,
     os,
+    path,
     question,
     sleep,
   })
