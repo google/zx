@@ -195,11 +195,13 @@ export class ProcessPromise extends Promise {
   }
 
   get stdout() {
+    this._inheritStdin = false
     this._run()
     return this.child.stdout
   }
 
   get stderr() {
+    this._inheritStdin = false
     this._run()
     return this.child.stderr
   }
