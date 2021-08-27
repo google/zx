@@ -23,6 +23,7 @@ import {default as nodeFetch} from 'node-fetch'
 import which from 'which'
 import chalk from 'chalk'
 import minimist from 'minimist'
+import psTreeModule from 'ps-tree'
 
 export {chalk, fs, os, path}
 export const sleep = promisify(setTimeout)
@@ -31,6 +32,7 @@ export const globby = Object.assign(function globby(...args) {
   return globbyModule.globby(...args)
 }, globbyModule)
 export const glob = globby
+const psTree = promisify(psTreeModule)
 
 export function registerGlobals() {
   Object.assign(global, {
@@ -228,6 +230,20 @@ export class ProcessPromise extends Promise {
     } else {
       this._postrun = () => this.stdout.pipe(dest)
       return this
+    }
+  }
+
+  async kill(signal = 'SIGTERM') {
+    let children = await psTree(this.child.pid)
+    for (const p of children) {
+      try {
+        process.kill(p.PID, signal)
+      } catch (e) {
+      }
+    }
+    try {
+      process.kill(this.child.pid, signal)
+    } catch (e) {
     }
   }
 }

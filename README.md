@@ -108,6 +108,7 @@ class ProcessPromise<T> extends Promise<T> {
   readonly stderr: Readable
   readonly exitCode: Promise<number>
   pipe(dest): ProcessPromise<T>
+  kill(signal = 'SIGTERM'): Promise<void>
 }
 ```
 
