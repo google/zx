@@ -197,7 +197,8 @@ import path from 'path'
 }
 
 { // CommonJS is working
-  await $`node tests/commonjs.cjs`
+  let {stdout} = await $`node tests/commonjs.cjs`
+  assert.match(stdout, /Hello from CommonJS/)
 }
 
 { // require() is working in ESM

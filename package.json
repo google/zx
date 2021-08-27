@@ -2,10 +2,10 @@
   "name": "zx",
   "version": "4.0.0",
   "description": "A tool for writing better scripts",
-  "main": "index.cjs",
+  "main": "dist/index.cjs",
   "exports": {
     "import": "./index.mjs",
-    "require": "./index.cjs"
+    "require": "./dist/index.cjs"
   },
   "types": "index.d.ts",
   "bin": {
@@ -40,9 +40,8 @@
   },
   "files": [
     "*.mjs",
-    "*.cjs",
-    "*.js",
-    "*.d.ts"
+    "*.d.ts",
+    "dist"
   ],
   "repository": "google/zx",
   "author": "Anton Medvedev <anton@medv.io>",
