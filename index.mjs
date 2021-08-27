@@ -111,6 +111,7 @@ export function $(pieces, ...args) {
     promise.child = child
     if (promise._postrun) promise._postrun()
   }
+  setTimeout(promise._run, 0) // Make sure all subprocesses started.
   return promise
 }
 
