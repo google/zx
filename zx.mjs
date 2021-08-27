@@ -19,7 +19,9 @@ import {tmpdir} from 'os'
 import fs from 'fs-extra'
 import {createRequire} from 'module'
 import url from 'url'
-import {$, fetch, ProcessOutput, argv} from './index.mjs'
+import {$, fetch, ProcessOutput, argv, registerGlobals} from './index.mjs'
+
+registerGlobals()
 
 try {
   if (argv.version || argv.v || argv.V) {
@@ -115,7 +117,7 @@ async function importPath(filepath, origin = filepath) {
   }
   if (ext === '.ts') {
     let {dir, name} = parse(filepath)
-    let outFile = join(dir, name + '.mjs')
+    let outFile = join(dir, name + '.cjs')
     await compile(filepath)
     await fs.rename(join(dir, name + '.js'), outFile)
     let wait = importPath(outFile, filepath)
@@ -195,13 +197,14 @@ function transformMarkdown(source) {
 async function compile(input) {
   let v = $.verbose
   $.verbose = false
-  let tsc = $`npm_config_yes=true npx -p typescript tsc --target esnext --lib esnext --module esnext --moduleResolution node ${input}`
+  let tsc = $`npm_config_yes=true npx -p typescript tsc --target esnext --lib esnext --module commonjs --moduleResolution node ${input}`
   $.verbose = v
   let i= 0, spinner = setInterval(() => process.stdout.write(`  ${'⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'[i++ % 10]}\r`), 100)
   try {
     await tsc
   } catch (err) {
     console.error(err.toString())
+    process.exit(1)
   }
   clearInterval(spinner)
   process.stdout.write('   \r')

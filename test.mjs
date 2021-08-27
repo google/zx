@@ -94,7 +94,8 @@ import path from 'path'
 }
 
 { // TypeScript scripts are working
-  await $`node zx.mjs tests/typescript.ts`
+  let {stderr} = await $`node zx.mjs tests/typescript.ts`
+  assert.match(stderr, /Hello from TypeScript/)
 }
 
 { // Quiet mode is working

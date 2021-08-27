@@ -68,19 +68,3 @@ export const nothrow: nothrow
 export const os: typeof _os
 export const question: question
 export const sleep: sleep
-
-declare global {
-  var $: $
-  var argv: ParsedArgs
-  var cd: cd
-  var chalk: typeof _chalk
-  // @ts-ignore
-  var fetch: typeof _fetch
-  var fs: typeof _fs
-  var globby: typeof _globby.globby & typeof _globby
-  var glob: typeof _globby.globby & typeof _globby
-  var nothrow: nothrow
-  var os: typeof _os
-  var question: question
-  var sleep: sleep
-}

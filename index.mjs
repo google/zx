@@ -31,6 +31,23 @@ export const globby = Object.assign(function globby(...args) {
 }, globbyModule)
 export const glob = globby
 
+export function registerGlobals() {
+  Object.assign(global, {
+    $,
+    argv,
+    cd,
+    chalk,
+    fetch,
+    fs,
+    glob,
+    globby,
+    nothrow,
+    os,
+    question,
+    sleep,
+  })
+}
+
 export function $(pieces, ...args) {
   let {verbose, cwd, shell, prefix} = $
   let __from = (new Error().stack.split(/^\s*at\s/m)[2]).trim()
@@ -331,18 +348,3 @@ function exitCodeInfo(exitCode) {
     159: 'Bad syscall',
   }[exitCode]
 }
-
-Object.assign(global, {
-  $,
-  argv,
-  cd,
-  chalk,
-  fetch,
-  fs,
-  glob,
-  globby,
-  nothrow,
-  os,
-  question,
-  sleep,
-})

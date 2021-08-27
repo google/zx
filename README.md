@@ -370,22 +370,9 @@ The `zx` can compile `.ts` scripts to `.mjs` and execute them.
 zx script.ts
 ```
 
-In TypeScript file include the `zx` package to import types:
-
-```ts
-import 'zx'
-```
-
-Or reference the `zx` package via:
-
-```js
-/// <reference types="zx"/>
-```
-
 Example: 
 ```ts
-#!/usr/bin/env zx
-import 'zx'
+import {$} from 'zx'
 
 void async function () {
   await $`ls -la`
