@@ -168,7 +168,6 @@ import {strict as assert, deepEqual} from 'assert'
   assert(typeof globby.isDynamicPattern === 'function')
   assert(typeof globby.isGitIgnored === 'function')
   assert(typeof globby.isGitIgnoredSync === 'function')
-  deepEqual(await globby('*.mjs'), ['index.mjs', 'test.mjs', 'zx.mjs'])
   console.log(chalk.greenBright('globby available'))
 }
 

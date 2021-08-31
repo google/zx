@@ -40,6 +40,7 @@ export interface ProcessPromise<T> extends Promise<T> {
   readonly exitCode: Promise<number>
 
   pipe(dest: ProcessPromise<ProcessOutput> | Writable): ProcessPromise<ProcessOutput>
+
   kill(signal?: string | number): Promise<void>
 }
 

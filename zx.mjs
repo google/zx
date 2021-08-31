@@ -19,16 +19,16 @@ import {tmpdir} from 'os'
 import fs from 'fs-extra'
 import {createRequire} from 'module'
 import url from 'url'
-import {$, fetch, ProcessOutput, argv, registerGlobals} from './index.mjs'
+import {$, fetch, ProcessOutput, argv} from './index.mjs'
 
-registerGlobals()
+import './globals.mjs'
 
 try {
   if (argv.version || argv.v || argv.V) {
     console.log(`zx version ${createRequire(import.meta.url)('./package.json').version}`)
     process.exit(0)
   }
-  let firstArg = process.argv.slice(2).find(a => !a.startsWith('--'));
+  let firstArg = process.argv.slice(2).find(a => !a.startsWith('--'))
   if (typeof firstArg === 'undefined' || firstArg === '-') {
     let ok = await scriptFromStdin()
     if (!ok) {
@@ -199,7 +199,8 @@ async function compile(input) {
   $.verbose = false
   let tsc = $`npm_config_yes=true npx -p typescript tsc --target esnext --lib esnext --module commonjs --moduleResolution node ${input}`
   $.verbose = v
-  let i= 0, spinner = setInterval(() => process.stdout.write(`  ${'⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'[i++ % 10]}\r`), 100)
+  let i = 0,
+    spinner = setInterval(() => process.stdout.write(`  ${'⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'[i++ % 10]}\r`), 100)
   try {
     await tsc
   } catch (err) {
