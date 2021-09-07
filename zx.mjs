@@ -212,10 +212,15 @@ async function compile(input) {
 }
 
 function printUsage() {
-  console.log(
-    'usage: zx [--quiet] [--shell=<path>]\n' +
-    '          [--prefix=<command>]\n' +
-    '          <script>\n' +
-    '       zx <<< <script>'
-  )
+  console.log(`
+ ${chalk.bgGreenBright.black(' ZX ')}
+
+ Usage:
+   zx [options] <script>
+ 
+ Options:
+   --quiet            : don't echo commands
+   --shell=<path>     : custom shell binary
+   --prefix=<command> : prefix all commands
+`)
 }
