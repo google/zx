@@ -372,21 +372,22 @@ zx docs/markdown.md
 ```
 
 #### TypeScript scripts
-
-The `zx` can compile `.ts` scripts to `.mjs` and execute them.
-
-```bash
-zx script.ts
-```
-
-Example: 
+ 
 ```ts
 import {$} from 'zx'
+// Or 
+import 'zx/globals'
 
 void async function () {
   await $`ls -la`
 }()
-``` 
+```
+
+Compile the TypeScript to JS and run it. Or use something like ts-node.
+
+```bash
+ts-node script.ts
+```
 
 #### Executing remote scripts
 

@@ -2,10 +2,15 @@
   "name": "zx",
   "version": "4.1.1",
   "description": "A tool for writing better scripts",
-  "main": "dist/index.cjs",
   "exports": {
-    "import": "./index.mjs",
-    "require": "./dist/index.cjs"
+    ".": {
+      "import": "./index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./globals": {
+      "import": "./globals.mjs",
+      "require": "./dist/globals.cjs"
+    }
   },
   "types": "index.d.ts",
   "bin": {
