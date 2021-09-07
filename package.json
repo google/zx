@@ -2,6 +2,7 @@
   "name": "zx",
   "version": "4.2.0",
   "description": "A tool for writing better scripts",
+  "main": "./dist/index.cjs",
   "exports": {
     ".": {
       "import": "./index.mjs",
