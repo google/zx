@@ -59,7 +59,13 @@ zx ./script.mjs
 ```
 
 All functions (`$`, `cd`, `fetch`, etc) are available straight away 
-without any imports.
+without any imports. 
+
+Or import globals explicitly (for better autocomplete in VS Code).
+
+```js
+import 'zx/globals'
+```
 
 ### ``$`command` ``
 
