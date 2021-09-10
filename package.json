@@ -18,7 +18,7 @@
     "zx": "zx.mjs"
   },
   "engines": {
-    "node": ">= 14.13.0"
+    "node": ">= 14.13.1"
   },
   "scripts": {
     "test": "node zx.mjs test.mjs",
