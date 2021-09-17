@@ -14,10 +14,7 @@ export async function scriptFromStdin() {
     }
 
     if (script.length > 0) {
-      let filepath = join(
-        tmpdir(),
-        Math.random().toString(36).substr(2) + '.mjs'
-      )
+      let filepath = join(tmpdir(), Math.random().toString(36).substr(2) + '.mjs')
       await fs.mkdtemp(filepath)
       await writeAndImport(script, filepath, join(process.cwd(), 'stdin.mjs'))
       return true
@@ -46,23 +43,22 @@ export async function writeAndImport(script, filepath, origin = filepath) {
   await wait
 }
 
-export async function importPath(filepath, origin = filepath) {
-  let ext = extname(filepath)
-  if (ext === '') {
+export const importPathHandlers = {
+  rewriteNameMjs: async (filepath, origin) => {
     return await writeAndImport(
       await fs.readFile(filepath),
       join(dirname(filepath), basename(filepath) + '.mjs'),
-      origin,
+      origin
     )
-  }
-  if (ext === '.md') {
+  },
+  transformMarkdown: async (filepath, origin) => {
     return await writeAndImport(
       transformMarkdown((await fs.readFile(filepath)).toString()),
       join(dirname(filepath), basename(filepath) + '.mjs'),
-      origin,
+      origin
     )
-  }
-  if (ext === '.ts') {
+  },
+  compileTs: async (filepath, origin) => {
     let {dir, name} = parse(filepath)
     let outFile = join(dir, name + '.cjs')
     await compile(filepath)
@@ -70,6 +66,20 @@ export async function importPath(filepath, origin = filepath) {
     let wait = importPath(outFile, filepath)
     await fs.rm(outFile)
     return wait
+  },
+}
+
+export const defaultImportPathExtMap = {
+  '': importPathHandlers.rewriteNameMjs,
+  '.md': importPathHandlers.transformMarkdown,
+  '.ts': importPathHandlers.compileTs,
+}
+
+export async function importPath(filepath, origin = filepath, importPathExtMap = defaultImportPathExtMap) {
+  let ext = extname(filepath)
+  let handler = importPathExtMap[ext]
+  if (handler) {
+    return await handler(filepath, origin)
   }
   let __filename = resolve(origin)
   let __dirname = dirname(__filename)

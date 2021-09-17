@@ -418,6 +418,16 @@ await $`pwd`
 EOF
 ```
 
+### Run zx programmatically
+
+#### Customize zx executable
+
+You can customize zx's loading logic by writing your won `zx.mjs`, most of ingredients can be access by `import { } from 'zx/import.mjs'`
+
+#### Wrap zx inside an Electron app
+
+See [discussions](https://github.com/google/zx/discussions/227) for details.
+
 ## License
 
 [Apache-2.0](LICENSE)

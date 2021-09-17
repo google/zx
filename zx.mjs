@@ -20,7 +20,7 @@ import fs from 'fs-extra'
 import {createRequire} from 'module'
 import url from 'url'
 import {$, ProcessOutput, argv} from './index.mjs'
-import { scriptFromStdin, scriptFromHttp, writeAndImport, importPath, transformMarkdown, compile} from './import.mjs';
+import {scriptFromStdin, scriptFromHttp, importPath} from './import.mjs';
 
 import './globals.mjs'
 
