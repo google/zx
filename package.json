@@ -11,6 +11,9 @@
     "./globals": {
       "import": "./globals.mjs",
       "require": "./dist/globals.cjs"
+    },
+    "./import": {
+      "import": "./import.mjs"
     }
   },
   "types": "index.d.ts",
