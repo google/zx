@@ -422,7 +422,14 @@ EOF
 
 #### Customize zx executable
 
-You can customize zx's loading logic by writing your won `zx.mjs`, most of ingredients can be access by `import { importPath, ... } from 'zx/import.mjs'`
+You can customize zx's loading logic by writing your won `zx.mjs`, most of ingredients can be accessed by `import { importPath, ... } from 'zx/import.mjs'`
+
+For example, if you want to support customized file extension, you can:
+
+```js
+// ...same as code in zx.mjs
+  await importPath(filepath, filepath, { ...defaultImportPathExtMap, '.mdx': defaultImportPathExtMap.transformMarkdown })
+```
 
 #### Wrap zx inside an Electron app
 
