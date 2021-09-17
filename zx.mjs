@@ -19,7 +19,8 @@ import {tmpdir} from 'os'
 import fs from 'fs-extra'
 import {createRequire} from 'module'
 import url from 'url'
-import {$, fetch, ProcessOutput, argv} from './index.mjs'
+import {$, ProcessOutput, argv} from './index.mjs'
+import { scriptFromStdin, scriptFromHttp, writeAndImport, importPath, transformMarkdown, compile} from './import.mjs';
 
 import './globals.mjs'
 
