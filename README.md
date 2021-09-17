@@ -422,7 +422,7 @@ EOF
 
 #### Customize zx executable
 
-You can customize zx's loading logic by writing your won `zx.mjs`, most of ingredients can be access by `import { } from 'zx/import.mjs'`
+You can customize zx's loading logic by writing your won `zx.mjs`, most of ingredients can be access by `import { importPath, ... } from 'zx/import.mjs'`
 
 #### Wrap zx inside an Electron app
 
