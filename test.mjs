@@ -154,6 +154,17 @@ import {strict as assert, deepEqual} from 'assert'
   assert(await $`[[ -f ${__filename} ]]`.exitCode === 0)
 }
 
+{
+  // cd() is working
+  assert($.cwd === undefined)
+  cd('/usr/local/lib')
+  assert($.cwd === '/usr/local/lib')
+  cd('..')
+  assert($.cwd === '/usr/local')
+  cd('..'); cd('..')
+  assert($.cwd === '/')
+}
+
 { // nothrow() doesn't throw
   let {exitCode} = await nothrow($`exit 42`)
   assert(exitCode === 42)
