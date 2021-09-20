@@ -133,15 +133,21 @@ if (typeof argv.prefix === 'string') {
 $.quote = quote
 $.cwd = undefined
 
-export function cd(path) {
-  if ($.verbose) console.log('$', colorize(`cd ${path}`))
-  if (!fs.existsSync(path)) {
+export function cd(_path) {
+  if ($.verbose) console.log('$', colorize(`cd ${_path}`))
+  let cwd
+  if (path.isAbsolute(_path)) {
+    cwd = _path
+  } else {
+    cwd = path.join($.cwd ?? process.cwd(), _path)
+  }
+  if (!fs.existsSync(cwd)) {
     let __from = (new Error().stack.split(/^\s*at\s/m)[2]).trim()
-    console.error(`cd: ${path}: No such directory`)
+    console.error(`cd: ${_path}: No such directory`)
     console.error(`    at ${__from}`)
     process.exit(1)
   }
-  $.cwd = path
+  $.cwd = cwd
 }
 
 export async function question(query, options) {
