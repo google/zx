@@ -163,6 +163,7 @@ import {strict as assert, deepEqual} from 'assert'
   assert($.cwd === '/usr/local')
   cd('..'); cd('..')
   assert($.cwd === '/')
+  $.cwd = undefined
 }
 
 { // nothrow() doesn't throw
