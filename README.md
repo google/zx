@@ -33,7 +33,7 @@ npm i -g zx
 
 ### Requirement
 
-Node.js >= 14.13.0
+Node.js >= 14.13.1
 
 ## Documentation
 
