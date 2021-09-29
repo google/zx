@@ -18,9 +18,7 @@ let name = 'foo bar'
 await $`mkdir /tmp/${name}`
 ```
 
-Bash is great, but when it comes to writing scripts,
-people usually choose a more convenient programming language.
-JavaScript is a perfect choice, but standard Node.js library
+Bash is great, but when it comes to writing scripts, people usually choose a more convenient programming language. JavaScript is a perfect choice, but standard Node.js library
 requires additional hassle before using. The `zx` package provides
 useful wrappers around `child_process`, escapes arguments and
 gives sensible defaults.
@@ -294,7 +292,6 @@ Usage:
 ```js
 const name = argv.name // utopia
 ```
-
 
 
 ### Configuration
