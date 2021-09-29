@@ -18,9 +18,9 @@ let name = 'foo bar'
 await $`mkdir /tmp/${name}`
 ```
 
-Bash is great, but when it comes to writing scripts, 
+Bash is great, but when it comes to writing scripts,
 people usually choose a more convenient programming language.
-JavaScript is a perfect choice, but standard Node.js library 
+JavaScript is a perfect choice, but standard Node.js library
 requires additional hassle before using. The `zx` package provides
 useful wrappers around `child_process`, escapes arguments and
 gives sensible defaults.
@@ -37,7 +37,7 @@ Node.js >= 14.13.1
 
 ## Documentation
 
-Write your scripts in a file with `.mjs` extension in order to 
+Write your scripts in a file with `.mjs` extension in order to
 be able to use `await` on top level. If you prefer the `.js` extension,
 wrap your scripts in something like `void async function () {...}()`.
 
@@ -58,8 +58,8 @@ Or via the `zx` executable:
 zx ./script.mjs
 ```
 
-All functions (`$`, `cd`, `fetch`, etc) are available straight away 
-without any imports. 
+All functions (`$`, `cd`, `fetch`, etc) are available straight away
+without any imports.
 
 Or import globals explicitly (for better autocomplete in VS Code).
 
@@ -79,7 +79,7 @@ let name = 'foo & bar'
 await $`mkdir ${name}`
 ```
 
-**There is no need to add extra quotes.** Read more about it in 
+**There is no need to add extra quotes.** Read more about it in
 [quotes](docs/quotes.md).
 
 You can pass an array of arguments if needed:
@@ -173,7 +173,7 @@ let token = await question('Choose env variable: ', {
 ```
 
 In second argument, array of choices for Tab autocompletion can be specified.
-  
+
 ```ts
 function question(query?: string, options?: QuestionOptions): Promise<string>
 type QuestionOptions = { choices: string[] }
@@ -279,6 +279,24 @@ The [minimist](https://www.npmjs.com/package/minimist) package.
 
 Available as global const `argv`.
 
+Run script:
+
+```bash
+$ zx test.js --name=utopia
+# $ zx test.js --name utopia
+
+# or
+$ ts-node test.ts --name=utopia
+```
+
+Usage:
+
+```js
+const name = argv.name // utopia
+```
+
+
+
 ### Configuration
 
 #### `$.shell`
@@ -301,19 +319,19 @@ Or use a CLI argument: `--prefix='set -e;'`
 
 #### `$.quote`
 
-Specifies a function for escaping special characters during 
+Specifies a function for escaping special characters during
 command substitution.
 
 #### `$.verbose`
 
 Specifies verbosity. Default is `true`.
 
-In verbose mode, the `zx` prints all executed commands alongside with their 
+In verbose mode, the `zx` prints all executed commands alongside with their
 outputs.
 
 Or use a CLI argument `--quiet` to set `$.verbose = false`.
 
-### Polyfills 
+### Polyfills
 
 #### `__filename` & `__dirname`
 
@@ -370,7 +388,7 @@ module.
 
 #### Markdown scripts
 
-The `zx` can execute scripts written in markdown 
+The `zx` can execute scripts written in markdown
 ([docs/markdown.md](docs/markdown.md)):
 
 ```bash
@@ -378,10 +396,10 @@ zx docs/markdown.md
 ```
 
 #### TypeScript scripts
- 
+
 ```ts
 import {$} from 'zx'
-// Or 
+// Or
 import 'zx/globals'
 
 void async function () {
