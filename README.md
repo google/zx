@@ -223,7 +223,7 @@ if ((await nothrow($`[[ -d path ]]`)).exitCode == 0) {
 
 ### Packages
 
-Next packages is available without importing inside scripts.
+Following packages are available without importing inside scripts.
 
 #### `chalk` package
 
