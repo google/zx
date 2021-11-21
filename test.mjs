@@ -73,7 +73,7 @@ import {strict as assert, deepEqual} from 'assert'
 
 { // Can use array as an argument
   try {
-    let files = ['./index.mjs', './zx.mjs', './package.json']
+    let files = ['./index.mjs', './yzx.mjs', './package.json']
     await $`tar czf archive ${files}`
   } finally {
     await $`rm archive`
@@ -81,28 +81,28 @@ import {strict as assert, deepEqual} from 'assert'
 }
 
 { // Scripts with no extension are working
-  await $`node zx.mjs tests/no-extension`
+  await $`node yzx.mjs tests/no-extension`
 }
 
 { // require() is working from stdin
-  await $`node zx.mjs <<< 'require("./package.json").name'`
+  await $`node yzx.mjs <<< 'require("./package.json").name'`
 }
 
 { // Markdown scripts are working
-  await $`node zx.mjs docs/markdown.md`
+  await $`node yzx.mjs docs/markdown.md`
 }
 
 { // Scripts with several instances of $ are working
-  await $`node zx.mjs tests/multiple.mjs`
+  await $`node yzx.mjs tests/multiple.mjs`
 }
 
 { // TypeScript scripts are working
-  let {stderr} = await $`node zx.mjs tests/typescript.ts`
+  let {stderr} = await $`node yzx.mjs tests/typescript.ts`
   assert.match(stderr, /Hello from TypeScript/)
 }
 
 { // Quiet mode is working
-  let {stdout} = await $`node zx.mjs --quiet docs/markdown.md`
+  let {stdout} = await $`node yzx.mjs --quiet docs/markdown.md`
   assert(!stdout.includes('whoami'))
 }
 
@@ -185,7 +185,7 @@ import {strict as assert, deepEqual} from 'assert'
   const toPOSIXPath = (_path) =>
     _path.split(path.sep).join(path.posix.sep)
 
-  const zxPath = path.resolve('./zx.mjs')
+  const zxPath = path.resolve('./yzx.mjs')
   const zxLocation = isWindows ? toPOSIXPath(zxPath) : zxPath
   const scriptCode = `#!/usr/bin/env ${zxLocation}\nconsole.log('The script from path runs.')`
 

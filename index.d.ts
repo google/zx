@@ -60,7 +60,7 @@ type cd = (path: string) => void
 type nothrow = (p: ProcessPromise<ProcessOutput>) => ProcessPromise<ProcessOutput>
 type question = (query?: string, options?: QuestionOptions) => Promise<string>
 type sleep = (ms: number) => Promise<void>
-type ZX = () => $
+type YZX = () => $
 
 export const $: $
 export const argv: ParsedArgs
@@ -75,4 +75,4 @@ export const os: typeof _os
 export const path: typeof _path
 export const question: question
 export const sleep: sleep
-export const ZX: ZX
+export const YZX: YZX

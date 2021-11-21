@@ -1,4 +1,4 @@
-#!/usr/bin/env zx
+#!/usr/bin/env yzx
 
 $.verbose = false
 console.log(chalk.black.bgYellowBright` BUILD `)

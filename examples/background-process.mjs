@@ -1,4 +1,4 @@
-#!/usr/bin/env zx
+#!/usr/bin/env yzx
 
 // Copyright 2021 Google LLC
 //

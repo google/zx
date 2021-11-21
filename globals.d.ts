@@ -11,7 +11,7 @@ import {
   path as _path,
   question,
   sleep,
-  ZX,
+  YZX,
 } from '.'
 
 declare global {
@@ -29,5 +29,5 @@ declare global {
   var path: typeof _path
   var question: question
   var sleep: sleep
-  var ZX: ZX
+  var YZX: YZX
 }

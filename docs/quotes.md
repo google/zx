@@ -8,7 +8,7 @@ let name = 'foo & bar'
 await $`mkdir ${name}`
 ```
 
-For quotes **zx** uses special bash syntax (next commands are valid bash):
+For quotes **yzx** uses special bash syntax (next commands are valid bash):
 
 ```bash
 mkdir $'foo & bar'
@@ -31,7 +31,7 @@ await $`mkdir path/to-dir/${name}`
 
 ### Array of arguments
 
-The `zx` can also take an array or arguments in the `${...}`. Items of the array
+The `yzx` can also take an array or arguments in the `${...}`. Items of the array
 will be quoted separately and concatenated via a space. 
 
 Do **not** add a `.join(' ')`.
@@ -57,7 +57,7 @@ await $`git log ${'--oneline --decorate --color'.split(' ')}`
 As everything passed through `${...}` will be escaped, you can't use `~` or glob
 syntax. 
 
-In order for this to work the zx provides 
+In order for this to work the `yzx` provides 
 [globby package](../README.md#globby-package).
 
 For instead of this:

@@ -49,11 +49,11 @@ export function registerGlobals() {
     path,
     question,
     sleep,
-    ZX,
+    YZX,
   })
 }
 
-export function ZX() {
+export function YZX() {
   function $(pieces, ...args) {
     let {verbose, cwd, shell, prefix} = $
     let __from = (new Error().stack.split(/^\s*at\s/m)[2]).trim()
@@ -160,7 +160,7 @@ export function ZX() {
   return $
 }
 
-export const $ = ZX()
+export const $ = YZX()
 
 export function cd(path) {
   return $.cd(path)

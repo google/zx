@@ -1,7 +1,9 @@
-# 🐚 zx
+# ⑂🐚 yzx
+
+_yzx is a fork of [zx](https://github.com/google/zx) that can be executed concurrently (in web servers for example). See [zx issue 252](https://github.com/google/zx/issues/252) for the reason of the fork. It is called yzx because 'Y' looks like both the symbol of a fork and the symbol of concurrency._
 
 ```js
-#!/usr/bin/env zx
+#!/usr/bin/env yzx
 
 await $`cat package.json | grep name`
 
@@ -21,14 +23,14 @@ await $`mkdir /tmp/${name}`
 Bash is great, but when it comes to writing scripts, 
 people usually choose a more convenient programming language.
 JavaScript is a perfect choice, but standard Node.js library 
-requires additional hassle before using. The `zx` package provides
+requires additional hassle before using. The `yzx` package provides
 useful wrappers around `child_process`, escapes arguments and
 gives sensible defaults.
 
 ## Install
 
 ```bash
-npm i -g zx
+npm i -g yzx
 ```
 
 ### Requirement
@@ -41,9 +43,9 @@ Write your scripts in a file with `.mjs` extension in order to
 be able to use `await` on top level. If you prefer the `.js` extension,
 wrap your scripts in something like `void async function () {...}()`.
 
-Add the following shebang to the beginning of your `zx` scripts:
+Add the following shebang to the beginning of your `yzx` scripts:
 ```bash
-#!/usr/bin/env zx
+#!/usr/bin/env yzx
 ```
 
 Now you will be able to run your script like so:
@@ -52,10 +54,10 @@ chmod +x ./script.mjs
 ./script.mjs
 ```
 
-Or via the `zx` executable:
+Or via the `yzx` executable:
 
 ```bash
-zx ./script.mjs
+yzx ./script.mjs
 ```
 
 All functions (`$`, `cd`, `fetch`, etc) are available straight away 
@@ -64,7 +66,7 @@ without any imports.
 Or import globals explicitly (for better autocomplete in VS Code).
 
 ```js
-import 'zx/globals'
+import 'yzx/globals'
 ```
 
 ### ``$`command` ``
@@ -308,7 +310,7 @@ command substitution.
 
 Specifies verbosity. Default is `true`.
 
-In verbose mode, the `zx` prints all executed commands alongside with their 
+In verbose mode, the `yzx` prints all executed commands alongside with their 
 outputs.
 
 Or use a CLI argument `--quiet` to set `$.verbose = false`.
@@ -319,14 +321,14 @@ Or use a CLI argument `--quiet` to set `$.verbose = false`.
 
 In [ESM](https://nodejs.org/api/esm.html) modules, Node.js does not provide
 `__filename` and `__dirname` globals. As such globals are really handy in scripts,
-`zx` provides these for use in `.mjs` files (when using the `zx` executable).
+`yzx` provides these for use in `.mjs` files (when using the `yzx` executable).
 
 #### `require()`
 
 In [ESM](https://nodejs.org/api/modules.html#modules_module_createrequire_filename)
 modules, the `require()` function is not defined.
-The `zx` provides `require()` function, so it can be used with imports in `.mjs`
-files (when using `zx` executable).
+The `yzx` provides `require()` function, so it can be used with imports in `.mjs`
+files (when using `yzx` executable).
 
 ```js
 let {version} = require('./package.json')
@@ -358,31 +360,31 @@ It is possible to make use of `$` and other functions via explicit imports:
 
 ```js
 #!/usr/bin/env node
-import {$} from 'zx'
+import {$} from 'yzx'
 await $`date`
 ```
 
 #### Scripts without extensions
 
-If script does not have a file extension (like `.git/hooks/pre-commit`), zx
+If script does not have a file extension (like `.git/hooks/pre-commit`), yzx
 assumes that it is an [ESM](https://nodejs.org/api/modules.html#modules_module_createrequire_filename)
 module.
 
 #### Markdown scripts
 
-The `zx` can execute scripts written in markdown 
+The `yzx` can execute scripts written in markdown 
 ([docs/markdown.md](docs/markdown.md)):
 
 ```bash
-zx docs/markdown.md
+yzx docs/markdown.md
 ```
 
 #### TypeScript scripts
  
 ```ts
-import {$} from 'zx'
+import {$} from 'yzx'
 // Or 
-import 'zx/globals'
+import 'yzx/globals'
 
 void async function () {
   await $`ls -la`
@@ -397,29 +399,50 @@ ts-node script.ts
 
 #### Executing remote scripts
 
-If the argument to the `zx` executable starts with `https://`, the file will be
+If the argument to the `yzx` executable starts with `https://`, the file will be
 downloaded and executed.
 
 ```bash
-zx https://medv.io/example-script.mjs
+yzx https://medv.io/example-script.mjs
 ```
 
 ```bash
-zx https://medv.io/game-of-life.mjs
+yzx https://medv.io/game-of-life.mjs
 ```
 
 #### Executing scripts from stdin
 
-The `zx` supports executing scripts from stdin.
+The `yzx` supports executing scripts from stdin.
 
 ```js
-zx <<'EOF'
+yzx <<'EOF'
 await $`pwd`
 EOF
+```
+
+#### Using in a concurrent environnement (web servers, etc)
+
+To be able to `yzx` in a web server, the `$` object must not be a global shared object, because each request may need its own current working directory (for example). So `yzx` exports a global function `YZX` to create new instances of `$`.
+
+```js
+import { YZX } from 'yzx'
+
+const $ = YZX()
+await $`pwd`
+...
+```
+
+Also, since the functions `cd` and `fetch` use the global `$` shared object, you should use `$.cd` and `$.fetch` methods instead.
+
+```js
+import { YZX } from 'yzx'
+
+const $ = YZX()
+$.cd("/tmp")
+await $`pwd`
+...
 ```
 
 ## License
 
 [Apache-2.0](LICENSE)
-
-Disclaimer: _This is not an officially supported Google product._

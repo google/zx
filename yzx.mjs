@@ -25,7 +25,7 @@ import './globals.mjs'
 
 try {
   if (argv.version || argv.v || argv.V) {
-    console.log(`zx version ${createRequire(import.meta.url)('./package.json').version}`)
+    console.log(`yzx version ${createRequire(import.meta.url)('./package.json').version}`)
     process.exit(0)
   }
   let firstArg = process.argv.slice(2).find(a => !a.startsWith('--'))
@@ -213,10 +213,10 @@ async function compile(input) {
 
 function printUsage() {
   console.log(`
- ${chalk.bgGreenBright.black(' ZX ')}
+ ${chalk.bgGreenBright.black(' YZX ')}
 
  Usage:
-   zx [options] <script>
+   yzx [options] <script>
  
  Options:
    --quiet            : don't echo commands

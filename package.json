@@ -1,6 +1,6 @@
 {
-  "name": "zx",
-  "version": "4.2.0",
+  "name": "yzx",
+  "version": "5.0.0",
   "description": "A tool for writing better scripts",
   "main": "./dist/index.cjs",
   "exports": {
@@ -15,14 +15,14 @@
   },
   "types": "index.d.ts",
   "bin": {
-    "zx": "zx.mjs"
+    "yzx": "yzx.mjs"
   },
   "engines": {
     "node": ">= 14.13.1"
   },
   "scripts": {
-    "test": "node zx.mjs test.mjs",
-    "build": "node zx.mjs .github/scripts/build.mjs"
+    "test": "node yzx.mjs test.mjs",
+    "build": "node yzx.mjs .github/scripts/build.mjs"
   },
   "dependencies": {
     "@types/fs-extra": "^9.0.12",
@@ -43,14 +43,14 @@
     "rollup": "^2.56.3"
   },
   "publishConfig": {
-    "registry": "https://wombat-dressing-room.appspot.com"
+    "access": "public"
   },
   "files": [
     "*.mjs",
     "*.d.ts",
     "dist"
   ],
-  "repository": "google/zx",
+  "repository": "google/yzx",
   "author": "Anton Medvedev <anton@medv.io>",
   "license": "Apache-2.0"
 }

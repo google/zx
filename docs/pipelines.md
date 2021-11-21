@@ -3,10 +3,10 @@
 > You can run this markdown file: 
 > 
 > ```
-> zx docs/pipelines.md
+> yzx docs/pipelines.md
 > ```
 
-The `zx` supports Node.js streams and special `pipe()` method can be used to
+The `yzx` supports Node.js streams and special `pipe()` method can be used to
 redirect stdout.
 
 ```js
@@ -54,7 +54,7 @@ let greeting = await $`printf "hello"`
 console.log(greeting.stdout)
 ```
 
-Use combinations of `pipe()` and [`nothrow()`](https://github.com/google/zx#nothrow):
+Use combinations of `pipe()` and [`nothrow()`](https://github.com/eraviart/yzx#nothrow):
 
 ```js
 await $`find ./examples -type f -print0`

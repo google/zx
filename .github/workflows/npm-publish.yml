@@ -15,7 +15,7 @@ jobs:
       - run: npm i
       - run: npm run build
       - run: npm test
-      - run: echo "//wombat-dressing-room.appspot.com/:_authToken=$AUTH_TOKEN" >> .npmrc
+      - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> .npmrc
         env:
-          AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}      
+          AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}      
       - run: npm publish
