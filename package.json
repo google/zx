@@ -49,7 +49,7 @@
     "*.d.ts",
     "dist"
   ],
-  "repository": "google/yzx",
+  "repository": "eraviart/yzx",
   "author": "Anton Medvedev <anton@medv.io>",
   "license": "Apache-2.0"
 }
