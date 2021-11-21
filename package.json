@@ -1,6 +1,6 @@
 {
   "name": "yzx",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "A tool for writing better scripts",
   "main": "./dist/index.cjs",
   "exports": {
