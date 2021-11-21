@@ -27,7 +27,9 @@ interface $ {
 
   verbose: boolean
   shell: string
+  cd: (path: string) => void
   cwd: string
+  fetch: typeof _fetch
   prefix: string
   quote: (input: string) => string
 }
@@ -58,6 +60,7 @@ type cd = (path: string) => void
 type nothrow = (p: ProcessPromise<ProcessOutput>) => ProcessPromise<ProcessOutput>
 type question = (query?: string, options?: QuestionOptions) => Promise<string>
 type sleep = (ms: number) => Promise<void>
+type ZX = () => $
 
 export const $: $
 export const argv: ParsedArgs
@@ -72,3 +75,4 @@ export const os: typeof _os
 export const path: typeof _path
 export const question: question
 export const sleep: sleep
+export const ZX: ZX

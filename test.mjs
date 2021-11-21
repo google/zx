@@ -92,6 +92,10 @@ import {strict as assert, deepEqual} from 'assert'
   await $`node zx.mjs docs/markdown.md`
 }
 
+{ // Scripts with several instances of $ are working
+  await $`node zx.mjs tests/multiple.mjs`
+}
+
 { // TypeScript scripts are working
   let {stderr} = await $`node zx.mjs tests/typescript.ts`
   assert.match(stderr, /Hello from TypeScript/)

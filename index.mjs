@@ -49,99 +49,121 @@ export function registerGlobals() {
     path,
     question,
     sleep,
+    ZX,
   })
 }
 
-export function $(pieces, ...args) {
-  let {verbose, cwd, shell, prefix} = $
-  let __from = (new Error().stack.split(/^\s*at\s/m)[2]).trim()
+export function ZX() {
+  function $(pieces, ...args) {
+    let {verbose, cwd, shell, prefix} = $
+    let __from = (new Error().stack.split(/^\s*at\s/m)[2]).trim()
 
-  let cmd = pieces[0], i = 0
-  while (i < args.length) {
-    let s
-    if (Array.isArray(args[i])) {
-      s = args[i].map(x => $.quote(substitute(x))).join(' ')
-    } else {
-      s = $.quote(substitute(args[i]))
-    }
-    cmd += s + pieces[++i]
-  }
-
-  let resolve, reject
-  let promise = new ProcessPromise((...args) => [resolve, reject] = args)
-
-  promise._run = () => {
-    if (promise.child) return
-    if (promise._prerun) promise._prerun()
-    if (verbose) {
-      printCmd(cmd)
+    let cmd = pieces[0], i = 0
+    while (i < args.length) {
+      let s
+      if (Array.isArray(args[i])) {
+        s = args[i].map(x => $.quote(substitute(x))).join(' ')
+      } else {
+        s = $.quote(substitute(args[i]))
+      }
+      cmd += s + pieces[++i]
     }
 
-    let child = spawn(prefix + cmd, {
-      cwd,
-      shell: typeof shell === 'string' ? shell : true,
-      stdio: [promise._inheritStdin ? 'inherit' : 'pipe', 'pipe', 'pipe'],
-      windowsHide: true,
-    })
+    let resolve, reject
+    let promise = new ProcessPromise((...args) => [resolve, reject] = args)
 
-    child.on('exit', code => {
-      child.on('close', () => {
-        let output = new ProcessOutput({
-          code, stdout, stderr, combined,
-          message: `${stderr || '\n'}    at ${__from}\n    exit code: ${code}` + (exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : '')
-        });
-        (code === 0 || promise._nothrow ? resolve : reject)(output)
-        promise._resolved = true
+    promise._run = () => {
+      if (promise.child) return
+      if (promise._prerun) promise._prerun()
+      if (verbose) {
+        printCmd(cmd)
+      }
+
+      let child = spawn(prefix + cmd, {
+        cwd,
+        shell: typeof shell === 'string' ? shell : true,
+        stdio: [promise._inheritStdin ? 'inherit' : 'pipe', 'pipe', 'pipe'],
+        windowsHide: true,
       })
-    })
 
-    let stdout = '', stderr = '', combined = ''
-    let onStdout = data => {
-      if (verbose) process.stdout.write(data)
-      stdout += data
-      combined += data
+      child.on('exit', code => {
+        child.on('close', () => {
+          let output = new ProcessOutput({
+            code, stdout, stderr, combined,
+            message: `${stderr || '\n'}    at ${__from}\n    exit code: ${code}` + (exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : '')
+          });
+          (code === 0 || promise._nothrow ? resolve : reject)(output)
+          promise._resolved = true
+        })
+      })
+
+      let stdout = '', stderr = '', combined = ''
+      let onStdout = data => {
+        if (verbose) process.stdout.write(data)
+        stdout += data
+        combined += data
+      }
+      let onStderr = data => {
+        if (verbose) process.stderr.write(data)
+        stderr += data
+        combined += data
+      }
+      if (!promise._piped) child.stdout.on('data', onStdout)
+      child.stderr.on('data', onStderr)
+      promise.child = child
+      if (promise._postrun) promise._postrun()
     }
-    let onStderr = data => {
-      if (verbose) process.stderr.write(data)
-      stderr += data
-      combined += data
-    }
-    if (!promise._piped) child.stdout.on('data', onStdout)
-    child.stderr.on('data', onStderr)
-    promise.child = child
-    if (promise._postrun) promise._postrun()
+    setTimeout(promise._run, 0) // Make sure all subprocesses started.
+    return promise
   }
-  setTimeout(promise._run, 0) // Make sure all subprocesses started.
-  return promise
+
+  $.verbose = !argv.quiet
+  if (typeof argv.shell === 'string') {
+    $.shell = argv.shell
+    $.prefix = ''
+  } else {
+    try {
+      $.shell = which.sync('bash')
+      $.prefix = 'set -euo pipefail;'
+    } catch (e) {
+      $.prefix = '' // Bash not found, no prefix.
+    }
+  }
+  if (typeof argv.prefix === 'string') {
+    $.prefix = argv.prefix
+  }
+  $.quote = quote
+  $.cwd = undefined
+
+  $.cd = function(path) {
+    if ($.verbose) console.log('$', colorize(`cd ${path}`))
+    if (!fs.existsSync(path)) {
+      let __from = (new Error().stack.split(/^\s*at\s/m)[2]).trim()
+      console.error(`cd: ${path}: No such directory`)
+      console.error(`    at ${__from}`)
+      process.exit(1)
+    }
+    $.cwd = path
+  }
+
+  $.fetch = async function(url, init) {
+    if ($.verbose) {
+      if (typeof init !== 'undefined') {
+        console.log('$', colorize(`fetch ${url}`), init)
+      } else {
+        console.log('$', colorize(`fetch ${url}`))
+      }
+    }
+    return nodeFetch(url, init)
+  }
+
+  return $
 }
 
-$.verbose = !argv.quiet
-if (typeof argv.shell === 'string') {
-  $.shell = argv.shell
-  $.prefix = ''
-} else {
-  try {
-    $.shell = which.sync('bash')
-    $.prefix = 'set -euo pipefail;'
-  } catch (e) {
-    $.prefix = '' // Bash not found, no prefix.
-  }
-}
-if (typeof argv.prefix === 'string') {
-  $.prefix = argv.prefix
-}
-$.quote = quote
-$.cwd = undefined
+export const $ = ZX()
 
 export function cd(path) {
-  if ($.verbose) console.log('$', colorize(`cd ${path}`))
-  if (!fs.existsSync(path)) {
-    let __from = (new Error().stack.split(/^\s*at\s/m)[2]).trim()
-    console.error(`cd: ${path}: No such directory`)
-    console.error(`    at ${__from}`)
-    process.exit(1)
-  }
-  $.cwd = path
+  return $.cd(path)
 }
 
 export async function question(query, options) {
@@ -165,14 +187,7 @@ export async function question(query, options) {
 }
 
 export async function fetch(url, init) {
-  if ($.verbose) {
-    if (typeof init !== 'undefined') {
-      console.log('$', colorize(`fetch ${url}`), init)
-    } else {
-      console.log('$', colorize(`fetch ${url}`))
-    }
-  }
-  return nodeFetch(url, init)
+  return $.fetch(url, init)
 }
 
 export function nothrow(promise) {
