@@ -28,17 +28,16 @@
     "@types/fs-extra": "^9.0.12",
     "@types/minimist": "^1.2.2",
     "@types/node": "^16.6",
-    "@types/node-fetch": "^2.5.12",
     "chalk": "^4.1.2",
     "fs-extra": "^10.0.0",
     "globby": "^12.0.1",
     "minimist": "^1.2.5",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^3.1.0",
     "ps-tree": "^1.2.0",
     "which": "^2.0.2"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^20.0.0",
+    "@rollup/plugin-commonjs": "^21.0.1",
     "@rollup/plugin-node-resolve": "^13.0.4",
     "rollup": "^2.56.3"
   },
