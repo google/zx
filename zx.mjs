@@ -24,7 +24,7 @@ import {$, fetch, ProcessOutput, argv} from './index.mjs'
 import './globals.mjs'
 
 try {
-  if (argv.version || argv.v || argv.V) {
+  if (['--version', '-v', '-V'].includes(process.argv[2] || '')) {
     console.log(`zx version ${createRequire(import.meta.url)('./package.json').version}`)
     process.exit(0)
   }
