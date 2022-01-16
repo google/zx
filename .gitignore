@@ -1,5 +1,4 @@
 /node_modules/
 /.idea/
 /dist/
-package-lock.json
 yarn.lock

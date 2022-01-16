@@ -210,7 +210,15 @@ import {strict as assert} from 'assert'
     assert.equal(path.basename(pwd), 'zx-cd-test')
   } finally {
     fs.rmSync('/tmp/zx-cd-test', {recursive: true})
+    cd(__dirname)
   }
+}
+
+{ // The kill() method works.
+  let p = $`sleep 1000`
+  setTimeout(() => {
+    p.kill()
+  }, 100)
 }
 
 { // require() is working in ESM
