@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {strict as assert, deepEqual} from 'assert'
+import {strict as assert} from 'assert'
 
 { // Only stdout is used during command substitution
   let hello = await $`echo Error >&2; echo Hello`
@@ -191,13 +191,26 @@ import {strict as assert, deepEqual} from 'assert'
     await $`script-from-path`
   } finally {
     process.env.PATH = oldPath
-    fs.rm('/tmp/script-from-path')
+    fs.rmSync('/tmp/script-from-path')
   }
 }
 
 { // CommonJS is working
   let {stdout} = await $`node tests/commonjs.cjs`
   assert.match(stdout, /Hello from CommonJS/)
+}
+
+{ // cd() works with relative paths.
+  try {
+    fs.mkdirpSync('/tmp/zx-cd-test/one/two')
+    cd('/tmp/zx-cd-test/one/two')
+    cd('..')
+    cd('..')
+    let pwd = (await $`pwd`).stdout.trim()
+    assert.equal(path.basename(pwd), 'zx-cd-test')
+  } finally {
+    fs.rmSync('/tmp/zx-cd-test', {recursive: true})
+  }
 }
 
 { // require() is working in ESM

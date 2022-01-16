@@ -53,7 +53,7 @@ export function registerGlobals() {
 }
 
 export function $(pieces, ...args) {
-  let {verbose, cwd, shell, prefix} = $
+  let {verbose, shell, prefix} = $
   let __from = (new Error().stack.split(/^\s*at\s/m)[2]).trim()
 
   let cmd = pieces[0], i = 0
@@ -78,7 +78,7 @@ export function $(pieces, ...args) {
     }
 
     let child = spawn(prefix + cmd, {
-      cwd,
+      cwd: process.cwd(),
       shell: typeof shell === 'string' ? shell : true,
       stdio: [promise._inheritStdin ? 'inherit' : 'pipe', 'pipe', 'pipe'],
       windowsHide: true,
@@ -131,17 +131,10 @@ if (typeof argv.prefix === 'string') {
   $.prefix = argv.prefix
 }
 $.quote = quote
-$.cwd = undefined
 
 export function cd(path) {
   if ($.verbose) console.log('$', colorize(`cd ${path}`))
-  if (!fs.existsSync(path)) {
-    let __from = (new Error().stack.split(/^\s*at\s/m)[2]).trim()
-    console.error(`cd: ${path}: No such directory`)
-    console.error(`    at ${__from}`)
-    process.exit(1)
-  }
-  $.cwd = path
+  process.chdir(path)
 }
 
 export async function question(query, options) {
