@@ -101,10 +101,12 @@ async function writeAndImport(script, filepath, origin = filepath) {
 
 async function importPath(filepath, origin = filepath) {
   let ext = extname(filepath)
+  let tmpFilename= Math.random().toString(36).substr(2) + '.mjs'
+
   if (ext === '') {
     return await writeAndImport(
       await fs.readFile(filepath),
-      join(dirname(filepath), basename(filepath) + '.mjs'),
+      join(dirname(filepath), tmpFilename),
       origin,
     )
   }
