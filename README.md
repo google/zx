@@ -238,7 +238,7 @@ console.log(chalk.blue('Hello world!'))
 The [yaml](https://www.npmjs.com/package/yaml) package.
 
 ```js
-console.log(yaml.parse('foo: bar').foo)
+console.log(YAML.parse('foo: bar').foo)
 ```
 
 #### `fs` package

@@ -19,6 +19,7 @@ import * as _globby from 'globby'
 import * as _os from 'os'
 import * as _path from 'path'
 import * as _chalk from 'chalk'
+import * as _yaml from 'yaml'
 import _fetch from 'node-fetch'
 import {ParsedArgs} from 'minimist'
 
@@ -63,6 +64,7 @@ export const argv: ParsedArgs
 export const cd: cd
 export const chalk: typeof _chalk
 export const fetch: typeof _fetch
+export const YAML: typeof _yaml
 export const fs: typeof _fs
 export const glob: typeof _globby.globby & typeof _globby
 export const globby: typeof _globby.globby & typeof _globby

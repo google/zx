@@ -228,14 +228,14 @@ import {strict as assert} from 'assert'
 }
 
 { // yaml parsing and stringifying is available
-  assert(typeof yaml === 'object')
-  assert(typeof yaml.parse === 'function')
-  assert(typeof yaml.stringify === 'function')
+  assert(typeof YAML === 'object')
+  assert(typeof YAML.parse === 'function')
+  assert(typeof YAML.stringify === 'function')
   console.log(chalk.greenBright('yaml parsing and stringifying is available'))
 }
 
 { // yaml parsing and stringifying works
-  assert.deepEqual(yaml.parse(yaml.stringify({foo: 'bar'})), {foo: 'bar'})
+  assert.deepEqual(YAML.parse(YAML.stringify({foo: 'bar'})), {foo: 'bar'})
   console.log(chalk.greenBright('yaml parsing and stringifying works'))
 }
 
