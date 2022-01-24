@@ -214,6 +214,13 @@ import {strict as assert} from 'assert'
   }
 }
 
+{ // The fetch() method works
+  let response = await fetch('https://wttr.in/?format=3')
+  if (response.ok) {
+    console.log(await response.text())
+  }
+}
+
 { // The kill() method works.
   let p = $`sleep 1000`
   setTimeout(() => {
