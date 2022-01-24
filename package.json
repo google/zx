@@ -21,6 +21,7 @@
     "node": ">= 14.13.1"
   },
   "scripts": {
+    "pretest": "npm run build",
     "test": "node zx.mjs test.mjs",
     "build": "node zx.mjs .github/scripts/build.mjs"
   },
