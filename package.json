@@ -21,6 +21,7 @@
     "node": ">= 14.13.1"
   },
   "scripts": {
+    "pretest": "npm run build",
     "test": "node zx.mjs test.mjs",
     "build": "node zx.mjs .github/scripts/build.mjs"
   },
@@ -35,7 +36,8 @@
     "minimist": "^1.2.5",
     "node-fetch": "^2.6.1",
     "ps-tree": "^1.2.0",
-    "which": "^2.0.2"
+    "which": "^2.0.2",
+    "yaml": "^1.10.2"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^20.0.0",

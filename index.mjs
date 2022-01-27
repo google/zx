@@ -22,10 +22,11 @@ import {createInterface} from 'readline'
 import {default as nodeFetch} from 'node-fetch'
 import which from 'which'
 import chalk from 'chalk'
+import YAML from 'yaml'
 import minimist from 'minimist'
 import psTreeModule from 'ps-tree'
 
-export {chalk, fs, os, path}
+export {chalk, fs, os, path, YAML}
 export const sleep = promisify(setTimeout)
 export const argv = minimist(process.argv.slice(2))
 export const globby = Object.assign(function globby(...args) {
@@ -49,6 +50,7 @@ export function registerGlobals() {
     path,
     question,
     sleep,
+    YAML,
   })
 }
 

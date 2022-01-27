@@ -233,6 +233,14 @@ The [chalk](https://www.npmjs.com/package/chalk) package.
 console.log(chalk.blue('Hello world!'))
 ```
 
+#### `yaml` package
+
+The [yaml](https://www.npmjs.com/package/yaml) package.
+
+```js
+console.log(YAML.parse('foo: bar').foo)
+```
+
 #### `fs` package
 
 The [fs-extra](https://www.npmjs.com/package/fs-extra) package.
