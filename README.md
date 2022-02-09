@@ -31,9 +31,7 @@ gives sensible defaults.
 npm i -g zx
 ```
 
-### Requirement
-
-Node.js >= 14.13.1
+**Requirement**: Node version >= 16.0.0
 
 ## Documentation
 
