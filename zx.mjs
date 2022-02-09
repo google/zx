@@ -115,15 +115,6 @@ async function importPath(filepath, origin = filepath) {
       origin,
     )
   }
-  if (ext === '.ts') {
-    let {dir, name} = parse(filepath)
-    let outFile = join(dir, name + '.cjs')
-    await compile(filepath)
-    await fs.rename(join(dir, name + '.js'), outFile)
-    let wait = importPath(outFile, filepath)
-    await fs.rm(outFile)
-    return wait
-  }
   let __filename = resolve(origin)
   let __dirname = dirname(__filename)
   let require = createRequire(origin)
@@ -192,23 +183,6 @@ function transformMarkdown(source) {
     }
   }
   return output.join('\n')
-}
-
-async function compile(input) {
-  let v = $.verbose
-  $.verbose = false
-  let tsc = $`npm_config_yes=true npx -p typescript tsc --target esnext --lib esnext --module commonjs --moduleResolution node ${input}`
-  $.verbose = v
-  let i = 0,
-    spinner = setInterval(() => process.stdout.write(`  ${'⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'[i++ % 10]}\r`), 100)
-  try {
-    await tsc
-  } catch (err) {
-    console.error(err.toString())
-    process.exit(1)
-  }
-  clearInterval(spinner)
-  process.stdout.write('   \r')
 }
 
 function printUsage() {

@@ -92,11 +92,6 @@ import {strict as assert} from 'assert'
   await $`node zx.mjs docs/markdown.md`
 }
 
-{ // TypeScript scripts are working
-  let {stderr} = await $`node zx.mjs tests/typescript.ts`
-  assert.match(stderr, /Hello from TypeScript/)
-}
-
 { // Quiet mode is working
   let {stdout} = await $`node zx.mjs --quiet docs/markdown.md`
   assert(!stdout.includes('whoami'))
@@ -195,11 +190,6 @@ import {strict as assert} from 'assert'
   }
 }
 
-{ // CommonJS is working
-  let {stdout} = await $`node tests/commonjs.cjs`
-  assert.match(stdout, /Hello from CommonJS/)
-}
-
 { // cd() works with relative paths.
   try {
     fs.mkdirpSync('/tmp/zx-cd-test/one/two')
@@ -215,28 +205,22 @@ import {strict as assert} from 'assert'
 }
 
 { // The kill() method works.
-  let p = $`sleep 1000`
+  let p = nothrow($`sleep 9999`)
   setTimeout(() => {
     p.kill()
   }, 100)
+  await p
+}
+
+{ // YAML works.
+  assert.deepEqual(YAML.parse(YAML.stringify({foo: 'bar'})), {foo: 'bar'})
+  console.log(chalk.greenBright('YAML works'))
 }
 
 { // require() is working in ESM
   const {name, version} = require('./package.json')
   assert(typeof name === 'string')
   console.log(chalk.black.bgYellowBright(` ${name} version is ${version} `))
-}
-
-{ // yaml parsing and stringifying is available
-  assert(typeof YAML === 'object')
-  assert(typeof YAML.parse === 'function')
-  assert(typeof YAML.stringify === 'function')
-  console.log(chalk.greenBright('yaml parsing and stringifying is available'))
-}
-
-{ // yaml parsing and stringifying works
-  assert.deepEqual(YAML.parse(YAML.stringify({foo: 'bar'})), {foo: 'bar'})
-  console.log(chalk.greenBright('yaml parsing and stringifying works'))
 }
 
 console.log(chalk.greenBright(' 🍺 Success!'))
