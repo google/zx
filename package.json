@@ -21,7 +21,6 @@
     "@types/fs-extra": "^9.0.13",
     "@types/minimist": "^1.2.2",
     "@types/node": "^17.0",
-    "@types/node-fetch": "^3.0.2",
     "chalk": "^5.0.0",
     "fs-extra": "^10.0.0",
     "globby": "^13.1.1",
