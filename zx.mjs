@@ -102,14 +102,14 @@ async function writeAndImport(script, filepath, origin = filepath) {
 async function importPath(filepath, origin = filepath) {
   let ext = extname(filepath)
   if (ext === '') {
-    return await writeAndImport(
+    return writeAndImport(
       await fs.readFile(filepath),
       join(dirname(filepath), basename(filepath) + '.mjs'),
       origin,
     )
   }
   if (ext === '.md') {
-    return await writeAndImport(
+    return writeAndImport(
       transformMarkdown((await fs.readFile(filepath)).toString()),
       join(dirname(filepath), basename(filepath) + '.mjs'),
       origin,
