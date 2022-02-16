@@ -5,7 +5,8 @@
   "main": "./index.mjs",
   "exports": {
     ".": "./index.mjs",
-    "./globals": "./globals.mjs"
+    "./globals": "./globals.mjs",
+    "./experimental": "./experimental.mjs"
   },
   "types": "index.d.ts",
   "bin": {

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {strict as assert} from 'assert'
+import {retry} from './experimental.mjs'
 
 { // Only stdout is used during command substitution
   let hello = await $`echo Error >&2; echo Hello`
@@ -216,6 +217,14 @@ import {strict as assert} from 'assert'
 { // YAML works.
   assert.deepEqual(YAML.parse(YAML.stringify({foo: 'bar'})), {foo: 'bar'})
   console.log(chalk.greenBright('YAML works'))
+}
+
+{ // Retry works.
+  try {
+    await retry(5)`exit 123`
+  } catch (p) {
+    assert.equal(p.exitCode, 123)
+  }
 }
 
 { // require() is working in ESM

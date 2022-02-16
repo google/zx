@@ -338,6 +338,33 @@ files (when using `zx` executable).
 let {version} = require('./package.json')
 ```
 
+### Experimental
+
+The zx also provides a few experimental functions. Please leave a feedback about 
+those features in [the discussion](https://github.com/google/zx/discussions/299).
+
+#### `retry()`
+
+Retries a command a few times. Will return after the first
+successful attempt, or will throw after specifies attempts count.
+
+```js
+import {retry} from 'zx/experimental'
+
+let {stdout} = await retry(5)`curl localhost`
+```
+
+#### ``echo`...` ``
+
+A `console.log()` alternative which can take [ProcessOutput](#processoutput).
+
+```js
+import {echo} from 'zx/experimental'
+
+let branch = await $`git branch --show-current`
+echo`Current branch is ${branch}.`
+```
+
 ### FAQ
 
 #### Passing env variables
