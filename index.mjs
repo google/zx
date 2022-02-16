@@ -84,6 +84,7 @@ export function $(pieces, ...args) {
       shell: typeof shell === 'string' ? shell : true,
       stdio: [promise._inheritStdin ? 'inherit' : 'pipe', 'pipe', 'pipe'],
       windowsHide: true,
+      maxBuffer: 200 * 1024 * 1024, // 200 MiB
     })
 
     child.on('exit', code => {
