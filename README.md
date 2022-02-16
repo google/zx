@@ -31,9 +31,7 @@ gives sensible defaults.
 npm i -g zx
 ```
 
-### Requirement
-
-Node.js >= 14.13.1
+**Requirement**: Node version >= 16.0.0
 
 ## Documentation
 
@@ -397,11 +395,31 @@ void async function () {
 }()
 ```
 
-Compile the TypeScript to JS and run it. Or use something like ts-node.
+Use [ts-node](https://github.com/TypeStrong/ts-node#native-ecmascript-modules) as
+a esm node [loader](https://nodejs.org/api/esm.html#esm_experimental_loaders).
 
 ```bash
-ts-node script.ts
+node --loader ts-node/esm script.ts
 ```
+
+You must set [`"type": "module"`](https://nodejs.org/api/packages.html#packages_type) 
+in `package.json` and [`"module": "ESNext"`](https://www.typescriptlang.org/tsconfig/#module) 
+in `tsconfig.json`.
+
+```json
+{
+  "type": "module"
+}
+```
+
+```json
+{
+  "compilerOptions": {
+    "module": "ESNext"
+  }
+}
+```
+
 
 #### Executing remote scripts
 

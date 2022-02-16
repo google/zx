@@ -18,7 +18,7 @@ import * as _fs from 'fs-extra'
 import * as _globby from 'globby'
 import * as _os from 'os'
 import * as _path from 'path'
-import * as _chalk from 'chalk'
+import {ChalkInstance} from 'chalk'
 import * as _yaml from 'yaml'
 import _fetch from 'node-fetch'
 import {ParsedArgs} from 'minimist'
@@ -62,7 +62,7 @@ type sleep = (ms: number) => Promise<void>
 export const $: $
 export const argv: ParsedArgs
 export const cd: cd
-export const chalk: typeof _chalk
+export const chalk: ChalkInstance
 export const fetch: typeof _fetch
 export const YAML: typeof _yaml
 export const fs: typeof _fs

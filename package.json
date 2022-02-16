@@ -1,56 +1,41 @@
 {
   "name": "zx",
-  "version": "4.3.0",
-  "description": "A tool for writing better scripts",
-  "main": "./dist/index.cjs",
+  "version": "5.0.0",
+  "description": "A tool for writing better scripts.",
+  "main": "./index.mjs",
   "exports": {
-    ".": {
-      "import": "./index.mjs",
-      "require": "./dist/index.cjs"
-    },
-    "./globals": {
-      "import": "./globals.mjs",
-      "require": "./dist/globals.cjs"
-    }
+    ".": "./index.mjs",
+    "./globals": "./globals.mjs"
   },
   "types": "index.d.ts",
   "bin": {
     "zx": "zx.mjs"
   },
   "engines": {
-    "node": ">= 14.13.1"
+    "node": ">= 16.0.0"
   },
   "scripts": {
-    "pretest": "npm run build",
-    "test": "node zx.mjs test.mjs",
-    "build": "node zx.mjs .github/scripts/build.mjs"
+    "test": "node zx.mjs test.mjs"
   },
   "dependencies": {
-    "@types/fs-extra": "^9.0.12",
+    "@types/fs-extra": "^9.0.13",
     "@types/minimist": "^1.2.2",
-    "@types/node": "^16.6",
-    "@types/node-fetch": "^2.5.12",
-    "chalk": "^4.1.2",
+    "@types/node": "^17.0",
+    "chalk": "^5.0.0",
     "fs-extra": "^10.0.0",
-    "globby": "^12.0.1",
+    "globby": "^13.1.1",
     "minimist": "^1.2.5",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^3.2.0",
     "ps-tree": "^1.2.0",
     "which": "^2.0.2",
     "yaml": "^1.10.2"
-  },
-  "devDependencies": {
-    "@rollup/plugin-commonjs": "^20.0.0",
-    "@rollup/plugin-node-resolve": "^13.0.4",
-    "rollup": "^2.56.3"
   },
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"
   },
   "files": [
     "*.mjs",
-    "*.d.ts",
-    "dist"
+    "*.d.ts"
   ],
   "repository": "google/zx",
   "author": "Anton Medvedev <anton@medv.io>",
