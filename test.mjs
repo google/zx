@@ -80,8 +80,9 @@ import {strict as assert} from 'assert'
   }
 }
 
-{ // Scripts with no extension are working
+{ // Scripts with no extension work and do not overwrite similarly named files.
   await $`node zx.mjs tests/no-extension`
+  assert.match((await fs.readFile('tests/no-extension.mjs')).toString(), /Test file to verify no-extension didn't overwrite similarly name .mjs file./);
 }
 
 { // require() is working from stdin
