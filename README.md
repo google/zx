@@ -62,7 +62,8 @@ without any imports.
 Or import globals explicitly (for better autocomplete in VS Code).
 
 ```js
-import 'zx/globals'
+import 'zx/globals' // or
+/// <reference path="node_modules/zx/globals.d.ts" />  // useful when excute remote files
 ```
 
 ### ``$`command` ``
