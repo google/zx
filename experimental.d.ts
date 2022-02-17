@@ -15,7 +15,8 @@
 import {ProcessOutput} from './index'
 
 interface Echo {
-  (pieces: TemplateStringsArray, ...args: any[]): Promise<void>
+  (pieces: TemplateStringsArray, ...args: any[]): void
+  (...args: any[]): void
 }
 
 interface Retry {

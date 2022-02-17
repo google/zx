@@ -25,15 +25,24 @@ export const retry = (count = 5) => async (cmd, ...args) => {
 }
 
 // A console.log() alternative which can take ProcessOutput.
-export const echo = (pieces, ...args) => {
-  if (!Array.isArray(pieces) || pieces.length - 1 !== args.length) {
-    throw new Error('The echo is a template string. Use as echo`...`.')
+export function echo(pieces, ...args) {
+  if (Array.isArray(pieces) && pieces.every(isString) && pieces.length - 1 === args.length) {
+    let msg = pieces[0], i = 0
+    while (i < args.length) {
+      msg += stringify(args[i]) + pieces[++i]
+    }
+    console.log(msg)
+  } else {
+    let msg = []
+    for (let it of [pieces, ...args]) {
+      msg.push(it instanceof ProcessOutput ? stringify(it) : it)
+    }
+    console.log(...msg)
   }
-  let msg = pieces[0], i = 0
-  while (i < args.length) {
-    msg += stringify(args[i]) + pieces[++i]
-  }
-  console.log(msg)
+}
+
+function isString(obj) {
+  return typeof obj === 'string'
 }
 
 function stringify(arg) {
