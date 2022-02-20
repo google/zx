@@ -244,8 +244,6 @@ console.log(YAML.parse('foo: bar').foo)
 The [toml](https://www.npmjs.com/package/toml) package.
 
 ```js
-const TOML = require('toml')
-
 const google = TOML.parse(`[google]\nzx = "google/zx"`)
 console.log(google.google.zx)
 console.log(TOML.parse(`zx = "google/zx"`).zx)

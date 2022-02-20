@@ -20,6 +20,7 @@ import * as _os from 'os'
 import * as _path from 'path'
 import {ChalkInstance} from 'chalk'
 import * as _yaml from 'yaml'
+import * as _toml from 'toml'
 import _fetch from 'node-fetch'
 import {ParsedArgs} from 'minimist'
 
@@ -65,6 +66,7 @@ export const cd: cd
 export const chalk: ChalkInstance
 export const fetch: typeof _fetch
 export const YAML: typeof _yaml
+export const TOML: typeof _toml
 export const fs: typeof _fs
 export const glob: typeof _globby.globby & typeof _globby
 export const globby: typeof _globby.globby & typeof _globby
