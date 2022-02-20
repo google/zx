@@ -151,7 +151,7 @@ await $`pwd` // outputs /tmp
 A wrapper around the [node-fetch](https://www.npmjs.com/package/node-fetch) package.
 
 ```js
-let resp = await fetch('http://wttr.in')
+let resp = await fetch('https://wttr.in')
 if (resp.ok) {
   console.log(await resp.text())
 }
