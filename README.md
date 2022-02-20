@@ -354,7 +354,7 @@ import {retry} from 'zx/experimental'
 let {stdout} = await retry(5)`curl localhost`
 ```
 
-#### ``echo`...` ``
+#### `echo()`
 
 A `console.log()` alternative which can take [ProcessOutput](#processoutput).
 
@@ -362,7 +362,10 @@ A `console.log()` alternative which can take [ProcessOutput](#processoutput).
 import {echo} from 'zx/experimental'
 
 let branch = await $`git branch --show-current`
+
 echo`Current branch is ${branch}.`
+// or
+echo('Current branch is', branch)
 ```
 
 ### FAQ
