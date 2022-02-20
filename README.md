@@ -239,6 +239,18 @@ The [yaml](https://www.npmjs.com/package/yaml) package.
 console.log(YAML.parse('foo: bar').foo)
 ```
 
+#### `toml` package
+
+The [toml](https://www.npmjs.com/package/toml) package.
+
+```js
+const TOML = require('toml')
+
+const google = TOML.parse(`[google]\nzx = "google/zx"`)
+console.log(google.google.zx)
+console.log(TOML.parse(`zx = "google/zx"`).zx)
+```
+
 #### `fs` package
 
 The [fs-extra](https://www.npmjs.com/package/fs-extra) package.
