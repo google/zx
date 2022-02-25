@@ -23,5 +23,5 @@ the subprocess to add colors.
 
 ```js
 process.env.FORCE_COLOR='1'
-await $`cmd`
+await $ 'cmd'
 ```
