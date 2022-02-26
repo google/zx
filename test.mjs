@@ -15,29 +15,46 @@
 import {strict as assert} from 'assert'
 import {retry} from './experimental.mjs'
 
-{ // Only stdout is used during command substitution
+let всегоТестов = 0
+
+function test(name) {
+  let фильтр = process.argv[3] || '.'
+  if (RegExp(фильтр).test(name)) {
+    console.log('\n' + chalk.bgGreenBright.black(` ${name} `))
+    всегоТестов++
+    return true
+  }
+  return false
+}
+
+if (test('Only stdout is used during command substitution')) {
   let hello = await $`echo Error >&2; echo Hello`
   let len = +(await $`echo ${hello} | wc -c`)
   assert(len === 6)
 }
 
-{ // Pass env var
+if (test('Env vars works')) {
   process.env.FOO = 'foo'
   let foo = await $`echo $FOO`
   assert(foo.stdout === 'foo\n')
 }
 
-{ // Arguments are quoted
+if (test('Env vars is safe to pass')) {
+  process.env.FOO = 'hi; exit 1'
+  await $`echo $FOO`
+}
+
+if (test('Arguments are quoted')) {
   let bar = 'bar"";baz!$#^$\'&*~*%)({}||\\/'
   assert((await $`echo ${bar}`).stdout.trim() === bar)
 }
 
-{ // Undefined and empty string correctly quoted
+if (test('Undefined and empty string correctly quoted')) {
   $`echo ${undefined}`
   $`echo ${''}`
 }
 
-{ // Can create a dir with a space in the name
+if (test('Can create a dir with a space in the name')) {
   let name = 'foo bar'
   try {
     await $`mkdir /tmp/${name}`
@@ -46,7 +63,7 @@ import {retry} from './experimental.mjs'
   }
 }
 
-{ // Pipefail is on
+if (test('Pipefail is on')) {
   let p
   try {
     p = await $`cat /dev/not_found | sort`
@@ -57,22 +74,17 @@ import {retry} from './experimental.mjs'
   assert(p.exitCode !== 0)
 }
 
-{ // Env vars is safe to pass
-  process.env.FOO = 'hi; exit 1'
-  await $`echo $FOO`
-}
-
-{ // Globals are defined
+if (test('The __filename & __dirname are defined')) {
   console.log(__filename, __dirname)
 }
 
-{ // toString() is called on arguments
+if (test('The toString() is called on arguments')) {
   let foo = 0
   let p = await $`echo ${foo}`
   assert(p.stdout === '0\n')
 }
 
-{ // Can use array as an argument
+if (test('Can use array as an argument')) {
   try {
     let files = ['./index.mjs', './zx.mjs', './package.json']
     await $`tar czf archive ${files}`
@@ -81,32 +93,32 @@ import {retry} from './experimental.mjs'
   }
 }
 
-{ // Scripts with no extension work and do not overwrite similarly named files.
+if (test('Scripts with no extension')) {
   await $`node zx.mjs tests/no-extension`
-  assert.match((await fs.readFile('tests/no-extension.mjs')).toString(), /Test file to verify no-extension didn't overwrite similarly name .mjs file./);
+  assert.match((await fs.readFile('tests/no-extension.mjs')).toString(), /Test file to verify no-extension didn't overwrite similarly name .mjs file./)
 }
 
-{ // require() is working from stdin
+if (test('The require() is working from stdin')) {
   await $`node zx.mjs <<< 'require("./package.json").name'`
 }
 
-{ // Markdown scripts are working
+if (test('Markdown scripts are working')) {
   await $`node zx.mjs docs/markdown.md`
 }
 
-{ // Quiet mode is working
+if (test('Quiet mode is working')) {
   let {stdout} = await $`node zx.mjs --quiet docs/markdown.md`
   assert(!stdout.includes('whoami'))
 }
 
-{ // Pipes are working
+if (test('Pipes are working')) {
   let {stdout} = await $`echo "hello"`
     .pipe($`awk '{print $1" world"}'`)
     .pipe($`tr '[a-z]' '[A-Z]'`)
   assert(stdout === 'HELLO WORLD\n')
 
   try {
-    let w = await $`echo foo`
+    await $`echo foo`
       .pipe(fs.createWriteStream('/tmp/output.txt'))
     assert((await fs.readFile('/tmp/output.txt')).toString() === 'foo\n')
 
@@ -119,7 +131,7 @@ import {retry} from './experimental.mjs'
   }
 }
 
-{ // ProcessOutput thrown as error
+if (test('ProcessOutput thrown as error')) {
   let err
   try {
     await $`wtf`
@@ -129,7 +141,7 @@ import {retry} from './experimental.mjs'
   assert(err.exitCode > 0)
 }
 
-{ // The pipe() throws if already resolved
+if (test('The pipe() throws if already resolved')) {
   let out, p = $`echo "Hello"`
   await p
   try {
@@ -142,17 +154,17 @@ import {retry} from './experimental.mjs'
   }
 }
 
-{ // ProcessOutput::exitCode doesn't throw
+if (test('ProcessOutput::exitCode do not throw')) {
   assert(await $`grep qwerty README.md`.exitCode !== 0)
   assert(await $`[[ -f ${__filename} ]]`.exitCode === 0)
 }
 
-{ // nothrow() doesn't throw
+if (test('The nothrow() do not throw')) {
   let {exitCode} = await nothrow($`exit 42`)
   assert(exitCode === 42)
 }
 
-{ // globby available
+if (test('globby available')) {
   assert(globby === glob)
   assert(typeof globby === 'function')
   assert(typeof globby.globbySync === 'function')
@@ -164,7 +176,7 @@ import {retry} from './experimental.mjs'
   console.log(chalk.greenBright('globby available'))
 }
 
-{ // Executes a script from PATH.
+if (test('Executes a script from $PATH')) {
   const isWindows = process.platform === 'win32'
   const oldPath = process.env.PATH
 
@@ -188,7 +200,7 @@ import {retry} from './experimental.mjs'
   }
 }
 
-{ // cd() works with relative paths.
+if (test('The cd() works with relative paths')) {
   try {
     fs.mkdirpSync('/tmp/zx-cd-test/one/two')
     cd('/tmp/zx-cd-test/one/two')
@@ -202,7 +214,7 @@ import {retry} from './experimental.mjs'
   }
 }
 
-{ // The kill() method works.
+if (test('The kill() method works')) {
   let p = nothrow($`sleep 9999`)
   setTimeout(() => {
     p.kill()
@@ -210,23 +222,29 @@ import {retry} from './experimental.mjs'
   await p
 }
 
-{ // YAML works.
+if (test('YAML works')) {
   assert.deepEqual(YAML.parse(YAML.stringify({foo: 'bar'})), {foo: 'bar'})
   console.log(chalk.greenBright('YAML works'))
 }
 
-{ // Retry works.
+if (test('Retry works')) {
+  let exitCode = 0
   try {
     await retry(5)`exit 123`
   } catch (p) {
-    assert.equal(p.exitCode, 123)
+    exitCode = p.exitCode
   }
+  assert.equal(exitCode, 123)
 }
 
-{ // require() is working in ESM
-  const {name, version} = require('./package.json')
-  assert(typeof name === 'string')
-  console.log(chalk.black.bgYellowBright(` ${name} version is ${version} `))
+let version
+if (test('require() is working in ESM')) {
+  let data = require('./package.json')
+  version = data.version
+  assert.equal(data.name, 'zx')
 }
 
-console.log(chalk.greenBright(' 🍺 Success!'))
+console.log('\n' +
+  chalk.black.bgYellowBright(` zx version is ${version} `) + '\n' +
+  chalk.greenBright(` 🍺 ${всегоТестов} tests passed `)
+)
