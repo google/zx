@@ -234,6 +234,7 @@ export class ProcessPromise extends Promise {
   }
 
   async kill(signal = 'SIGTERM') {
+    if (!this.child) { return }
     this.catch(_ => _)
     let children = await psTree(this.child.pid)
     for (const p of children) {
