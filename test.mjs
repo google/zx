@@ -126,9 +126,7 @@ import {retry} from './experimental.mjs'
   } catch (p) {
     err = p
   }
-  console.log(err)
   assert(err.exitCode > 0)
-  console.log('☝️ Error above is expected')
 }
 
 { // The pipe() throws if already resolved
@@ -137,9 +135,7 @@ import {retry} from './experimental.mjs'
   try {
     out = await p.pipe($`less`)
   } catch (err) {
-    console.log(err)
     assert.equal(err.message, `The pipe() method shouldn't be called after promise is already resolved!`)
-    console.log('☝️ Error above is expected')
   }
   if (out) {
     assert.fail('Expected failure!')
