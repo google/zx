@@ -73,8 +73,8 @@ export function $(pieces, ...args) {
   let promise = new ProcessPromise((...args) => [resolve, reject] = args)
 
   promise._run = () => {
-    if (promise.child) return
-    if (promise._prerun) promise._prerun()
+    if (promise.child) return // The _run() called from two places: then() and setTimeout().
+    if (promise._prerun) promise._prerun() // In case $1.pipe($2), the $2 returned, and on $2._run() invoke $1._run().
     if (verbose) {
       printCmd(cmd)
     }
@@ -109,12 +109,12 @@ export function $(pieces, ...args) {
       stderr += data
       combined += data
     }
-    if (!promise._piped) child.stdout.on('data', onStdout)
-    child.stderr.on('data', onStderr)
+    if (!promise._piped) child.stdout.on('data', onStdout) // If process is piped, don't collect or print output.
+    child.stderr.on('data', onStderr) // Stderr should be printed regardless of piping.
     promise.child = child
-    if (promise._postrun) promise._postrun()
+    if (promise._postrun) promise._postrun() // In case $1.pipe($2), after both subprocesses are running, we can pipe $1.stdout to $2.stdin.
   }
-  setTimeout(promise._run, 0) // Make sure all subprocesses started.
+  setTimeout(promise._run, 0) // Make sure all subprocesses are started, if not explicitly by await or then().
   return promise
 }
 
