@@ -383,7 +383,7 @@ echo`Current branch is ${branch}.`
 echo('Current branch is', branch)
 ```
 
-### `startSpinner()`
+#### `startSpinner()`
 
 Starts a simple CLI spinner, and returns `stop()` function.
 
