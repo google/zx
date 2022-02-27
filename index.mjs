@@ -46,6 +46,7 @@ export function registerGlobals() {
     glob,
     globby,
     nothrow,
+    quiet,
     os,
     path,
     question,
@@ -75,7 +76,7 @@ export function $(pieces, ...args) {
   promise._run = () => {
     if (promise.child) return // The _run() called from two places: then() and setTimeout().
     if (promise._prerun) promise._prerun() // In case $1.pipe($2), the $2 returned, and on $2._run() invoke $1._run().
-    if (verbose) {
+    if (verbose && !promise._quiet) {
       printCmd(cmd)
     }
 
@@ -100,12 +101,12 @@ export function $(pieces, ...args) {
 
     let stdout = '', stderr = '', combined = ''
     let onStdout = data => {
-      if (verbose) process.stdout.write(data)
+      if (verbose && !promise._quiet) process.stdout.write(data)
       stdout += data
       combined += data
     }
     let onStderr = data => {
-      if (verbose) process.stderr.write(data)
+      if (verbose && !promise._quiet) process.stderr.write(data)
       stderr += data
       combined += data
     }
@@ -176,9 +177,15 @@ export function nothrow(promise) {
   return promise
 }
 
+export function quiet(promise) {
+  promise._quiet = true
+  return promise
+}
+
 export class ProcessPromise extends Promise {
   child = undefined
   _nothrow = false
+  _quiet = false
   _resolved = false
   _inheritStdin = true
   _piped = false

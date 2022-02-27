@@ -218,6 +218,20 @@ if ((await nothrow($`[[ -d path ]]`)).exitCode == 0) {
   ...
 }
 ```
+#### `quiet()`
+
+Changes behavior of `$` to disable verbose output.
+
+```ts
+function quiet<P>(p: P): P
+```
+
+Usage:
+
+```js
+await quiet($`grep something from-file`)
+// Command and output will not display
+```
 
 ### Packages
 
