@@ -231,7 +231,7 @@ Usage:
 
 ```js
 await quiet($`grep something from-file`)
-// Command and output will not display
+// Command and output will not be displayed.
 ```
 
 ### Packages
