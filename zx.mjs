@@ -14,14 +14,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {basename, dirname, extname, join, parse, resolve} from 'path'
-import {tmpdir} from 'os'
 import fs from 'fs-extra'
 import {createRequire} from 'module'
+import {tmpdir} from 'os'
+import {basename, dirname, extname, join, resolve} from 'path'
 import url from 'url'
-import {$, fetch, ProcessOutput, argv} from './index.mjs'
 
 import './globals.mjs'
+import {fetch, ProcessOutput} from './index.mjs'
 
 try {
   if (['--version', '-v', '-V'].includes(process.argv[2] || '')) {
