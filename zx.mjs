@@ -23,40 +23,41 @@ import url from 'url'
 import './globals.mjs'
 import {fetch, ProcessOutput} from './index.mjs'
 
-try {
-  if (['--version', '-v', '-V'].includes(process.argv[2] || '')) {
-    console.log(`zx version ${createRequire(import.meta.url)('./package.json').version}`)
-    process.exit(0)
-  }
-  let firstArg = process.argv.slice(2).find(a => !a.startsWith('--'))
-  if (typeof firstArg === 'undefined' || firstArg === '-') {
-    let ok = await scriptFromStdin()
-    if (!ok) {
-      printUsage()
-      process.exit(2)
+await async function main() {
+  try {
+    if (['--version', '-v', '-V'].includes(process.argv[2] || '')) {
+      console.log(`zx version ${createRequire(import.meta.url)('./package.json').version}`)
+      return process.exitCode = 0
     }
-  } else if (firstArg.startsWith('http://') || firstArg.startsWith('https://')) {
-    await scriptFromHttp(firstArg)
-  } else {
-    let filepath
-    if (firstArg.startsWith('/')) {
-      filepath = firstArg
-    } else if (firstArg.startsWith('file:///')) {
-      filepath = url.fileURLToPath(firstArg)
+    let firstArg = process.argv.slice(2).find(a => !a.startsWith('--'))
+    if (typeof firstArg === 'undefined' || firstArg === '-') {
+      let ok = await scriptFromStdin()
+      if (!ok) {
+        printUsage()
+        return process.exitCode = 2
+      }
+    } else if (firstArg.startsWith('http://') || firstArg.startsWith('https://')) {
+      await scriptFromHttp(firstArg)
     } else {
-      filepath = resolve(firstArg)
+      let filepath
+      if (firstArg.startsWith('/')) {
+        filepath = firstArg
+      } else if (firstArg.startsWith('file:///')) {
+        filepath = url.fileURLToPath(firstArg)
+      } else {
+        filepath = resolve(firstArg)
+      }
+      await importPath(filepath)
     }
-    await importPath(filepath)
+  } catch (p) {
+    if (p instanceof ProcessOutput) {
+      console.error('Error: ' + p.message)
+      return process.exitCode = 1
+    } else {
+      throw p
+    }
   }
-
-} catch (p) {
-  if (p instanceof ProcessOutput) {
-    console.error('Error: ' + p.message)
-    process.exit(1)
-  } else {
-    throw p
-  }
-}
+}()
 
 async function scriptFromStdin() {
   let script = ''
