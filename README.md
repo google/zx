@@ -131,6 +131,7 @@ class ProcessOutput {
   readonly stdout: string
   readonly stderr: string
   readonly exitCode: number
+  readonly signal: 'SIGTERM' | 'SIGKILL' | ...
   toString(): string
 }
 ```

@@ -45,7 +45,8 @@ export interface ProcessPromise<T> extends Promise<T> {
 }
 
 export class ProcessOutput {
-  readonly exitCode: number
+  readonly exitCode: number | null
+  readonly signal: NodeJS.Signals | null
   readonly stdout: string
   readonly stderr: string
 

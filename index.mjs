@@ -88,15 +88,22 @@ export function $(pieces, ...args) {
       maxBuffer: 200 * 1024 * 1024, // 200 MiB
     })
 
-    child.on('exit', code => {
-      child.on('close', () => {
-        let output = new ProcessOutput({
-          code, stdout, stderr, combined,
-          message: `${stderr || '\n'}    at ${__from}\n    exit code: ${code}` + (exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : '')
-        });
-        (code === 0 || promise._nothrow ? resolve : reject)(output)
-        promise._resolved = true
-      })
+    child.on('close', (code, signal) => {
+      let message = `${stderr || '\n'}    at ${__from}`
+      message += `\n    exit code: ${code}${exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : ''}`
+      if (signal !== null) {
+        message += `\n    signal: ${signal}`
+      }
+      let output = new ProcessOutput({
+        code,
+        signal,
+        stdout,
+        stderr,
+        combined,
+        message,
+      });
+      (code === 0 || promise._nothrow ? resolve : reject)(output)
+      promise._resolved = true
     })
 
     let stdout = '', stderr = '', combined = ''
@@ -257,14 +264,16 @@ export class ProcessPromise extends Promise {
 }
 
 export class ProcessOutput extends Error {
-  #code = 0
+  #code = null
+  #signal = null
   #stdout = ''
   #stderr = ''
   #combined = ''
 
-  constructor({code, stdout, stderr, combined, message}) {
+  constructor({code, signal, stdout, stderr, combined, message}) {
     super(message)
     this.#code = code
+    this.#signal = signal
     this.#stdout = stdout
     this.#stderr = stderr
     this.#combined = combined
@@ -286,11 +295,16 @@ export class ProcessOutput extends Error {
     return this.#code
   }
 
+  get signal() {
+    return this.#signal
+  }
+
   [inspect.custom]() {
     let stringify = (s, c) => s.length === 0 ? '\'\'' : c(inspect(s))
     return `ProcessOutput {
   stdout: ${stringify(this.stdout, chalk.green)},
   stderr: ${stringify(this.stderr, chalk.red)},
+  signal: ${inspect(this.signal)},
   exitCode: ${(this.exitCode === 0 ? chalk.green : chalk.red)(this.exitCode)}${(exitCodeInfo(this.exitCode) ? chalk.grey(' (' + exitCodeInfo(this.exitCode) + ')') : '')}
 }`
   }

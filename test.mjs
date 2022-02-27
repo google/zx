@@ -222,6 +222,18 @@ if (test('The kill() method works')) {
   await p
 }
 
+if (test('The signal is passed with kill() method')) {
+  let p = $`while true; do :; done`
+  setTimeout(() => p.kill('SIGKILL'), 100)
+  let signal
+  try {
+    await p
+  } catch (p) {
+    signal = p.signal
+  }
+  assert.equal(signal, 'SIGKILL')
+}
+
 if (test('YAML works')) {
   assert.deepEqual(YAML.parse(YAML.stringify({foo: 'bar'})), {foo: 'bar'})
   console.log(chalk.greenBright('YAML works'))
