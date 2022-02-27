@@ -51,3 +51,9 @@ function stringify(arg) {
   }
   return `${arg}`
 }
+
+// Starts a simple CLI spinner, and returns stop() func.
+export function startSpinner(title = '') {
+  let i = 0, spin = () => process.stdout.write(`  ${'⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'[i++ % 10]} ${title}\r`)
+  return (id => () => clearInterval(id))(setInterval(spin, 100))
+}

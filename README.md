@@ -383,6 +383,18 @@ echo`Current branch is ${branch}.`
 echo('Current branch is', branch)
 ```
 
+### `startSpinner()`
+
+Starts a simple CLI spinner, and returns `stop()` function.
+
+```js
+import {startSpinner} from 'zx/experimental'
+
+let stop = startSpinner()
+await $`long-running command`
+stop()
+```
+
 ### FAQ
 
 #### Passing env variables

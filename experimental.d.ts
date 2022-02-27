@@ -18,10 +18,12 @@ interface Echo {
   (pieces: TemplateStringsArray, ...args: any[]): void
   (...args: any[]): void
 }
+export const echo: Echo
 
 interface Retry {
   (pieces: TemplateStringsArray, ...args: any[]): Promise<ProcessOutput>
 }
-
-export const echo: Echo
 export const retry: (count: number) => Retry
+
+type StopSpinner = () => void
+export function startSpinner(title: string): StopSpinner
