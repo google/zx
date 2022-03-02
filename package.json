@@ -4,9 +4,18 @@
   "description": "A tool for writing better scripts.",
   "main": "./index.mjs",
   "exports": {
-    ".": "./index.mjs",
-    "./globals": "./globals.mjs",
-    "./experimental": "./experimental.mjs"
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.mjs"
+    },
+    "./globals": {
+      "types": "./globals.d.ts",
+      "import": "./globals.mjs"
+    },
+    "./experimental": {
+      "types": "./experimental.d.ts",
+      "import": "./experimental.mjs"
+    }
   },
   "types": "index.d.ts",
   "bin": {
