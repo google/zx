@@ -199,6 +199,7 @@ function printUsage() {
    zx [options] <script>
  
  Options:
+   --dotenv=<path>    : path to envfile to load (default: .env)
    --quiet            : don't echo commands
    --shell=<path>     : custom shell binary
    --prefix=<command> : prefix all commands

@@ -219,6 +219,10 @@ if ((await nothrow($`[[ -d path ]]`)).exitCode == 0) {
   ...
 }
 ```
+#### `dotenv`
+
+File path to a env file to preload, if `--dotenv` without path provided, zx will load from `${process.cwd()}/.env`.
+
 #### `quiet()`
 
 Changes behavior of `$` to disable verbose output.

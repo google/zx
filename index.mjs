@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {config} from 'dotenv'
 import fs from 'fs-extra'
 import * as globbyModule from 'globby'
 import os from 'os'
@@ -140,6 +141,13 @@ if (typeof argv.shell === 'string') {
 }
 if (typeof argv.prefix === 'string') {
   $.prefix = argv.prefix
+}
+if (argv.dotenv) {
+  let dotenvFile = '.env';
+  if (typeof argv.dotenv === 'string') {
+    dotenvFile = argv.dotenv;
+  }
+  config({path: path.resolve(process.cwd(), dotenvFile)});
 }
 $.quote = quote
 

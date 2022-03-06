@@ -23,6 +23,7 @@
     "@types/minimist": "^1.2.2",
     "@types/node": "^17.0",
     "chalk": "^5.0.0",
+    "dotenv": "^16.0.0",
     "fs-extra": "^10.0.1",
     "globby": "^13.1.1",
     "minimist": "^1.2.5",
