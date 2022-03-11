@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ChildProcess} from 'child_process'
+import {ChildProcess, spawn} from 'child_process'
 import {Readable, Writable} from 'stream'
 import * as _fs from 'fs-extra'
 import * as _globby from 'globby'
@@ -30,6 +30,7 @@ interface $ {
   shell: string
   prefix: string
   quote: (input: string) => string
+  spawn: typeof spawn
 }
 
 export interface ProcessPromise<T> extends Promise<T> {

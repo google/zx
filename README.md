@@ -312,6 +312,10 @@ $.shell = '/usr/bin/bash'
 
 Or use a CLI argument: `--shell=/bin/bash`
 
+#### `$.spanw`
+
+Specifies a `spawn` api. Defaults to `require('child_process').spawn`.
+
 #### `$.prefix`
 
 Specifies the command that will be prefixed to all commands run.
