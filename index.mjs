@@ -80,7 +80,7 @@ export function $(pieces, ...args) {
       printCmd(cmd)
     }
 
-    let child = spawn(prefix + cmd, {
+    let child = $.spawn(prefix + cmd, {
       cwd: process.cwd(),
       shell: typeof shell === 'string' ? shell : true,
       stdio: [promise._inheritStdin ? 'inherit' : 'pipe', 'pipe', 'pipe'],
@@ -142,6 +142,7 @@ if (typeof argv.prefix === 'string') {
   $.prefix = argv.prefix
 }
 $.quote = quote
+$.spawn = spawn
 
 export function cd(path) {
   if ($.verbose) console.log('$', colorize(`cd ${path}`))
