@@ -241,12 +241,14 @@ if (test('YAML works')) {
 
 if (test('Retry works')) {
   let exitCode = 0
+  let now = Date.now()
   try {
-    await retry(5)`exit 123`
+    await retry(5, 50)`exit 123`
   } catch (p) {
     exitCode = p.exitCode
   }
   assert.equal(exitCode, 123)
+  assert(Date.now() >= now + 50 * (5 - 1))
 }
 
 let version

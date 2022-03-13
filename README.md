@@ -312,7 +312,7 @@ $.shell = '/usr/bin/bash'
 
 Or use a CLI argument: `--shell=/bin/bash`
 
-#### `$.spanw`
+#### `$.spawn`
 
 Specifies a `spawn` api. Defaults to `require('child_process').spawn`.
 
@@ -371,6 +371,9 @@ successful attempt, or will throw after specifies attempts count.
 import {retry} from 'zx/experimental'
 
 let {stdout} = await retry(5)`curl localhost`
+
+// with a specified delay between attempts
+let {stdout} = await retry(3, 500)`npm whoami`
 ```
 
 #### `echo()`
