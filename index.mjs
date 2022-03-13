@@ -56,7 +56,7 @@ export function registerGlobals() {
 }
 
 export function $(pieces, ...args) {
-  let {verbose, shell, prefix} = $
+  let {verbose, shell, prefix, spawn, maxBuffer = 200 * 1024 * 1024 /* 200 MiB*/} = $
   let __from = (new Error().stack.split(/^\s*at\s/m)[2]).trim()
 
   let cmd = pieces[0], i = 0
@@ -80,12 +80,12 @@ export function $(pieces, ...args) {
       printCmd(cmd)
     }
 
-    let child = $.spawn(prefix + cmd, {
+    let child = spawn(prefix + cmd, {
       cwd: process.cwd(),
       shell: typeof shell === 'string' ? shell : true,
       stdio: [promise._inheritStdin ? 'inherit' : 'pipe', 'pipe', 'pipe'],
       windowsHide: true,
-      maxBuffer: 200 * 1024 * 1024, // 200 MiB
+      maxBuffer,
     })
 
     child.on('close', (code, signal) => {

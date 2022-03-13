@@ -316,6 +316,11 @@ Or use a CLI argument: `--shell=/bin/bash`
 
 Specifies a `spawn` api. Defaults to `require('child_process').spawn`.
 
+#### `$.maxBuffer`
+
+Specifies the largest number of bytes allowed on stdout or stderr.
+Defaults to `200 * 1024 * 1024` (200 MiB).
+
 #### `$.prefix`
 
 Specifies the command that will be prefixed to all commands run.

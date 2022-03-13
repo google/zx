@@ -31,6 +31,7 @@ interface $ {
   prefix: string
   quote: (input: string) => string
   spawn: typeof spawn
+  maxBuffer?: number | undefined
 }
 
 export interface ProcessPromise<T> extends Promise<T> {
