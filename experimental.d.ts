@@ -23,7 +23,7 @@ export const echo: Echo
 interface Retry {
   (pieces: TemplateStringsArray, ...args: any[]): Promise<ProcessOutput>
 }
-export const retry: <C extends number = 5, D extends number = 0>(count?: C, delay?: D) => Retry
+export const retry: (count?: number, delay?: number) => Retry
 
 type StopSpinner = () => void
 export function startSpinner(title: string): StopSpinner
