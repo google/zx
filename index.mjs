@@ -56,7 +56,7 @@ export function registerGlobals() {
 }
 
 export function $(pieces, ...args) {
-  let {verbose, shell, prefix, spawn, timeout, maxBuffer = 200 * 1024 * 1024 /* 200 MiB*/} = $
+  let {verbose, shell, prefix, spawn, maxBuffer = 200 * 1024 * 1024 /* 200 MiB*/} = $
   let __from = (new Error().stack.split(/^\s*at\s/m)[2]).trim()
 
   let cmd = pieces[0], i = 0
@@ -88,12 +88,7 @@ export function $(pieces, ...args) {
       maxBuffer,
     })
 
-    if (timeout) {
-      promise._timeout = setTimeout(() => promise.kill(), timeout)
-    }
-
     child.on('close', (code, signal) => {
-      promise._timeout && clearTimeout(promise._timeout)
       let message = `${stderr || '\n'}    at ${__from}`
       message += `\n    exit code: ${code}${exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : ''}`
       if (signal !== null) {

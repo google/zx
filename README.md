@@ -316,10 +316,6 @@ Or use a CLI argument: `--shell=/bin/bash`
 
 Specifies a `spawn` api. Defaults to `require('child_process').spawn`.
 
-#### `$.timeout`
-
-Sets a timeout for all internal spawn calls. Defaults to `undefined`.
-
 #### `$.maxBuffer`
 
 Specifies the largest number of bytes allowed on stdout or stderr.
