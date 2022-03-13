@@ -30,11 +30,9 @@ interface $ {
   shell: string
   prefix: string
   quote: (input: string) => string
-  spawn: typeof spawn & {
-    maxBuffer?: number | undefined
-    timeout?: SpawnOptions['timeout']
-    killSignal?: SpawnOptions['killSignal']
-  }
+  spawn: typeof spawn
+  maxBuffer?: number | undefined
+  timeout?: SpawnOptions['timeout']
 }
 
 export interface ProcessPromise<T> extends Promise<T> {

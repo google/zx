@@ -253,16 +253,14 @@ if (test('Retry works')) {
 
 if (test('spawn timeout')) {
   let signal = 0
-  $.spawn.timeout = 100
-  $.spawn.killSignal = 'SIGKILL'
+  $.timeout = 100
   try {
     await $`sleep 9999`
   } catch (p) {
     signal = p.signal
   }
-  delete $.spawn.timeout
-  delete $.spawn.killSignal
-  assert.equal(signal, 'SIGKILL')
+  delete $.timeout
+  assert.equal(signal, 'SIGTERM')
 }
 
 let version
