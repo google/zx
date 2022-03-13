@@ -16,11 +16,12 @@ import {ProcessOutput} from './index.mjs'
 
 // Retries a command a few times. Will return after the first
 // successful attempt, or will throw after specifies attempts count.
-export const retry = (count = 5) => async (cmd, ...args) => {
+export const retry = (count = 5, delay = 0) => async (cmd, ...args) => {
   while (count --> 0) try {
     return await $(cmd, ...args)
   } catch (p) {
     if (count === 0) throw p
+    if (delay) await sleep(delay)
   }
 }
 
