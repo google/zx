@@ -251,6 +251,20 @@ if (test('Retry works')) {
   assert(Date.now() >= now + 50 * (5 - 1))
 }
 
+if (test('spawn timeout')) {
+  let signal = 0
+  $.spawn.timeout = 100
+  $.spawn.killSignal = 'SIGKILL'
+  try {
+    await $`sleep 9999`
+  } catch (p) {
+    signal = p.signal
+  }
+  delete $.spawn.timeout
+  delete $.spawn.killSignal
+  assert.equal(signal, 'SIGKILL')
+}
+
 let version
 if (test('require() is working in ESM')) {
   let data = require('./package.json')

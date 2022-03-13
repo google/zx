@@ -56,7 +56,8 @@ export function registerGlobals() {
 }
 
 export function $(pieces, ...args) {
-  let {verbose, shell, prefix} = $
+  let {verbose, shell, prefix, spawn} = $
+  let {timeout, killSignal, maxBuffer = 200 * 1024 * 1024 /* 200 MiB*/} = spawn
   let __from = (new Error().stack.split(/^\s*at\s/m)[2]).trim()
 
   let cmd = pieces[0], i = 0
@@ -80,15 +81,20 @@ export function $(pieces, ...args) {
       printCmd(cmd)
     }
 
-    let child = $.spawn(prefix + cmd, {
+    let child = spawn(prefix + cmd, {
       cwd: process.cwd(),
       shell: typeof shell === 'string' ? shell : true,
       stdio: [promise._inheritStdin ? 'inherit' : 'pipe', 'pipe', 'pipe'],
       windowsHide: true,
-      maxBuffer: 200 * 1024 * 1024, // 200 MiB
+      maxBuffer,
     })
 
+    if (timeout) {
+      promise._timeout = setTimeout(() => promise.kill(killSignal), timeout)
+    }
+
     child.on('close', (code, signal) => {
+      promise._timeout && clearTimeout(promise._timeout)
       let message = `${stderr || '\n'}    at ${__from}`
       message += `\n    exit code: ${code}${exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : ''}`
       if (signal !== null) {

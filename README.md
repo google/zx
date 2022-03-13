@@ -315,6 +315,8 @@ Or use a CLI argument: `--shell=/bin/bash`
 #### `$.spawn`
 
 Specifies a `spawn` api. Defaults to `require('child_process').spawn`.
+You may also assign `spawn.timeout`, `spawn.maxBuffer` and `spawn.killSignal`
+to override the default spawn options for all calls.
 
 #### `$.prefix`
 
