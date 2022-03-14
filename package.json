@@ -6,7 +6,8 @@
   "exports": {
     ".": "./index.mjs",
     "./globals": "./globals.mjs",
-    "./experimental": "./experimental.mjs"
+    "./experimental": "./experimental.mjs",
+    "./package.json": "./package.json"
   },
   "types": "index.d.ts",
   "bin": {
