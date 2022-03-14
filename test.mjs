@@ -256,6 +256,7 @@ if (test('require() is working in ESM')) {
   let data = require('./package.json')
   version = data.version
   assert.equal(data.name, 'zx')
+  assert.equal(data, require('zx/package.json'))
 }
 
 console.log('\n' +

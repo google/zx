@@ -25,8 +25,8 @@ import {fetch, ProcessOutput} from './index.mjs'
 
 await async function main() {
   try {
-    if (['--version', '-v', '-V'].includes(process.argv[2] || '')) {
-      console.log(`zx version ${createRequire(import.meta.url)('./package.json').version}`)
+    if (['--version', '-v', '-V'].includes(process.argv[2])) {
+      console.log(createRequire(import.meta.url)('./package.json').version)
       return process.exitCode = 0
     }
     let firstArg = process.argv.slice(2).find(a => !a.startsWith('--'))
@@ -202,5 +202,6 @@ function printUsage() {
    --quiet            : don't echo commands
    --shell=<path>     : custom shell binary
    --prefix=<command> : prefix all commands
+   --version, -v      : print current zx version
 `)
 }
