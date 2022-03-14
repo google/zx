@@ -27,9 +27,13 @@ gives sensible defaults.
 
 ## Install
 
+
 ```bash
 npm i -g zx
 ```
+
+In case you need CJS support,
+install `zx-cjs` instead.
 
 **Requirement**: Node version >= 16.0.0
 
