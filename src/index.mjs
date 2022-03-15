@@ -52,6 +52,7 @@ export function registerGlobals() {
     question,
     sleep,
     YAML,
+    which,
   })
 }
 
