@@ -130,6 +130,11 @@ $.quote = quote
 $.spawn = spawn
 $.verbose = true
 $.prefix = '' // Bash not found, no prefix.
+try {
+  $.shell = which.sync('bash')
+  $.prefix = 'set -euo pipefail;'
+} catch (e) {
+}
 
 export function cd(path) {
   if ($.verbose) console.log('$', colorize(`cd ${path}`))

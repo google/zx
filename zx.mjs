@@ -28,12 +28,6 @@ await async function main() {
   $.verbose = !argv.quiet
   if (typeof argv.shell === 'string') {
     $.shell = argv.shell
-  } else {
-    try {
-      $.shell = which.sync('bash')
-      $.prefix = 'set -euo pipefail;'
-    } catch (e) {
-    }
   }
   if (typeof argv.prefix === 'string') {
     $.prefix = argv.prefix
