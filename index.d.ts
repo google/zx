@@ -60,7 +60,7 @@ export type QuestionOptions = { choices: string[] }
 type cd = (path: string) => void
 type nothrow = (p: ProcessPromise<ProcessOutput>) => ProcessPromise<ProcessOutput>
 type question = (query?: string, options?: QuestionOptions) => Promise<string>
-type sleep = (ms: number) => Promise<void>
+type sleep = (ms: number) => void
 type quiet = (p: ProcessPromise<ProcessOutput>) => ProcessPromise<ProcessOutput>
 
 export const $: $

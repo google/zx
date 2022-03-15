@@ -180,10 +180,10 @@ type QuestionOptions = { choices: string[] }
 
 #### `sleep()`
 
-A wrapper around the `setTimeout` function.
+Blocks Node for a specified timeout.
 
 ```js
-await sleep(1000)
+sleep(1000)
 ```
 
 #### `nothrow()`

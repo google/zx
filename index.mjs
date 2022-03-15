@@ -27,7 +27,12 @@ import minimist from 'minimist'
 import psTreeModule from 'ps-tree'
 
 export {chalk, fs, os, path, YAML}
-export const sleep = promisify(setTimeout)
+export const sleep = (delay) => {
+  const timeout = Date.now() + delay;
+  while(1){
+    if( Date.now() == timeout ) break;
+  }
+} // blocking the event loop.
 export const argv = minimist(process.argv.slice(2))
 export const globby = Object.assign(function globby(...args) {
   return globbyModule.globby(...args)

@@ -21,7 +21,7 @@ export const retry = (count = 5, delay = 0) => async (cmd, ...args) => {
     return await $(cmd, ...args)
   } catch (p) {
     if (count === 0) throw p
-    if (delay) await sleep(delay)
+    if (delay) sleep(delay)
   }
 }
 
