@@ -26,7 +26,6 @@ import which from 'which'
 await async function main() {
   registerGlobals()
   $.verbose = !argv.quiet
-  $.prefix = '' // Bash not found, no prefix.
   if (typeof argv.shell === 'string') {
     $.shell = argv.shell
   } else {

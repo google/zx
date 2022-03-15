@@ -129,6 +129,8 @@ export function $(pieces, ...args) {
 
 $.quote = quote
 $.spawn = spawn
+$.verbose = true
+$.prefix = '' // Bash not found, no prefix.
 
 export function cd(path) {
   if ($.verbose) console.log('$', colorize(`cd ${path}`))
