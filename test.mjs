@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {strict as assert} from 'assert'
-import {retry} from './experimental.mjs'
+import {retry} from './src/experimental.mjs'
 
 let всегоТестов = 0
 
@@ -86,7 +86,7 @@ if (test('The toString() is called on arguments')) {
 
 if (test('Can use array as an argument')) {
   try {
-    let files = ['./index.mjs', './zx.mjs', './package.json']
+    let files = ['./zx.mjs', './test.mjs']
     await $`tar czf archive ${files}`
   } finally {
     await $`rm archive`

@@ -11,7 +11,7 @@ import {
   path as _path,
   question,
   sleep,
-} from '.'
+} from './index'
 
 declare global {
   var $: $

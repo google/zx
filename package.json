@@ -2,14 +2,23 @@
   "name": "zx",
   "version": "5.3.0",
   "description": "A tool for writing better scripts.",
-  "main": "./index.mjs",
+  "main": "src/index.mjs",
+  "types": "src/index.d.ts",
   "exports": {
-    ".": "./index.mjs",
-    "./globals": "./globals.mjs",
-    "./experimental": "./experimental.mjs",
+    ".": {
+      "import": "./src/index.mjs",
+      "types": "./src/index.d.ts"
+    },
+    "./globals": {
+      "import": "./src/globals.mjs",
+      "types": "./src/globals.d.ts"
+    },
+    "./experimental": {
+      "import": "./src/experimental.mjs",
+      "types": "./src/experimental.d.ts"
+    },
     "./package.json": "./package.json"
   },
-  "types": "index.d.ts",
   "bin": {
     "zx": "zx.mjs"
   },

@@ -20,8 +20,8 @@ import {tmpdir} from 'os'
 import {basename, dirname, extname, join, resolve} from 'path'
 import url from 'url'
 
-import './globals.mjs'
-import {fetch, ProcessOutput} from './index.mjs'
+import './src/globals.mjs'
+import {fetch, ProcessOutput} from './src/index.mjs'
 
 await async function main() {
   try {
