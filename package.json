@@ -45,6 +45,7 @@
     "registry": "https://wombat-dressing-room.appspot.com"
   },
   "files": [
+    "src",
     "*.mjs",
     "*.d.ts"
   ],
