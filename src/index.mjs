@@ -126,21 +126,6 @@ export function $(pieces, ...args) {
   return promise
 }
 
-$.verbose = !argv.quiet
-if (typeof argv.shell === 'string') {
-  $.shell = argv.shell
-  $.prefix = ''
-} else {
-  try {
-    $.shell = which.sync('bash')
-    $.prefix = 'set -euo pipefail;'
-  } catch (e) {
-    $.prefix = '' // Bash not found, no prefix.
-  }
-}
-if (typeof argv.prefix === 'string') {
-  $.prefix = argv.prefix
-}
 $.quote = quote
 $.spawn = spawn
 
