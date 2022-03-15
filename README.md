@@ -300,6 +300,16 @@ The [minimist](https://www.npmjs.com/package/minimist) package.
 
 Available as global const `argv`.
 
+#### `which`
+
+The [which](https://github.com/npm/node-which) package.
+
+```js
+let node = await which('node')
+
+let node = which.sync('node')
+```
+
 ### Configuration
 
 #### `$.shell`
