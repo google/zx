@@ -251,6 +251,10 @@ if (test('Retry works')) {
   assert(Date.now() >= now + 50 * (5 - 1))
 }
 
+if (test('which available')) {
+  assert.equal(which.sync('npm'), await which('npm'))
+}
+
 let version
 if (test('require() is working in ESM')) {
   let data = require('./package.json')
