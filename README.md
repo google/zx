@@ -366,6 +366,7 @@ let {version} = require('./package.json')
 
 The zx also provides a few experimental functions. Please leave a feedback about 
 those features in [the discussion](https://github.com/google/zx/discussions/299).
+To enable new features via CLI pass `--experimantal` flag.
 
 #### `retry()`
 

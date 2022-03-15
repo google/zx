@@ -20,10 +20,27 @@ import {tmpdir} from 'os'
 import {basename, dirname, extname, join, resolve} from 'path'
 import url from 'url'
 
-import './src/globals.mjs'
-import {fetch, ProcessOutput} from './src/index.mjs'
+import {$, argv, fetch, ProcessOutput, registerGlobals} from './src/index.mjs'
+import which from 'which'
 
 await async function main() {
+  registerGlobals()
+  $.verbose = !argv.quiet
+  if (typeof argv.shell === 'string') {
+    $.shell = argv.shell
+  } else {
+    try {
+      $.shell = which.sync('bash')
+      $.prefix = 'set -euo pipefail;'
+    } catch (e) {
+    }
+  }
+  if (typeof argv.prefix === 'string') {
+    $.prefix = argv.prefix
+  }
+  if (argv.experimental) {
+    Object.assign(global, await import('./src/experimental.mjs'))
+  }
   try {
     if (['--version', '-v', '-V'].includes(process.argv[2])) {
       console.log(createRequire(import.meta.url)('./package.json').version)
@@ -197,7 +214,7 @@ function printUsage() {
 
  Usage:
    zx [options] <script>
- 
+
  Options:
    --quiet            : don't echo commands
    --shell=<path>     : custom shell binary
