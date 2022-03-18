@@ -28,8 +28,8 @@
   "scripts": {
     "test:cov": "c8 --reporter=html npm run test",
     "test": "node zx.mjs test/full.test.mjs",
-    "test:cli": "node zx.mjs test/zx.test.mjs",
-    "test:index": "node zx.mjs test/index.test.mjs"
+    "test:zx": "npm run test zx",
+    "test:index": "npm run test index"
   },
   "dependencies": {
     "@types/fs-extra": "^9.0.13",

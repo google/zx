@@ -12,5 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import './index.test.mjs'
+import {printTestDigest} from './test-utils.mjs'
 import './zx.test.mjs'
+import './index.test.mjs'
+import './experimental.test.mjs'
+
+printTestDigest()

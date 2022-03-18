@@ -18,10 +18,10 @@ export {strict as assert} from 'assert'
 
 let всегоТестов = 0
 
-export function test(name) {
+export function test(group, name) {
   let фильтр = process.argv[3] || '.'
-  if (RegExp(фильтр).test(name)) {
-    console.log('\n' + chalk.bgGreenBright.black(` ${name} `))
+  if (RegExp(фильтр).test(name) || RegExp(фильтр).test(group)) {
+    console.log('\n' + chalk.bgGreenBright.black(`${chalk.inverse(' ' + group + ' ')} ${name} `))
     всегоТестов++
     return true
   }

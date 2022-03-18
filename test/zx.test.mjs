@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {assert, printTestDigest, test} from './test-utils.mjs'
+import {assert, test as t} from './test-utils.mjs'
+
+const test = t.bind(null, 'zx')
 
 if (test('supports `-v` flag / prints version')) {
   let v = (await $`node zx.mjs -v`).toString().trim()
@@ -55,5 +57,3 @@ if (test('The require() is working from stdin')) {
 if (test('Markdown scripts are working')) {
   await $`node zx.mjs docs/markdown.md`
 }
-
-printTestDigest()

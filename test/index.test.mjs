@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 import {inspect} from 'util'
 import chalk from 'chalk'
 import {Writable} from 'stream'
 import {Socket} from 'net'
 
-import {assert, printTestDigest, test} from './test-utils.mjs'
-import {retry, echo, startSpinner, withTimeout} from '../src/experimental.mjs'
+import {assert, test as t} from './test-utils.mjs'
+
+const test = t.bind(null, 'index')
 
 if (test('Only stdout is used during command substitution')) {
   let hello = await $`echo Error >&2; echo Hello`
@@ -287,48 +287,8 @@ if (test('which available')) {
   assert.equal(which.sync('npm'), await which('npm'))
 }
 
-if (test('Retry works (experimental)')) {
-  let exitCode = 0
-  let now = Date.now()
-  try {
-    await retry(5, 50)`exit 123`
-  } catch (p) {
-    exitCode = p.exitCode
-  }
-  assert.equal(exitCode, 123)
-  assert(Date.now() >= now + 50 * (5 - 1))
-}
-
-if (test('withTimeout works (experimental)')) {
-  let exitCode = 0
-  let signal
-  try {
-    await withTimeout(100, 'SIGKILL')`sleep 9999`
-  } catch (p) {
-    exitCode = p.exitCode
-    signal = p.signal
-  }
-  assert.equal(exitCode, null)
-  assert.equal(signal, 'SIGKILL')
-}
-
-if (test('echo works (experimental)')) {
-  echo(chalk.red('foo'), chalk.green('bar'), chalk.bold('baz'))
-  echo`${chalk.red('foo')} ${chalk.green('bar')} ${chalk.bold('baz')}`
-  echo(await $`echo ${chalk.red('foo')}`, await $`echo ${chalk.green('bar')}`, await $`echo ${chalk.bold('baz')}`)
-}
-
-if (test('spinner works (experimental)')) {
-  let s = startSpinner('waiting')
-
-  await sleep(1000)
-  s()
-}
-
 if (test('require() is working in ESM')) {
   let data = require('../package.json')
   assert.equal(data.name, 'zx')
   assert.equal(data, require('zx/package.json'))
 }
-
-printTestDigest()
