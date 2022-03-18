@@ -37,19 +37,14 @@ export const withTimeout = (timeout, signal) => async (cmd, ...args) => {
 
 // A console.log() alternative which can take ProcessOutput.
 export function echo(pieces, ...args) {
-  if (Array.isArray(pieces) && pieces.every(isString) && pieces.length - 1 === args.length) {
-    let msg = pieces[0], i = 0
-    while (i < args.length) {
-      msg += stringify(args[i]) + pieces[++i]
-    }
-    console.log(msg)
+  let msg
+  let lastIdx = pieces.length - 1
+  if (Array.isArray(pieces) && pieces.every(isString) && lastIdx === args.length) {
+    msg = args.map((a, i) => pieces[i] + stringify(a)).join('') + pieces[lastIdx]
   } else {
-    let msg = []
-    for (let it of [pieces, ...args]) {
-      msg.push(it instanceof ProcessOutput ? stringify(it) : it)
-    }
-    console.log(...msg)
+    msg = [pieces, ...args].map(stringify).join(' ')
   }
+  console.log(msg)
 }
 
 function isString(obj) {

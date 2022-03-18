@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {strict as assert} from 'assert'
-import {retry, withTimeout} from './src/experimental.mjs'
+import {retry, echo, startSpinner, withTimeout } from './src/experimental.mjs'
 
 let всегоТестов = 0
 
@@ -249,7 +249,7 @@ if (test('which available')) {
   assert.equal(which.sync('npm'), await which('npm'))
 }
 
-if (test('Retry works')) {
+if (test('Retry works (experimental)')) {
   let exitCode = 0
   let now = Date.now()
   try {
@@ -261,7 +261,7 @@ if (test('Retry works')) {
   assert(Date.now() >= now + 50 * (5 - 1))
 }
 
-if (test('withTimeout works')) {
+if (test('withTimeout works (experimental)')) {
   let exitCode = 0
   let signal
   try {
@@ -272,6 +272,19 @@ if (test('withTimeout works')) {
   }
   assert.equal(exitCode, null)
   assert.equal(signal, 'SIGKILL')
+}
+
+if (test('echo works (experimental)')) {
+  echo(chalk.red('foo'), chalk.green('bar'), chalk.bold('baz'))
+  echo`${chalk.red('foo')} ${chalk.green('bar')} ${chalk.bold('baz')}`
+  echo(await $`echo ${chalk.red('foo')}`, await $`echo ${chalk.green('bar')}`, await $`echo ${chalk.bold('baz')}`)
+}
+
+if (test('spinner works (experimental)')) {
+  let s = startSpinner('waiting')
+
+  await sleep(1000)
+  s()
 }
 
 let version
