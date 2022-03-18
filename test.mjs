@@ -204,10 +204,16 @@ if (test('The cd() works with relative paths')) {
   try {
     fs.mkdirpSync('/tmp/zx-cd-test/one/two')
     cd('/tmp/zx-cd-test/one/two')
+    let p1 = $`pwd`
     cd('..')
+    let p2 = $`pwd`
     cd('..')
-    let pwd = (await $`pwd`).stdout.trim()
-    assert.equal(path.basename(pwd), 'zx-cd-test')
+    let p3 = $`pwd`
+
+    let results = (await Promise.all([p1, p2, p3]))
+      .map(p => path.basename(p.stdout.trim()))
+
+    assert.deepEqual(results, ['two', 'one', 'zx-cd-test'])
   } finally {
     fs.rmSync('/tmp/zx-cd-test', {recursive: true})
     cd(__dirname)
