@@ -541,7 +541,7 @@ But you are still able to do it by hand. Just attach necessary directives to `$.
 
 ```js
 {
-  $.prefix = 'export NVM_DIR=$HOME/.nvm; source $NVM_DIR/nvm.sh; set -e;'
+  $.prefix += 'export NVM_DIR=$HOME/.nvm; source $NVM_DIR/nvm.sh; '
   await $`nvm -v`
 }
 ```
