@@ -536,7 +536,7 @@ EOF
 
 #### Attaching .bash_profile/.zshrc
 
-By default `child_process` does not include aliases and bash functions (https://github.com/nodejs/node/issues/3916). 
+By default `child_process` does not include aliases and bash functions. 
 But you are still able to do it by hand. Just attach necessary directives to `$.prefix`.
 
 ```js
