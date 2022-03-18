@@ -12,11 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {assert, test, testcount} from './test-utils.mjs'
-import chalk from 'chalk'
+import {assert, printTestDigest, test} from './test-utils.mjs'
 
 if (test('supports `-v` flag / prints version')) {
-  let v = (await $`node zx.mjs -v`).toString().trim()
+  let v = (await $`node ./zx.mjs -v`).toString().trim()
   assert.equal(v, require('../package.json').version)
 }
 
@@ -31,11 +30,11 @@ if (test('prints help')) {
 }
 
 if (test('supports `--experimental` flag')) {
-  await $`echo 'echo("test")' | node zx.mjs --experimental`
+  await $`echo 'echo("test")' | node ./zx.mjs --experimental`
 }
 
 if (test('supports `--quiet` flag / Quiet mode is working')) {
-  let p = await $`node zx.mjs --quiet docs/markdown.md`
+  let p = await $`node ./zx.mjs --quiet docs/markdown.md`
   assert(!p.stdout.includes('whoami'))
 }
 
@@ -50,14 +49,11 @@ if (test('Scripts with no extension')) {
 }
 
 if (test('The require() is working from stdin')) {
-  await $`node zx.mjs <<< 'require("./package.json").name'`
+  await $`node ./zx.mjs <<< 'require("./package.json").name'`
 }
 
 if (test('Markdown scripts are working')) {
-  await $`node zx.mjs docs/markdown.md`
+  await $`node ./zx.mjs docs/markdown.md`
 }
 
-console.log('\n' +
-  chalk.black.bgYellowBright(` zx version is ${require('../package.json').version} `) + '\n' +
-  chalk.greenBright(` 🍺 ${testcount()} tests passed `)
-)
+printTestDigest()

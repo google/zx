@@ -18,7 +18,7 @@ import chalk from 'chalk'
 import {Writable} from 'stream'
 import {Socket} from 'net'
 
-import {assert, test, testcount} from './test-utils.mjs'
+import {assert, printTestDigest, test} from './test-utils.mjs'
 import {retry, echo, startSpinner, withTimeout} from '../src/experimental.mjs'
 
 if (test('Only stdout is used during command substitution')) {
@@ -117,7 +117,7 @@ if (test('Pipes are working')) {
 }
 
 // Works on macOS but fails oon ubuntu...
-// if ('question') {
+// if (test('question')) {
 //   let p = question('foo or bar? ', {choices: ['foo', 'bar']})
 //
 //   setTimeout(() => {
@@ -324,15 +324,10 @@ if (test('spinner works (experimental)')) {
   s()
 }
 
-let version
 if (test('require() is working in ESM')) {
   let data = require('../package.json')
-  version = data.version
   assert.equal(data.name, 'zx')
   assert.equal(data, require('zx/package.json'))
 }
 
-console.log('\n' +
-  chalk.black.bgYellowBright(` zx version is ${version} `) + '\n' +
-  chalk.greenBright(` 🍺 ${testcount()} tests passed `)
-)
+printTestDigest()

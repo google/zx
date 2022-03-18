@@ -12,25 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import chalk from 'chalk'
-
-export {strict as assert} from 'assert'
-
-let всегоТестов = 0
-
-export function test(name) {
-  let фильтр = process.argv[3] || '.'
-  if (RegExp(фильтр).test(name)) {
-    console.log('\n' + chalk.bgGreenBright.black(` ${name} `))
-    всегоТестов++
-    return true
-  }
-  return false
-}
-
-export const printTestDigest = () => {
-  console.log('\n' +
-    chalk.black.bgYellowBright(` zx version is ${require('../package.json').version} `) + '\n' +
-    chalk.greenBright(` 🍺 ${всегоТестов} tests passed `)
-  )
-}
+import './index.test.mjs'
+import './zx.test.mjs'
