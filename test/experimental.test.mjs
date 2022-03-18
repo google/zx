@@ -41,6 +41,9 @@ if (test('withTimeout works')) {
   }
   assert.equal(exitCode, null)
   assert.equal(signal, 'SIGKILL')
+
+  let p = await withTimeout(0)`echo 'test'`
+  assert.equal(p.stdout.trim(), 'test')
 }
 
 if (test('echo works')) {
