@@ -161,13 +161,8 @@ if (test('ProcessOutput thrown as error')) {
     err = p
   }
   assert(err.exitCode > 0)
-  assert.equal(err.stderr, '/bin/bash: wtf: command not found\n')
-  assert.equal(err[inspect.custom](), `ProcessOutput {
-  stdout: '',
-  stderr: \x1B[31m'/bin/bash: wtf: command not found\\n'\x1B[39m,
-  signal: null,
-  exitCode: \x1B[31m127\x1B[39m\x1B[90m (Command not found)\x1B[39m
-}`)
+  assert(err.stderr.includes('/bin/bash: wtf: command not found\n'))
+  assert(err[inspect.custom]().includes('Command not found'))
 }
 
 if (test('The pipe() throws if already resolved')) {
