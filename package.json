@@ -1,6 +1,6 @@
 {
   "name": "zx",
-  "version": "6.0.4",
+  "version": "6.0.5",
   "description": "A tool for writing better scripts.",
   "main": "src/index.mjs",
   "types": "src/index.d.ts",
