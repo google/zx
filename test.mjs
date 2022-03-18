@@ -262,16 +262,16 @@ if (test('Retry works (experimental)')) {
 }
 
 if (test('withTimeout works (experimental)')) {
-    let exitCode = 0
-    let signal
-    try {
-      await withTimeout(100, 'SIGKILL')`sleep 9999`
-    } catch (p) {
-      exitCode = p.exitCode
-      signal = p.signal
-    }
-    // assert.equal(exitCode, null)
-    assert.equal(signal, 'SIGKILL')
+  let exitCode = 0
+  let signal
+  try {
+    await withTimeout(100, 'SIGKILL')`sleep 9999`
+  } catch (p) {
+    exitCode = p.exitCode
+    signal = p.signal
+  }
+  assert.equal(exitCode, null)
+  assert.equal(signal, 'SIGKILL')
 }
 
 if (test('echo works (experimental)')) {
