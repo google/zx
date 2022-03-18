@@ -21,7 +21,6 @@ import {basename, dirname, extname, join, resolve} from 'path'
 import url from 'url'
 
 import {$, argv, fetch, ProcessOutput, registerGlobals} from './src/index.mjs'
-import which from 'which'
 
 await async function main() {
   registerGlobals()
