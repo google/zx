@@ -12,20 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {strict as assert} from 'assert'
-import {retry, echo, startSpinner, withTimeout } from './src/experimental.mjs'
 
-let всегоТестов = 0
+import {inspect} from 'util'
+import chalk from 'chalk'
+import {Writable} from 'stream'
+import {Socket} from 'net'
 
-function test(name) {
-  let фильтр = process.argv[3] || '.'
-  if (RegExp(фильтр).test(name)) {
-    console.log('\n' + chalk.bgGreenBright.black(` ${name} `))
-    всегоТестов++
-    return true
-  }
-  return false
-}
+import {assert, test, testcount} from './test-utils.mjs'
+import {retry, echo, startSpinner, withTimeout} from '../src/experimental.mjs'
 
 if (test('Only stdout is used during command substitution')) {
   let hello = await $`echo Error >&2; echo Hello`
@@ -86,29 +80,20 @@ if (test('The toString() is called on arguments')) {
 
 if (test('Can use array as an argument')) {
   try {
-    let files = ['./zx.mjs', './test.mjs']
+    let files = ['./zx.mjs', './test/index.test.mjs']
     await $`tar czf archive ${files}`
   } finally {
     await $`rm archive`
   }
 }
 
-if (test('Scripts with no extension')) {
-  await $`node zx.mjs tests/no-extension`
-  assert.match((await fs.readFile('tests/no-extension.mjs')).toString(), /Test file to verify no-extension didn't overwrite similarly name .mjs file./)
-}
-
-if (test('The require() is working from stdin')) {
-  await $`node zx.mjs <<< 'require("./package.json").name'`
-}
-
-if (test('Markdown scripts are working')) {
-  await $`node zx.mjs docs/markdown.md`
-}
-
 if (test('Quiet mode is working')) {
-  let {stdout} = await $`node zx.mjs --quiet docs/markdown.md`
-  assert(!stdout.includes('whoami'))
+  let stdout = ''
+  let log = console.log
+  console.log = (...args) => {stdout += args.join(' ')}
+  await quiet($`echo 'test'`)
+  console.log = log
+  assert(!stdout.includes('echo'))
 }
 
 if (test('Pipes are working')) {
@@ -131,6 +116,43 @@ if (test('Pipes are working')) {
   }
 }
 
+// Works on macOS but fails oon ubuntu...
+// if ('question') {
+//   let p = question('foo or bar? ', {choices: ['foo', 'bar']})
+//
+//   setTimeout(() => {
+//     process.stdin.emit('data', 'fo')
+//     process.stdin.emit('data', '\t')
+//     process.stdin.emit('data', '\t')
+//     process.stdin.emit('data', '\r\n')
+//   }, 100)
+//
+//   assert.equal((await p).toString(), 'foo')
+// }
+
+if (test('ProcessPromise pipe')) {
+  let contents = ''
+  let stream = new Writable({
+    write: function(chunk, encoding, next) {
+      contents += chunk.toString()
+      next()
+    }
+  })
+  let p = $`echo 'test'`.pipe(stream)
+  await p
+  assert(p._piped)
+  assert.equal(contents, 'test\n')
+  assert(p.stderr instanceof Socket)
+
+  let err
+  try {
+    $`echo 'test'`.pipe('str')
+  } catch (p) {
+    err = p
+  }
+  assert.equal(err.message, 'The pipe() method does not take strings. Forgot $?')
+}
+
 if (test('ProcessOutput thrown as error')) {
   let err
   try {
@@ -139,6 +161,13 @@ if (test('ProcessOutput thrown as error')) {
     err = p
   }
   assert(err.exitCode > 0)
+  assert.equal(err.stderr, '/bin/bash: wtf: command not found\n')
+  assert.equal(err[inspect.custom](), `ProcessOutput {
+  stdout: '',
+  stderr: \x1B[31m'/bin/bash: wtf: command not found\\n'\x1B[39m,
+  signal: null,
+  exitCode: \x1B[31m127\x1B[39m\x1B[90m (Command not found)\x1B[39m
+}`)
 }
 
 if (test('The pipe() throws if already resolved')) {
@@ -174,6 +203,19 @@ if (test('globby available')) {
   assert(typeof globby.isGitIgnored === 'function')
   assert(typeof globby.isGitIgnoredSync === 'function')
   console.log(chalk.greenBright('globby available'))
+
+  assert(await globby('test/fixtures/*'), [
+    'test/fixtures/interactive.mjs',
+    'test/fixtures/no-extension',
+    'test/fixtures/no-extension.mjs'
+  ])
+}
+
+if (test('fetch')) {
+  assert(
+    await fetch('https://example.com'),
+    await fetch('https://example.com', {method: 'GET'})
+  )
 }
 
 if (test('Executes a script from $PATH')) {
@@ -289,7 +331,7 @@ if (test('spinner works (experimental)')) {
 
 let version
 if (test('require() is working in ESM')) {
-  let data = require('./package.json')
+  let data = require('../package.json')
   version = data.version
   assert.equal(data.name, 'zx')
   assert.equal(data, require('zx/package.json'))
@@ -297,5 +339,5 @@ if (test('require() is working in ESM')) {
 
 console.log('\n' +
   chalk.black.bgYellowBright(` zx version is ${version} `) + '\n' +
-  chalk.greenBright(` 🍺 ${всегоТестов} tests passed `)
+  chalk.greenBright(` 🍺 ${testcount()} tests passed `)
 )
