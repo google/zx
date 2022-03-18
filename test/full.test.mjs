@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {printTestDigest} from './test-utils.mjs'
-import './zx.test.mjs'
-import './index.test.mjs'
-import './experimental.test.mjs'
+await import('./zx.test.mjs')
+await import('./index.test.mjs')
+await import('./experimental.test.mjs')
 
 printTestDigest()
