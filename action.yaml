@@ -10,9 +10,9 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - run: npm i
     - run: |
-        npm i
-        node zx.mjs << 'EOF'
+        FORCE_COLOR=3 node zx.mjs << 'EOF'
         ${{inputs.script}}
         EOF
       shell: bash
