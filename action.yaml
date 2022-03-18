@@ -1,4 +1,4 @@
-name: zx
+name: "google/zx"
 description: "Runs zx script"
 branding:
   icon: "dollar-sign"
