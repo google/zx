@@ -59,6 +59,7 @@ gives sensible defaults.
     - [echo](#echo)
     - [retry](#retry)
     - [startSpinner](#startspinner)
+    - [withTimeout](#withtimeout)
 - [FAQ](#faq)
   - [Passing env variables](#passing-env-variables)
   - [Passing array of values](#passing-array-of-values)
