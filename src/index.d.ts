@@ -22,6 +22,7 @@ import {ChalkInstance} from 'chalk'
 import * as _yaml from 'yaml'
 import _fetch from 'node-fetch'
 import {ParsedArgs} from 'minimist'
+import * as _which from 'which'
 
 interface $ {
   (pieces: TemplateStringsArray, ...args: any[]): ProcessPromise<ProcessOutput>
@@ -78,3 +79,4 @@ export const path: typeof _path
 export const question: question
 export const sleep: sleep
 export const quiet: quiet
+export const which: typeof _which

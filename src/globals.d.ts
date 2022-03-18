@@ -11,6 +11,7 @@ import {
   path as _path,
   question,
   sleep,
+  which as _which,
 } from './index'
 
 declare global {
@@ -28,4 +29,5 @@ declare global {
   var path: typeof _path
   var question: question
   var sleep: sleep
+  var which: typeof _which
 }
