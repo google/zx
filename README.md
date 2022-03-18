@@ -534,6 +534,18 @@ await $`pwd`
 EOF
 ```
 
+#### Attaching .bash_profile/.zshrc
+
+By default `child_process` does not include aliases and bash functions. 
+But you are still able to do it by hand. Just attach necessary directives to `$.prefix`.
+
+```js
+{
+  $.prefix += 'export NVM_DIR=$HOME/.nvm; source $NVM_DIR/nvm.sh; '
+  await $`nvm -v`
+}
+```
+
 ## License
 
 [Apache-2.0](LICENSE)
