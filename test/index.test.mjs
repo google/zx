@@ -238,6 +238,7 @@ if (test('Executes a script from $PATH')) {
 }
 
 if (test('The cd() works with relative paths')) {
+  let cwd = process.cwd()
   try {
     fs.mkdirpSync('/tmp/zx-cd-test/one/two')
     cd('/tmp/zx-cd-test/one/two')
@@ -253,7 +254,7 @@ if (test('The cd() works with relative paths')) {
     assert.deepEqual(results, ['two', 'one', 'zx-cd-test'])
   } finally {
     fs.rmSync('/tmp/zx-cd-test', {recursive: true})
-    cd(__dirname)
+    cd(cwd)
   }
 }
 
