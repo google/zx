@@ -418,6 +418,16 @@ await $`long-running command`
 stop()
 ```
 
+#### `withTimeout()`
+
+Runs and sets a timeout for a cmd.
+
+```js
+import {withTimeout} from 'zx/experimental'
+
+await withTimeout(100, 'SIGTERM')`sleep 9999`
+```
+
 ### FAQ
 
 #### Passing env variables

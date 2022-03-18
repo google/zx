@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {strict as assert} from 'assert'
-import {retry} from './src/experimental.mjs'
+import {retry, withTimeout} from './src/experimental.mjs'
 
 let всегоТестов = 0
 
@@ -245,6 +245,10 @@ if (test('YAML works')) {
   console.log(chalk.greenBright('YAML works'))
 }
 
+if (test('which available')) {
+  assert.equal(which.sync('npm'), await which('npm'))
+}
+
 if (test('Retry works')) {
   let exitCode = 0
   let now = Date.now()
@@ -257,8 +261,17 @@ if (test('Retry works')) {
   assert(Date.now() >= now + 50 * (5 - 1))
 }
 
-if (test('which available')) {
-  assert.equal(which.sync('npm'), await which('npm'))
+if (test('withTimeout works')) {
+  let exitCode = 0
+  let signal
+  try {
+    await withTimeout(100, 'SIGKILL')`sleep 9999`
+  } catch (p) {
+    exitCode = p.exitCode
+    signal = p.signal
+  }
+  assert.equal(exitCode, null)
+  assert.equal(signal, 'SIGKILL')
 }
 
 let version
