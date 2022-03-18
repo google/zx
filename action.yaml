@@ -10,7 +10,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - shell: basj
+    - shell: bash
       run: |
         FORCE_COLOR=3 npx zx@6 << 'EOF'
         ${{inputs.script}}
