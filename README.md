@@ -25,6 +25,50 @@ requires additional hassle before using. The `zx` package provides
 useful wrappers around `child_process`, escapes arguments and
 gives sensible defaults.
 
+- [Install](#install)
+- [Documentation](#documentation)
+  - [$command](#command-)
+  - [ProcessPromise](#processpromise)
+  - [ProcessOutput](#processoutput)
+  - [Functions](#functions)
+    - [cd](#cd)
+    - [fetch](#fetch)
+    - [question](#question)
+    - [sleep](#sleep)
+    - [nothrow](#nothrow)
+    - [quiet](#quiet)
+  - [Packages](#packages)
+    - [chalk](#chalk-package)
+    - [yaml](#yaml-package)
+    - [fs](#fs-package)
+    - [globby](#globby-package)
+    - [os](#os-package)
+    - [path](#path-package)
+    - [minimist](#minimist-package)
+  - [Configuration](#configuration)
+    - [shell](#shell)
+    - [maxBuffer](#maxbuffer)
+    - [prefix](#prefix)
+    - [quote](#quote)
+    - [verbose](#verbose)
+  - [Polyfills](#polyfills)
+    - [__filename & __dirname](#__filename--__dirname)
+    - [require](#require)
+  - [Experimental](#experimental)
+    - [echo](#echo)
+    - [retry](#retry)
+    - [startSpinner](#startspinner)
+- [FAQ](#faq)
+  - [Passing env variables](#passing-env-variables)
+  - [Passing array of values](#passing-array-of-values)
+  - [Importing from other scripts](#importing-from-other-scripts)
+  - [Scripts without extensions](#scripts-without-extensions)
+  - [Markdown scripts](#markdown-scripts)
+  - [TypeScript scripts](#typescript-scripts)
+  - [Executing remote scripts](#executing-remote-scripts)
+  - [Executing scripts from stdin](#executing-scripts-from-stdin)
+- [License](#license)
+
 ## Install
 
 ```bash
@@ -509,7 +553,6 @@ in `tsconfig.json`.
   }
 }
 ```
-
 
 #### Executing remote scripts
 
