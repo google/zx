@@ -45,6 +45,7 @@ gives sensible defaults.
     - [os](#os-package)
     - [path](#path-package)
     - [minimist](#minimist-package)
+    - [which](#which-package)
   - [Configuration](#configuration)
     - [shell](#shell)
     - [maxBuffer](#maxbuffer)
@@ -344,7 +345,7 @@ The [minimist](https://www.npmjs.com/package/minimist) package.
 
 Available as global const `argv`.
 
-#### `which`
+#### `which` package
 
 The [which](https://github.com/npm/node-which) package.
 
