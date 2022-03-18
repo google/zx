@@ -24,9 +24,11 @@ import _fetch from 'node-fetch'
 import {ParsedArgs} from 'minimist'
 import * as _which from 'which'
 
-interface $ {
+export interface ZxTemplate {
   (pieces: TemplateStringsArray, ...args: any[]): ProcessPromise<ProcessOutput>
+}
 
+interface $ extends ZxTemplate {
   verbose: boolean
   shell: string
   prefix: string

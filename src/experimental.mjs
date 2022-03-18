@@ -25,6 +25,16 @@ export const retry = (count = 5, delay = 0) => async (cmd, ...args) => {
   }
 }
 
+// Runs and sets a timeout for a cmd
+export const withTimeout = (timeout, signal) => async (cmd, ...args) => {
+  let p = $(cmd, ...args)
+  if (!timeout) return p
+
+  let timer = setTimeout(() => p.kill(signal), timeout)
+
+  return p.finally(() => clearTimeout(timer))
+}
+
 // A console.log() alternative which can take ProcessOutput.
 export function echo(pieces, ...args) {
   if (Array.isArray(pieces) && pieces.every(isString) && pieces.length - 1 === args.length) {

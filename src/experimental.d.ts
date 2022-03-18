@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ProcessOutput} from './index'
+import {ZxTemplate} from './index'
 
 interface Echo {
   (pieces: TemplateStringsArray, ...args: any[]): void
@@ -20,10 +20,9 @@ interface Echo {
 }
 export const echo: Echo
 
-interface Retry {
-  (pieces: TemplateStringsArray, ...args: any[]): Promise<ProcessOutput>
-}
-export const retry: (count?: number, delay?: number) => Retry
+export const retry: (count?: number, delay?: number) => ZxTemplate
+
+export const withTimeout: (delay?: number, signal?: string | number) => ZxTemplate
 
 type StopSpinner = () => void
 export function startSpinner(title: string): StopSpinner
