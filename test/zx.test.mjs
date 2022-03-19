@@ -41,8 +41,12 @@ if (test('supports `--quiet` flag / Quiet mode is working')) {
 }
 
 if (test('Eval script from https ref')) {
-  let p = $`node zx.mjs https://medv.io/example-script.mjs` // Need another script
-  setTimeout(() => p.kill(), 500)
+  let script = path.resolve('test/fixtures/echo.http')
+  let server = quiet($`while true; do cat ${script} | nc -l 8080; done`)
+  let p = await quiet($`node zx.mjs http://localhost:8080/echo.mjs`)
+
+  assert(p.stdout.includes('test'))
+  server.kill()
 }
 
 if (test('Scripts with no extension')) {

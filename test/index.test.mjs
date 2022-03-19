@@ -130,7 +130,7 @@ if (test('Pipes are working')) {
 //   assert.equal((await p).toString(), 'foo')
 // }
 
-if (test('ProcessPromise pipe')) {
+if (test('ProcessPromise')) {
   let contents = ''
   let stream = new Writable({
     write: function(chunk, encoding, next) {
