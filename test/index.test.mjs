@@ -12,20 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {strict as assert} from 'assert'
-import {retry, echo, startSpinner, withTimeout } from './src/experimental.mjs'
+import {inspect} from 'util'
+import chalk from 'chalk'
+import {Writable} from 'stream'
+import {Socket} from 'net'
 
-let всегоТестов = 0
+import {assert, test as t} from './test-utils.mjs'
 
-function test(name) {
-  let фильтр = process.argv[3] || '.'
-  if (RegExp(фильтр).test(name)) {
-    console.log('\n' + chalk.bgGreenBright.black(` ${name} `))
-    всегоТестов++
-    return true
-  }
-  return false
-}
+const test = t.bind(null, 'index')
 
 if (test('Only stdout is used during command substitution')) {
   let hello = await $`echo Error >&2; echo Hello`
@@ -86,29 +80,20 @@ if (test('The toString() is called on arguments')) {
 
 if (test('Can use array as an argument')) {
   try {
-    let files = ['./zx.mjs', './test.mjs']
+    let files = ['./zx.mjs', './test/index.test.mjs']
     await $`tar czf archive ${files}`
   } finally {
     await $`rm archive`
   }
 }
 
-if (test('Scripts with no extension')) {
-  await $`node zx.mjs tests/no-extension`
-  assert.match((await fs.readFile('tests/no-extension.mjs')).toString(), /Test file to verify no-extension didn't overwrite similarly name .mjs file./)
-}
-
-if (test('The require() is working from stdin')) {
-  await $`node zx.mjs <<< 'require("./package.json").name'`
-}
-
-if (test('Markdown scripts are working')) {
-  await $`node zx.mjs docs/markdown.md`
-}
-
 if (test('Quiet mode is working')) {
-  let {stdout} = await $`node zx.mjs --quiet docs/markdown.md`
-  assert(!stdout.includes('whoami'))
+  let stdout = ''
+  let log = console.log
+  console.log = (...args) => {stdout += args.join(' ')}
+  await quiet($`echo 'test'`)
+  console.log = log
+  assert(!stdout.includes('echo'))
 }
 
 if (test('Pipes are working')) {
@@ -131,6 +116,41 @@ if (test('Pipes are working')) {
   }
 }
 
+if (test('question')) {
+  let p = question('foo or bar? ', {choices: ['foo', 'bar']})
+
+  setImmediate(() => {
+    process.stdin.emit('data', 'fo')
+    process.stdin.emit('data', '\t')
+    process.stdin.emit('data', '\n')
+  })
+
+  assert.equal(await p, 'foo')
+}
+
+if (test('ProcessPromise')) {
+  let contents = ''
+  let stream = new Writable({
+    write: function(chunk, encoding, next) {
+      contents += chunk.toString()
+      next()
+    }
+  })
+  let p = $`echo 'test'`.pipe(stream)
+  await p
+  assert(p._piped)
+  assert.equal(contents, 'test\n')
+  assert(p.stderr instanceof Socket)
+
+  let err
+  try {
+    $`echo 'test'`.pipe('str')
+  } catch (p) {
+    err = p
+  }
+  assert.equal(err.message, 'The pipe() method does not take strings. Forgot $?')
+}
+
 if (test('ProcessOutput thrown as error')) {
   let err
   try {
@@ -139,6 +159,8 @@ if (test('ProcessOutput thrown as error')) {
     err = p
   }
   assert(err.exitCode > 0)
+  assert(err.stderr.includes('/bin/bash: wtf: command not found\n'))
+  assert(err[inspect.custom]().includes('Command not found'))
 }
 
 if (test('The pipe() throws if already resolved')) {
@@ -174,6 +196,19 @@ if (test('globby available')) {
   assert(typeof globby.isGitIgnored === 'function')
   assert(typeof globby.isGitIgnoredSync === 'function')
   console.log(chalk.greenBright('globby available'))
+
+  assert(await globby('test/fixtures/*'), [
+    'test/fixtures/interactive.mjs',
+    'test/fixtures/no-extension',
+    'test/fixtures/no-extension.mjs'
+  ])
+}
+
+if (test('fetch')) {
+  assert(
+    await fetch('https://example.com'),
+    await fetch('https://example.com', {method: 'GET'})
+  )
 }
 
 if (test('Executes a script from $PATH')) {
@@ -201,6 +236,7 @@ if (test('Executes a script from $PATH')) {
 }
 
 if (test('The cd() works with relative paths')) {
+  let cwd = process.cwd()
   try {
     fs.mkdirpSync('/tmp/zx-cd-test/one/two')
     cd('/tmp/zx-cd-test/one/two')
@@ -216,7 +252,7 @@ if (test('The cd() works with relative paths')) {
     assert.deepEqual(results, ['two', 'one', 'zx-cd-test'])
   } finally {
     fs.rmSync('/tmp/zx-cd-test', {recursive: true})
-    cd(__dirname)
+    cd(cwd)
   }
 }
 
@@ -249,53 +285,8 @@ if (test('which available')) {
   assert.equal(which.sync('npm'), await which('npm'))
 }
 
-if (test('Retry works (experimental)')) {
-  let exitCode = 0
-  let now = Date.now()
-  try {
-    await retry(5, 50)`exit 123`
-  } catch (p) {
-    exitCode = p.exitCode
-  }
-  assert.equal(exitCode, 123)
-  assert(Date.now() >= now + 50 * (5 - 1))
-}
-
-if (test('withTimeout works (experimental)')) {
-  let exitCode = 0
-  let signal
-  try {
-    await withTimeout(100, 'SIGKILL')`sleep 9999`
-  } catch (p) {
-    exitCode = p.exitCode
-    signal = p.signal
-  }
-  assert.equal(exitCode, null)
-  assert.equal(signal, 'SIGKILL')
-}
-
-if (test('echo works (experimental)')) {
-  echo(chalk.red('foo'), chalk.green('bar'), chalk.bold('baz'))
-  echo`${chalk.red('foo')} ${chalk.green('bar')} ${chalk.bold('baz')}`
-  echo(await $`echo ${chalk.red('foo')}`, await $`echo ${chalk.green('bar')}`, await $`echo ${chalk.bold('baz')}`)
-}
-
-if (test('spinner works (experimental)')) {
-  let s = startSpinner('waiting')
-
-  await sleep(1000)
-  s()
-}
-
-let version
 if (test('require() is working in ESM')) {
-  let data = require('./package.json')
-  version = data.version
+  let data = require('../package.json')
   assert.equal(data.name, 'zx')
   assert.equal(data, require('zx/package.json'))
 }
-
-console.log('\n' +
-  chalk.black.bgYellowBright(` zx version is ${version} `) + '\n' +
-  chalk.greenBright(` 🍺 ${всегоТестов} tests passed `)
-)

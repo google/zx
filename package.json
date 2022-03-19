@@ -26,7 +26,10 @@
     "node": ">= 16.0.0"
   },
   "scripts": {
-    "test": "node zx.mjs test.mjs"
+    "test:cov": "c8 --reporter=html npm run test",
+    "test": "node zx.mjs test/full.test.mjs",
+    "test:zx": "npm run test zx",
+    "test:index": "npm run test index"
   },
   "dependencies": {
     "@types/fs-extra": "^9.0.13",
