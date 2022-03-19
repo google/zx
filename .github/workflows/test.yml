@@ -23,3 +23,5 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm i
     - run: npm test
+      env:
+        FORCE_COLOR: 3
