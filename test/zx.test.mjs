@@ -40,6 +40,18 @@ if (test('supports `--quiet` flag / Quiet mode is working')) {
   assert(!p.stdout.includes('whoami'))
 }
 
+if (test('supports `--shell` flag ')) {
+  let shell = $.shell
+  let p = await $`node zx.mjs --shell=${shell} <<< '$\`echo \${$.shell}\`'`
+  assert(p.stdout.includes(shell))
+}
+
+if (test('supports `--prefix` flag ')) {
+  let prefix = 'set -e;'
+  let p = await $`node zx.mjs --prefix=${prefix} <<< '$\`echo \${$.prefix}\`'`
+  assert(p.stdout.includes(prefix))
+}
+
 if (test('Eval script from https ref')) {
   let script = path.resolve('test/fixtures/echo.http')
   let server = quiet($`while true; do cat ${script} | nc -l 8080; done`)
