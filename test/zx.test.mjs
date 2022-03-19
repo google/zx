@@ -47,6 +47,14 @@ if (test('Eval script from https ref')) {
 
   assert(p.stdout.includes('test'))
   server.kill()
+
+  let err
+  try {
+    await quiet($`node zx.mjs http://localhost:8081/echo.mjs`)
+  } catch (e) {
+    err = e
+  }
+  assert(err.stderr.includes('ECONNREFUSED'))
 }
 
 if (test('Scripts with no extension')) {

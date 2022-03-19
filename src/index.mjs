@@ -155,12 +155,14 @@ export async function question(query, options) {
   const rl = createInterface({
     input: process.stdin,
     output: process.stdout,
+    terminal: true,
     completer,
   })
-  const question = (q) => new Promise((resolve) => rl.question(q ?? '', resolve))
-  let answer = await question(query)
-  rl.close()
-  return answer
+
+  return new Promise((resolve) => rl.question(query ?? '', (answer) => {
+    rl.close()
+    resolve(answer)
+  }))
 }
 
 export async function fetch(url, init) {

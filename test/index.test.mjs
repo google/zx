@@ -116,19 +116,17 @@ if (test('Pipes are working')) {
   }
 }
 
-// Works on macOS but fails oon ubuntu...
-// if (test('question')) {
-//   let p = question('foo or bar? ', {choices: ['foo', 'bar']})
-//
-//   setTimeout(() => {
-//     process.stdin.emit('data', 'fo')
-//     process.stdin.emit('data', '\t')
-//     process.stdin.emit('data', '\t')
-//     process.stdin.emit('data', '\r\n')
-//   }, 100)
-//
-//   assert.equal((await p).toString(), 'foo')
-// }
+if (test('question')) {
+  let p = question('foo or bar? ', {choices: ['foo', 'bar']})
+
+  setImmediate(() => {
+    process.stdin.emit('data', 'fo')
+    process.stdin.emit('data', '\t')
+    process.stdin.emit('data', '\n')
+  })
+
+  assert.equal(await p, 'foo')
+}
 
 if (test('ProcessPromise')) {
   let contents = ''
