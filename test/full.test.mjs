@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {printTestDigest} from './test-utils.mjs'
-await import('./zx.test.mjs')
-await import('./index.test.mjs')
-await import('./experimental.test.mjs')
-
-printTestDigest()
+import './zx.test.mjs'
+import './index.test.mjs'
+import './experimental.test.mjs'

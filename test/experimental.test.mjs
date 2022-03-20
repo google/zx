@@ -13,12 +13,12 @@
 // limitations under the License.
 
 import {echo, retry, startSpinner, withTimeout} from '../src/experimental.mjs'
-import {assert, test as t} from './test-utils.mjs'
+import {assert, testFactory} from './test-utils.mjs'
 import chalk from 'chalk'
 
-const test = t.bind(null, 'experimental')
+const test = testFactory('experimental', import.meta)
 
-if (test('Retry works')) {
+test('Retry works', async () => {
   let exitCode = 0
   let now = Date.now()
   try {
@@ -28,9 +28,9 @@ if (test('Retry works')) {
   }
   assert.equal(exitCode, 123)
   assert(Date.now() >= now + 50 * (5 - 1))
-}
+})
 
-if (test('withTimeout works')) {
+test('withTimeout works', async () => {
   let exitCode = 0
   let signal
   try {
@@ -44,17 +44,17 @@ if (test('withTimeout works')) {
 
   let p = await withTimeout(0)`echo 'test'`
   assert.equal(p.stdout.trim(), 'test')
-}
+})
 
-if (test('echo works')) {
+test('echo works', async () => {
   echo(chalk.red('foo'), chalk.green('bar'), chalk.bold('baz'))
   echo`${chalk.red('foo')} ${chalk.green('bar')} ${chalk.bold('baz')}`
   echo(await $`echo ${chalk.red('foo')}`, await $`echo ${chalk.green('bar')}`, await $`echo ${chalk.bold('baz')}`)
-}
+})
 
-if (test('spinner works')) {
+test('spinner works', async () => {
   let s = startSpinner('waiting')
 
   await sleep(1000)
   s()
-}
+})
