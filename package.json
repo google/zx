@@ -45,6 +45,9 @@
     "which": "^2.0.2",
     "yaml": "^1.10.2"
   },
+  "devDependencies": {
+    "c8": "^7.11.0"
+  },
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"
   },
