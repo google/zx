@@ -104,4 +104,5 @@ export const printTestDigest = () => {
     (skipped ? chalk.yellowBright (`\n 🚧 skipped: ${skipped} `) : '') +
     (failed ? chalk.redBright (`\n ❌  failed: ${failed} `) : '')
   )
+  failed && process.exit(1)
 }
