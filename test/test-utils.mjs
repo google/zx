@@ -26,12 +26,12 @@ let total = 0
 let skipped = 0
 let focused = 0
 
-const singleThread = (() => {
+const singleThread = (fn) => {
   let p = Promise.resolve()
-  return (fn) => { return async function (...args) {
+  return async function (...args) {
     return (p = p.catch(_ => _).then(() => fn.call(this, ...args)))
-  }}
-})()
+  }
+}
 
 const run = singleThread((cb) => timeout(cb(), 5000))
 
