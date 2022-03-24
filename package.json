@@ -39,7 +39,7 @@
     "chalk": "^5.0.1",
     "fs-extra": "^10.0.1",
     "globby": "^13.1.1",
-    "minimist": "^1.2.5",
+    "minimist": "^1.2.6",
     "node-fetch": "^3.2.3",
     "ps-tree": "^1.2.0",
     "which": "^2.0.2",
