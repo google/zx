@@ -4,6 +4,14 @@
   "description": "A tool for writing better scripts.",
   "main": "src/index.mjs",
   "types": "src/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./src/*",
+        "./src/index.d.ts"
+      ]
+    }
+  },
   "exports": {
     ".": {
       "import": "./src/index.mjs",
