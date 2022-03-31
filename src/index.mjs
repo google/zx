@@ -47,6 +47,7 @@ export function registerGlobals() {
     globby,
     nothrow,
     quiet,
+    hideCmd,
     os,
     path,
     question,
@@ -78,7 +79,7 @@ export function $(pieces, ...args) {
   promise._run = () => {
     if (promise.child) return // The _run() called from two places: then() and setTimeout().
     if (promise._prerun) promise._prerun() // In case $1.pipe($2), the $2 returned, and on $2._run() invoke $1._run().
-    if (verbose && !promise._quiet) {
+    if (verbose && !promise._quiet && !promise._hideCmd) {
       printCmd(cmd)
     }
 
@@ -183,6 +184,11 @@ export function nothrow(promise) {
 
 export function quiet(promise) {
   promise._quiet = true
+  return promise
+}
+
+export function hideCmd(promise) {
+  promise._hideCmd = true
   return promise
 }
 

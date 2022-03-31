@@ -65,6 +65,7 @@ type nothrow = (p: ProcessPromise<ProcessOutput>) => ProcessPromise<ProcessOutpu
 type question = (query?: string, options?: QuestionOptions) => Promise<string>
 type sleep = (ms: number) => Promise<void>
 type quiet = (p: ProcessPromise<ProcessOutput>) => ProcessPromise<ProcessOutput>
+type output = (p: ProcessPromise<ProcessOutput>) => ProcessPromise<ProcessOutput>
 
 export const $: $
 export const argv: ParsedArgs

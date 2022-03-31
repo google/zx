@@ -96,6 +96,15 @@ if (test('Quiet mode is working')) {
   assert(!stdout.includes('echo'))
 }
 
+if (test('hideCmd is working')) {
+  let stdout = ''
+  let log = console.log
+  console.log = (...args) => {stdout += args.join(' ')}
+  await hideCmd($`echo 'test'`)
+  console.log = log
+  assert(!stdout.includes('echo'))
+}
+
 if (test('Pipes are working')) {
   let {stdout} = await $`echo "hello"`
     .pipe($`awk '{print $1" world"}'`)
