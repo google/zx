@@ -234,6 +234,21 @@ await quiet($`grep something from-file`)
 // Command and output will not be displayed.
 ```
 
+#### `hideCmd()`
+
+Changes behavior of `$` to disable printing the command.
+
+```ts
+function hideCmd<P>(p: P): P
+```
+
+Usage:
+
+```js
+await hideCmd($`grep something from-file`)
+// Command will not be displayed.
+```
+
 ### Packages
 
 Following packages are available without importing inside scripts.
