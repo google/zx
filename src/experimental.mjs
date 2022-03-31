@@ -35,7 +35,7 @@ export const withTimeout = (timeout, signal) => async (cmd, ...args) => {
   return p.finally(() => clearTimeout(timer))
 }
 
-// A console.log() alternative which can take ProcessOutput.
+// A $.log() alternative which can take ProcessOutput.
 export function echo(pieces, ...args) {
   let msg
   let lastIdx = pieces.length - 1
@@ -44,7 +44,7 @@ export function echo(pieces, ...args) {
   } else {
     msg = [pieces, ...args].map(stringify).join(' ')
   }
-  console.log(msg)
+  $.log(msg)
 }
 
 function isString(obj) {

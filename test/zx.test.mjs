@@ -31,13 +31,24 @@ if (test('prints help')) {
   assert(help.includes('print current zx version'))
 }
 
+if (test('logs to stderr by default')) {
+  let p = await $`node zx.mjs docs/markdown.md`
+  assert(!p.stdout.includes('whoami') && p.stdout.includes('docs/markdown'))
+  assert(p.stderr.includes('whoami') && !p.stderr.includes('docs/markdown'))
+}
+
 if (test('supports `--experimental` flag')) {
   await $`echo 'echo("test")' | node zx.mjs --experimental`
 }
 
 if (test('supports `--quiet` flag / Quiet mode is working')) {
   let p = await $`node zx.mjs --quiet docs/markdown.md`
-  assert(!p.stdout.includes('whoami'))
+  assert(!(p.stderr + ' ' + p.stdout).includes('whoami'))
+}
+
+if (test('supports `--log-stdout` flag / Standard out logging mode is working')) {
+  let p = await $`node zx.mjs --log-stdout docs/markdown.md`
+  assert(p.stdout.includes('whoami') && !p.stderr.includes('whomai'))
 }
 
 if (test('supports `--shell` flag ')) {

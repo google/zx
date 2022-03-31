@@ -31,12 +31,13 @@ await async function main() {
   if (typeof argv.prefix === 'string') {
     $.prefix = argv.prefix
   }
+  $.log = argv['log-stdout'] ? (...args) => console.log(...args) : (...args) => console.error(...args)
   if (argv.experimental) {
     Object.assign(global, await import('./src/experimental.mjs'))
   }
   try {
     if (['--version', '-v', '-V'].includes(process.argv[2])) {
-      console.log(createRequire(import.meta.url)('./package.json').version)
+      $.log(createRequire(import.meta.url)('./package.json').version)
       return process.exitCode = 0
     }
     let firstArg = process.argv.slice(2).find(a => !a.startsWith('--'))
@@ -202,7 +203,7 @@ function transformMarkdown(source) {
 }
 
 function printUsage() {
-  console.log(`
+  $.log(`
  ${chalk.bgGreenBright.black(' ZX ')}
 
  Usage:
@@ -212,6 +213,7 @@ function printUsage() {
    --quiet            : don't echo commands
    --shell=<path>     : custom shell binary
    --prefix=<command> : prefix all commands
+   --log-stdout       : logging / echo to stdout (default stderr)
    --experimental     : enable new api proposals
    --version, -v      : print current zx version
 `)

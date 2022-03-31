@@ -139,7 +139,7 @@ try {
 }
 
 export function cd(path) {
-  if ($.verbose) console.log('$', colorize(`cd ${path}`))
+  if ($.verbose) $.log('$', colorize(`cd ${path}`))
   process.chdir(path)
 }
 
@@ -168,9 +168,9 @@ export async function question(query, options) {
 export async function fetch(url, init) {
   if ($.verbose) {
     if (typeof init !== 'undefined') {
-      console.log('$', colorize(`fetch ${url}`), init)
+      $.log('$', colorize(`fetch ${url}`), init)
     } else {
-      console.log('$', colorize(`fetch ${url}`))
+      $.log('$', colorize(`fetch ${url}`))
     }
   }
   return nodeFetch(url, init)
@@ -309,12 +309,12 @@ export class ProcessOutput extends Error {
 
 function printCmd(cmd) {
   if (/\n/.test(cmd)) {
-    console.log(cmd
+    $.log(cmd
       .split('\n')
       .map((line, i) => (i === 0 ? '$' : '>') + ' ' + colorize(line))
       .join('\n'))
   } else {
-    console.log('$', colorize(cmd))
+    $.log('$', colorize(cmd))
   }
 }
 
