@@ -33,11 +33,11 @@ const singleThread = (fn) => {
   }
 }
 
-const run = singleThread((cb) => timeout(cb(), 5000))
+const run = singleThread((cb, ms) => timeout(cb(), ms))
 
 const warmup = sleep(100)
 
-const timeout = (promise, ms, exception = `TimeoutException: exec time exceeds ${ms}ms`) => {
+const timeout = (promise, ms = 5000, exception = `TimeoutException: exec time exceeds ${ms}ms`) => {
   let timer
   return Promise.race([
     promise,
@@ -53,7 +53,7 @@ const log = (name, group, err, file = '') => {
   console.log('\n' + chalk[ err ? 'bgRedBright' : 'bgGreenBright' ].black(`${chalk.inverse(' ' + group + ' ')} ${name} `))
 }
 
-export const test = async function (name, cb, focus, skip) {
+export const test = async function (name, cb, ms, focus, skip) {
   const filter = RegExp(process.argv[3] || '.')
   const {group, meta} = this
   const file = meta ? relative(process.cwd(), fileURLToPath(meta.url)) : ''
@@ -65,7 +65,7 @@ export const test = async function (name, cb, focus, skip) {
     await warmup
     try {
       if (!focused === !focus && !skip) {
-        await run(cb)
+        await run(cb, ms)
         passed++
         log(name, group)
       } else {
@@ -84,9 +84,9 @@ export const test = async function (name, cb, focus, skip) {
   }
 }
 
-export const only = async function (name, cb) { return test.call(this, name, cb, true, false) }
+export const only = async function (name, cb, ms) { return test.call(this, name, cb, ms, true, false) }
 
-export const skip = async function (name, cb) { return test.call(this, name, cb, false, true) }
+export const skip = async function (name, cb, ms) { return test.call(this, name, cb, ms, false, true) }
 
 export const testFactory = (group, meta) => Object.assign(
   test.bind({group, meta}), {
