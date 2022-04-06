@@ -33,17 +33,9 @@ const singleThread = (fn) => {
   }
 }
 
-const run = singleThread((cb, ms) => timeout(cb(), ms))
+const run = singleThread((cb) => cb())
 
 const warmup = sleep(100)
-
-const timeout = (promise, ms = 5000, exception = `TimeoutException: exec time exceeds ${ms}ms`) => {
-  let timer
-  return Promise.race([
-    promise,
-    new Promise((_r, rej) => timer = setTimeout(rej, ms, exception))
-  ]).finally(() => clearTimeout(timer))
-}
 
 const log = (name, group, err, file = '') => {
   if (err) {
@@ -65,7 +57,7 @@ export const test = async function (name, cb, ms, focus, skip) {
     await warmup
     try {
       if (!focused === !focus && !skip) {
-        await run(cb, ms)
+        await run(cb)
         passed++
         log(name, group)
       } else {
