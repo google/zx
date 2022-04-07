@@ -22,6 +22,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm i
-    - run: timeout 30 npm test
+    - run: npm test
+      timeout-minutes: 1
       env:
         FORCE_COLOR: 3
