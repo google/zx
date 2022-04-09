@@ -8,26 +8,28 @@ import {
   globby as _globby,
   nothrow,
   os as _os,
+  prompts as _prompts,
   path as _path,
   question,
   sleep,
   which as _which,
-} from './index'
+} from './index';
 
 declare global {
-  var $: $
-  var argv: typeof _argv
-  var cd: cd
-  var chalk: typeof _chalk
+  var $: $;
+  var argv: typeof _argv;
+  var cd: cd;
+  var chalk: typeof _chalk;
   // @ts-ignore
-  var fetch: typeof _fetch
-  var fs: typeof _fs
-  var globby: typeof _globby.globby & typeof _globby
-  var glob: typeof _globby.globby & typeof _globby
-  var nothrow: nothrow
-  var os: typeof _os
-  var path: typeof _path
-  var question: question
-  var sleep: sleep
-  var which: typeof _which
+  var fetch: typeof _fetch;
+  var fs: typeof _fs;
+  var globby: typeof _globby.globby & typeof _globby;
+  var glob: typeof _globby.globby & typeof _globby;
+  var nothrow: nothrow;
+  var os: typeof _os;
+  var prompts: typeof _prompts;
+  var path: typeof _path;
+  var question: question;
+  var sleep: sleep;
+  var which: typeof _which;
 }
