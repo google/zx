@@ -8,7 +8,6 @@ import {
   globby as _globby,
   nothrow,
   os as _os,
-  prompts as _prompts,
   path as _path,
   question,
   sleep,
