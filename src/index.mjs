@@ -1,11 +1,11 @@
 // Copyright 2021 Google LLC
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //     https://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,15 +25,16 @@ import chalk from 'chalk'
 import YAML from 'yaml'
 import minimist from 'minimist'
 import psTreeModule from 'ps-tree'
+import prompts from 'prompts';
 
-export {chalk, fs, os, path, YAML, which}
-export const sleep = promisify(setTimeout)
-export const argv = minimist(process.argv.slice(2))
+export { chalk, fs, os, path, YAML, which, prompts };
+export const sleep = promisify(setTimeout);
+export const argv = minimist(process.argv.slice(2));
 export const globby = Object.assign(function globby(...args) {
-  return globbyModule.globby(...args)
-}, globbyModule)
-export const glob = globby
-const psTree = promisify(psTreeModule)
+  return globbyModule.globby(...args);
+}, globbyModule);
+export const glob = globby;
+const psTree = promisify(psTreeModule);
 
 export function registerGlobals() {
   Object.assign(global, {
@@ -53,7 +54,8 @@ export function registerGlobals() {
     sleep,
     YAML,
     which,
-  })
+    prompts,
+  });
 }
 
 export function $(pieces, ...args) {
