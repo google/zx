@@ -57,7 +57,13 @@ export function registerGlobals() {
 }
 
 export function $(pieces, ...args) {
-  let {verbose, shell, prefix, spawn, maxBuffer = 200 * 1024 * 1024 /* 200 MiB*/} = $
+  let {
+    verbose,
+    shell,
+    prefix,
+    spawn,
+    maxBuffer = 200 * 1024 * 1024 /* 200 MiB*/
+  } = $
   let __from = (new Error().stack.split(/^\s*at\s/m)[2]).trim()
   let cwd = process.cwd()
 

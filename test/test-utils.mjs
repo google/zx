@@ -42,7 +42,7 @@ const log = (name, group, err, file = '') => {
     console.log(err)
     console.log(file)
   }
-  console.log('\n' + chalk[ err ? 'bgRedBright' : 'bgGreenBright' ].black(`${chalk.inverse(' ' + group + ' ')} ${name} `))
+  console.log('\n' + chalk[err ? 'bgRedBright' : 'bgGreenBright'].black(`${chalk.inverse(' ' + group + ' ')} ${name} `))
 }
 
 export const test = async function (name, cb, ms, focus, skip) {
@@ -61,7 +61,7 @@ export const test = async function (name, cb, ms, focus, skip) {
         passed++
         log(name, group)
       } else {
-        skipped ++
+        skipped++
       }
     } catch (e) {
       log(name, group, e, file)
@@ -76,9 +76,13 @@ export const test = async function (name, cb, ms, focus, skip) {
   }
 }
 
-export const only = async function (name, cb, ms) { return test.call(this, name, cb, ms, true, false) }
+export const only = async function (name, cb, ms) {
+  return test.call(this, name, cb, ms, true, false)
+}
 
-export const skip = async function (name, cb, ms) { return test.call(this, name, cb, ms, false, true) }
+export const skip = async function (name, cb, ms) {
+  return test.call(this, name, cb, ms, false, true)
+}
 
 export const testFactory = (group, meta) => Object.assign(
   test.bind({group, meta}), {
@@ -93,8 +97,8 @@ export const printTestDigest = () => {
   console.log('\n' +
     chalk.black.bgYellowBright(` zx version is ${require('../package.json').version} `) + '\n' +
     chalk.greenBright(` 🍺 tests passed: ${passed} `) +
-    (skipped ? chalk.yellowBright (`\n 🚧 skipped: ${skipped} `) : '') +
-    (failed ? chalk.redBright (`\n ❌  failed: ${failed} `) : '')
+    (skipped ? chalk.yellowBright(`\n 🚧 skipped: ${skipped} `) : '') +
+    (failed ? chalk.redBright(`\n ❌ failed: ${failed} `) : '')
   )
   failed && process.exit(1)
 }

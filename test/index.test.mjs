@@ -90,7 +90,9 @@ test('Can use array as an argument', async () => {
 test('Quiet mode is working', async () => {
   let stdout = ''
   let log = console.log
-  console.log = (...args) => {stdout += args.join(' ')}
+  console.log = (...args) => {
+    stdout += args.join(' ')
+  }
   await quiet($`echo 'test'`)
   console.log = log
   assert(!stdout.includes('echo'))
@@ -131,7 +133,7 @@ test('question', async () => {
 test('ProcessPromise', async () => {
   let contents = ''
   let stream = new Writable({
-    write: function(chunk, encoding, next) {
+    write: function (chunk, encoding, next) {
       contents += chunk.toString()
       next()
     }

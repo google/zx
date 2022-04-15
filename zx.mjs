@@ -114,9 +114,9 @@ async function importPath(filepath, origin = filepath) {
   let ext = extname(filepath)
 
   if (ext === '') {
-  let tmpFilename = fs.existsSync(`${filepath}.mjs`) ? 
-    `${basename(filepath)}-${Math.random().toString(36).substr(2)}.mjs` : 
-    `${basename(filepath)}.mjs`
+    let tmpFilename = fs.existsSync(`${filepath}.mjs`) ?
+      `${basename(filepath)}-${Math.random().toString(36).substr(2)}.mjs` :
+      `${basename(filepath)}.mjs`
 
     return await writeAndImport(
       await fs.readFile(filepath),
