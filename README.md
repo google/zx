@@ -36,8 +36,8 @@ npm i -g zx
 ## Goods
 
 [$](#command-) · [cd()](#cd) · [fetch()](#fetch) · [question()](#question) · [sleep()](#sleep) · [nothrow()](#nothrow) · [quiet()](#quiet) ·
-[chalk](#chalk-package) · [yaml](#yaml-package) · [fs](#fs-package) · [globby](#globby-package) · [os](#os-package) · [path](#path-package) · [minimist](#minimist-package) · [which](#which-package) ·
-[__filename](#__filename--__dirname) · [__dirname](#__filename--__dirname)
+[chalk](#chalk-package) · [fs](#fs-package) · [os](#os-package) · [path](#path-package) · [globby](#globby-package) · [yaml](#yaml-package) · [minimist](#minimist-package) · [which](#which-package) ·
+[__filename](#__filename--__dirname) · [__dirname](#__filename--__dirname) · [require()](#require)
 
 ## Documentation
 
@@ -252,20 +252,28 @@ The [chalk](https://www.npmjs.com/package/chalk) package.
 console.log(chalk.blue('Hello world!'))
 ```
 
-### `yaml` package
-
-The [yaml](https://www.npmjs.com/package/yaml) package.
-
-```js
-console.log(YAML.parse('foo: bar').foo)
-```
-
 ### `fs` package
 
 The [fs-extra](https://www.npmjs.com/package/fs-extra) package.
 
 ```js
 let content = await fs.readFile('./package.json')
+```
+
+### `os` package
+
+The [os](https://nodejs.org/api/os.html) package.
+
+```js
+await $`cd ${os.homedir()} && mkdir example`
+```
+
+### `path` package
+
+The [path](https://nodejs.org/api/path.html) package.
+
+```js
+await $`mkdir ${path.join(basedir, 'output')}`
 ```
 
 ### `globby` package
@@ -284,20 +292,12 @@ Also, globby available via the `glob` shortcut:
 await $`svgo ${await glob('*.svg')}`
 ```
 
-### `os` package
+### `yaml` package
 
-The [os](https://nodejs.org/api/os.html) package.
-
-```js
-await $`cd ${os.homedir()} && mkdir example`
-```
-
-### `path` package
-
-The [path](https://nodejs.org/api/path.html) package.
+The [yaml](https://www.npmjs.com/package/yaml) package.
 
 ```js
-await $`mkdir ${path.join(basedir, 'output')}`
+console.log(YAML.parse('foo: bar').foo)
 ```
 
 ### `minimist` package
