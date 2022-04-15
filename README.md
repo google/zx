@@ -33,6 +33,12 @@ npm i -g zx
 
 **Requirement**: Node version >= 16.0.0
 
+## Goods
+
+[$](#command-) · [cd()](#cd) · [fetch()](#fetch) · [question()](#question) · [sleep()](#sleep) · [nothrow()](#nothrow) · [quiet()](#quiet) ·
+[chalk](#chalk-package) · [yaml](#yaml-package) · [fs](#fs-package) · [globby](#globby-package) · [os](#os-package) · [path](#path-package) · [minimist](#minimist-package) · [which](#which-package) ·
+[__filename](#__filename--__dirname) · [__dirname](#__filename--__dirname)
+
 ## Documentation
 
 Write your scripts in a file with `.mjs` extension in order to 
@@ -103,7 +109,7 @@ try {
 }
 ```
 
-#### `ProcessPromise`
+### `ProcessPromise`
 
 ```ts
 class ProcessPromise<T> extends Promise<T> {
@@ -124,7 +130,7 @@ await $`cat file.txt`.pipe(process.stdout)
 
 Read more about [pipelines](docs/pipelines.md).
 
-#### `ProcessOutput`
+### `ProcessOutput`
 
 ```ts
 class ProcessOutput {
@@ -136,9 +142,9 @@ class ProcessOutput {
 }
 ```
 
-### Functions
+## Functions
 
-#### `cd()`
+### `cd()`
 
 Changes the current working directory.
 
@@ -147,7 +153,7 @@ cd('/tmp')
 await $`pwd` // outputs /tmp
 ```
 
-#### `fetch()`
+### `fetch()`
 
 A wrapper around the [node-fetch](https://www.npmjs.com/package/node-fetch) package.
 
@@ -158,7 +164,7 @@ if (resp.ok) {
 }
 ```
 
-#### `question()`
+### `question()`
 
 A wrapper around the [readline](https://nodejs.org/api/readline.html) package.
 
@@ -178,7 +184,7 @@ function question(query?: string, options?: QuestionOptions): Promise<string>
 type QuestionOptions = { choices: string[] }
 ```
 
-#### `sleep()`
+### `sleep()`
 
 A wrapper around the `setTimeout` function.
 
@@ -186,7 +192,7 @@ A wrapper around the `setTimeout` function.
 await sleep(1000)
 ```
 
-#### `nothrow()`
+### `nothrow()`
 
 Changes behavior of `$` to not throw an exception on non-zero exit codes.
 
@@ -219,7 +225,7 @@ if ((await nothrow($`[[ -d path ]]`)).exitCode == 0) {
   ...
 }
 ```
-#### `quiet()`
+### `quiet()`
 
 Changes behavior of `$` to disable verbose output.
 
@@ -234,11 +240,11 @@ await quiet($`grep something from-file`)
 // Command and output will not be displayed.
 ```
 
-### Packages
+## Packages
 
 Following packages are available without importing inside scripts.
 
-#### `chalk` package
+### `chalk` package
 
 The [chalk](https://www.npmjs.com/package/chalk) package.
 
@@ -246,7 +252,7 @@ The [chalk](https://www.npmjs.com/package/chalk) package.
 console.log(chalk.blue('Hello world!'))
 ```
 
-#### `yaml` package
+### `yaml` package
 
 The [yaml](https://www.npmjs.com/package/yaml) package.
 
@@ -254,7 +260,7 @@ The [yaml](https://www.npmjs.com/package/yaml) package.
 console.log(YAML.parse('foo: bar').foo)
 ```
 
-#### `fs` package
+### `fs` package
 
 The [fs-extra](https://www.npmjs.com/package/fs-extra) package.
 
@@ -262,7 +268,7 @@ The [fs-extra](https://www.npmjs.com/package/fs-extra) package.
 let content = await fs.readFile('./package.json')
 ```
 
-#### `globby` package
+### `globby` package
 
 The [globby](https://github.com/sindresorhus/globby) package.
 
@@ -278,7 +284,7 @@ Also, globby available via the `glob` shortcut:
 await $`svgo ${await glob('*.svg')}`
 ```
 
-#### `os` package
+### `os` package
 
 The [os](https://nodejs.org/api/os.html) package.
 
@@ -286,7 +292,7 @@ The [os](https://nodejs.org/api/os.html) package.
 await $`cd ${os.homedir()} && mkdir example`
 ```
 
-#### `path` package
+### `path` package
 
 The [path](https://nodejs.org/api/path.html) package.
 
@@ -294,13 +300,13 @@ The [path](https://nodejs.org/api/path.html) package.
 await $`mkdir ${path.join(basedir, 'output')}`
 ```
 
-#### `minimist` package
+### `minimist` package
 
 The [minimist](https://www.npmjs.com/package/minimist) package.
 
 Available as global const `argv`.
 
-#### `which`
+### `which` package
 
 The [which](https://github.com/npm/node-which) package.
 
@@ -310,9 +316,9 @@ let node = await which('node')
 let node = which.sync('node')
 ```
 
-### Configuration
+## Configuration
 
-#### `$.shell`
+### `$.shell`
 
 Specifies what shell is used. Default is `which bash`.
 
@@ -322,16 +328,16 @@ $.shell = '/usr/bin/bash'
 
 Or use a CLI argument: `--shell=/bin/bash`
 
-#### `$.spawn`
+### `$.spawn`
 
 Specifies a `spawn` api. Defaults to `require('child_process').spawn`.
 
-#### `$.maxBuffer`
+### `$.maxBuffer`
 
 Specifies the largest number of bytes allowed on stdout or stderr.
 Defaults to `200 * 1024 * 1024` (200 MiB).
 
-#### `$.prefix`
+### `$.prefix`
 
 Specifies the command that will be prefixed to all commands run.
 
@@ -339,12 +345,12 @@ Default is `set -euo pipefail;`.
 
 Or use a CLI argument: `--prefix='set -e;'`
 
-#### `$.quote`
+### `$.quote`
 
 Specifies a function for escaping special characters during 
 command substitution.
 
-#### `$.verbose`
+### `$.verbose`
 
 Specifies verbosity. Default is `true`.
 
@@ -353,15 +359,15 @@ outputs.
 
 Or use a CLI argument `--quiet` to set `$.verbose = false`.
 
-### Polyfills 
+## Polyfills 
 
-#### `__filename` & `__dirname`
+### `__filename` & `__dirname`
 
 In [ESM](https://nodejs.org/api/esm.html) modules, Node.js does not provide
 `__filename` and `__dirname` globals. As such globals are really handy in scripts,
 `zx` provides these for use in `.mjs` files (when using the `zx` executable).
 
-#### `require()`
+### `require()`
 
 In [ESM](https://nodejs.org/api/modules.html#modules_module_createrequire_filename)
 modules, the `require()` function is not defined.
@@ -372,13 +378,13 @@ files (when using `zx` executable).
 let {version} = require('./package.json')
 ```
 
-### Experimental
+## Experimental
 
 The zx also provides a few experimental functions. Please leave a feedback about 
 those features in [the discussion](https://github.com/google/zx/discussions/299).
 To enable new features via CLI pass `--experimental` flag.
 
-#### `retry()`
+### `retry()`
 
 Retries a command a few times. Will return after the first
 successful attempt, or will throw after specifies attempts count.
@@ -392,7 +398,7 @@ let {stdout} = await retry(5)`curl localhost`
 let {stdout} = await retry(3, 500)`npm whoami`
 ```
 
-#### `echo()`
+### `echo()`
 
 A `console.log()` alternative which can take [ProcessOutput](#processoutput).
 
@@ -406,7 +412,7 @@ echo`Current branch is ${branch}.`
 echo('Current branch is', branch)
 ```
 
-#### `startSpinner()`
+### `startSpinner()`
 
 Starts a simple CLI spinner, and returns `stop()` function.
 
@@ -418,7 +424,7 @@ await $`long-running command`
 stop()
 ```
 
-#### `withTimeout()`
+### `withTimeout()`
 
 Runs and sets a timeout for a cmd.
 
@@ -428,16 +434,16 @@ import {withTimeout} from 'zx/experimental'
 await withTimeout(100, 'SIGTERM')`sleep 9999`
 ```
 
-### FAQ
+## FAQ
 
-#### Passing env variables
+### Passing env variables
 
 ```js
 process.env.FOO = 'bar'
 await $`echo $FOO`
 ```
 
-#### Passing array of values
+### Passing array of values
 
 If array of values passed as argument to `$`, items of the array will be escaped
 individually and concatenated via space.
@@ -448,7 +454,7 @@ let files = [...]
 await $`tar cz ${files}`
 ```
 
-#### Importing from other scripts
+### Importing from other scripts
 
 It is possible to make use of `$` and other functions via explicit imports:
 
@@ -458,13 +464,13 @@ import {$} from 'zx'
 await $`date`
 ```
 
-#### Scripts without extensions
+### Scripts without extensions
 
 If script does not have a file extension (like `.git/hooks/pre-commit`), zx
 assumes that it is an [ESM](https://nodejs.org/api/modules.html#modules_module_createrequire_filename)
 module.
 
-#### Markdown scripts
+### Markdown scripts
 
 The `zx` can execute scripts written in markdown 
 ([docs/markdown.md](docs/markdown.md)):
@@ -473,7 +479,7 @@ The `zx` can execute scripts written in markdown
 zx docs/markdown.md
 ```
 
-#### TypeScript scripts
+### TypeScript scripts
  
 ```ts
 import {$} from 'zx'
@@ -511,7 +517,7 @@ in `tsconfig.json`.
 ```
 
 
-#### Executing remote scripts
+### Executing remote scripts
 
 If the argument to the `zx` executable starts with `https://`, the file will be
 downloaded and executed.
@@ -524,7 +530,7 @@ zx https://medv.io/example-script.mjs
 zx https://medv.io/game-of-life.mjs
 ```
 
-#### Executing scripts from stdin
+### Executing scripts from stdin
 
 The `zx` supports executing scripts from stdin.
 
@@ -534,7 +540,7 @@ await $`pwd`
 EOF
 ```
 
-#### Attaching .bash_profile/.zshrc
+### Attaching .bash_profile/.zshrc
 
 By default `child_process` does not include aliases and bash functions. 
 But you are still able to do it by hand. Just attach necessary directives to `$.prefix`.
