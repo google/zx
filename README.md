@@ -523,11 +523,7 @@ If the argument to the `zx` executable starts with `https://`, the file will be
 downloaded and executed.
 
 ```bash
-zx https://medv.io/example-script.mjs
-```
-
-```bash
-zx https://medv.io/game-of-life.mjs
+zx https://medv.io/game-of-life.js
 ```
 
 ### Executing scripts from stdin
@@ -546,10 +542,28 @@ By default `child_process` does not include aliases and bash functions.
 But you are still able to do it by hand. Just attach necessary directives to `$.prefix`.
 
 ```js
-{
-  $.prefix += 'export NVM_DIR=$HOME/.nvm; source $NVM_DIR/nvm.sh; '
-  await $`nvm -v`
-}
+$.prefix += 'export NVM_DIR=$HOME/.nvm; source $NVM_DIR/nvm.sh; '
+await $`nvm -v`
+```
+
+### Using GitHub Actions
+
+Default GitHub Action runner comes with npx installed.
+
+```yaml
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Build
+      env:
+        FORCE_COLOR: 3
+      run: |
+        npx zx <<'EOF'
+        await $`...`
+        EOF
 ```
 
 ## License
