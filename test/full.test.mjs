@@ -1,6 +1,4 @@
-#!/usr/bin/env zx
-
-// Copyright 2021 Google LLC
+// Copyright 2022 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,12 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-let serve = $`npx serve`
-
-for await (let chunk of serve.stdout) {
-  if (chunk.includes('Accepting connections')) break
-}
-
-await $`curl http://localhost:3000`
-
-serve.kill('SIGINT')
+import './zx.test.mjs'
+import './index.test.mjs'
+import './experimental.test.mjs'

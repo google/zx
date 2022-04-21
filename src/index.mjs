@@ -57,7 +57,13 @@ export function registerGlobals() {
 }
 
 export function $(pieces, ...args) {
-  let {verbose, shell, prefix, spawn, maxBuffer = 200 * 1024 * 1024 /* 200 MiB*/} = $
+  let {
+    verbose,
+    shell,
+    prefix,
+    spawn,
+    maxBuffer = 200 * 1024 * 1024 /* 200 MiB*/
+  } = $
   let __from = (new Error().stack.split(/^\s*at\s/m)[2]).trim()
   let cwd = process.cwd()
 
@@ -155,12 +161,14 @@ export async function question(query, options) {
   const rl = createInterface({
     input: process.stdin,
     output: process.stdout,
+    terminal: true,
     completer,
   })
-  const question = (q) => new Promise((resolve) => rl.question(q ?? '', resolve))
-  let answer = await question(query)
-  rl.close()
-  return answer
+
+  return new Promise((resolve) => rl.question(query ?? '', (answer) => {
+    rl.close()
+    resolve(answer)
+  }))
 }
 
 export async function fetch(url, init) {

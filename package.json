@@ -1,6 +1,6 @@
 {
   "name": "zx",
-  "version": "6.0.6",
+  "version": "6.1.0",
   "description": "A tool for writing better scripts.",
   "main": "src/index.mjs",
   "types": "src/index.d.ts",
@@ -26,7 +26,10 @@
     "node": ">= 16.0.0"
   },
   "scripts": {
-    "test": "node zx.mjs test.mjs"
+    "test:cov": "c8 --reporter=html npm run test",
+    "test": "node zx.mjs test/full.test.mjs",
+    "test:zx": "npm run test zx",
+    "test:index": "npm run test index"
   },
   "dependencies": {
     "@types/fs-extra": "^9.0.13",
@@ -36,11 +39,14 @@
     "chalk": "^5.0.1",
     "fs-extra": "^10.0.1",
     "globby": "^13.1.1",
-    "minimist": "^1.2.5",
+    "minimist": "^1.2.6",
     "node-fetch": "^3.2.3",
     "ps-tree": "^1.2.0",
     "which": "^2.0.2",
-    "yaml": "^1.10.2"
+    "yaml": "^2.0.0"
+  },
+  "devDependencies": {
+    "c8": "^7.11.0"
   },
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"

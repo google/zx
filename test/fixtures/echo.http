@@ -1,0 +1,6 @@
+HTTP/1.1 200 OK
+Content-Type: text/javascript; charset=UTF-8
+Content-Length: 15
+Server: netcat!
+
+$`echo 'test'`
