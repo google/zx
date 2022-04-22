@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {inspect} from 'util'
+import {inspect} from 'node:util'
 import chalk from 'chalk'
-import {Writable} from 'stream'
-import {Socket} from 'net'
+import {Writable} from 'node:stream'
+import {Socket} from 'node:net'
 
 import {assert, testFactory} from './test-utils.mjs'
+import {ProcessPromise} from "../src/index.mjs";
 
 const test = testFactory('index', import.meta)
 
@@ -151,6 +152,25 @@ test('ProcessPromise', async () => {
     err = p
   }
   assert.equal(err.message, 'The pipe() method does not take strings. Forgot $?')
+})
+
+test('ProcessPromise: inherits native Promise', async () => {
+  const p1 = $`echo 1`
+  const p2 = p1.then(v => v)
+  const p3 = p2.then(v => v)
+  const p4 = p3.catch(v => v)
+  const p5 = p1.finally(v => v)
+
+  assert.ok(p1 instanceof Promise)
+  assert.ok(p1 instanceof ProcessPromise)
+  assert.ok(p2 instanceof ProcessPromise)
+  assert.ok(p3 instanceof ProcessPromise)
+  assert.ok(p4 instanceof ProcessPromise)
+  assert.ok(p5 instanceof ProcessPromise)
+  assert.ok(p1 !== p2)
+  assert.ok(p2 !== p3)
+  assert.ok(p3 !== p4)
+  assert.ok(p5 !== p1)
 })
 
 test('ProcessOutput thrown as error', async () => {
