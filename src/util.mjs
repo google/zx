@@ -12,8 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AsyncLocalStorage} from "node:async_hooks";
-
-export const als = new AsyncLocalStorage()
-export const boundCtx = Symbol('AsyncLocalStorage bound ctx')
-export const getCtx = () => als.getStore()
+export const randId = () => Math.random().toString(36).slice(2)

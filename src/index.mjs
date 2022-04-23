@@ -12,27 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { AsyncLocalStorage } from 'node:async_hooks'
 import os from 'node:os'
 import {inspect} from 'node:util'
 import {spawn} from 'node:child_process'
-import {createInterface} from 'node:readline'
 import {
   argv,
   chalk,
+  cd,
   fs,
   glob,
   globby,
-  nodeFetch,
+  fetch,
   path,
   sleep,
   psTree,
   which,
   YAML
 } from './goods.mjs'
-import {als, boundCtx} from './als.mjs'
+import {als, boundCtx, getCtx} from './als.mjs'
+import {randId} from './util.mjs'
+import {printStd, printCmd} from './print.mjs'
+import {question} from './question.mjs'
+import {nothrow, quiet} from './hooks.mjs'
+import {formatCmd, quote} from './guards.mjs'
 
-export {argv, chalk, fs, os, path, YAML, which, sleep}
+export {argv, cd, fetch, chalk, fs, os, glob, path, YAML, which, sleep, question, quiet, nothrow}
 
 export function registerGlobals() {
   Object.assign(global, {
@@ -55,45 +59,16 @@ export function registerGlobals() {
   })
 }
 
-const formatCmd = (pieces, ...args) => {
-  let cmd = pieces[0], i = 0
-  while (i < args.length) {
-    let s
-    if (Array.isArray(args[i])) {
-      s = args[i].map(x => $.quote(substitute(x))).join(' ')
-    } else {
-      s = $.quote(substitute(args[i]))
-    }
-    cmd += s + pieces[++i]
-  }
-
-  return cmd
-}
-
 export function $(...args) {
   let resolve, reject
   let promise = new ProcessPromise((...args) => [resolve, reject] = args)
-  let {
-    verbose,
-    shell,
-    prefix,
-    spawn,
-    maxBuffer = 200 * 1024 * 1024 /* 200 MiB*/
-  } = $
-  let __from = (new Error().stack.split(/^\s*at\s/m)[2]).trim()
-  let cwd = process.cwd()
-  let cmd = formatCmd(...args)
 
   promise[boundCtx] = {
-    id: Math.random().toString(16).slice(2),
-    cwd,
-    cmd,
-    verbose,
-    shell,
-    prefix,
-    spawn,
-    maxBuffer,
-    __from,
+    ...getCtx(),
+    id:         randId(),
+    cwd:        process.cwd(),
+    cmd:        formatCmd(...args),
+    __from:     (new Error().stack.split(/^\s*at\s/m)[2]).trim(),
     resolve,
     reject
   }
@@ -103,9 +78,12 @@ export function $(...args) {
   return promise
 }
 
+als.enterWith($)
+
 $.quote = quote
 $.spawn = spawn
 $.verbose = true
+$.maxBuffer = 200 * 1024 * 1024 /* 200 MiB*/
 $.prefix = '' // Bash not found, no prefix.
 try {
   $.shell = which.sync('bash')
@@ -113,58 +91,8 @@ try {
 } catch (e) {
 }
 
-export function cd(path) {
-  if ($.verbose) console.log('$', colorize(`cd ${path}`))
-  process.chdir(path)
-}
-
-export async function question(query, options) {
-  let completer = undefined
-  if (Array.isArray(options?.choices)) {
-    completer = function completer(line) {
-      const completions = options.choices
-      const hits = completions.filter((c) => c.startsWith(line))
-      return [hits.length ? hits : completions, line]
-    }
-  }
-  const rl = createInterface({
-    input: process.stdin,
-    output: process.stdout,
-    terminal: true,
-    completer,
-  })
-
-  return new Promise((resolve) => rl.question(query ?? '', (answer) => {
-    rl.close()
-    resolve(answer)
-  }))
-}
-
-export async function fetch(url, init) {
-  if ($.verbose) {
-    if (typeof init !== 'undefined') {
-      console.log('$', colorize(`fetch ${url}`), init)
-    } else {
-      console.log('$', colorize(`fetch ${url}`))
-    }
-  }
-  return nodeFetch(url, init)
-}
-
-export function nothrow(promise) {
-  promise._nothrow = true
-  return promise
-}
-
-export function quiet(promise) {
-  promise._quiet = true
-  return promise
-}
-
 export class ProcessPromise extends Promise {
   child = undefined
-  _nothrow = false
-  _quiet = false
   _resolved = false
   _inheritStdin = true
   _piped = false
@@ -235,7 +163,7 @@ export class ProcessPromise extends Promise {
     const ctx = this[boundCtx]
     als.run(ctx, () => {
       const {
-        verbose,
+        nothrow,
         cmd,
         cwd,
         prefix,
@@ -246,9 +174,7 @@ export class ProcessPromise extends Promise {
         reject
       } = ctx
 
-      if (verbose && !this._quiet) {
-        printCmd(cmd)
-      }
+      printCmd(cmd)
 
       let child = spawn(prefix + cmd, {
         cwd,
@@ -273,18 +199,18 @@ export class ProcessPromise extends Promise {
           combined,
           message,
         });
-        (code === 0 || this._nothrow ? resolve : reject)(output)
+        (code === 0 || nothrow ? resolve : reject)(output)
         this._resolved = true
       })
 
       let stdout = '', stderr = '', combined = ''
       let onStdout = data => {
-        if (verbose && !this._quiet) process.stdout.write(data)
+        printStd(data)
         stdout += data
         combined += data
       }
       let onStderr = data => {
-        if (verbose && !this._quiet) process.stderr.write(data)
+        printStd(null, data)
         stderr += data
         combined += data
       }
@@ -341,47 +267,6 @@ export class ProcessOutput extends Error {
   exitCode: ${(this.exitCode === 0 ? chalk.green : chalk.red)(this.exitCode)}${(exitCodeInfo(this.exitCode) ? chalk.grey(' (' + exitCodeInfo(this.exitCode) + ')') : '')}
 }`
   }
-}
-
-function printCmd(cmd) {
-  if (/\n/.test(cmd)) {
-    console.log(cmd
-      .split('\n')
-      .map((line, i) => (i === 0 ? '$' : '>') + ' ' + colorize(line))
-      .join('\n'))
-  } else {
-    console.log('$', colorize(cmd))
-  }
-}
-
-function colorize(cmd) {
-  return cmd.replace(/^[\w_.-]+(\s|$)/, substr => {
-    return chalk.greenBright(substr)
-  })
-}
-
-function substitute(arg) {
-  if (arg instanceof ProcessOutput) {
-    return arg.stdout.replace(/\n$/, '')
-  }
-  return `${arg}`
-}
-
-function quote(arg) {
-  if (/^[a-z0-9/_.-]+$/i.test(arg) || arg === '') {
-    return arg
-  }
-  return `$'`
-    + arg
-      .replace(/\\/g, '\\\\')
-      .replace(/'/g, '\\\'')
-      .replace(/\f/g, '\\f')
-      .replace(/\n/g, '\\n')
-      .replace(/\r/g, '\\r')
-      .replace(/\t/g, '\\t')
-      .replace(/\v/g, '\\v')
-      .replace(/\0/g, '\\0')
-    + `'`
 }
 
 function exitCodeInfo(exitCode) {
