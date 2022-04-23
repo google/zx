@@ -30,11 +30,9 @@ import {
   which,
   YAML
 } from './goods.mjs'
+import {als, boundCtx} from './als.mjs'
 
 export {argv, chalk, fs, os, path, YAML, which, sleep}
-
-global.__als = new AsyncLocalStorage()
-const boundCtx = Symbol('AsyncLocalStorage bound ctx')
 
 export function registerGlobals() {
   Object.assign(global, {
@@ -100,7 +98,7 @@ export function $(...args) {
     reject
   }
 
-  setTimeout(() => promise._run(), 0) // Make sure all subprocesses are started, if not explicitly by await or then().
+  setImmediate(() => promise._run()) // Make sure all subprocesses are started, if not explicitly by await or then().
 
   return promise
 }
@@ -235,7 +233,7 @@ export class ProcessPromise extends Promise {
     if (this._prerun) this._prerun() // In case $1.pipe($2), the $2 returned, and on $2._run() invoke $1._run().
 
     const ctx = this[boundCtx]
-    __als.run(ctx, () => {
+    als.run(ctx, () => {
       const {
         verbose,
         cmd,
