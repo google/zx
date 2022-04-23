@@ -25,6 +25,7 @@ export { default as fs } from 'fs-extra'
 export { default as which } from 'which'
 export { default as YAML } from 'yaml'
 export { default as path } from 'node:path'
+export { default as os } from 'node:os'
 
 export const argv = minimist(process.argv.slice(2))
 

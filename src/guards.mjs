@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import {getCtx} from './als.mjs'
-import {ProcessOutput} from './index.mjs'
 
 export function quote(arg) {
   if (/^[a-z0-9/_.-]+$/i.test(arg) || arg === '') {
@@ -48,7 +47,7 @@ export const formatCmd = (pieces, ...args) => {
 }
 
 function substitute(arg) {
-  if (arg instanceof ProcessOutput) {
+  if (arg?.stdout) {
     return arg.stdout.replace(/\n$/, '')
   }
   return `${arg}`
