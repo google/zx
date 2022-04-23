@@ -14,11 +14,7 @@
 
 import {inspect} from 'node:util'
 import {spawn} from 'node:child_process'
-import {
-  chalk,
-  psTree,
-  which,
-} from './goods.mjs'
+import {chalk, psTree, which} from './goods.mjs'
 import {als, boundCtx, getCtx} from './als.mjs'
 import {randId} from './util.mjs'
 import {printStd, printCmd} from './print.mjs'

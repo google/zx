@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ProcessOutput, sleep, $} from './index.mjs'
+import {ProcessOutput, $} from './core.mjs'
+import {sleep} from './goods.mjs'
 
 // Retries a command a few times. Will return after the first
 // successful attempt, or will throw after specifies attempts count.
