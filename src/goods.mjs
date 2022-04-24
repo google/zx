@@ -53,4 +53,5 @@ export async function fetch(url, init) {
 export function cd(path) {
   if (getCtx().verbose) console.log('$', colorize(`cd ${path}`))
   process.chdir(path)
+  getCtx().cwd = process.cwd()
 }

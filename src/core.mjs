@@ -27,7 +27,6 @@ export function $(...args) {
   promise[boundCtx] = {
     ...getCtx(),
     id:      randId(),
-    cwd:     process.cwd(),
     cmd:     formatCmd(...args),
     __from:   (new Error().stack.split(/^\s*at\s/m)[2]).trim(),
     resolve,
@@ -41,6 +40,7 @@ export function $(...args) {
 
 als.enterWith($)
 
+$.cwd = process.cwd()
 $.quote = quote
 $.spawn = spawn
 $.verbose = true
