@@ -17,7 +17,7 @@ import minimist from 'minimist'
 import { promisify } from 'node:util'
 import psTreeModule from 'ps-tree'
 import nodeFetch from 'node-fetch'
-import {getCtx} from './als.mjs'
+import {getCtx, getRootCtx} from './als.mjs'
 import {colorize} from './print.mjs'
 
 export { default as chalk } from 'chalk'
@@ -53,5 +53,5 @@ export async function fetch(url, init) {
 export function cd(path) {
   if (getCtx().verbose) console.log('$', colorize(`cd ${path}`))
   process.chdir(path)
-  getCtx().cwd = process.cwd()
+  getRootCtx().cwd = getCtx().cwd = process.cwd()
 }

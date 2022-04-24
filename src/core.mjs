@@ -15,7 +15,7 @@
 import {inspect} from 'node:util'
 import {spawn} from 'node:child_process'
 import {chalk, psTree, which} from './goods.mjs'
-import {als, boundCtx, getCtx} from './als.mjs'
+import {boundCtx, getCtx, runInCtx, setRootCtx} from './als.mjs'
 import {randId} from './util.mjs'
 import {printStd, printCmd} from './print.mjs'
 import {formatCmd, quote} from './guards.mjs'
@@ -38,7 +38,7 @@ export function $(...args) {
   return promise
 }
 
-als.enterWith($)
+setRootCtx($)
 
 $.cwd = process.cwd()
 $.quote = quote
@@ -122,7 +122,7 @@ export class ProcessPromise extends Promise {
     if (this._prerun) this._prerun() // In case $1.pipe($2), the $2 returned, and on $2._run() invoke $1._run().
 
     const ctx = this[boundCtx]
-    als.run(ctx, () => {
+    runInCtx(ctx, () => {
       const {
         nothrow,
         cmd,
