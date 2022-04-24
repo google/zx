@@ -359,6 +359,10 @@ outputs.
 
 Or use a CLI argument `--quiet` to set `$.verbose = false`.
 
+### `$.env`
+
+Specifies env map. Defaults to `process.env`.
+
 ## Polyfills 
 
 ### `__filename` & `__dirname`
