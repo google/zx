@@ -41,6 +41,7 @@ export function $(...args) {
 setRootCtx($)
 
 $.cwd = process.cwd()
+$.env = process.env
 $.quote = quote
 $.spawn = spawn
 $.verbose = true
@@ -127,6 +128,7 @@ export class ProcessPromise extends Promise {
         nothrow,
         cmd,
         cwd,
+        env,
         prefix,
         shell,
         maxBuffer,
@@ -143,6 +145,7 @@ export class ProcessPromise extends Promise {
         stdio: [this._inheritStdin ? 'inherit' : 'pipe', 'pipe', 'pipe'],
         windowsHide: true,
         maxBuffer,
+        env
       })
 
       child.on('close', (code, signal) => {
