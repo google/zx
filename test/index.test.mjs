@@ -259,6 +259,7 @@ test('Executes a script from $PATH', async () => {
 
 test('The cd() works with relative paths', async () => {
   let cwd = process.cwd()
+  assert.equal($.cwd, cwd)
   try {
     fs.mkdirpSync('/tmp/zx-cd-test/one/two')
     cd('/tmp/zx-cd-test/one/two')
@@ -271,10 +272,12 @@ test('The cd() works with relative paths', async () => {
     let results = (await Promise.all([p1, p2, p3]))
       .map(p => path.basename(p.stdout.trim()))
 
+    assert.ok($.cwd.endsWith('/tmp/zx-cd-test'))
     assert.deepEqual(results, ['two', 'one', 'zx-cd-test'])
   } finally {
     fs.rmSync('/tmp/zx-cd-test', {recursive: true})
     cd(cwd)
+    assert.equal($.cwd, cwd)
   }
 })
 
