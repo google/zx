@@ -15,10 +15,10 @@
 // limitations under the License.
 
 import fs from 'fs-extra'
-import {createRequire} from 'module'
-import {tmpdir} from 'os'
-import {basename, dirname, extname, join, resolve} from 'path'
-import url from 'url'
+import {createRequire} from 'node:module'
+import {tmpdir} from 'node:os'
+import {basename, dirname, extname, join, resolve} from 'node:path'
+import url from 'node:url'
 
 import {$, argv, fetch, ProcessOutput, registerGlobals} from './src/index.mjs'
 
