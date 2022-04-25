@@ -5,18 +5,9 @@
   "main": "src/index.mjs",
   "types": "src/index.d.ts",
   "exports": {
-    ".": {
-      "import": "./src/index.mjs",
-      "types": "./src/index.d.ts"
-    },
-    "./globals": {
-      "import": "./src/globals.mjs",
-      "types": "./src/globals.d.ts"
-    },
-    "./experimental": {
-      "import": "./src/experimental.mjs",
-      "types": "./src/experimental.d.ts"
-    },
+    ".": "./src/index.mjs",
+    "./globals": "./src/globals.mjs",
+    "./experimental": "./src/experimental.mjs",
     "./package.json": "./package.json"
   },
   "bin": {
