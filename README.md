@@ -566,6 +566,31 @@ jobs:
         EOF
 ```
 
+### Customizing
+
+You can build your very own custom zx version that best suits your needs.
+```ts
+// index.js
+import {$} from 'zx'
+
+$.quote = () => {}
+$.extraFn = async () => {
+    await $`ping example.com`
+    await $`npm whoami`
+}
+
+// cli.js
+#!/usr/bin/env node
+
+import './index.js'
+import 'zx/cli'
+
+// script.mjs
+await $.extraFn()
+
+// zx-custom script.mjs
+```
+
 ## License
 
 [Apache-2.0](LICENSE)

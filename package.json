@@ -8,6 +8,7 @@
     ".": "./src/index.mjs",
     "./globals": "./src/globals.mjs",
     "./experimental": "./src/experimental.mjs",
+    "./cli": "./zx.mjs",
     "./package.json": "./package.json"
   },
   "bin": {
