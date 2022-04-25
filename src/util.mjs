@@ -13,3 +13,5 @@
 // limitations under the License.
 
 export const randId = () => Math.random().toString(36).slice(2)
+
+export const isStr = (obj) => typeof obj === 'string'

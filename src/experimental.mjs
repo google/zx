@@ -14,6 +14,7 @@
 
 import {ProcessOutput, $} from './core.mjs'
 import {sleep} from './goods.mjs'
+import {isStr} from './util.mjs'
 
 // Retries a command a few times. Will return after the first
 // successful attempt, or will throw after specifies attempts count.
@@ -40,16 +41,12 @@ export const withTimeout = (timeout, signal) => async (cmd, ...args) => {
 export function echo(pieces, ...args) {
   let msg
   let lastIdx = pieces.length - 1
-  if (Array.isArray(pieces) && pieces.every(isString) && lastIdx === args.length) {
+  if (Array.isArray(pieces) && pieces.every(isStr) && lastIdx === args.length) {
     msg = args.map((a, i) => pieces[i] + stringify(a)).join('') + pieces[lastIdx]
   } else {
     msg = [pieces, ...args].map(stringify).join(' ')
   }
   console.log(msg)
-}
-
-function isString(obj) {
-  return typeof obj === 'string'
 }
 
 function stringify(arg) {

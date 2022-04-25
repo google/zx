@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {als} from './als.mjs'
+import {getCtx} from './als.mjs'
 import {chalk} from './goods.mjs'
 
 export function printCmd(cmd) {
-  if (!als.getStore()?.verbose) return
+  if (!getCtx()?.verbose) return
   if (/\n/.test(cmd)) {
     console.log(cmd
       .split('\n')
@@ -28,7 +28,7 @@ export function printCmd(cmd) {
 }
 
 export function printStd(data, err) {
-  if (!als.getStore()?.verbose) return
+  if (!getCtx()?.verbose) return
   if (data) process.stdout.write(data)
   if (err) process.stderr.write(err)
 }
