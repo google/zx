@@ -15,7 +15,7 @@
 import chalk from 'chalk'
 import {fileURLToPath} from 'node:url'
 import {relative} from 'node:path'
-import {sleep} from '../src/index.mjs'
+import {setTimeout as sleep} from 'node:timers/promises'
 
 export {strict as assert} from 'assert'
 

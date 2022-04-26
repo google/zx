@@ -14,6 +14,7 @@
 
 import * as globbyModule from 'globby'
 import minimist from 'minimist'
+import {setTimeout as sleep} from 'node:timers/promises'
 import { promisify } from 'node:util'
 import psTreeModule from 'ps-tree'
 import nodeFetch from 'node-fetch'
@@ -26,6 +27,7 @@ export { default as which } from 'which'
 export { default as YAML } from 'yaml'
 export { default as path } from 'node:path'
 export { default as os } from 'node:os'
+export { sleep }
 
 export const argv = minimist(process.argv.slice(2))
 
@@ -34,8 +36,6 @@ export const globby = Object.assign(function globby(...args) {
 }, globbyModule)
 
 export const glob = globby
-
-export const sleep = promisify(setTimeout)
 
 export const psTree = promisify(psTreeModule)
 
