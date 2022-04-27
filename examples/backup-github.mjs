@@ -32,7 +32,6 @@ let urls = data.map(x => x.git_url.replace('git://github.com/', 'git@github.com:
 await $`mkdir -p backups`
 cd('./backups')
 
-await urls.reduce(async (m, url, i) => {
-  await m
-  return $`git clone ${url}`
-}, null)
+for (let url of urls) {
+  await $`git clone ${url}`
+}
