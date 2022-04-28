@@ -33,12 +33,13 @@ export function quote(arg) {
 
 export const formatCmd = (pieces, ...args) => {
   let cmd = pieces[0], i = 0
+  let quote = getCtx().quote
   while (i < args.length) {
     let s
     if (Array.isArray(args[i])) {
-      s = args[i].map(x => getCtx().quote(substitute(x))).join(' ')
+      s = args[i].map(x => quote(substitute(x))).join(' ')
     } else {
-      s = getCtx().quote(substitute(args[i]))
+      s = quote(substitute(args[i]))
     }
     cmd += s + pieces[++i]
   }
