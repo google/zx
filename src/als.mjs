@@ -17,7 +17,7 @@ import {AsyncLocalStorage} from 'node:async_hooks'
 let root
 
 export const als = new AsyncLocalStorage()
-export const boundCtx = Symbol('AsyncLocalStorage bound ctx')
+export const boundCtxKey = Symbol('AsyncLocalStorage bound ctx')
 export const getCtx = () => als.getStore()
 export const setRootCtx = (ctx) => { als.enterWith(ctx); root = ctx }
 export const getRootCtx = () => root

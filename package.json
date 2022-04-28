@@ -9,6 +9,7 @@
     "./globals": "./src/globals.mjs",
     "./experimental": "./src/experimental.mjs",
     "./cli": "./zx.mjs",
+    "./core": "./src/core.mjs",
     "./package.json": "./package.json"
   },
   "bin": {

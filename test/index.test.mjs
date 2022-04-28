@@ -18,7 +18,7 @@ import {Writable} from 'node:stream'
 import {Socket} from 'node:net'
 
 import {assert, testFactory} from './test-utils.mjs'
-import {ProcessPromise} from "../src/index.mjs";
+import {ProcessPromise} from '../src/index.mjs'
 
 const test = testFactory('index', import.meta)
 

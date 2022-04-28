@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {boundCtx} from './als.mjs'
+import {boundCtxKey} from './als.mjs'
 
 export function nothrow(promise) {
-  promise[boundCtx].nothrow = true
+  promise[boundCtxKey].nothrow = true
   return promise
 }
 
 export function quiet(promise) {
-  promise[boundCtx].verbose = false
+  promise[boundCtxKey].verbose = false
   return promise
 }

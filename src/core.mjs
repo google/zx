@@ -15,16 +15,18 @@
 import {inspect} from 'node:util'
 import {spawn} from 'node:child_process'
 import {chalk, psTree, which} from './goods.mjs'
-import {boundCtx, getCtx, runInCtx, setRootCtx} from './als.mjs'
+import {boundCtxKey, getCtx, runInCtx, setRootCtx} from './als.mjs'
 import {randId} from './util.mjs'
 import {printStd, printCmd} from './print.mjs'
 import {formatCmd, quote} from './guards.mjs'
+
+export { getCtx, runInCtx, boundCtxKey }
 
 export function $(...args) {
   let resolve, reject
   let promise = new ProcessPromise((...args) => [resolve, reject] = args)
 
-  promise[boundCtx] = {
+  promise[boundCtxKey] = {
     ...getCtx(),
     id:      randId(),
     cmd:     formatCmd(...args),
@@ -122,7 +124,7 @@ export class ProcessPromise extends Promise {
     if (this.child) return // The _run() called from two places: then() and setTimeout().
     if (this._prerun) this._prerun() // In case $1.pipe($2), the $2 returned, and on $2._run() invoke $1._run().
 
-    const ctx = this[boundCtx]
+    const ctx = this[boundCtxKey]
     runInCtx(ctx, () => {
       const {
         nothrow,
