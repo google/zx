@@ -359,6 +359,10 @@ outputs.
 
 Or use a CLI argument `--quiet` to set `$.verbose = false`.
 
+### `$.env`
+
+Specifies env map. Defaults to `process.env`.
+
 ## Polyfills 
 
 ### `__filename` & `__dirname`
@@ -432,6 +436,28 @@ Runs and sets a timeout for a cmd.
 import {withTimeout} from 'zx/experimental'
 
 await withTimeout(100, 'SIGTERM')`sleep 9999`
+```
+
+### `getCtx()` and `runInCtx()`
+
+[async_hooks](https://nodejs.org/api/async_hooks.html) methods to manipulate bound context.
+This object is used by zx inners, so it has a significant impact on the call mechanics. Please use this carefully and wisely.
+
+```js
+import {getCtx, runInCtx} from 'zx/experimental'
+
+runInCtx({ ...getCtx() }, async () => {
+  await sleep(10)
+  cd('/foo')
+  // $.cwd refers to /foo
+  // getCtx().cwd === $.cwd
+})
+
+runInCtx({ ...getCtx() }, async () => {
+  await sleep(20)
+  // $.cwd refers to /foo
+  // but getCtx().cwd !== $.cwd
+})
 ```
 
 ## FAQ

@@ -1,6 +1,4 @@
-#!/usr/bin/env zx
-
-// Copyright 2021 Google LLC
+// Copyright 2022 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-let out = fs.createWriteStream('log.txt') // Record program output to this file.
+export function nothrow(promise) {
+  promise.ctx.nothrow = true
+  return promise
+}
 
-process.stdin.pipe(out) // Record user input as well.
-await $`npm init`.pipe(out) // Process will be interactive.
+export function quiet(promise) {
+  promise.ctx.verbose = false
+  return promise
+}

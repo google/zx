@@ -9,6 +9,7 @@
     "./globals": "./src/globals.mjs",
     "./experimental": "./src/experimental.mjs",
     "./cli": "./zx.mjs",
+    "./core": "./src/core.mjs",
     "./package.json": "./package.json"
   },
   "bin": {
@@ -18,8 +19,10 @@
     "node": ">= 16.0.0"
   },
   "scripts": {
-    "test:cov": "c8 --reporter=html npm run test",
-    "test": "node zx.mjs test/full.test.mjs",
+    "lint": "prettier --single-quote --no-semi --write src test",
+    "test": "npm run lint && npm run test:unit",
+    "test:unit": "node zx.mjs test/full.test.mjs",
+    "test:cov": "c8 --reporter=html npm run test:unit",
     "test:zx": "npm run test zx",
     "test:index": "npm run test index"
   },
@@ -38,7 +41,8 @@
     "yaml": "^2.0.1"
   },
   "devDependencies": {
-    "c8": "^7.11.2"
+    "c8": "^7.11.2",
+    "prettier": "^2.6.2"
   },
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"
