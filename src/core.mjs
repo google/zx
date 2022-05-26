@@ -20,8 +20,7 @@ import { printStd, printCmd } from './print.mjs'
 import { formatCmd, quote } from './guards.mjs'
 import psTreeModule from 'ps-tree'
 
-export { getCtx, runInCtx }
-export const psTree = promisify(psTreeModule)
+const psTree = promisify(psTreeModule)
 
 export function $(...args) {
   let resolve, reject

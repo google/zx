@@ -15,6 +15,9 @@
 import { ProcessOutput, $ } from './core.mjs'
 import { sleep } from './goods.mjs'
 import { isString } from './util.mjs'
+import { getCtx, runInCtx } from './context.mjs'
+
+export { getCtx, runInCtx }
 
 // Retries a command a few times. Will return after the first
 // successful attempt, or will throw after specifies attempts count.
