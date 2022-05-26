@@ -11,15 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-import { Buffer } from 'node:buffer'
-import { randomFillSync } from 'node:crypto'
 
-export const randomId = (function () {
-  const buffer = Buffer.alloc(10)
-  return function () {
-    return randomFillSync(buffer).toString('hex')
-  }
-})()
+export const randomId = function () {
+  return Math.random().toString(36).slice(2)
+}
 
 export function isString(obj) {
   return typeof obj === 'string'
