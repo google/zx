@@ -15,8 +15,6 @@
 import * as globbyModule from 'globby'
 import minimist from 'minimist'
 import { setTimeout as sleep } from 'node:timers/promises'
-import { promisify } from 'node:util'
-import psTreeModule from 'ps-tree'
 import nodeFetch from 'node-fetch'
 import { getCtx, getRootCtx } from './context.mjs'
 import { colorize } from './print.mjs'
@@ -36,8 +34,6 @@ export const globby = Object.assign(function globby(...args) {
 }, globbyModule)
 
 export const glob = globby
-
-export const psTree = promisify(psTreeModule)
 
 export async function fetch(url, init) {
   if (getCtx().verbose) {

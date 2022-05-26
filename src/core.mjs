@@ -12,14 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { inspect } from 'node:util'
+import { inspect, promisify } from 'node:util'
 import { spawn } from 'node:child_process'
-import { chalk, psTree, which } from './goods.mjs'
+import { chalk, which } from './goods.mjs'
 import { getCtx, runInCtx, setRootCtx } from './context.mjs'
 import { printStd, printCmd } from './print.mjs'
 import { formatCmd, quote } from './guards.mjs'
+import psTreeModule from 'ps-tree'
 
 export { getCtx, runInCtx }
+export const psTree = promisify(psTreeModule)
 
 export function $(...args) {
   let resolve, reject
