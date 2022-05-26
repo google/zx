@@ -19,6 +19,7 @@ import { Socket } from 'node:net'
 
 import { assert, testFactory } from './test-utils.mjs'
 import { ProcessPromise } from '../src/index.mjs'
+import { getCtx, runInCtx } from '../src/context.mjs'
 
 const test = testFactory('index', import.meta)
 
@@ -269,21 +270,63 @@ test('The cd() works with relative paths', async () => {
     fs.mkdirpSync('/tmp/zx-cd-test/one/two')
     cd('/tmp/zx-cd-test/one/two')
     let p1 = $`pwd`
+    assert.ok($.cwd.endsWith('/two'))
+    assert.ok(process.cwd().endsWith('/two'))
+
     cd('..')
     let p2 = $`pwd`
+    assert.ok($.cwd.endsWith('/one'))
+    assert.ok(process.cwd().endsWith('/one'))
+
     cd('..')
     let p3 = $`pwd`
+    assert.ok(process.cwd().endsWith('/zx-cd-test'))
+    assert.ok($.cwd.endsWith('/tmp/zx-cd-test'))
 
     let results = (await Promise.all([p1, p2, p3])).map((p) =>
       path.basename(p.stdout.trim())
     )
 
-    assert.ok($.cwd.endsWith('/tmp/zx-cd-test'))
     assert.deepEqual(results, ['two', 'one', 'zx-cd-test'])
+  } catch (e) {
+    assert(!e, e)
   } finally {
     fs.rmSync('/tmp/zx-cd-test', { recursive: true })
     cd(cwd)
     assert.equal($.cwd, cwd)
+  }
+})
+
+test('cd() does not affect parallel contexts', async () => {
+  let cwd = process.cwd()
+  let resolve, reject
+  let promise = new ProcessPromise((...args) => ([resolve, reject] = args))
+
+  try {
+    fs.mkdirpSync('/tmp/zx-cd-parallel')
+    runInCtx({ ...getCtx() }, async () => {
+      assert.equal($.cwd, cwd)
+      await sleep(10)
+      cd('/tmp/zx-cd-parallel')
+      assert.ok(getCtx().cwd.endsWith('/zx-cd-parallel'))
+      assert.ok($.cwd.endsWith('/zx-cd-parallel'))
+    })
+
+    runInCtx({ ...getCtx() }, async () => {
+      assert.equal($.cwd, cwd)
+      assert.equal(getCtx().cwd, cwd)
+      await sleep(20)
+      assert.equal(getCtx().cwd, cwd)
+      assert.ok($.cwd.endsWith('/zx-cd-parallel'))
+      resolve()
+    })
+
+    await promise
+  } catch (e) {
+    assert(!e, e)
+  } finally {
+    fs.rmSync('/tmp/zx-cd-parallel', { recursive: true })
+    cd(cwd)
   }
 })
 

@@ -18,7 +18,7 @@ import { setTimeout as sleep } from 'node:timers/promises'
 import { promisify } from 'node:util'
 import psTreeModule from 'ps-tree'
 import nodeFetch from 'node-fetch'
-import { getCtx, getRootCtx } from './als.mjs'
+import { getCtx, getRootCtx } from './context.mjs'
 import { colorize } from './print.mjs'
 
 export { default as chalk } from 'chalk'

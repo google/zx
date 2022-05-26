@@ -16,18 +16,18 @@ import { AsyncLocalStorage } from 'node:async_hooks'
 
 let root
 
-const als = new AsyncLocalStorage()
+const storage = new AsyncLocalStorage()
 
 export function getCtx() {
-  return als.getStore()
+  return storage.getStore()
 }
 export function setRootCtx(ctx) {
-  als.enterWith(ctx)
+  storage.enterWith(ctx)
   root = ctx
 }
 export function getRootCtx() {
   return root
 }
 export function runInCtx(ctx, cb) {
-  return als.run(ctx, cb)
+  return storage.run(ctx, cb)
 }

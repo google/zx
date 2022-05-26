@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { getCtx } from './als.mjs'
+import { getCtx } from './context.mjs'
 import { chalk } from './goods.mjs'
 
 export function printCmd(cmd) {

@@ -15,7 +15,7 @@
 import { inspect } from 'node:util'
 import { spawn } from 'node:child_process'
 import { chalk, psTree, which } from './goods.mjs'
-import { getCtx, runInCtx, setRootCtx } from './als.mjs'
+import { getCtx, runInCtx, setRootCtx } from './context.mjs'
 import { printStd, printCmd } from './print.mjs'
 import { formatCmd, quote } from './guards.mjs'
 
