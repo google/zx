@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {assert, testFactory} from './test-utils.mjs'
+import { assert, testFactory } from './test-utils.mjs'
 
 const test = testFactory('zx', import.meta)
 
@@ -71,7 +71,10 @@ test('Eval script from https ref', async () => {
 
 test('Scripts with no extension', async () => {
   await $`node zx.mjs test/fixtures/no-extension`
-  assert.match((await fs.readFile('test/fixtures/no-extension.mjs')).toString(), /Test file to verify no-extension didn't overwrite similarly name .mjs file./)
+  assert.match(
+    (await fs.readFile('test/fixtures/no-extension.mjs')).toString(),
+    /Test file to verify no-extension didn't overwrite similarly name .mjs file./
+  )
 })
 
 test('The require() is working from stdin', async () => {

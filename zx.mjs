@@ -21,7 +21,7 @@ import {basename, dirname, extname, join, resolve} from 'node:path'
 import url from 'node:url'
 
 import {$, argv, fetch, ProcessOutput, registerGlobals} from './src/index.mjs'
-import {randId} from './src/util.mjs'
+import {randomId} from './src/util.mjs'
 
 await async function main() {
   registerGlobals()
@@ -81,7 +81,7 @@ async function scriptFromStdin() {
     if (script.length > 0) {
       let filepath = join(
         tmpdir(),
-        randId() + '.mjs'
+        randomId() + '.mjs'
       )
       await fs.mkdtemp(filepath)
       await writeAndImport(script, filepath, join(process.cwd(), 'stdin.mjs'))
@@ -116,7 +116,7 @@ async function importPath(filepath, origin = filepath) {
 
   if (ext === '') {
     let tmpFilename = fs.existsSync(`${filepath}.mjs`) ?
-      `${basename(filepath)}-${randId()}.mjs` :
+      `${basename(filepath)}-${randomId()}.mjs` :
       `${basename(filepath)}.mjs`
 
     return await writeAndImport(

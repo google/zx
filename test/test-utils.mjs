@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import chalk from 'chalk'
-import {fileURLToPath} from 'node:url'
-import {relative} from 'node:path'
-import {setTimeout as sleep} from 'node:timers/promises'
+import { fileURLToPath } from 'node:url'
+import { relative } from 'node:path'
+import { setTimeout as sleep } from 'node:timers/promises'
 
-export {strict as assert} from 'assert'
+export { strict as assert } from 'assert'
 
 let queued = 0
 let passed = 0
@@ -29,7 +29,7 @@ let focused = 0
 const singleThread = (fn) => {
   let p = Promise.resolve()
   return async function (...args) {
-    return (p = p.catch(_ => _).then(() => fn.call(this, ...args)))
+    return (p = p.catch((_) => _).then(() => fn.call(this, ...args)))
   }
 }
 
@@ -42,12 +42,17 @@ const log = (name, group, err, file = '') => {
     console.log(err)
     console.log(file)
   }
-  console.log('\n' + chalk[err ? 'bgRedBright' : 'bgGreenBright'].black(`${chalk.inverse(' ' + group + ' ')} ${name} `))
+  console.log(
+    '\n' +
+      chalk[err ? 'bgRedBright' : 'bgGreenBright'].black(
+        `${chalk.inverse(' ' + group + ' ')} ${name} `
+      )
+  )
 }
 
 export const test = async function (name, cb, ms, focus, skip) {
   const filter = RegExp(process.argv[3] || '.')
-  const {group, meta} = this
+  const { group, meta } = this
   const file = meta ? relative(process.cwd(), fileURLToPath(meta.url)) : ''
 
   if (filter.test(name) || filter.test(group) || filter.test(file)) {
@@ -84,21 +89,25 @@ export const skip = async function (name, cb, ms) {
   return test.call(this, name, cb, ms, false, true)
 }
 
-export const testFactory = (group, meta) => Object.assign(
-  test.bind({group, meta}), {
+export const testFactory = (group, meta) =>
+  Object.assign(test.bind({ group, meta }), {
     test,
     skip,
     only,
     group,
-    meta
+    meta,
   })
 
 export const printTestDigest = () => {
-  console.log('\n' +
-    chalk.black.bgYellowBright(` zx version is ${require('../package.json').version} `) + '\n' +
-    chalk.greenBright(` 🍺 tests passed: ${passed} `) +
-    (skipped ? chalk.yellowBright(`\n 🚧 skipped: ${skipped} `) : '') +
-    (failed ? chalk.redBright(`\n ❌ failed: ${failed} `) : '')
+  console.log(
+    '\n' +
+      chalk.black.bgYellowBright(
+        ` zx version is ${require('../package.json').version} `
+      ) +
+      '\n' +
+      chalk.greenBright(` 🍺 tests passed: ${passed} `) +
+      (skipped ? chalk.yellowBright(`\n 🚧 skipped: ${skipped} `) : '') +
+      (failed ? chalk.redBright(`\n ❌ failed: ${failed} `) : '')
   )
   failed && process.exit(1)
 }

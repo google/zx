@@ -14,12 +14,12 @@
 
 import * as globbyModule from 'globby'
 import minimist from 'minimist'
-import {setTimeout as sleep} from 'node:timers/promises'
+import { setTimeout as sleep } from 'node:timers/promises'
 import { promisify } from 'node:util'
 import psTreeModule from 'ps-tree'
 import nodeFetch from 'node-fetch'
-import {getCtx, getRootCtx} from './als.mjs'
-import {colorize} from './print.mjs'
+import { getCtx, getRootCtx } from './als.mjs'
+import { colorize } from './print.mjs'
 
 export { default as chalk } from 'chalk'
 export { default as fs } from 'fs-extra'

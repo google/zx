@@ -1,24 +1,24 @@
 // Copyright 2021 Google LLC
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //     https://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {inspect} from 'node:util'
+import { inspect } from 'node:util'
 import chalk from 'chalk'
-import {Writable} from 'node:stream'
-import {Socket} from 'node:net'
+import { Writable } from 'node:stream'
+import { Socket } from 'node:net'
 
-import {assert, testFactory} from './test-utils.mjs'
-import {ProcessPromise} from '../src/index.mjs'
+import { assert, testFactory } from './test-utils.mjs'
+import { ProcessPromise } from '../src/index.mjs'
 
 const test = testFactory('index', import.meta)
 
@@ -100,19 +100,17 @@ test('Quiet mode is working', async () => {
 })
 
 test('Pipes are working', async () => {
-  let {stdout} = await $`echo "hello"`
+  let { stdout } = await $`echo "hello"`
     .pipe($`awk '{print $1" world"}'`)
     .pipe($`tr '[a-z]' '[A-Z]'`)
   assert(stdout === 'HELLO WORLD\n')
 
   try {
-    await $`echo foo`
-      .pipe(fs.createWriteStream('/tmp/output.txt'))
+    await $`echo foo`.pipe(fs.createWriteStream('/tmp/output.txt'))
     assert((await fs.readFile('/tmp/output.txt')).toString() === 'foo\n')
 
     let r = $`cat`
-    fs.createReadStream('/tmp/output.txt')
-      .pipe(r.stdin)
+    fs.createReadStream('/tmp/output.txt').pipe(r.stdin)
     assert((await r).stdout === 'foo\n')
   } finally {
     await fs.rm('/tmp/output.txt')
@@ -120,7 +118,7 @@ test('Pipes are working', async () => {
 })
 
 test('question', async () => {
-  let p = question('foo or bar? ', {choices: ['foo', 'bar']})
+  let p = question('foo or bar? ', { choices: ['foo', 'bar'] })
 
   setImmediate(() => {
     process.stdin.emit('data', 'fo')
@@ -137,7 +135,7 @@ test('ProcessPromise', async () => {
     write: function (chunk, encoding, next) {
       contents += chunk.toString()
       next()
-    }
+    },
   })
   let p = $`echo 'test'`.pipe(stream)
   await p
@@ -151,15 +149,18 @@ test('ProcessPromise', async () => {
   } catch (p) {
     err = p
   }
-  assert.equal(err.message, 'The pipe() method does not take strings. Forgot $?')
+  assert.equal(
+    err.message,
+    'The pipe() method does not take strings. Forgot $?'
+  )
 })
 
 test('ProcessPromise: inherits native Promise', async () => {
   const p1 = $`echo 1`
-  const p2 = p1.then(v => v)
-  const p3 = p2.then(v => v)
-  const p4 = p3.catch(v => v)
-  const p5 = p1.finally(v => v)
+  const p2 = p1.then((v) => v)
+  const p3 = p2.then((v) => v)
+  const p4 = p3.catch((v) => v)
+  const p5 = p1.finally((v) => v)
 
   assert.ok(p1 instanceof Promise)
   assert.ok(p1 instanceof ProcessPromise)
@@ -186,12 +187,16 @@ test('ProcessOutput thrown as error', async () => {
 })
 
 test('The pipe() throws if already resolved', async () => {
-  let out, p = $`echo "Hello"`
+  let out,
+    p = $`echo "Hello"`
   await p
   try {
     out = await p.pipe($`less`)
   } catch (err) {
-    assert.equal(err.message, `The pipe() method shouldn't be called after promise is already resolved!`)
+    assert.equal(
+      err.message,
+      `The pipe() method shouldn't be called after promise is already resolved!`
+    )
   }
   if (out) {
     assert.fail('Expected failure!')
@@ -199,12 +204,12 @@ test('The pipe() throws if already resolved', async () => {
 })
 
 test('ProcessOutput::exitCode do not throw', async () => {
-  assert(await $`grep qwerty README.md`.exitCode !== 0)
-  assert(await $`[[ -f ${__filename} ]]`.exitCode === 0)
+  assert((await $`grep qwerty README.md`.exitCode) !== 0)
+  assert((await $`[[ -f ${__filename} ]]`.exitCode) === 0)
 })
 
 test('The nothrow() do not throw', async () => {
-  let {exitCode} = await nothrow($`exit 42`)
+  let { exitCode } = await nothrow($`exit 42`)
   assert(exitCode === 42)
 })
 
@@ -222,14 +227,14 @@ test('globby available', async () => {
   assert(await globby('test/fixtures/*'), [
     'test/fixtures/interactive.mjs',
     'test/fixtures/no-extension',
-    'test/fixtures/no-extension.mjs'
+    'test/fixtures/no-extension.mjs',
   ])
 })
 
 test('fetch', async () => {
   assert(
     await fetch('https://example.com'),
-    await fetch('https://example.com', {method: 'GET'})
+    await fetch('https://example.com', { method: 'GET' })
   )
 })
 
@@ -240,16 +245,16 @@ test('Executes a script from $PATH', async () => {
   const envPathSeparator = isWindows ? ';' : ':'
   process.env.PATH += envPathSeparator + path.resolve('/tmp/')
 
-  const toPOSIXPath = (_path) =>
-    _path.split(path.sep).join(path.posix.sep)
+  const toPOSIXPath = (_path) => _path.split(path.sep).join(path.posix.sep)
 
   const zxPath = path.resolve('./zx.mjs')
   const zxLocation = isWindows ? toPOSIXPath(zxPath) : zxPath
   const scriptCode = `#!/usr/bin/env ${zxLocation}\nconsole.log('The script from path runs.')`
 
   try {
-    await $`echo ${scriptCode}`
-      .pipe(fs.createWriteStream('/tmp/script-from-path', {mode: 0o744}))
+    await $`echo ${scriptCode}`.pipe(
+      fs.createWriteStream('/tmp/script-from-path', { mode: 0o744 })
+    )
     await $`script-from-path`
   } finally {
     process.env.PATH = oldPath
@@ -269,13 +274,14 @@ test('The cd() works with relative paths', async () => {
     cd('..')
     let p3 = $`pwd`
 
-    let results = (await Promise.all([p1, p2, p3]))
-      .map(p => path.basename(p.stdout.trim()))
+    let results = (await Promise.all([p1, p2, p3])).map((p) =>
+      path.basename(p.stdout.trim())
+    )
 
     assert.ok($.cwd.endsWith('/tmp/zx-cd-test'))
     assert.deepEqual(results, ['two', 'one', 'zx-cd-test'])
   } finally {
-    fs.rmSync('/tmp/zx-cd-test', {recursive: true})
+    fs.rmSync('/tmp/zx-cd-test', { recursive: true })
     cd(cwd)
     assert.equal($.cwd, cwd)
   }
@@ -302,7 +308,7 @@ test('The signal is passed with kill() method', async () => {
 })
 
 test('YAML works', async () => {
-  assert.deepEqual(YAML.parse(YAML.stringify({foo: 'bar'})), {foo: 'bar'})
+  assert.deepEqual(YAML.parse(YAML.stringify({ foo: 'bar' })), { foo: 'bar' })
   console.log(chalk.greenBright('YAML works'))
 })
 

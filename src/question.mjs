@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {createInterface} from 'node:readline'
+import { createInterface } from 'node:readline'
 
 export async function question(query, options) {
   let completer = undefined
@@ -30,8 +30,10 @@ export async function question(query, options) {
     completer,
   })
 
-  return new Promise((resolve) => rl.question(query ?? '', (answer) => {
-    rl.close()
-    resolve(answer)
-  }))
+  return new Promise((resolve) =>
+    rl.question(query ?? '', (answer) => {
+      rl.close()
+      resolve(answer)
+    })
+  )
 }

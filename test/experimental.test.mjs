@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {echo, retry, startSpinner, withTimeout} from '../src/experimental.mjs'
-import {assert, testFactory} from './test-utils.mjs'
+import { echo, retry, startSpinner, withTimeout } from '../src/experimental.mjs'
+import { assert, testFactory } from './test-utils.mjs'
 import chalk from 'chalk'
 
 const test = testFactory('experimental', import.meta)
@@ -49,7 +49,11 @@ test('withTimeout works', async () => {
 test('echo works', async () => {
   echo(chalk.red('foo'), chalk.green('bar'), chalk.bold('baz'))
   echo`${chalk.red('foo')} ${chalk.green('bar')} ${chalk.bold('baz')}`
-  echo(await $`echo ${chalk.red('foo')}`, await $`echo ${chalk.green('bar')}`, await $`echo ${chalk.bold('baz')}`)
+  echo(
+    await $`echo ${chalk.red('foo')}`,
+    await $`echo ${chalk.green('bar')}`,
+    await $`echo ${chalk.bold('baz')}`
+  )
 })
 
 test('spinner works', async () => {

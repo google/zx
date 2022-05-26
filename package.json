@@ -22,7 +22,8 @@
     "test:cov": "c8 --reporter=html npm run test",
     "test": "node zx.mjs test/full.test.mjs",
     "test:zx": "npm run test zx",
-    "test:index": "npm run test index"
+    "test:index": "npm run test index",
+    "hooks-upd": "simple-git-hooks"
   },
   "dependencies": {
     "@types/fs-extra": "^9.0.13",
@@ -39,7 +40,11 @@
     "yaml": "^2.0.1"
   },
   "devDependencies": {
-    "c8": "^7.11.2"
+    "c8": "^7.11.2",
+    "simple-git-hooks": "^2.7.0"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx prettier --single-quote --no-semi --write src test"
   },
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"

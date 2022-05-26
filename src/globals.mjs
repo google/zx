@@ -1,3 +1,3 @@
-import {registerGlobals} from './index.mjs'
+import { registerGlobals } from './index.mjs'
 
 registerGlobals()

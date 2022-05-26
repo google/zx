@@ -12,27 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {inspect} from 'node:util'
-import {spawn} from 'node:child_process'
-import {chalk, psTree, which} from './goods.mjs'
-import {boundCtxKey, getCtx, runInCtx, setRootCtx} from './als.mjs'
-import {randId} from './util.mjs'
-import {printStd, printCmd} from './print.mjs'
-import {formatCmd, quote} from './guards.mjs'
+import { inspect } from 'node:util'
+import { spawn } from 'node:child_process'
+import { chalk, psTree, which } from './goods.mjs'
+import { getCtx, runInCtx, setRootCtx } from './als.mjs'
+import { printStd, printCmd } from './print.mjs'
+import { formatCmd, quote } from './guards.mjs'
 
-export { getCtx, runInCtx, boundCtxKey }
+export { getCtx, runInCtx }
 
 export function $(...args) {
   let resolve, reject
-  let promise = new ProcessPromise((...args) => [resolve, reject] = args)
+  let promise = new ProcessPromise((...args) => ([resolve, reject] = args))
 
-  promise[boundCtxKey] = {
+  promise.ctx = {
     ...getCtx(),
-    id:      randId(),
-    cmd:     formatCmd(...args),
-    __from:   (new Error().stack.split(/^\s*at\s/m)[2]).trim(),
+    cmd: formatCmd(...args),
+    __from: new Error().stack.split(/^\s*at\s/m)[2].trim(),
     resolve,
-    reject
+    reject,
   }
 
   setImmediate(() => promise._run()) // Make sure all subprocesses are started, if not explicitly by await or then().
@@ -52,8 +50,7 @@ $.prefix = '' // Bash not found, no prefix.
 try {
   $.shell = which.sync('bash')
   $.prefix = 'set -euo pipefail;'
-} catch (e) {
-}
+} catch (e) {}
 
 export class ProcessPromise extends Promise {
   child = undefined
@@ -82,8 +79,10 @@ export class ProcessPromise extends Promise {
   }
 
   get exitCode() {
-    return this
-      .then(p => p.exitCode, p => p.exitCode)
+    return this.then(
+      (p) => p.exitCode,
+      (p) => p.exitCode
+    )
   }
 
   pipe(dest) {
@@ -91,7 +90,9 @@ export class ProcessPromise extends Promise {
       throw new Error('The pipe() method does not take strings. Forgot $?')
     }
     if (this._resolved === true) {
-      throw new Error('The pipe() method shouldn\'t be called after promise is already resolved!')
+      throw new Error(
+        "The pipe() method shouldn't be called after promise is already resolved!"
+      )
     }
     this._piped = true
     if (dest instanceof ProcessPromise) {
@@ -106,25 +107,23 @@ export class ProcessPromise extends Promise {
   }
 
   async kill(signal = 'SIGTERM') {
-    this.catch(_ => _)
+    this.catch((_) => _)
     let children = await psTree(this.child.pid)
     for (const p of children) {
       try {
         process.kill(p.PID, signal)
-      } catch (e) {
-      }
+      } catch (e) {}
     }
     try {
       process.kill(this.child.pid, signal)
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   _run() {
     if (this.child) return // The _run() called from two places: then() and setTimeout().
     if (this._prerun) this._prerun() // In case $1.pipe($2), the $2 returned, and on $2._run() invoke $1._run().
 
-    const ctx = this[boundCtxKey]
+    const ctx = this.ctx
     runInCtx(ctx, () => {
       const {
         nothrow,
@@ -136,7 +135,7 @@ export class ProcessPromise extends Promise {
         maxBuffer,
         __from,
         resolve,
-        reject
+        reject,
       } = ctx
 
       printCmd(cmd)
@@ -147,13 +146,14 @@ export class ProcessPromise extends Promise {
         stdio: [this._inheritStdin ? 'inherit' : 'pipe', 'pipe', 'pipe'],
         windowsHide: true,
         maxBuffer,
-        env
+        env,
       })
 
       child.on('close', (code, signal) => {
-
         let message = `${stderr || '\n'}    at ${__from}`
-        message += `\n    exit code: ${code}${exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : ''}`
+        message += `\n    exit code: ${code}${
+          exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : ''
+        }`
         if (signal !== null) {
           message += `\n    signal: ${signal}`
         }
@@ -164,18 +164,20 @@ export class ProcessPromise extends Promise {
           stderr,
           combined,
           message,
-        });
-        (code === 0 || nothrow ? resolve : reject)(output)
+        })
+        ;(code === 0 || nothrow ? resolve : reject)(output)
         this._resolved = true
       })
 
-      let stdout = '', stderr = '', combined = ''
-      let onStdout = data => {
+      let stdout = '',
+        stderr = '',
+        combined = ''
+      let onStdout = (data) => {
         printStd(data)
         stdout += data
         combined += data
       }
-      let onStderr = data => {
+      let onStderr = (data) => {
         printStd(null, data)
         stderr += data
         combined += data
@@ -195,7 +197,7 @@ export class ProcessOutput extends Error {
   #stderr = ''
   #combined = ''
 
-  constructor({code, signal, stdout, stderr, combined, message}) {
+  constructor({ code, signal, stdout, stderr, combined, message }) {
     super(message)
     this.#code = code
     this.#signal = signal
@@ -225,12 +227,16 @@ export class ProcessOutput extends Error {
   }
 
   [inspect.custom]() {
-    let stringify = (s, c) => s.length === 0 ? '\'\'' : c(inspect(s))
+    let stringify = (s, c) => (s.length === 0 ? "''" : c(inspect(s)))
     return `ProcessOutput {
   stdout: ${stringify(this.stdout, chalk.green)},
   stderr: ${stringify(this.stderr, chalk.red)},
   signal: ${inspect(this.signal)},
-  exitCode: ${(this.exitCode === 0 ? chalk.green : chalk.red)(this.exitCode)}${(exitCodeInfo(this.exitCode) ? chalk.grey(' (' + exitCodeInfo(this.exitCode) + ')') : '')}
+  exitCode: ${(this.exitCode === 0 ? chalk.green : chalk.red)(this.exitCode)}${
+      exitCodeInfo(this.exitCode)
+        ? chalk.grey(' (' + exitCodeInfo(this.exitCode) + ')')
+        : ''
+    }
 }`
   }
 }
