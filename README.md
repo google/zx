@@ -525,7 +525,7 @@ node --loader ts-node/esm script.ts
 ```
 
 You must set [`"type": "module"`](https://nodejs.org/api/packages.html#packages_type) 
-in `package.json` and [`"module": "ESNext"`](https://www.typescriptlang.org/tsconfig/#module) 
+in `package.json` and [`"module": "ESNext"`](https://www.typescriptlang.org/tsconfig/#module), `"moduleResolution": "node"`
 in `tsconfig.json`.
 
 ```json
@@ -537,7 +537,8 @@ in `tsconfig.json`.
 ```json
 {
   "compilerOptions": {
-    "module": "ESNext"
+    "module": "ESNext",
+    "moduleResolution": "node"
   }
 }
 ```
