@@ -19,8 +19,8 @@
     "node": ">= 16.0.0"
   },
   "scripts": {
-    "lint": "prettier --single-quote --no-semi --write src test",
-    "test": "npm run lint && npm run test:unit",
+    "fmt": "prettier --write .",
+    "test": "npm run test:unit",
     "test:unit": "node zx.mjs test/full.test.mjs",
     "test:cov": "c8 --reporter=html npm run test:unit",
     "test:zx": "npm run test zx",
@@ -52,6 +52,10 @@
     "*.mjs",
     "*.d.ts"
   ],
+  "prettier": {
+    "semi": false,
+    "singleQuote": true
+  },
   "repository": "google/zx",
   "author": "Anton Medvedev <anton@medv.io>",
   "license": "Apache-2.0"

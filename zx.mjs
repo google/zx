@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
 // Copyright 2021 Google LLC
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //     https://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,15 +15,15 @@
 // limitations under the License.
 
 import fs from 'fs-extra'
-import {createRequire} from 'node:module'
-import {tmpdir} from 'node:os'
-import {basename, dirname, extname, join, resolve} from 'node:path'
+import { createRequire } from 'node:module'
+import { tmpdir } from 'node:os'
+import { basename, dirname, extname, join, resolve } from 'node:path'
 import url from 'node:url'
 
-import {$, argv, fetch, ProcessOutput, registerGlobals} from './src/index.mjs'
-import {randomId} from './src/util.mjs'
+import { $, argv, fetch, ProcessOutput, registerGlobals } from './src/index.mjs'
+import { randomId } from './src/util.mjs'
 
-await async function main() {
+await (async function main() {
   registerGlobals()
   $.verbose = !argv.quiet
   if (typeof argv.shell === 'string') {
@@ -38,16 +38,19 @@ await async function main() {
   try {
     if (['--version', '-v', '-V'].includes(process.argv[2])) {
       console.log(createRequire(import.meta.url)('./package.json').version)
-      return process.exitCode = 0
+      return (process.exitCode = 0)
     }
-    let firstArg = process.argv.slice(2).find(a => !a.startsWith('--'))
+    let firstArg = process.argv.slice(2).find((a) => !a.startsWith('--'))
     if (typeof firstArg === 'undefined' || firstArg === '-') {
       let ok = await scriptFromStdin()
       if (!ok) {
         printUsage()
-        return process.exitCode = 2
+        return (process.exitCode = 2)
       }
-    } else if (firstArg.startsWith('http://') || firstArg.startsWith('https://')) {
+    } else if (
+      firstArg.startsWith('http://') ||
+      firstArg.startsWith('https://')
+    ) {
       await scriptFromHttp(firstArg)
     } else {
       let filepath
@@ -63,12 +66,12 @@ await async function main() {
   } catch (p) {
     if (p instanceof ProcessOutput) {
       console.error('Error: ' + p.message)
-      return process.exitCode = 1
+      return (process.exitCode = 1)
     } else {
       throw p
     }
   }
-}()
+})()
 
 async function scriptFromStdin() {
   let script = ''
@@ -79,10 +82,7 @@ async function scriptFromStdin() {
     }
 
     if (script.length > 0) {
-      let filepath = join(
-        tmpdir(),
-        randomId() + '.mjs'
-      )
+      let filepath = join(tmpdir(), randomId() + '.mjs')
       await fs.mkdtemp(filepath)
       await writeAndImport(script, filepath, join(process.cwd(), 'stdin.mjs'))
       return true
@@ -101,7 +101,11 @@ async function scriptFromHttp(remote) {
   let filename = new URL(remote).pathname
   let filepath = join(tmpdir(), basename(filename))
   await fs.mkdtemp(filepath)
-  await writeAndImport(script, filepath, join(process.cwd(), basename(filename)))
+  await writeAndImport(
+    script,
+    filepath,
+    join(process.cwd(), basename(filename))
+  )
 }
 
 async function writeAndImport(script, filepath, origin = filepath) {
@@ -115,27 +119,27 @@ async function importPath(filepath, origin = filepath) {
   let ext = extname(filepath)
 
   if (ext === '') {
-    let tmpFilename = fs.existsSync(`${filepath}.mjs`) ?
-      `${basename(filepath)}-${randomId()}.mjs` :
-      `${basename(filepath)}.mjs`
+    let tmpFilename = fs.existsSync(`${filepath}.mjs`)
+      ? `${basename(filepath)}-${randomId()}.mjs`
+      : `${basename(filepath)}.mjs`
 
     return await writeAndImport(
       await fs.readFile(filepath),
       join(dirname(filepath), tmpFilename),
-      origin,
+      origin
     )
   }
   if (ext === '.md') {
     return await writeAndImport(
       transformMarkdown((await fs.readFile(filepath)).toString()),
       join(dirname(filepath), basename(filepath) + '.mjs'),
-      origin,
+      origin
     )
   }
   let __filename = resolve(origin)
   let __dirname = dirname(__filename)
   let require = createRequire(origin)
-  Object.assign(global, {__filename, __dirname, require})
+  Object.assign(global, { __filename, __dirname, require })
   await import(url.pathToFileURL(filepath))
 }
 
