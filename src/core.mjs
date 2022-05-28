@@ -124,8 +124,7 @@ export class ProcessPromise extends Promise {
     if (this.child) return // The _run() called from two places: then() and setTimeout().
     if (this._prerun) this._prerun() // In case $1.pipe($2), the $2 returned, and on $2._run() invoke $1._run().
 
-    const ctx = this.ctx
-    runInCtx(ctx, () => {
+    runInCtx(this.ctx, () => {
       const {
         nothrow,
         cmd,
@@ -137,7 +136,7 @@ export class ProcessPromise extends Promise {
         __from,
         resolve,
         reject,
-      } = ctx
+      } = this.ctx
 
       printCmd(cmd)
 
