@@ -23,7 +23,7 @@ declare module 'zx' {
   import * as _yaml from 'yaml'
   import _fetch from 'node-fetch'
   import { ParsedArgs } from 'minimist'
-  import * as _which from 'which'
+  import _which from 'which'
 
   export interface ZxTemplate {
     (
