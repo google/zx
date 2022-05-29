@@ -219,8 +219,11 @@ test('globby available', async (t) => {
   t.deepEqual(await globby('*.md'), ['README.md'])
 })
 
-test('fetch', async t => {
-  t.regex(await fetch('https://medv.io').then(res => res.text()), /Anton Medvedev/)
+test('fetch', async (t) => {
+  t.regex(
+    await fetch('https://medv.io').then((res) => res.text()),
+    /Anton Medvedev/
+  )
 })
 
 test('Executes a script from $PATH', async (t) => {

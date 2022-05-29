@@ -20,18 +20,11 @@ import { tmpdir } from 'node:os'
 import { basename, dirname, extname, join, resolve } from 'node:path'
 import url from 'node:url'
 
-import {
-  $,
-  argv,
-  fetch,
-  ProcessOutput,
-  registerGlobals,
-  chalk,
-} from './index.js'
+import { $, argv, fetch, ProcessOutput, chalk } from './index.js'
 import { randomId } from './util.js'
+import './globals.js'
 
 await (async function main() {
-  registerGlobals()
   $.verbose = !argv.quiet
   if (typeof argv.shell === 'string') {
     $.shell = argv.shell

@@ -50,24 +50,3 @@ export {
   which,
   YAML,
 }
-
-export function registerGlobals() {
-  Object.assign(global, {
-    $,
-    argv,
-    cd,
-    chalk,
-    fetch,
-    fs,
-    glob,
-    globby,
-    nothrow,
-    os,
-    path,
-    question,
-    quiet,
-    sleep,
-    which,
-    YAML,
-  })
-}

@@ -4,7 +4,7 @@
   "description": "A tool for writing better scripts.",
   "type": "module",
   "main": "build/index.js",
-  "types": "src/index.d.ts",
+  "types": "build/index.d.ts",
   "exports": {
     ".": "./build/index.js",
     "./globals": "./build/globals.js",
