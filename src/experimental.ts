@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { ProcessOutput, $ } from './core.mjs'
-import { sleep } from './goods.mjs'
-import { isString } from './util.mjs'
-import { getCtx, runInCtx } from './context.mjs'
+import { ProcessOutput, $ } from './core.js'
+import { sleep } from './goods.js'
+import { isString } from './util.js'
+import { getCtx, runInCtx } from './context.js'
 
 export { getCtx, runInCtx }
 
 // Retries a command a few times. Will return after the first
 // successful attempt, or will throw after specifies attempts count.
 export function retry(count = 5, delay = 0) {
-  return async function (cmd, ...args) {
+  return async function (cmd: TemplateStringsArray, ...args: any[]) {
     while (count-- > 0)
       try {
         return await $(cmd, ...args)
@@ -30,12 +30,13 @@ export function retry(count = 5, delay = 0) {
         if (count === 0) throw p
         if (delay) await sleep(delay)
       }
+    return
   }
 }
 
 // Runs and sets a timeout for a cmd
-export function withTimeout(timeout, signal) {
-  return async function (cmd, ...args) {
+export function withTimeout(timeout: number, signal: string) {
+  return async function (cmd: TemplateStringsArray, ...args: any[]) {
     let p = $(cmd, ...args)
     if (!timeout) return p
 
@@ -46,7 +47,7 @@ export function withTimeout(timeout, signal) {
 }
 
 // A console.log() alternative which can take ProcessOutput.
-export function echo(pieces, ...args) {
+export function echo(pieces: TemplateStringsArray, ...args: any[]) {
   let msg
   let lastIdx = pieces.length - 1
   if (
@@ -62,7 +63,7 @@ export function echo(pieces, ...args) {
   console.log(msg)
 }
 
-function stringify(arg) {
+function stringify(arg: ProcessOutput | any) {
   if (arg instanceof ProcessOutput) {
     return arg.toString().replace(/\n$/, '')
   }

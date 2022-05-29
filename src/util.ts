@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import './zx.test.mjs'
-import './index.test.mjs'
-import './experimental.test.mjs'
+export function randomId() {
+  return Math.random().toString(36).slice(2)
+}
+
+export function isString(obj: any) {
+  return typeof obj === 'string'
+}

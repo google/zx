@@ -17,9 +17,9 @@ import chalk from 'chalk'
 import { Writable } from 'node:stream'
 import { Socket } from 'node:net'
 
-import { assert, testFactory } from './test-utils.mjs'
-import { ProcessPromise } from '../src/index.mjs'
-import { getCtx, runInCtx } from '../src/context.mjs'
+import { assert, testFactory } from './test-utils.js'
+import { ProcessPromise } from '../build/index.js'
+import { getCtx, runInCtx } from '../build/context.js'
 
 const test = testFactory('index', import.meta)
 
@@ -82,7 +82,7 @@ test('The toString() is called on arguments', async () => {
 
 test('Can use array as an argument', async () => {
   try {
-    let files = ['./zx.mjs', './test/index.test.mjs']
+    let files = ['./zx.js', './test/index.test.js']
     await $`tar czf archive ${files}`
   } finally {
     await $`rm archive`
@@ -248,7 +248,7 @@ test('Executes a script from $PATH', async () => {
 
   const toPOSIXPath = (_path) => _path.split(path.sep).join(path.posix.sep)
 
-  const zxPath = path.resolve('./zx.mjs')
+  const zxPath = path.resolve('./zx.js')
   const zxLocation = isWindows ? toPOSIXPath(zxPath) : zxPath
   const scriptCode = `#!/usr/bin/env ${zxLocation}\nconsole.log('The script from path runs.')`
 

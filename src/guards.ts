@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { getCtx } from './context.mjs'
+import { getCtx } from './context.js'
+import { ProcessPromise } from './core.js'
 
-export function quote(arg) {
+export function quote(arg: string) {
   if (/^[a-z0-9/_.-]+$/i.test(arg) || arg === '') {
     return arg
   }
@@ -33,24 +34,7 @@ export function quote(arg) {
   )
 }
 
-export function formatCmd(pieces, ...args) {
-  let cmd = pieces[0],
-    i = 0
-  let quote = getCtx().quote
-  while (i < args.length) {
-    let s
-    if (Array.isArray(args[i])) {
-      s = args[i].map((x) => quote(substitute(x))).join(' ')
-    } else {
-      s = quote(substitute(args[i]))
-    }
-    cmd += s + pieces[++i]
-  }
-
-  return cmd
-}
-
-function substitute(arg) {
+export function substitute(arg: ProcessPromise | any) {
   if (arg?.stdout) {
     return arg.stdout.replace(/\n$/, '')
   }

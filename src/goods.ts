@@ -15,9 +15,9 @@
 import * as globbyModule from 'globby'
 import minimist from 'minimist'
 import { setTimeout as sleep } from 'node:timers/promises'
-import nodeFetch from 'node-fetch'
-import { getCtx, getRootCtx } from './context.mjs'
-import { colorize } from './print.mjs'
+import nodeFetch, { RequestInfo, RequestInit } from 'node-fetch'
+import { getCtx, getRootCtx } from './context.js'
+import { colorize } from './print.js'
 
 export { default as chalk } from 'chalk'
 export { default as fs } from 'fs-extra'
@@ -29,13 +29,17 @@ export { sleep }
 
 export const argv = minimist(process.argv.slice(2))
 
-export const globby = Object.assign(function globby(...args) {
-  return globbyModule.globby(...args)
-}, globbyModule)
+export const globby = Object.assign(function globby(
+  patterns: string | readonly string[],
+  options?: globbyModule.Options
+) {
+  return globbyModule.globby(patterns, options)
+},
+globbyModule)
 
 export const glob = globby
 
-export async function fetch(url, init) {
+export async function fetch(url: RequestInfo, init?: RequestInit) {
   if (getCtx().verbose) {
     if (typeof init !== 'undefined') {
       console.log('$', colorize(`fetch ${url}`), init)
@@ -46,7 +50,7 @@ export async function fetch(url, init) {
   return nodeFetch(url, init)
 }
 
-export function cd(path) {
+export function cd(path: string) {
   if (getCtx().verbose) console.log('$', colorize(`cd ${path}`))
   process.chdir(path)
   getRootCtx().cwd = getCtx().cwd = process.cwd()

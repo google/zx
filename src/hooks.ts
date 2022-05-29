@@ -12,22 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { AsyncLocalStorage } from 'node:async_hooks'
+import { ProcessPromise } from './core.js'
 
-let root
+export function nothrow(promise: ProcessPromise) {
+  promise.ctx!.nothrow = true
+  return promise
+}
 
-const storage = new AsyncLocalStorage()
-
-export function getCtx() {
-  return storage.getStore()
-}
-export function setRootCtx(ctx) {
-  storage.enterWith(ctx)
-  root = ctx
-}
-export function getRootCtx() {
-  return root
-}
-export function runInCtx(ctx, cb) {
-  return storage.run(ctx, cb)
+export function quiet(promise: ProcessPromise) {
+  promise.ctx!.verbose = false
+  return promise
 }

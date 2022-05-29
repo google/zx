@@ -12,24 +12,44 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { ChalkInstance } from 'chalk'
+import {
+  ChildProcessByStdio,
+  SpawnOptionsWithStdioTuple,
+  StdioPipe,
+} from 'child_process'
+import { Readable, Writable } from 'node:stream'
 import { inspect, promisify } from 'node:util'
 import { spawn } from 'node:child_process'
-import { chalk, which } from './goods.mjs'
-import { getCtx, runInCtx, setRootCtx } from './context.mjs'
-import { printStd, printCmd } from './print.mjs'
-import { formatCmd, quote } from './guards.mjs'
+import { chalk, which } from './goods.js'
+import { getCtx, runInCtx, setRootCtx } from './context.js'
+import { printStd, printCmd } from './print.js'
+import { quote, substitute } from './guards.js'
 import psTreeModule from 'ps-tree'
 
 const psTree = promisify(psTreeModule)
 
-export function $(...args) {
+export function $(pieces: TemplateStringsArray, ...args: any[]) {
   let resolve, reject
   let promise = new ProcessPromise((...args) => ([resolve, reject] = args))
 
+  let cmd = pieces[0],
+    i = 0
+  let quote = getCtx().quote
+  while (i < args.length) {
+    let s
+    if (Array.isArray(args[i])) {
+      s = args[i].map((x: any) => quote(substitute(x))).join(' ')
+    } else {
+      s = quote(substitute(args[i]))
+    }
+    cmd += s + pieces[++i]
+  }
+
   promise.ctx = {
     ...getCtx(),
-    cmd: formatCmd(...args),
-    __from: new Error().stack.split(/^\s*at\s/m)[2].trim(),
+    cmd,
+    __from: new Error().stack!.split(/^\s*at\s/m)[2].trim(),
     resolve,
     reject,
   }
@@ -53,29 +73,50 @@ try {
   $.prefix = 'set -euo pipefail;'
 } catch (e) {}
 
-export class ProcessPromise extends Promise {
-  child = undefined
+type Options = {
+  nothrow: boolean
+  verbose: boolean
+  cmd: string
+  cwd: string
+  env: NodeJS.ProcessEnv
+  prefix: string
+  shell: string
+  maxBuffer: number
+  __from: string
+  resolve: any
+  reject: any
+}
+
+export class ProcessPromise extends Promise<ProcessOutput> {
+  child?: ChildProcessByStdio<Writable, Readable, Readable>
   _resolved = false
   _inheritStdin = true
   _piped = false
-  _prerun = undefined
-  _postrun = undefined
+  _prerun: any = undefined
+  _postrun: any = undefined
+  ctx?: Options
 
   get stdin() {
     this._inheritStdin = false
     this._run()
+    if (!this.child)
+      throw new Error('Access to stdin without creation a subprocess.')
     return this.child.stdin
   }
 
   get stdout() {
     this._inheritStdin = false
     this._run()
+    if (!this.child)
+      throw new Error('Access to stdout without creation a subprocess.')
     return this.child.stdout
   }
 
   get stderr() {
     this._inheritStdin = false
     this._run()
+    if (!this.child)
+      throw new Error('Access to stderr without creation a subprocess.')
     return this.child.stderr
   }
 
@@ -86,11 +127,11 @@ export class ProcessPromise extends Promise {
     )
   }
 
-  pipe(dest) {
+  pipe(dest: Writable | ProcessPromise | string) {
     if (typeof dest === 'string') {
       throw new Error('The pipe() method does not take strings. Forgot $?')
     }
-    if (this._resolved === true) {
+    if (this._resolved) {
       throw new Error(
         "The pipe() method shouldn't be called after promise is already resolved!"
       )
@@ -99,7 +140,13 @@ export class ProcessPromise extends Promise {
     if (dest instanceof ProcessPromise) {
       dest._inheritStdin = false
       dest._prerun = this._run.bind(this)
-      dest._postrun = () => this.stdout.pipe(dest.child.stdin)
+      dest._postrun = () => {
+        if (!dest.child)
+          throw new Error(
+            'Access to stdin of pipe destination without creation a subprocess.'
+          )
+        this.stdout.pipe(dest.child.stdin)
+      }
       return dest
     } else {
       this._postrun = () => this.stdout.pipe(dest)
@@ -109,10 +156,13 @@ export class ProcessPromise extends Promise {
 
   async kill(signal = 'SIGTERM') {
     this.catch((_) => _)
+    if (!this.child)
+      throw new Error('Trying to kill child process without creating one.')
+    if (!this.child.pid) throw new Error('Child process pid is undefined.')
     let children = await psTree(this.child.pid)
     for (const p of children) {
       try {
-        process.kill(p.PID, signal)
+        process.kill(+p.PID, signal)
       } catch (e) {}
     }
     try {
@@ -136,18 +186,23 @@ export class ProcessPromise extends Promise {
         __from,
         resolve,
         reject,
-      } = this.ctx
+      } = this.ctx!
 
       printCmd(cmd)
 
-      let child = spawn(prefix + cmd, {
+      let options: SpawnOptionsWithStdioTuple<any, StdioPipe, StdioPipe> = {
         cwd,
         shell: typeof shell === 'string' ? shell : true,
         stdio: [this._inheritStdin ? 'inherit' : 'pipe', 'pipe', 'pipe'],
         windowsHide: true,
-        maxBuffer,
+        // TODO: Surprise: maxBuffer have no effect for spawn.
+        // maxBuffer,
         env,
-      })
+      }
+      let child: ChildProcessByStdio<Writable, Readable, Readable> = spawn(
+        prefix + cmd,
+        options
+      )
 
       child.on('close', (code, signal) => {
         let message = `${stderr || '\n'}    at ${__from}`
@@ -172,12 +227,12 @@ export class ProcessPromise extends Promise {
       let stdout = '',
         stderr = '',
         combined = ''
-      let onStdout = (data) => {
+      let onStdout = (data: any) => {
         printStd(data)
         stdout += data
         combined += data
       }
-      let onStderr = (data) => {
+      let onStderr = (data: any) => {
         printStd(null, data)
         stderr += data
         combined += data
@@ -191,13 +246,27 @@ export class ProcessPromise extends Promise {
 }
 
 export class ProcessOutput extends Error {
-  #code = null
-  #signal = null
+  #code: number | null = null
+  #signal: NodeJS.Signals | null = null
   #stdout = ''
   #stderr = ''
   #combined = ''
 
-  constructor({ code, signal, stdout, stderr, combined, message }) {
+  constructor({
+    code,
+    signal,
+    stdout,
+    stderr,
+    combined,
+    message,
+  }: {
+    code: number | null
+    signal: NodeJS.Signals | null
+    stdout: string
+    stderr: string
+    combined: string
+    message: string
+  }) {
     super(message)
     this.#code = code
     this.#signal = signal
@@ -227,7 +296,8 @@ export class ProcessOutput extends Error {
   }
 
   [inspect.custom]() {
-    let stringify = (s, c) => (s.length === 0 ? "''" : c(inspect(s)))
+    let stringify = (s: string, c: ChalkInstance) =>
+      s.length === 0 ? "''" : c(inspect(s))
     return `ProcessOutput {
   stdout: ${stringify(this.stdout, chalk.green)},
   stderr: ${stringify(this.stderr, chalk.red)},
@@ -241,7 +311,7 @@ export class ProcessOutput extends Error {
   }
 }
 
-function exitCodeInfo(exitCode) {
+function exitCodeInfo(exitCode: number | null): string | undefined {
   return {
     2: 'Misuse of shell builtins',
     126: 'Invoked command cannot execute',
@@ -275,5 +345,5 @@ function exitCodeInfo(exitCode) {
     155: 'Profiling timer expired',
     157: 'Pollable event',
     159: 'Bad syscall',
-  }[exitCode]
+  }[exitCode || -1]
 }

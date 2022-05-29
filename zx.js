@@ -20,8 +20,14 @@ import { tmpdir } from 'node:os'
 import { basename, dirname, extname, join, resolve } from 'node:path'
 import url from 'node:url'
 
-import { $, argv, fetch, ProcessOutput, registerGlobals } from './src/index.mjs'
-import { randomId } from './src/util.mjs'
+import {
+  $,
+  argv,
+  fetch,
+  ProcessOutput,
+  registerGlobals,
+} from './build/index.js'
+import { randomId } from './build/util.js'
 
 await (async function main() {
   registerGlobals()
@@ -33,7 +39,7 @@ await (async function main() {
     $.prefix = argv.prefix
   }
   if (argv.experimental) {
-    Object.assign(global, await import('./src/experimental.mjs'))
+    Object.assign(global, await import('./build/experimental.js'))
   }
   try {
     if (['--version', '-v', '-V'].includes(process.argv[2])) {

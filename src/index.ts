@@ -25,10 +25,10 @@ import {
   which,
   YAML,
   os,
-} from './goods.mjs'
-import { nothrow, quiet } from './hooks.mjs'
-import { question } from './question.mjs'
-import { $, ProcessPromise, ProcessOutput } from './core.mjs'
+} from './goods.js'
+import { nothrow, quiet } from './hooks.js'
+import { question } from './question.js'
+import { $, ProcessPromise, ProcessOutput } from './core.js'
 
 export {
   $,

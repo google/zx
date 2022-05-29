@@ -12,12 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export function nothrow(promise) {
-  promise.ctx.nothrow = true
-  return promise
-}
+import { AsyncLocalStorage } from 'node:async_hooks'
 
-export function quiet(promise) {
-  promise.ctx.verbose = false
-  return promise
+let root: any
+
+const storage = new AsyncLocalStorage<any>()
+
+export function getCtx() {
+  return storage.getStore()
+}
+export function setRootCtx(ctx: any) {
+  storage.enterWith(ctx)
+  root = ctx
+}
+export function getRootCtx() {
+  return root
+}
+export function runInCtx(ctx: any, cb: any) {
+  return storage.run(ctx, cb)
 }

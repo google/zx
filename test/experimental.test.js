@@ -12,8 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { echo, retry, startSpinner, withTimeout } from '../src/experimental.mjs'
-import { assert, testFactory } from './test-utils.mjs'
+import {
+  echo,
+  retry,
+  startSpinner,
+  withTimeout,
+} from '../build/experimental.js'
+import { assert, testFactory } from './test-utils.js'
 import chalk from 'chalk'
 
 const test = testFactory('experimental', import.meta)
