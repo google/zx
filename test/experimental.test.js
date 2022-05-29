@@ -12,18 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import test from 'ava'
+import '../build/globals.js'
+
+$.verbose = false
+
 import {
   echo,
   retry,
   startSpinner,
   withTimeout,
 } from '../build/experimental.js'
-import { assert, testFactory } from './test-utils.js'
-import chalk from 'chalk'
 
-const test = testFactory('experimental', import.meta)
-
-test('Retry works', async () => {
+test('Retry works', async (t) => {
   let exitCode = 0
   let now = Date.now()
   try {
@@ -31,11 +32,11 @@ test('Retry works', async () => {
   } catch (p) {
     exitCode = p.exitCode
   }
-  assert.equal(exitCode, 123)
-  assert(Date.now() >= now + 50 * (5 - 1))
+  t.is(exitCode, 123)
+  t.true(Date.now() >= now + 50 * (5 - 1))
 })
 
-test('withTimeout works', async () => {
+test('withTimeout works', async (t) => {
   let exitCode = 0
   let signal
   try {
@@ -44,26 +45,27 @@ test('withTimeout works', async () => {
     exitCode = p.exitCode
     signal = p.signal
   }
-  assert.equal(exitCode, null)
-  assert.equal(signal, 'SIGKILL')
+  t.is(exitCode, null)
+  t.is(signal, 'SIGKILL')
 
   let p = await withTimeout(0)`echo 'test'`
-  assert.equal(p.stdout.trim(), 'test')
+  t.is(p.stdout.trim(), 'test')
 })
 
-test('echo works', async () => {
-  echo(chalk.red('foo'), chalk.green('bar'), chalk.bold('baz'))
-  echo`${chalk.red('foo')} ${chalk.green('bar')} ${chalk.bold('baz')}`
+test('echo works', async (t) => {
+  echo(chalk.cyan('foo'), chalk.green('bar'), chalk.bold('baz'))
+  echo`${chalk.cyan('foo')} ${chalk.green('bar')} ${chalk.bold('baz')}`
   echo(
-    await $`echo ${chalk.red('foo')}`,
+    await $`echo ${chalk.cyan('foo')}`,
     await $`echo ${chalk.green('bar')}`,
     await $`echo ${chalk.bold('baz')}`
   )
+  t.pass()
 })
 
-test('spinner works', async () => {
+test('spinner works', async (t) => {
   let s = startSpinner('waiting')
-
   await sleep(1000)
   s()
+  t.pass()
 })

@@ -12,52 +12,55 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { assert, testFactory } from './test-utils.js'
+import test from 'ava'
+import '../build/globals.js'
 
-const test = testFactory('cli', import.meta)
+$.verbose = false
 
-test('supports `-v` flag / prints version', async () => {
-  let v = (await $`node build/cli.js -v`).toString().trim()
-  assert.equal(v, require('../package.json').version)
+test('supports `-v` flag / prints version', async (t) => {
+  t.regex((await $`node build/cli.js -v`).toString(), /\d+.\d+.\d+/)
 })
 
-test('prints help', async () => {
+test('prints help', async (t) => {
   let help
   try {
     await $`node build/cli.js`
   } catch (err) {
     help = err.toString().trim()
   }
-  assert(help.includes('print current zx version'))
+  t.true(help.includes('print current zx version'))
 })
 
-test('supports `--experimental` flag', async () => {
+test('supports `--experimental` flag', async (t) => {
   await $`echo 'echo("test")' | node build/cli.js --experimental`
+  t.pass()
 })
 
-test('supports `--quiet` flag / Quiet mode is working', async () => {
+test('supports `--quiet` flag / Quiet mode is working', async (t) => {
   let p = await $`node build/cli.js --quiet docs/markdown.md`
-  assert(!p.stdout.includes('whoami'))
+  t.true(!p.stdout.includes('whoami'))
 })
 
-test('supports `--shell` flag ', async () => {
+test('supports `--shell` flag ', async (t) => {
   let shell = $.shell
-  let p = await $`node build/cli.js --shell=${shell} <<< '$\`echo \${$.shell}\`'`
-  assert(p.stdout.includes(shell))
+  let p =
+    await $`node build/cli.js --shell=${shell} <<< '$\`echo \${$.shell}\`'`
+  t.true(p.stdout.includes(shell))
 })
 
-test('supports `--prefix` flag ', async () => {
+test('supports `--prefix` flag ', async (t) => {
   let prefix = 'set -e;'
-  let p = await $`node build/cli.js --prefix=${prefix} <<< '$\`echo \${$.prefix}\`'`
-  assert(p.stdout.includes(prefix))
+  let p =
+    await $`node build/cli.js --prefix=${prefix} <<< '$\`echo \${$.prefix}\`'`
+  t.true(p.stdout.includes(prefix))
 })
 
-test('scripts from https', async () => {
+test('scripts from https', async (t) => {
   let script = path.resolve('test/fixtures/echo.http')
   let server = quiet($`while true; do cat ${script} | nc -l 8080; done`)
   let p = await quiet($`node build/cli.js http://127.0.0.1:8080/echo.mjs`)
 
-  assert(p.stdout.includes('test'))
+  t.true(p.stdout.includes('test'))
   server.kill()
 
   let err
@@ -66,21 +69,34 @@ test('scripts from https', async () => {
   } catch (e) {
     err = e
   }
-  assert(err.stderr.includes('ECONNREFUSED'))
+  t.true(err.stderr.includes('ECONNREFUSED'))
 })
 
-test('scripts with no extension', async () => {
+test('scripts with no extension', async (t) => {
   await $`node build/cli.js test/fixtures/no-extension`
-  assert.match(
-    (await fs.readFile('test/fixtures/no-extension.mjs')).toString(),
-    /Test file to verify no-extension didn't overwrite similarly name .mjs file./
+  t.true(
+    /Test file to verify no-extension didn't overwrite similarly name .mjs file./.test(
+      (await fs.readFile('test/fixtures/no-extension.mjs')).toString()
+    )
   )
 })
 
-test('The require() is working from stdin', async () => {
+test('require() is working from stdin', async (t) => {
   await $`node build/cli.js <<< 'require("./package.json").name'`
+  t.pass()
 })
 
-test('Markdown scripts are working', async () => {
+test('require() is working in ESM', async (t) => {
+  await $`node build/cli.js test/fixtures/require.mjs`
+  t.pass()
+})
+
+test('__filename & __dirname are defined', async (t) => {
+  await $`node build/cli.js test/fixtures/filename-dirname.mjs`
+  t.pass()
+})
+
+test('markdown scripts are working', async (t) => {
   await $`node build/cli.js docs/markdown.md`
+  t.pass()
 })

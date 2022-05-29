@@ -205,12 +205,15 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       )
 
       child.on('close', (code, signal) => {
-        let message = `${stderr || '\n'}    at ${__from}`
-        message += `\n    exit code: ${code}${
-          exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : ''
-        }`
-        if (signal !== null) {
-          message += `\n    signal: ${signal}`
+        let message = `exit code: ${code}`
+        if (code != 0 || signal != null) {
+          message = `${stderr || '\n'}    at ${__from}`
+          message += `\n    exit code: ${code}${
+            exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : ''
+          }`
+          if (signal != null) {
+            message += `\n    signal: ${signal}`
+          }
         }
         let output = new ProcessOutput({
           code,
