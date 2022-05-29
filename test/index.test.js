@@ -22,36 +22,36 @@ import { ProcessPromise } from '../build/index.js'
 
 $.verbose = false
 
-test('Only stdout is used during command substitution', async (t) => {
+test('only stdout is used during command substitution', async (t) => {
   let hello = await $`echo Error >&2; echo Hello`
   let len = +(await $`echo ${hello} | wc -c`)
   t.is(len, 6)
 })
 
-test('Env vars works', async (t) => {
+test('env vars works', async (t) => {
   process.env.ZX_TEST_FOO = 'foo'
   let foo = await $`echo $ZX_TEST_FOO`
   t.is(foo.stdout, 'foo\n')
 })
 
-test('Env vars is safe to pass', async (t) => {
+test('env vars is safe to pass', async (t) => {
   process.env.ZX_TEST_BAR = 'hi; exit 1'
   await $`echo $ZX_TEST_BAR`
   t.pass()
 })
 
-test('Arguments are quoted', async (t) => {
+test('arguments are quoted', async (t) => {
   let bar = 'bar"";baz!$#^$\'&*~*%)({}||\\/'
   t.is((await $`echo ${bar}`).stdout.trim(), bar)
 })
 
-test('Undefined and empty string correctly quoted', async (t) => {
+test('undefined and empty string correctly quoted', async (t) => {
   t.verbose = true
   t.is((await $`echo -n ${undefined}`).toString(), 'undefined')
   t.is((await $`echo -n ${''}`).toString(), '')
 })
 
-test('Can create a dir with a space in the name', async (t) => {
+test('can create a dir with a space in the name', async (t) => {
   let name = 'foo bar'
   try {
     await $`mkdir /tmp/${name}`
@@ -61,7 +61,7 @@ test('Can create a dir with a space in the name', async (t) => {
   t.pass()
 })
 
-test('Pipefail is on', async (t) => {
+test('pipefail is on', async (t) => {
   let p
   try {
     p = await $`cat /dev/not_found | sort`
@@ -72,18 +72,18 @@ test('Pipefail is on', async (t) => {
   t.not(p.exitCode, 0)
 })
 
-test('The toString() is called on arguments', async (t) => {
+test('toString() is called on arguments', async (t) => {
   let foo = 0
   let p = await $`echo ${foo}`
   t.is(p.stdout, '0\n')
 })
 
-test('Can use array as an argument', async (t) => {
+test('can use array as an argument', async (t) => {
   let args = ['-n', 'foo']
   t.is((await $`echo ${args}`).toString(), 'foo')
 })
 
-test.serial('Quiet mode is working', async (t) => {
+test.serial('quiet mode is working', async (t) => {
   let stdout = ''
   let log = console.log
   console.log = (...args) => {
@@ -94,7 +94,7 @@ test.serial('Quiet mode is working', async (t) => {
   t.is(stdout, '')
 })
 
-test('Pipes are working', async (t) => {
+test('pipes are working', async (t) => {
   let { stdout } = await $`echo "hello"`
     .pipe($`awk '{print $1" world"}'`)
     .pipe($`tr '[a-z]' '[A-Z]'`)
@@ -178,7 +178,7 @@ test('ProcessOutput thrown as error', async (t) => {
   t.true(err[inspect.custom]().includes('Command not found'))
 })
 
-test('The pipe() throws if already resolved', async (t) => {
+test('pipe() throws if already resolved', async (t) => {
   let out,
     p = $`echo "Hello"`
   await p
@@ -200,7 +200,7 @@ test('await $`cmd`.exitCode does not throw', async (t) => {
   t.is(await $`[[ -f README.md ]]`.exitCode, 0)
 })
 
-test('The nothrow() do not throw', async (t) => {
+test('nothrow() do not throw', async (t) => {
   let { exitCode } = await nothrow($`exit 42`)
   t.is(exitCode, 42)
 })
@@ -226,7 +226,7 @@ test('fetch', async (t) => {
   )
 })
 
-test('Executes a script from $PATH', async (t) => {
+test('executes a script from $PATH', async (t) => {
   const isWindows = process.platform === 'win32'
   const oldPath = process.env.PATH
 
@@ -252,7 +252,7 @@ test('Executes a script from $PATH', async (t) => {
   t.pass()
 })
 
-test('The cd() works with relative paths', async (t) => {
+test('cd() works with relative paths', async (t) => {
   await $`node build/cli.js test/fixtures/cd-relative-paths.mjs`
   t.pass()
 })
@@ -262,12 +262,12 @@ test('cd() does not affect parallel contexts', async (t) => {
   t.pass()
 })
 
-test('The kill() method works', async (t) => {
+test('kill() method works', async (t) => {
   await $`node build/cli.js test/fixtures/kill.mjs`
   t.pass()
 })
 
-test('The signal is passed with kill() method', async (t) => {
+test('a signal is passed with kill() method', async (t) => {
   await $`node build/cli.js test/fixtures/kill-signal.mjs`
   t.pass()
 })

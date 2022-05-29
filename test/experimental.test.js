@@ -24,7 +24,7 @@ import {
   withTimeout,
 } from '../build/experimental.js'
 
-test('Retry works', async (t) => {
+test('retry works', async (t) => {
   let exitCode = 0
   let now = Date.now()
   try {
