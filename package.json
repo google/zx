@@ -9,12 +9,12 @@
     ".": "./build/index.js",
     "./globals": "./build/globals.js",
     "./experimental": "./build/experimental.js",
-    "./cli": "./zx.js",
+    "./cli": "./build/cli.js",
     "./core": "./build/core.js",
     "./package.json": "./package.json"
   },
   "bin": {
-    "zx": "zx.js"
+    "zx": "./build/cli.js"
   },
   "engines": {
     "node": ">= 16.0.0"
@@ -22,11 +22,8 @@
   "scripts": {
     "fmt": "prettier --write .",
     "build": "tsc",
-    "test": "tsc && npm run test:unit",
-    "test:unit": "node zx.js test/full.test.js",
-    "test:cov": "c8 --reporter=html npm run test:unit",
-    "test:zx": "npm run test zx",
-    "test:index": "npm run test index"
+    "test": "tsc && node build/cli.js test/full.test.js",
+    "coverage": "c8 --reporter=html npm run test:unit"
   },
   "dependencies": {
     "@types/fs-extra": "^9.0.13",

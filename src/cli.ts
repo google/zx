@@ -26,8 +26,9 @@ import {
   fetch,
   ProcessOutput,
   registerGlobals,
-} from './build/index.js'
-import { randomId } from './build/util.js'
+  chalk,
+} from './index.js'
+import { randomId } from './util.js'
 
 await (async function main() {
   registerGlobals()
@@ -39,11 +40,11 @@ await (async function main() {
     $.prefix = argv.prefix
   }
   if (argv.experimental) {
-    Object.assign(global, await import('./build/experimental.js'))
+    Object.assign(global, await import('./experimental.js'))
   }
   try {
     if (['--version', '-v', '-V'].includes(process.argv[2])) {
-      console.log(createRequire(import.meta.url)('./package.json').version)
+      console.log(createRequire(import.meta.url)('../package.json').version)
       return (process.exitCode = 0)
     }
     let firstArg = process.argv.slice(2).find((a) => !a.startsWith('--'))
@@ -77,6 +78,7 @@ await (async function main() {
       throw p
     }
   }
+  return (process.exitCode = 0)
 })()
 
 async function scriptFromStdin() {
@@ -97,7 +99,7 @@ async function scriptFromStdin() {
   return false
 }
 
-async function scriptFromHttp(remote) {
+async function scriptFromHttp(remote: string) {
   let res = await fetch(remote)
   if (!res.ok) {
     console.error(`Error: Can't get ${remote}`)
@@ -114,14 +116,18 @@ async function scriptFromHttp(remote) {
   )
 }
 
-async function writeAndImport(script, filepath, origin = filepath) {
-  await fs.writeFile(filepath, script)
+async function writeAndImport(
+  script: string | Buffer,
+  filepath: string,
+  origin = filepath
+) {
+  await fs.writeFile(filepath, script.toString())
   let wait = importPath(filepath, origin)
   await fs.rm(filepath)
   await wait
 }
 
-async function importPath(filepath, origin = filepath) {
+async function importPath(filepath: string, origin = filepath) {
   let ext = extname(filepath)
 
   if (ext === '') {
@@ -137,7 +143,7 @@ async function importPath(filepath, origin = filepath) {
   }
   if (ext === '.md') {
     return await writeAndImport(
-      transformMarkdown((await fs.readFile(filepath)).toString()),
+      transformMarkdown(await fs.readFile(filepath)),
       join(dirname(filepath), basename(filepath) + '.mjs'),
       origin
     )
@@ -146,10 +152,11 @@ async function importPath(filepath, origin = filepath) {
   let __dirname = dirname(__filename)
   let require = createRequire(origin)
   Object.assign(global, { __filename, __dirname, require })
-  await import(url.pathToFileURL(filepath))
+  await import(url.pathToFileURL(filepath).toString())
 }
 
-function transformMarkdown(source) {
+function transformMarkdown(buf: Buffer) {
+  let source = buf.toString()
   let output = []
   let state = 'root'
   let prevLineIsEmpty = true

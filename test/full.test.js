@@ -12,6 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import './zx.test.js'
+import './cli.test.js'
 import './index.test.js'
 import './experimental.test.js'

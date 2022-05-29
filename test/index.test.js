@@ -82,7 +82,7 @@ test('The toString() is called on arguments', async () => {
 
 test('Can use array as an argument', async () => {
   try {
-    let files = ['./zx.js', './test/index.test.js']
+    let files = ['./cli.ts', './test/index.test.js']
     await $`tar czf archive ${files}`
   } finally {
     await $`rm archive`
@@ -248,11 +248,12 @@ test('Executes a script from $PATH', async () => {
 
   const toPOSIXPath = (_path) => _path.split(path.sep).join(path.posix.sep)
 
-  const zxPath = path.resolve('./zx.js')
+  const zxPath = path.resolve('./build/cli.js')
   const zxLocation = isWindows ? toPOSIXPath(zxPath) : zxPath
   const scriptCode = `#!/usr/bin/env ${zxLocation}\nconsole.log('The script from path runs.')`
 
   try {
+    await $`chmod +x ${zxLocation}`
     await $`echo ${scriptCode}`.pipe(
       fs.createWriteStream('/tmp/script-from-path', { mode: 0o744 })
     )
