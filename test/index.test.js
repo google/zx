@@ -20,6 +20,7 @@ import { Writable } from 'node:stream'
 import { Socket } from 'node:net'
 import '../build/globals.js'
 import { ProcessPromise } from '../build/index.js'
+import {getCtx, runInCtx} from '../build/experimental.js'
 
 test('only stdout is used during command substitution', async () => {
   let hello = await $`echo Error >&2; echo Hello`
@@ -251,19 +252,90 @@ test('executes a script from $PATH', async () => {
 })
 
 test('cd() works with relative paths', async () => {
-  await $`node build/cli.js test/fixtures/cd-relative-paths.mjs`
+  let cwd = process.cwd()
+  assert.equal($.cwd, cwd)
+  try {
+    fs.mkdirpSync('/tmp/zx-cd-test/one/two')
+    cd('/tmp/zx-cd-test/one/two')
+    let p1 = $`pwd`
+    assert.ok($.cwd.endsWith('/two'))
+    assert.ok(process.cwd().endsWith('/two'))
+
+    cd('..')
+    let p2 = $`pwd`
+    assert.ok($.cwd.endsWith('/one'))
+    assert.ok(process.cwd().endsWith('/one'))
+
+    cd('..')
+    let p3 = $`pwd`
+    assert.ok(process.cwd().endsWith('/zx-cd-test'))
+    assert.ok($.cwd.endsWith('/tmp/zx-cd-test'))
+
+    let results = (await Promise.all([p1, p2, p3])).map((p) =>
+      path.basename(p.stdout.trim())
+    )
+
+    assert.equal(results, ['two', 'one', 'zx-cd-test'])
+  } catch (e) {
+    assert.ok(!e, e)
+  } finally {
+    fs.rmSync('/tmp/zx-cd-test', { recursive: true })
+    cd(cwd)
+    assert.equal($.cwd, cwd)
+  }
 })
 
 test('cd() does not affect parallel contexts', async () => {
-  await $`node build/cli.js test/fixtures/cd-parallel-contexts.mjs`
+  let cwd = process.cwd()
+  let resolve, reject
+  let promise = new ProcessPromise((...args) => ([resolve, reject] = args))
+
+  try {
+    fs.mkdirpSync('/tmp/zx-cd-parallel')
+    runInCtx({ ...getCtx() }, async () => {
+      assert.equal($.cwd, cwd)
+      await sleep(10)
+      cd('/tmp/zx-cd-parallel')
+      assert.ok(getCtx().cwd.endsWith('/zx-cd-parallel'))
+      assert.ok($.cwd.endsWith('/zx-cd-parallel'))
+    })
+
+    runInCtx({ ...getCtx() }, async () => {
+      assert.equal($.cwd, cwd)
+      assert.equal(getCtx().cwd, cwd)
+      await sleep(20)
+      assert.equal(getCtx().cwd, cwd)
+      assert.ok($.cwd.endsWith('/zx-cd-parallel'))
+      resolve()
+    })
+
+    await promise
+  } catch (e) {
+    assert.ok(!e, e)
+  } finally {
+    fs.rmSync('/tmp/zx-cd-parallel', { recursive: true })
+    cd(cwd)
+  }
 })
 
 test('kill() method works', async () => {
-  await $`node build/cli.js test/fixtures/kill.mjs`
+  let p = nothrow($`sleep 9999`)
+  setTimeout(() => {
+    p.kill()
+  }, 100)
+  await p
 })
 
 test('a signal is passed with kill() method', async () => {
-  await $`node build/cli.js test/fixtures/kill-signal.mjs`
+  let p = $`while true; do :; done`
+  setTimeout(() => p.kill('SIGKILL'), 100)
+  let signal
+  try {
+    await p
+  } catch (p) {
+    signal = p.signal
+  }
+  assert.equal(signal, 'SIGKILL')
 })
 
 test('YAML works', async () => {
