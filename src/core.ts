@@ -21,10 +21,12 @@ import {
 import { Readable, Writable } from 'node:stream'
 import { inspect, promisify } from 'node:util'
 import { spawn } from 'node:child_process'
+
 import { chalk, which } from './goods.js'
-import { getCtx, runInCtx, setRootCtx } from './context.js'
+import { runInCtx, getCtx, setRootCtx } from './context.js'
 import { printStd, printCmd } from './print.js'
 import { quote, substitute } from './guards.js'
+
 import psTreeModule from 'ps-tree'
 
 const psTree = promisify(psTreeModule)
