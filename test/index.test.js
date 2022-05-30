@@ -135,7 +135,7 @@ test('ProcessPromise', async () => {
   await p
   assert.ok(p._piped)
   assert.is(contents, 'test\n')
-  assert.ok(p.stderr instanceof Socket)
+  assert.instance(p.stderr, Socket)
 
   let err
   try {
@@ -153,12 +153,12 @@ test('ProcessPromise: inherits native Promise', async () => {
   const p4 = p3.catch((v) => v)
   const p5 = p1.finally((v) => v)
 
-  assert.ok(p1 instanceof Promise)
-  assert.ok(p1 instanceof ProcessPromise)
-  assert.ok(p2 instanceof ProcessPromise)
-  assert.ok(p3 instanceof ProcessPromise)
-  assert.ok(p4 instanceof ProcessPromise)
-  assert.ok(p5 instanceof ProcessPromise)
+  assert.instance(p1, Promise)
+  assert.instance(p1, ProcessPromise)
+  assert.instance(p2, ProcessPromise)
+  assert.instance(p3, ProcessPromise)
+  assert.instance(p4, ProcessPromise)
+  assert.instance(p5, ProcessPromise)
   assert.ok(p1 !== p2)
   assert.ok(p2 !== p3)
   assert.ok(p3 !== p4)
