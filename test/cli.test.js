@@ -12,55 +12,55 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import test from 'ava'
+import { test } from 'uvu'
+import * as assert from 'uvu/assert'
 import '../build/globals.js'
 
 $.verbose = false
 
-test('supports `-v` flag / prints version', async (t) => {
-  t.regex((await $`node build/cli.js -v`).toString(), /\d+.\d+.\d+/)
+test('supports `-v` flag / prints version', async () => {
+  assert.match((await $`node build/cli.js -v`).toString(), /\d+.\d+.\d+/)
 })
 
-test('prints help', async (t) => {
+test('prints help', async () => {
   let help
   try {
     await $`node build/cli.js`
   } catch (err) {
     help = err.toString().trim()
   }
-  t.true(help.includes('print current zx version'))
+  assert.ok(help.includes('print current zx version'))
 })
 
-test('supports `--experimental` flag', async (t) => {
+test('supports `--experimental` flag', async () => {
   await $`echo 'echo("test")' | node build/cli.js --experimental`
-  t.pass()
 })
 
-test('supports `--quiet` flag / Quiet mode is working', async (t) => {
+test('supports `--quiet` flag / Quiet mode is working', async () => {
   let p = await $`node build/cli.js --quiet docs/markdown.md`
-  t.true(!p.stdout.includes('whoami'))
+  assert.ok(!p.stdout.includes('whoami'))
 })
 
-test('supports `--shell` flag ', async (t) => {
+test('supports `--shell` flag ', async () => {
   let shell = $.shell
   let p =
     await $`node build/cli.js --shell=${shell} <<< '$\`echo \${$.shell}\`'`
-  t.true(p.stdout.includes(shell))
+  assert.ok(p.stdout.includes(shell))
 })
 
-test('supports `--prefix` flag ', async (t) => {
+test('supports `--prefix` flag ', async () => {
   let prefix = 'set -e;'
   let p =
     await $`node build/cli.js --prefix=${prefix} <<< '$\`echo \${$.prefix}\`'`
-  t.true(p.stdout.includes(prefix))
+  assert.ok(p.stdout.includes(prefix))
 })
 
-test('scripts from https', async (t) => {
+test('scripts from https', async () => {
   let script = path.resolve('test/fixtures/echo.http')
   let server = quiet($`while true; do cat ${script} | nc -l 8080; done`)
   let p = await quiet($`node build/cli.js http://127.0.0.1:8080/echo.mjs`)
 
-  t.true(p.stdout.includes('test'))
+  assert.ok(p.stdout.includes('test'))
   server.kill()
 
   let err
@@ -69,34 +69,32 @@ test('scripts from https', async (t) => {
   } catch (e) {
     err = e
   }
-  t.true(err.stderr.includes('ECONNREFUSED'))
+  assert.ok(err.stderr.includes('ECONNREFUSED'))
 })
 
-test('scripts with no extension', async (t) => {
+test('scripts with no extension', async () => {
   await $`node build/cli.js test/fixtures/no-extension`
-  t.true(
+  assert.ok(
     /Test file to verify no-extension didn't overwrite similarly name .mjs file./.test(
       (await fs.readFile('test/fixtures/no-extension.mjs')).toString()
     )
   )
 })
 
-test('require() is working from stdin', async (t) => {
+test('require() is working from stdin', async () => {
   await $`node build/cli.js <<< 'require("./package.json").name'`
-  t.pass()
 })
 
-test('require() is working in ESM', async (t) => {
+test('require() is working in ESM', async () => {
   await $`node build/cli.js test/fixtures/require.mjs`
-  t.pass()
 })
 
-test('__filename & __dirname are defined', async (t) => {
+test('__filename & __dirname are defined', async () => {
   await $`node build/cli.js test/fixtures/filename-dirname.mjs`
-  t.pass()
 })
 
-test('markdown scripts are working', async (t) => {
+test('markdown scripts are working', async () => {
   await $`node build/cli.js docs/markdown.md`
-  t.pass()
 })
+
+test.run()

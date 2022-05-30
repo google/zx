@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import test from 'ava'
+import { test } from 'uvu'
+import * as assert from 'uvu/assert'
 import '../build/globals.js'
-
-$.verbose = false
 
 import {
   echo,
@@ -24,7 +23,11 @@ import {
   withTimeout,
 } from '../build/experimental.js'
 
-test('retry works', async (t) => {
+import chalk from 'chalk'
+
+$.verbose = false
+
+test('retry works', async () => {
   let exitCode = 0
   let now = Date.now()
   try {
@@ -32,11 +35,11 @@ test('retry works', async (t) => {
   } catch (p) {
     exitCode = p.exitCode
   }
-  t.is(exitCode, 123)
-  t.true(Date.now() >= now + 50 * (5 - 1))
+  assert.is(exitCode, 123)
+  assert.ok(Date.now() >= now + 50 * (5 - 1))
 })
 
-test('withTimeout works', async (t) => {
+test('withTimeout works', async () => {
   let exitCode = 0
   let signal
   try {
@@ -45,14 +48,14 @@ test('withTimeout works', async (t) => {
     exitCode = p.exitCode
     signal = p.signal
   }
-  t.is(exitCode, null)
-  t.is(signal, 'SIGKILL')
+  assert.is(exitCode, null)
+  assert.is(signal, 'SIGKILL')
 
   let p = await withTimeout(0)`echo 'test'`
-  t.is(p.stdout.trim(), 'test')
+  assert.is(p.stdout.trim(), 'test')
 })
 
-test('echo works', async (t) => {
+test('echo works', async () => {
   echo(chalk.cyan('foo'), chalk.green('bar'), chalk.bold('baz'))
   echo`${chalk.cyan('foo')} ${chalk.green('bar')} ${chalk.bold('baz')}`
   echo(
@@ -60,12 +63,12 @@ test('echo works', async (t) => {
     await $`echo ${chalk.green('bar')}`,
     await $`echo ${chalk.bold('baz')}`
   )
-  t.pass()
 })
 
-test('spinner works', async (t) => {
+test('spinner works', async () => {
   let s = startSpinner('waiting')
   await sleep(1000)
   s()
-  t.pass()
 })
+
+test.run()
