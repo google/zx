@@ -17,8 +17,6 @@ import { sleep } from './goods.js'
 import { isString } from './util.js'
 import { getCtx, runInCtx } from './context.js'
 
-export { getCtx, runInCtx }
-
 // Retries a command a few times. Will return after the first
 // successful attempt, or will throw after specifies attempts count.
 export function retry(count = 5, delay = 0) {
@@ -78,4 +76,13 @@ export function startSpinner(title = '') {
     (id) => () =>
       clearInterval(id)
   )(setInterval(spin, 100))
+}
+
+export function ctx(cb: (_$: typeof $) => any) {
+  const _$ = Object.assign($.bind(null), getCtx())
+  function _cb() {
+    return cb(_$)
+  }
+
+  return runInCtx(_$, _cb)
 }

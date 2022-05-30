@@ -20,7 +20,7 @@ import { Writable } from 'node:stream'
 import { Socket } from 'node:net'
 import '../build/globals.js'
 import { ProcessPromise } from '../build/index.js'
-import {getCtx, runInCtx} from '../build/experimental.js'
+import { getCtx, runInCtx } from '../build/context.js'
 
 test('only stdout is used during command substitution', async () => {
   let hello = await $`echo Error >&2; echo Hello`

@@ -21,9 +21,13 @@ import {
   retry,
   startSpinner,
   withTimeout,
+  ctx,
 } from '../build/experimental.js'
 
 import chalk from 'chalk'
+
+import { ProcessPromise } from '../build/core.js'
+import { randomId } from '../build/util.js'
 
 $.verbose = false
 
@@ -69,6 +73,113 @@ test('spinner works', async () => {
   let s = startSpinner('waiting')
   await sleep(1000)
   s()
+})
+
+test('ctx() provides isolates running scopes', async () => {
+  $.verbose = true
+
+  await ctx(async ($) => {
+    $.verbose = false
+    await $`echo a`
+
+    $.verbose = true
+    await $`echo b`
+
+    $.verbose = false
+    await ctx(async ($) => {
+      await $`echo d`
+
+      await ctx(async ($) => {
+        assert.ok($.verbose === false)
+
+        await $`echo e`
+        $.verbose = true
+      })
+      $.verbose = true
+    })
+
+    await $`echo c`
+  })
+
+  await $`echo f`
+
+  await ctx(async ($) => {
+    assert.is($.verbose, true)
+    $.verbose = false
+    await $`echo g`
+  })
+
+  assert.is($.verbose, true)
+
+  $.o =
+    (opts) =>
+    (...args) =>
+      ctx(($) => Object.assign($, opts)(...args))
+
+  const createHook = (opts, name = randomId(), cb = (v) => v, configurable) => {
+    ProcessPromise.prototype[name] = function (...args) {
+      Object.assign(this.ctx, opts)
+      return cb(this, ...args)
+    }
+
+    const getP = (p, opts, $args) =>
+      p instanceof ProcessPromise ? p : $.o(opts)(...$args)
+
+    return (...args) => {
+      if (!configurable) {
+        const p = getP(args[0], opts, args)
+        return p[name]()
+      }
+
+      return (...$args) => {
+        const p = getP($args[0], opts, $args)
+        return p[name](...args)
+      }
+    }
+  }
+
+  const quiet = createHook({ verbose: false }, 'quiet')
+  const debug = createHook({ verbose: 2 }, 'debug')
+
+  const timeout = createHook(
+    null,
+    'timeout',
+    (p, t, signal) => {
+      if (!t) return p
+      let timer = setTimeout(() => p.kill(signal), t)
+
+      return Object.assign(
+        p.finally(() => clearTimeout(timer)),
+        p
+      )
+    },
+    true
+  )
+
+  await quiet`echo 'quiet'`
+  await debug($`echo 'debug'`)
+  await $`echo 'chained'`.quiet()
+
+  try {
+    await quiet(timeout(100, 'SIGKILL')`sleep 9999`)
+  } catch {
+    console.log('killed1')
+  }
+
+  try {
+    const p = $`sleep 9999`
+    await quiet(timeout(100, 'SIGKILL')(p))
+  } catch {
+    console.log('killed2')
+  }
+
+  try {
+    await $`sleep 9999`.quiet().timeout(100, 'SIGKILL')
+  } catch {
+    console.log('killed3')
+  }
+
+  $.verbose = false
 })
 
 test.run()

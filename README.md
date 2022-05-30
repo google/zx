@@ -438,25 +438,26 @@ import {withTimeout} from 'zx/experimental'
 await withTimeout(100, 'SIGTERM')`sleep 9999`
 ```
 
-### `getCtx()` and `runInCtx()`
+### `ctx()`
 
-[async_hooks](https://nodejs.org/api/async_hooks.html) methods to manipulate bound context.
-This object is used by zx inners, so it has a significant impact on the call mechanics. Please use this carefully and wisely.
+[async_hooks](https://nodejs.org/api/async_hooks.html)-driven scope isolator.
+Creates a separate zx-context for the specified function.
 
 ```js
-import {getCtx, runInCtx} from 'zx/experimental'
+import {ctx} from 'zx/experimental'
 
-runInCtx({ ...getCtx() }, async () => {
+const _$ = $
+ctx(async ($) => {
   await sleep(10)
   cd('/foo')
   // $.cwd refers to /foo
-  // getCtx().cwd === $.cwd
+  // _$.cwd === $.cwd
 })
 
-runInCtx({ ...getCtx() }, async () => {
+ctx(async ($) => {
   await sleep(20)
-  // $.cwd refers to /foo
-  // but getCtx().cwd !== $.cwd
+  // _$.cwd refers to /foo
+  // but _$.cwd !== $.cwd
 })
 ```
 
