@@ -14,6 +14,7 @@
 
 import { getCtx } from './context.js'
 import { chalk } from './goods.js'
+import { default as ignore } from 'ignore'
 
 export function printCmd(cmd: string) {
   if (!getCtx()?.verbose) return
@@ -30,7 +31,6 @@ export function printCmd(cmd: string) {
 }
 
 export function printStd(data: any, err?: any) {
-  if (!getCtx()?.verbose) return
   if (data) process.stdout.write(data)
   if (err) process.stderr.write(err)
 }
@@ -39,4 +39,24 @@ export function colorize(cmd: string) {
   return cmd.replace(/^[\w_.-]+(\s|$)/, (substr) => {
     return chalk.greenBright(substr)
   })
+}
+
+export function log(opts: {scope: string, verbose?: 0|1|2, output?: 'stdout'|'stderr', raw?: boolean}, ...msg: any[]) {
+  let { scope, verbose: _verbose = 1, output, raw } = opts
+  let {
+    verbose = 2,
+    logOutput = output || 'stderr',
+    logFormat = () => msg,
+    logPrint = printStd,
+    logIgnore,
+  } = getCtx()
+
+  if (verbose < _verbose) return
+
+  const ig = ignore().add(logIgnore)
+
+  if (!ig.ignores(scope)) {
+    msg = raw ? msg[0] : logFormat(msg)?.join(' ') + '\n'
+    logPrint(...(logOutput === 'stdout' ? [msg] : [null, msg]))
+  }
 }

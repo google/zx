@@ -352,16 +352,61 @@ command substitution.
 
 ### `$.verbose`
 
-Specifies verbosity. Default is `true`.
+Specifies verbosity level: `0 | 1 | 2`. Default is `2`.
 
-In verbose mode, the `zx` prints all executed commands alongside with their 
-outputs.
+In verbose mode `2`, the `zx` prints all executed commands alongside with their 
+outputs. `0` suppresses any log output.
 
-Or use a CLI argument `--quiet` to set `$.verbose = false`.
+Or use via CLI arguments:
+* `--verbose=<l>` to set `$.verbose = <l>`.
+* `--quiet` to set `$.verbose = 0`.
 
 ### `$.env`
 
 Specifies env map. Defaults to `process.env`.
+
+### `$.logOutput`
+
+Specifies zx debug channel: `stdout/stderr`. Defaults to `stderr`.
+
+### `$.logFormat`
+
+Specifies zx log output formatter. Defaults to `identity`.
+
+```js
+// Nice place to add masker, if you pass creds to zx methods
+$.logFormat = (msg) => msg.map(m => m.toUpperCase())
+```
+
+### `$.logIgnore`
+
+Specifies log events to filter out. Defaults to `''`, so everything is being logged.
+
+```js
+$.logIgnore = ['cd', 'fetch']
+cd('/tmp/foo')
+$.fetch('https://example.com')
+// `$ cd /tmp/foo` is omitted
+// `$ fetch https://example.com` is not printed too
+
+$.logIgnore = 'cmd'
+$`echo 'test'`
+// prints `test` w/o `$ echo 'test'`
+```
+
+### `$.logPrint`
+
+Specifies event logging stream. Defaults to `process.stdout/process.stderr`.
+
+```js
+let stdout = ''
+let stderr = ''
+
+$.logPrint = (data, err) => {
+  if (data) stdout += data
+  if (err) stderr += err
+}
+```
 
 ## Polyfills 
 
@@ -458,6 +503,17 @@ runInCtx({ ...getCtx() }, async () => {
   // $.cwd refers to /foo
   // but getCtx().cwd !== $.cwd
 })
+```
+
+### `log()`
+
+Internal zx logger. Accepts config via `$.log*` options.
+
+```js
+import {log} from 'zx/experimental'
+
+log({scope: 'foo', verbose: 1, output: 'stderr'}, 'some', 'data')
+// some data
 ```
 
 ## FAQ

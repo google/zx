@@ -17,14 +17,14 @@ import {
   ChildProcessByStdio,
   SpawnOptionsWithStdioTuple,
   StdioPipe,
-} from 'child_process'
+  spawn
+} from 'node:child_process'
 import { Readable, Writable } from 'node:stream'
 import { inspect, promisify } from 'node:util'
-import { spawn } from 'node:child_process'
 
 import { chalk, which } from './goods.js'
 import { runInCtx, getCtx, setRootCtx } from './context.js'
-import { printStd, printCmd } from './print.js'
+import { log, colorize } from './log.js'
 import { quote, substitute } from './guards.js'
 
 import psTreeModule from 'ps-tree'
@@ -67,7 +67,7 @@ $.cwd = process.cwd()
 $.env = process.env
 $.quote = quote
 $.spawn = spawn
-$.verbose = true
+$.verbose = 2
 $.maxBuffer = 200 * 1024 * 1024 /* 200 MiB*/
 $.prefix = '' // Bash not found, no prefix.
 try {
@@ -77,7 +77,7 @@ try {
 
 type Options = {
   nothrow: boolean
-  verbose: boolean
+  verbose: boolean | number
   cmd: string
   cwd: string
   env: NodeJS.ProcessEnv
@@ -232,13 +232,14 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       let stdout = '',
         stderr = '',
         combined = ''
-      let onStdout = (data: any) => {
-        printStd(data)
+
+      let onStdout = (data: Buffer | string) => {
+        log({ scope: 'cmd', output: 'stdout', raw: true, verbose: 2 }, data)
         stdout += data
         combined += data
       }
-      let onStderr = (data: any) => {
-        printStd(null, data)
+      let onStderr = (data: Buffer | string) => {
+        log({ scope: 'cmd', output: 'stderr', raw: true, verbose: 2 }, data)
         stderr += data
         combined += data
       }
@@ -313,6 +314,20 @@ export class ProcessOutput extends Error {
         : ''
     }
 }`
+  }
+}
+
+function printCmd(cmd: string) {
+  if (/\n/.test(cmd)) {
+    log(
+      { scope: 'cmd' },
+      cmd
+        .split('\n')
+        .map((line, i) => (i === 0 ? '$' : '>') + ' ' + colorize(line))
+        .join('\n')
+    )
+  } else {
+    log({ scope: 'cmd' }, '$', colorize(cmd))
   }
 }
 

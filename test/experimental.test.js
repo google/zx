@@ -14,6 +14,8 @@
 
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
+
+import chalk from 'chalk'
 import '../build/globals.js'
 
 import {
@@ -21,9 +23,8 @@ import {
   retry,
   startSpinner,
   withTimeout,
+  log
 } from '../build/experimental.js'
-
-import chalk from 'chalk'
 
 $.verbose = false
 
@@ -69,6 +70,10 @@ test('spinner works', async () => {
   let s = startSpinner('waiting')
   await sleep(1000)
   s()
+})
+
+test('log() api is exported', () => {
+  assert.ok(typeof log === 'function')
 })
 
 test.run()

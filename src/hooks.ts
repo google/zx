@@ -20,6 +20,6 @@ export function nothrow(promise: ProcessPromise) {
 }
 
 export function quiet(promise: ProcessPromise) {
-  promise.ctx!.verbose = false
+  promise.ctx!.verbose = 0
   return promise
 }

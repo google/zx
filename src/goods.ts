@@ -17,7 +17,7 @@ import minimist from 'minimist'
 import { setTimeout as sleep } from 'node:timers/promises'
 import nodeFetch, { RequestInfo, RequestInit } from 'node-fetch'
 import { getCtx, getRootCtx } from './context.js'
-import { colorize } from './print.js'
+import { colorize, log } from './log.js'
 
 export { default as chalk } from 'chalk'
 export { default as fs } from 'fs-extra'
@@ -40,18 +40,17 @@ globbyModule)
 export const glob = globby
 
 export async function fetch(url: RequestInfo, init?: RequestInit) {
-  if (getCtx().verbose) {
-    if (typeof init !== 'undefined') {
-      console.log('$', colorize(`fetch ${url}`), init)
-    } else {
-      console.log('$', colorize(`fetch ${url}`))
-    }
-  }
+  log(
+      { scope: 'fetch' },
+      '$',
+      colorize(`fetch ${url}`),
+      init && JSON.stringify(init, null, 2)
+  )
   return nodeFetch(url, init)
 }
 
 export function cd(path: string) {
-  if (getCtx().verbose) console.log('$', colorize(`cd ${path}`))
+  log({ scope: 'cd' }, '$', colorize(`cd ${path}`))
   process.chdir(path)
   getRootCtx().cwd = getCtx().cwd = process.cwd()
 }

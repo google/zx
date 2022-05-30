@@ -16,8 +16,9 @@ import { ProcessOutput, $ } from './core.js'
 import { sleep } from './goods.js'
 import { isString } from './util.js'
 import { getCtx, runInCtx } from './context.js'
+import { log } from './log.js'
 
-export { getCtx, runInCtx }
+export { getCtx, runInCtx, log }
 
 // Retries a command a few times. Will return after the first
 // successful attempt, or will throw after specifies attempts count.
@@ -58,9 +59,9 @@ export function echo(pieces: TemplateStringsArray, ...args: any[]) {
     msg =
       args.map((a, i) => pieces[i] + stringify(a)).join('') + pieces[lastIdx]
   } else {
-    msg = [pieces, ...args].map(stringify).join(' ')
+    msg = [pieces, ...args].map(stringify)
   }
-  console.log(msg)
+  log({ scope: 'echo', verbose: 0 }, Array.isArray(msg) ? msg.join(' ') : msg)
 }
 
 function stringify(arg: ProcessOutput | any) {
