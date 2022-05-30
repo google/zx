@@ -36,9 +36,11 @@ test('supports `--experimental` flag', async () => {
   await $`echo 'echo("test")' | node build/cli.js --experimental`
 })
 
-test('supports `--quiet` flag / Quiet mode is working', async () => {
-  let p = await $`node build/cli.js --quiet docs/markdown.md`
-  assert.ok(!p.stdout.includes('whoami'))
+test('supports `--quiet` flag', async () => {
+  let p = await $`node build/cli.js test/fixtures/markdown.md`
+  assert.ok(!p.stdout.includes('ignore'), 'ignore was printed')
+  assert.ok(p.stdout.includes('hello'), 'no hello')
+  assert.ok(p.stdout.includes('world'), 'no world')
 })
 
 test('supports `--shell` flag ', async () => {

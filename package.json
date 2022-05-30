@@ -3,28 +3,28 @@
   "version": "6.1.0",
   "description": "A tool for writing better scripts.",
   "type": "module",
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
   "exports": {
     ".": {
-      "import": "./build/index.js",
-      "types": "./build/index.d.ts"
+      "types": "./build/index.d.ts",
+      "import": "./build/index.js"
     },
     "./globals": {
-      "import": "./build/globals.js",
-      "types": "./build/globals.d.ts"
+      "types": "./build/globals.d.ts",
+      "import": "./build/globals.js"
     },
     "./experimental": {
-      "import": "./build/experimental.js",
-      "types": "./build/experimental.d.ts"
+      "types": "./build/experimental.d.ts",
+      "import": "./build/experimental.js"
     },
     "./cli": {
-      "import": "./zx.js",
-      "types": "./zx.d.ts"
+      "types": "./build/cli.d.ts",
+      "import": "./build/cli.js"
     },
     "./core": {
-      "import": "./build/core.js",
-      "types": "./build/core.d.ts"
+      "types": "./build/core.d.ts",
+      "import": "./build/core.js"
     },
     "./package.json": "./package.json"
   },
@@ -37,12 +37,8 @@
   "scripts": {
     "fmt": "prettier --write .",
     "build": "tsc",
-    "test": "tsc && npm run test:unit",
-    "coverage": "c8 --reporter=html npm test",
-    "test:unit": "uvu test -i fixtures",
-    "test:cov": "c8 --reporter=html npm run test:unit",
-    "test:zx": "npm run test zx",
-    "test:index": "npm run test index"
+    "test": "tsc && uvu test -i fixtures",
+    "coverage": "c8 --reporter=html npm test"
   },
   "dependencies": {
     "@types/fs-extra": "^9.0.13",
