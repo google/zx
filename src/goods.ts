@@ -35,7 +35,6 @@ export const globby = Object.assign(function globby(
   return globbyModule.globby(patterns, options)
 },
 globbyModule)
-
 export const glob = globby
 
 export async function fetch(url: RequestInfo, init?: RequestInit) {
