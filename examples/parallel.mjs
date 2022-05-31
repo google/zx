@@ -14,17 +14,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { startSpinner } from '../build/experimental.js'
-
-$.verbose = false
+import { startSpinner } from 'zx/experimental'
 
 let tests = await glob('test/*.test.js')
-
 let stop = startSpinner('running tests')
+$.verbose = false
 try {
-  await Promise.all(
-    tests.map((file) => $`npm test -- ${path.basename(file)}`)
-  )
+  let res = await Promise.all(tests.map((file) => $`npx uvu . ${file}`))
+  res.forEach((r) => console.log(r.toString()))
+  console.log(chalk.bgGreen.black(' SUCCESS '))
 } catch (e) {
   console.log(e.toString())
   process.exitCode = 1
