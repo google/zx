@@ -22,7 +22,7 @@ let tests = await glob('test/*.test.js')
 
 let stop = startSpinner('running tests')
 try {
-  let results = await Promise.all(
+  await Promise.all(
     tests.map((file) => $`npm test -- ${path.basename(file)}`)
   )
 } catch (e) {
