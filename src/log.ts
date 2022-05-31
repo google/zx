@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { getCtx } from './context.js'
+import {getCtx, getRootCtx} from './context.js'
 import { chalk } from './goods.js'
 import { default as ignore } from 'ignore'
 
@@ -42,16 +42,17 @@ export function colorize(cmd: string) {
 }
 
 export function log(opts: {scope: string, verbose?: 0|1|2, output?: 'stdout'|'stderr', raw?: boolean}, ...msg: any[]) {
-  let { scope, verbose: _verbose = 1, output, raw } = opts
+  let { scope, verbose = 1, output, raw } = opts
+  let ctx = getCtx()
   let {
-    verbose = 2,
     logOutput = output || 'stderr',
     logFormat = () => msg,
     logPrint = printStd,
     logIgnore,
-  } = getCtx()
+  } = ctx
+  let level = Math.min(+getRootCtx().verbose, +ctx.verbose)
 
-  if (verbose < _verbose) return
+  if (verbose < level) return
 
   const ig = ignore().add(logIgnore)
 
