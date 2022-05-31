@@ -130,70 +130,66 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     if (this.child) return // The _run() called from two places: then() and setTimeout().
     this._prerun() // In case $1.pipe($2), the $2 returned, and on $2._run() invoke $1._run().
 
-    let context = storage.getStore()
-    assert(context)
-    storage.run(context, () => {
-      if ($.verbose && !this._quiet) {
-        printCmd(this._command)
-      }
+    if ($.verbose && !this._quiet) {
+      printCmd(this._command)
+    }
 
-      let options: SpawnOptionsWithStdioTuple<any, StdioPipe, StdioPipe> = {
-        cwd: this._cwd,
-        shell: typeof $.shell === 'string' ? $.shell : true,
-        stdio: [this._inheritStdin ? 'inherit' : 'pipe', 'pipe', 'pipe'],
-        windowsHide: true,
-        env: $.env,
-      }
-      let child: ChildProcessByStdio<Writable, Readable, Readable> = spawn(
-        $.prefix + this._command,
-        options
-      )
+    let options: SpawnOptionsWithStdioTuple<any, StdioPipe, StdioPipe> = {
+      cwd: this._cwd,
+      shell: typeof $.shell === 'string' ? $.shell : true,
+      stdio: [this._inheritStdin ? 'inherit' : 'pipe', 'pipe', 'pipe'],
+      windowsHide: true,
+      env: $.env,
+    }
+    let child: ChildProcessByStdio<Writable, Readable, Readable> = spawn(
+      $.prefix + this._command,
+      options
+    )
 
-      child.on('close', (code, signal) => {
-        let message = `exit code: ${code}`
-        if (code != 0 || signal != null) {
-          message = `${stderr || '\n'}    at ${this._from}`
-          message += `\n    exit code: ${code}${
-            exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : ''
-          }`
-          if (signal != null) {
-            message += `\n    signal: ${signal}`
-          }
+    child.on('close', (code, signal) => {
+      let message = `exit code: ${code}`
+      if (code != 0 || signal != null) {
+        message = `${stderr || '\n'}    at ${this._from}`
+        message += `\n    exit code: ${code}${
+          exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : ''
+        }`
+        if (signal != null) {
+          message += `\n    signal: ${signal}`
         }
-        let output = new ProcessOutput({
-          code,
-          signal,
-          stdout,
-          stderr,
-          combined,
-          message,
-        })
-        if (code === 0 || this._nothrow) {
-          this._resolve(output)
-        } else {
-          this._reject(output)
-        }
-        this._resolved = true
+      }
+      let output = new ProcessOutput({
+        code,
+        signal,
+        stdout,
+        stderr,
+        combined,
+        message,
       })
-
-      let stdout = '',
-        stderr = '',
-        combined = ''
-      let onStdout = (data: any) => {
-        if ($.verbose && !this._quiet) process.stdout.write(data)
-        stdout += data
-        combined += data
+      if (code === 0 || this._nothrow) {
+        this._resolve(output)
+      } else {
+        this._reject(output)
       }
-      let onStderr = (data: any) => {
-        if ($.verbose && !this._quiet) process.stderr.write(data)
-        stderr += data
-        combined += data
-      }
-      if (!this._piped) child.stdout.on('data', onStdout) // If process is piped, don't collect or print output.
-      child.stderr.on('data', onStderr) // Stderr should be printed regardless of piping.
-      this.child = child
-      this._postrun() // In case $1.pipe($2), after both subprocesses are running, we can pipe $1.stdout to $2.stdin.
+      this._resolved = true
     })
+
+    let stdout = '',
+      stderr = '',
+      combined = ''
+    let onStdout = (data: any) => {
+      if ($.verbose && !this._quiet) process.stdout.write(data)
+      stdout += data
+      combined += data
+    }
+    let onStderr = (data: any) => {
+      if ($.verbose && !this._quiet) process.stderr.write(data)
+      stderr += data
+      combined += data
+    }
+    if (!this._piped) child.stdout.on('data', onStdout) // If process is piped, don't collect or print output.
+    child.stderr.on('data', onStderr) // Stderr should be printed regardless of piping.
+    this.child = child
+    this._postrun() // In case $1.pipe($2), after both subprocesses are running, we can pipe $1.stdout to $2.stdin.
   }
 
   get stdin() {
