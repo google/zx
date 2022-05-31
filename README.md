@@ -243,7 +243,7 @@ await quiet($`grep something from-file`)
 
 ### `within()`
 
-Create a new async context.
+Creates a new async context.
 
 ```ts
 function within(callback): void
