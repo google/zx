@@ -16,6 +16,8 @@ import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 import { log } from '../build/log.js'
 
+$.verbose = 0
+
 test('logger works', async () => {
   let stdout = ''
   let stderr = ''

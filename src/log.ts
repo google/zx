@@ -52,7 +52,7 @@ export function log(opts: {scope: string, verbose?: 0|1|2, output?: 'stdout'|'st
   } = ctx
   let level = Math.min(+getRootCtx().verbose, +ctx.verbose)
 
-  if (verbose < level) return
+  if (verbose > level) return
 
   const ig = ignore().add(logIgnore)
 

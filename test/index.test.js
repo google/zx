@@ -22,6 +22,8 @@ import '../build/globals.js'
 import { ProcessPromise } from '../build/index.js'
 import {getCtx, runInCtx} from '../build/experimental.js'
 
+$.verbose = 0
+
 test('only stdout is used during command substitution', async () => {
   let hello = await $`echo Error >&2; echo Hello`
   let len = +(await $`echo ${hello} | wc -c`)

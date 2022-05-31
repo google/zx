@@ -26,7 +26,7 @@ import {
   log
 } from '../build/experimental.js'
 
-$.verbose = false
+$.verbose = 0
 
 test('retry works', async () => {
   let exitCode = 0
