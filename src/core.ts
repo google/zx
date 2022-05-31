@@ -24,7 +24,7 @@ import { spawn } from 'node:child_process'
 
 import { chalk, which } from './goods.js'
 import { runInCtx, getCtx, setRootCtx, Context } from './context.js'
-import { printStd, printCmd } from './print.js'
+import { printCmd, log } from './print.js'
 import { quote, substitute } from './guards.js'
 
 import psTreeModule from 'ps-tree'
@@ -61,19 +61,19 @@ export function $(pieces: TemplateStringsArray, ...args: any[]) {
   return promise
 }
 
-setRootCtx($)
-
 $.cwd = process.cwd()
 $.env = process.env
 $.quote = quote
 $.spawn = spawn
-$.verbose = true
+$.verbose = 2
 $.maxBuffer = 200 * 1024 * 1024 /* 200 MiB*/
 $.prefix = '' // Bash not found, no prefix.
 try {
   $.shell = which.sync('bash')
   $.prefix = 'set -euo pipefail;'
 } catch (e) {}
+
+setRootCtx($)
 
 export class ProcessPromise extends Promise<ProcessOutput> {
   child?: ChildProcessByStdio<Writable, Readable, Readable>
@@ -219,12 +219,12 @@ export class ProcessPromise extends Promise<ProcessOutput> {
         stderr = '',
         combined = ''
       let onStdout = (data: any) => {
-        printStd(data)
+        log({ scope: 'cmd', output: 'stdout', raw: true, verbose: 2 }, data)
         stdout += data
         combined += data
       }
       let onStderr = (data: any) => {
-        printStd(null, data)
+        log({ scope: 'cmd', output: 'stderr', raw: true, verbose: 2 }, data)
         stderr += data
         combined += data
       }

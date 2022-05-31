@@ -78,13 +78,8 @@ export function startSpinner(title = '') {
   )(setInterval(spin, 100))
 }
 
-export function ctx(
-  cb: Parameters<typeof runInCtx>[1]
-): ReturnType<typeof runInCtx> {
+export function ctx<R extends any>(cb: (_$: typeof $) => R): R {
   const _$ = Object.assign($.bind(null), getCtx())
-  function _cb() {
-    return cb(_$)
-  }
 
-  return runInCtx(_$, _cb)
+  return runInCtx(_$, cb, _$)
 }

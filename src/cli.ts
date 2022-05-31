@@ -25,7 +25,8 @@ import { randomId } from './util.js'
 import './globals.js'
 
 await (async function main() {
-  $.verbose = !argv.quiet
+  $.verbose = +(argv.verbose || argv.quiet ? 0 : $.verbose)
+
   if (typeof argv.shell === 'string') {
     $.shell = argv.shell
   }
@@ -220,7 +221,8 @@ function printUsage() {
    zx [options] <script>
 
  Options:
-   --quiet            : don't echo commands
+   --verbose          : verbosity level 0|1|2
+   --quiet            : don't echo commands, same as --verbose=0
    --shell=<path>     : custom shell binary
    --prefix=<command> : prefix all commands
    --experimental     : enable new api proposals

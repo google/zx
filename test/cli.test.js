@@ -16,7 +16,7 @@ import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 import '../build/globals.js'
 
-$.verbose = false
+$.verbose = 0
 
 test('supports `-v` flag / prints version', async () => {
   assert.match((await $`node build/cli.js -v`).toString(), /\d+.\d+.\d+/)
