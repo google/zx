@@ -20,7 +20,9 @@ import { Writable } from 'node:stream'
 import { Socket } from 'node:net'
 import '../build/globals.js'
 import { ProcessPromise } from '../build/index.js'
-import {getCtx, runInCtx} from '../build/experimental.js'
+import { getCtx, runInCtx } from '../build/context.js'
+
+$.verbose = false
 
 test('only stdout is used during command substitution', async () => {
   let hello = await $`echo Error >&2; echo Hello`
@@ -48,6 +50,7 @@ test('undefined and empty string correctly quoted', async () => {
   $.verbose = true
   assert.is((await $`echo -n ${undefined}`).toString(), 'undefined')
   assert.is((await $`echo -n ${''}`).toString(), '')
+  $.verbose = false
 })
 
 test('can create a dir with a space in the name', async () => {
@@ -214,8 +217,6 @@ test('globby available', async () => {
   assert.is(typeof globby.isDynamicPattern, 'function')
   assert.is(typeof globby.isGitIgnored, 'function')
   assert.is(typeof globby.isGitIgnoredSync, 'function')
-  console.log(chalk.greenBright('globby available'))
-
   assert.equal(await globby('*.md'), ['README.md'])
 })
 

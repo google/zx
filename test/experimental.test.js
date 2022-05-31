@@ -21,6 +21,7 @@ import {
   retry,
   startSpinner,
   withTimeout,
+  ctx,
 } from '../build/experimental.js'
 
 import chalk from 'chalk'
@@ -69,6 +70,44 @@ test('spinner works', async () => {
   let s = startSpinner('waiting')
   await sleep(1000)
   s()
+})
+
+test('ctx() provides isolates running scopes', async () => {
+  $.verbose = true
+
+  await ctx(async ($) => {
+    $.verbose = false
+    await $`echo a`
+
+    $.verbose = true
+    await $`echo b`
+
+    $.verbose = false
+    await ctx(async ($) => {
+      await $`echo d`
+
+      await ctx(async ($) => {
+        assert.ok($.verbose === false)
+
+        await $`echo e`
+        $.verbose = true
+      })
+      $.verbose = true
+    })
+
+    await $`echo c`
+  })
+
+  await $`echo f`
+
+  await ctx(async ($) => {
+    assert.is($.verbose, true)
+    $.verbose = false
+    await $`echo g`
+  })
+
+  assert.is($.verbose, true)
+  $.verbose = false
 })
 
 test.run()

@@ -23,7 +23,7 @@ import { inspect, promisify } from 'node:util'
 import { spawn } from 'node:child_process'
 
 import { chalk, which } from './goods.js'
-import { runInCtx, getCtx, setRootCtx } from './context.js'
+import { runInCtx, getCtx, setRootCtx, Context } from './context.js'
 import { printStd, printCmd } from './print.js'
 import { quote, substitute } from './guards.js'
 
@@ -75,20 +75,6 @@ try {
   $.prefix = 'set -euo pipefail;'
 } catch (e) {}
 
-type Options = {
-  nothrow: boolean
-  verbose: boolean
-  cmd: string
-  cwd: string
-  env: NodeJS.ProcessEnv
-  prefix: string
-  shell: string
-  maxBuffer: number
-  __from: string
-  resolve: any
-  reject: any
-}
-
 export class ProcessPromise extends Promise<ProcessOutput> {
   child?: ChildProcessByStdio<Writable, Readable, Readable>
   _resolved = false
@@ -96,7 +82,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   _piped = false
   _prerun: any = undefined
   _postrun: any = undefined
-  ctx?: Options
+  ctx?: Context
 
   get stdin() {
     this._inheritStdin = false
@@ -176,7 +162,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     if (this.child) return // The _run() called from two places: then() and setTimeout().
     if (this._prerun) this._prerun() // In case $1.pipe($2), the $2 returned, and on $2._run() invoke $1._run().
 
-    runInCtx(this.ctx, () => {
+    runInCtx(this.ctx!, () => {
       const {
         nothrow,
         cmd,
