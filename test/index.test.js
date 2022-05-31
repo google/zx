@@ -381,4 +381,14 @@ test('within() restores previous cwd', async () => {
   await promise
 })
 
+test('inherit() works', async () => {
+  let p = $`printf foo`.inherit()
+  assert.throws(() => p.stdin)
+  assert.is((await p).stdout, 'foo')
+
+  let b = $`printf bar`
+  assert.is((await b).stdout, 'bar')
+  assert.throws(() => b.inherit())
+})
+
 test.run()
