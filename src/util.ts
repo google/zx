@@ -19,3 +19,6 @@ export function randomId() {
 export function isString(obj: any) {
   return typeof obj === 'string'
 }
+
+export const asArray = <T>(value: T[] | T | undefined): T[] =>
+  value ? (Array.isArray(value) ? value : [value]) : []

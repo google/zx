@@ -15,13 +15,17 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
 
 export type Options = {
-  verbose: boolean
+  verbose: boolean | number
   cwd: string
   env: NodeJS.ProcessEnv
   prefix: string
   shell: string
   maxBuffer: number
   quote: (v: string) => string
+  logOutput?: 'stdout' | 'stderr'
+  logFormat?: (...msg: any[]) => string | string[]
+  logPrint?: (data: any, err?: any) => void
+  logIgnore?: string | string[]
 }
 
 export type Context = Options & {
@@ -46,6 +50,4 @@ export function setRootCtx(ctx: Options) {
 export function getRootCtx() {
   return root
 }
-export function runInCtx(ctx: Options, cb: any) {
-  return storage.run(ctx, cb)
-}
+export const runInCtx = storage.run.bind(storage)

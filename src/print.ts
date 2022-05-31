@@ -12,25 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { getCtx } from './context.js'
+import { getCtx, getRootCtx } from './context.js'
 import { chalk } from './goods.js'
-
-export function printCmd(cmd: string) {
-  if (!getCtx()?.verbose) return
-  if (/\n/.test(cmd)) {
-    console.log(
-      cmd
-        .split('\n')
-        .map((line, i) => (i === 0 ? '$' : '>') + ' ' + colorize(line))
-        .join('\n')
-    )
-  } else {
-    console.log('$', colorize(cmd))
-  }
-}
+import { default as ignore } from 'ignore'
+import { asArray } from './util.js'
 
 export function printStd(data: any, err?: any) {
-  if (!getCtx()?.verbose) return
   if (data) process.stdout.write(data)
   if (err) process.stderr.write(err)
 }
@@ -39,4 +26,47 @@ export function colorize(cmd: string) {
   return cmd.replace(/^[\w_.-]+(\s|$)/, (substr) => {
     return chalk.greenBright(substr)
   })
+}
+
+export function log(
+  opts: {
+    scope: string
+    verbose?: 0 | 1 | 2
+    output?: 'stdout' | 'stderr'
+    raw?: boolean
+  },
+  ...msg: any[]
+) {
+  let { scope, verbose = 1, output, raw } = opts
+  let ctx = getCtx()
+  let {
+    logOutput = output,
+    logFormat = () => msg,
+    logPrint = printStd,
+    logIgnore = [],
+  } = ctx
+  let level = Math.min(+getRootCtx().verbose, +ctx.verbose)
+  if (verbose > level) return
+
+  const ig = ignore().add(logIgnore)
+
+  if (!ig.ignores(scope)) {
+    msg = raw ? msg[0] : asArray(logFormat(msg)).join(' ') + '\n'
+    // @ts-ignore
+    logPrint(...(logOutput === 'stdout' ? [msg] : [null, msg]))
+  }
+}
+
+export function printCmd(cmd: string) {
+  if (/\n/.test(cmd)) {
+    log(
+      { scope: 'cmd' },
+      cmd
+        .split('\n')
+        .map((line, i) => (i === 0 ? '$' : '>') + ' ' + colorize(line))
+        .join('\n')
+    )
+  } else {
+    log({ scope: 'cmd' }, '$', colorize(cmd))
+  }
 }
