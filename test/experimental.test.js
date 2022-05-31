@@ -22,6 +22,7 @@ import {
   startSpinner,
   withTimeout,
   ctx,
+  log,
 } from '../build/experimental.js'
 
 import chalk from 'chalk'
@@ -108,6 +109,10 @@ test('ctx() provides isolates running scopes', async () => {
 
   assert.is($.verbose, true)
   $.verbose = false
+})
+
+test('log() API is available', () => {
+  assert.ok(typeof log === 'function')
 })
 
 test.run()
