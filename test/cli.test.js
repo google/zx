@@ -23,13 +23,10 @@ test('supports `-v` flag / prints version', async () => {
 })
 
 test('prints help', async () => {
-  let help
-  try {
-    await $`node build/cli.js`
-  } catch (err) {
-    help = err.toString().trim()
-  }
-  assert.ok(help.includes('print current zx version'))
+  let p = nothrow($`node build/cli.js`)
+  p.stdin.end()
+  let help = await p
+  assert.match(help.stdout, 'zx')
 })
 
 test('supports `--experimental` flag', async () => {
