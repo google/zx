@@ -35,7 +35,7 @@ npm i -g zx
 
 ## Goods
 
-[$](#command-) · [cd()](#cd) · [fetch()](#fetch) · [question()](#question) · [sleep()](#sleep) · [nothrow()](#nothrow) · [quiet()](#quiet) ·
+[$](#command-) · [cd()](#cd) · [fetch()](#fetch) · [question()](#question) · [sleep()](#sleep) · [nothrow()](#nothrow) · [quiet()](#quiet) · [within()](#within) ·
 [chalk](#chalk-package) · [fs](#fs-package) · [os](#os-package) · [path](#path-package) · [globby](#globby-package) · [yaml](#yaml-package) · [minimist](#minimist-package) · [which](#which-package) ·
 [__filename](#__filename--__dirname) · [__dirname](#__filename--__dirname) · [require()](#require)
 
