@@ -15,12 +15,7 @@
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 import '../build/globals.js'
-import {
-  echo,
-  retry,
-  startSpinner,
-  withTimeout,
-} from '../build/experimental.js'
+import { echo, retry, withTimeout } from '../build/experimental.js'
 
 import chalk from 'chalk'
 
@@ -62,12 +57,6 @@ test('echo works', async () => {
     await $`echo ${chalk.green('bar')}`,
     await $`echo ${chalk.bold('baz')}`
   )
-})
-
-test('spinner works', async () => {
-  let s = startSpinner('waiting')
-  await sleep(1000)
-  s()
 })
 
 test.run()
