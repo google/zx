@@ -50,6 +50,8 @@ test('undefined and empty string correctly quoted', async () => {
   $.verbose = true
   assert.is((await $`echo -n ${undefined}`).toString(), 'undefined')
   assert.is((await $`echo -n ${''}`).toString(), '')
+
+  $.verbose = 0
 })
 
 test('can create a dir with a space in the name', async () => {

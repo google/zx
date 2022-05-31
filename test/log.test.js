@@ -16,9 +16,8 @@ import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 import { log } from '../build/log.js'
 
-$.verbose = 0
-
 test('logger works', async () => {
+  $.verbose = 1
   let stdout = ''
   let stderr = ''
   $.logFormat = (msg) => msg.map((m) => m.toUpperCase())
@@ -45,6 +44,7 @@ test('logger works', async () => {
   delete $.logFormat
   delete $.logIgnore
   delete $.logOutput
+  $.verbose = 0
 })
 
 test.run()
