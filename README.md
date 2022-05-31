@@ -225,6 +225,7 @@ if ((await nothrow($`[[ -d path ]]`)).exitCode == 0) {
   ...
 }
 ```
+
 ### `quiet()`
 
 Changes behavior of `$` to disable verbose output.
@@ -238,6 +239,34 @@ Usage:
 ```js
 await quiet($`grep something from-file`)
 // Command and output will not be displayed.
+```
+
+### `within()`
+
+Create a new async context.
+
+```ts
+function within(callback): void
+```
+
+Usage:
+
+```js
+$.verbose = true
+await $`pwd` // => /home/path
+
+within(async () => {
+  $.verbose = false
+  cd('/tmp')
+  
+  setTimeout(async () => {
+    await $`pwd` // => /tmp
+    assert($.verbose == false)
+  }, 1000)
+})
+
+await $`pwd` // => /home/path
+assert($.verbose == true)
 ```
 
 ## Packages
@@ -438,28 +467,6 @@ import {withTimeout} from 'zx/experimental'
 await withTimeout(100, 'SIGTERM')`sleep 9999`
 ```
 
-### `getCtx()` and `runInCtx()`
-
-[async_hooks](https://nodejs.org/api/async_hooks.html) methods to manipulate bound context.
-This object is used by zx inners, so it has a significant impact on the call mechanics. Please use this carefully and wisely.
-
-```js
-import {getCtx, runInCtx} from 'zx/experimental'
-
-runInCtx({ ...getCtx() }, async () => {
-  await sleep(10)
-  cd('/foo')
-  // $.cwd refers to /foo
-  // getCtx().cwd === $.cwd
-})
-
-runInCtx({ ...getCtx() }, async () => {
-  await sleep(20)
-  // $.cwd refers to /foo
-  // but getCtx().cwd !== $.cwd
-})
-```
-
 ## FAQ
 
 ### Passing env variables
@@ -590,31 +597,6 @@ jobs:
         npx zx <<'EOF'
         await $`...`
         EOF
-```
-
-### Customizing
-
-You can build your very own custom zx version that best suits your needs.
-```ts
-// index.js
-import {$} from 'zx'
-
-$.quote = () => {}
-$.extraFn = async () => {
-    await $`ping example.com`
-    await $`npm whoami`
-}
-
-// cli.js
-#!/usr/bin/env node
-
-import './index.js'
-import 'zx/cli'
-
-// script.mjs
-await $.extraFn()
-
-// zx-custom script.mjs
 ```
 
 ## License

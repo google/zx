@@ -15,9 +15,6 @@
 import { ProcessOutput, $ } from './core.js'
 import { sleep } from './goods.js'
 import { isString } from './util.js'
-import { getCtx, runInCtx } from './context.js'
-
-export { getCtx, runInCtx }
 
 // Retries a command a few times. Will return after the first
 // successful attempt, or will throw after specifies attempts count.

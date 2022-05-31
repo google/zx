@@ -26,9 +26,15 @@ import {
   YAML,
   os,
 } from './goods.js'
-import { nothrow, quiet } from './hooks.js'
 import { question } from './question.js'
-import { $, ProcessPromise, ProcessOutput } from './core.js'
+import {
+  $,
+  ProcessPromise,
+  ProcessOutput,
+  nothrow,
+  quiet,
+  within,
+} from './core.js'
 
 export {
   $,
@@ -48,5 +54,6 @@ export {
   quiet,
   sleep,
   which,
+  within,
   YAML,
 }

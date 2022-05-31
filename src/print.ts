@@ -12,11 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { getCtx } from './context.js'
-import { chalk } from './goods.js'
+import { colorize } from './util.js'
 
 export function printCmd(cmd: string) {
-  if (!getCtx()?.verbose) return
   if (/\n/.test(cmd)) {
     console.log(
       cmd
@@ -27,16 +25,4 @@ export function printCmd(cmd: string) {
   } else {
     console.log('$', colorize(cmd))
   }
-}
-
-export function printStd(data: any, err?: any) {
-  if (!getCtx()?.verbose) return
-  if (data) process.stdout.write(data)
-  if (err) process.stderr.write(err)
-}
-
-export function colorize(cmd: string) {
-  return cmd.replace(/^[\w_.-]+(\s|$)/, (substr) => {
-    return chalk.greenBright(substr)
-  })
 }
