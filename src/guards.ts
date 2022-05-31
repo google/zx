@@ -13,30 +13,30 @@
 // limitations under the License.
 
 import { getCtx } from './context.js'
-import { chalk } from './goods.js'
+import { ProcessPromise } from './core.js'
 
-export function printCmd(cmd: string) {
-  if (!getCtx()?.verbose) return
-  if (/\n/.test(cmd)) {
-    console.log(
-      cmd
-        .split('\n')
-        .map((line, i) => (i === 0 ? '$' : '>') + ' ' + colorize(line))
-        .join('\n')
-    )
-  } else {
-    console.log('$', colorize(cmd))
+export function quote(arg: string) {
+  if (/^[a-z0-9/_.-]+$/i.test(arg) || arg === '') {
+    return arg
   }
+  return (
+    `$'` +
+    arg
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, "\\'")
+      .replace(/\f/g, '\\f')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r')
+      .replace(/\t/g, '\\t')
+      .replace(/\v/g, '\\v')
+      .replace(/\0/g, '\\0') +
+    `'`
+  )
 }
 
-export function printStd(data: any, err?: any) {
-  if (!getCtx()?.verbose) return
-  if (data) process.stdout.write(data)
-  if (err) process.stderr.write(err)
-}
-
-export function colorize(cmd: string) {
-  return cmd.replace(/^[\w_.-]+(\s|$)/, (substr) => {
-    return chalk.greenBright(substr)
-  })
+export function substitute(arg: ProcessPromise | any) {
+  if (arg?.stdout) {
+    return arg.stdout.replace(/\n$/, '')
+  }
+  return `${arg}`
 }

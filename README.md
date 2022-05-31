@@ -35,7 +35,7 @@ npm i -g zx
 
 ## Goods
 
-[$](#command-) · [cd()](#cd) · [fetch()](#fetch) · [question()](#question) · [sleep()](#sleep) · [nothrow()](#nothrow) · [quiet()](#quiet) · [within()](#within) ·
+[$](#command-) · [cd()](#cd) · [fetch()](#fetch) · [question()](#question) · [sleep()](#sleep) · [nothrow()](#nothrow) · [quiet()](#quiet) ·
 [chalk](#chalk-package) · [fs](#fs-package) · [os](#os-package) · [path](#path-package) · [globby](#globby-package) · [yaml](#yaml-package) · [minimist](#minimist-package) · [which](#which-package) ·
 [__filename](#__filename--__dirname) · [__dirname](#__filename--__dirname) · [require()](#require)
 
@@ -225,7 +225,6 @@ if ((await nothrow($`[[ -d path ]]`)).exitCode == 0) {
   ...
 }
 ```
-
 ### `quiet()`
 
 Changes behavior of `$` to disable verbose output.
@@ -239,34 +238,6 @@ Usage:
 ```js
 await quiet($`grep something from-file`)
 // Command and output will not be displayed.
-```
-
-### `within()`
-
-Creates a new async context.
-
-```ts
-function within(callback): void
-```
-
-Usage:
-
-```js
-$.verbose = true
-await $`pwd` // => /home/path
-
-within(async () => {
-  $.verbose = false
-  cd('/tmp')
-  
-  setTimeout(async () => {
-    await $`pwd` // => /tmp
-    assert($.verbose == false)
-  }, 1000)
-})
-
-await $`pwd` // => /home/path
-assert($.verbose == true)
 ```
 
 ## Packages
@@ -467,6 +438,29 @@ import {withTimeout} from 'zx/experimental'
 await withTimeout(100, 'SIGTERM')`sleep 9999`
 ```
 
+### `ctx()`
+
+[async_hooks](https://nodejs.org/api/async_hooks.html)-driven scope isolator.
+Creates a separate zx-context for the specified function.
+
+```js
+import {ctx} from 'zx/experimental'
+
+const _$ = $
+ctx(async ($) => {
+  await sleep(10)
+  cd('/foo')
+  // $.cwd refers to /foo
+  // _$.cwd === $.cwd
+})
+
+ctx(async ($) => {
+  await sleep(20)
+  // _$.cwd refers to /foo
+  // but _$.cwd !== $.cwd
+})
+```
+
 ## FAQ
 
 ### Passing env variables
@@ -597,6 +591,31 @@ jobs:
         npx zx <<'EOF'
         await $`...`
         EOF
+```
+
+### Customizing
+
+You can build your very own custom zx version that best suits your needs.
+```ts
+// index.js
+import {$} from 'zx'
+
+$.quote = () => {}
+$.extraFn = async () => {
+    await $`ping example.com`
+    await $`npm whoami`
+}
+
+// cli.js
+#!/usr/bin/env node
+
+import './index.js'
+import 'zx/cli'
+
+// script.mjs
+await $.extraFn()
+
+// zx-custom script.mjs
 ```
 
 ## License

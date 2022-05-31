@@ -12,41 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  argv,
-  cd,
-  chalk,
-  fetch,
-  fs,
-  glob,
-  globby,
-  path,
-  sleep,
-  which,
-  YAML,
-  os,
-} from './goods.js'
-import { nothrow, quiet } from './hooks.js'
-import { question } from './question.js'
-import { $, ProcessPromise, ProcessOutput } from './core.js'
+import { ProcessPromise } from './core.js'
 
-export {
-  $,
-  ProcessPromise,
-  ProcessOutput,
-  argv,
-  cd,
-  chalk,
-  fetch,
-  fs,
-  glob,
-  globby,
-  nothrow,
-  os,
-  path,
-  question,
-  quiet,
-  sleep,
-  which,
-  YAML,
+export function nothrow(promise: ProcessPromise) {
+  promise.ctx!.nothrow = true
+  return promise
+}
+
+export function quiet(promise: ProcessPromise) {
+  promise.ctx!.verbose = false
+  return promise
 }

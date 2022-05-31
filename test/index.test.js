@@ -15,10 +15,12 @@
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 import { inspect } from 'node:util'
+import chalk from 'chalk'
 import { Writable } from 'node:stream'
 import { Socket } from 'node:net'
 import '../build/globals.js'
 import { ProcessPromise } from '../build/index.js'
+import { getCtx, runInCtx } from '../build/context.js'
 
 $.verbose = false
 
@@ -45,8 +47,10 @@ test('arguments are quoted', async () => {
 })
 
 test('undefined and empty string correctly quoted', async () => {
+  $.verbose = true
   assert.is((await $`echo -n ${undefined}`).toString(), 'undefined')
   assert.is((await $`echo -n ${''}`).toString(), '')
+  $.verbose = false
 })
 
 test('can create a dir with a space in the name', async () => {
@@ -65,6 +69,7 @@ test('pipefail is on', async () => {
   try {
     p = await $`cat /dev/not_found | sort`
   } catch (e) {
+    console.log('Caught an exception -> ok')
     p = e
   }
   assert.is.not(p.exitCode, 0)
@@ -212,6 +217,8 @@ test('globby available', async () => {
   assert.is(typeof globby.isDynamicPattern, 'function')
   assert.is(typeof globby.isGitIgnored, 'function')
   assert.is(typeof globby.isGitIgnoredSync, 'function')
+  console.log(chalk.greenBright('globby available'))
+
   assert.equal(await globby('*.md'), ['README.md'])
 })
 
@@ -254,16 +261,18 @@ test('cd() works with relative paths', async () => {
     fs.mkdirpSync('/tmp/zx-cd-test/one/two')
     cd('/tmp/zx-cd-test/one/two')
     let p1 = $`pwd`
-    assert.match($.cwd, '/two')
-    assert.equal(process.cwd(), cwd)
+    assert.ok($.cwd.endsWith('/two'))
+    assert.ok(process.cwd().endsWith('/two'))
 
     cd('..')
     let p2 = $`pwd`
-    assert.match($.cwd, '/one')
+    assert.ok($.cwd.endsWith('/one'))
+    assert.ok(process.cwd().endsWith('/one'))
 
     cd('..')
     let p3 = $`pwd`
-    assert.match($.cwd, '/tmp/zx-cd-test')
+    assert.ok(process.cwd().endsWith('/zx-cd-test'))
+    assert.ok($.cwd.endsWith('/tmp/zx-cd-test'))
 
     let results = (await Promise.all([p1, p2, p3])).map((p) =>
       path.basename(p.stdout.trim())
@@ -279,24 +288,27 @@ test('cd() works with relative paths', async () => {
   }
 })
 
-test('cd() does affect parallel contexts', async () => {
+test('cd() does not affect parallel contexts', async () => {
   let cwd = process.cwd()
   let resolve, reject
-  let promise = new Promise((...args) => ([resolve, reject] = args))
+  let promise = new ProcessPromise((...args) => ([resolve, reject] = args))
 
   try {
     fs.mkdirpSync('/tmp/zx-cd-parallel')
-    within(async () => {
+    runInCtx({ ...getCtx() }, async () => {
       assert.equal($.cwd, cwd)
       await sleep(10)
       cd('/tmp/zx-cd-parallel')
+      assert.ok(getCtx().cwd.endsWith('/zx-cd-parallel'))
       assert.ok($.cwd.endsWith('/zx-cd-parallel'))
     })
 
-    within(async () => {
+    runInCtx({ ...getCtx() }, async () => {
       assert.equal($.cwd, cwd)
+      assert.equal(getCtx().cwd, cwd)
       await sleep(20)
-      assert.ok(!$.cwd.endsWith('/zx-cd-parallel'))
+      assert.equal(getCtx().cwd, cwd)
+      assert.ok($.cwd.endsWith('/zx-cd-parallel'))
       resolve()
     })
 
@@ -335,51 +347,6 @@ test('YAML works', async () => {
 
 test('which available', async () => {
   assert.is(which.sync('npm'), await which('npm'))
-})
-
-test('within() works', async () => {
-  let resolve, reject
-  let promise = new Promise((...args) => ([resolve, reject] = args))
-
-  function yes() {
-    assert.equal($.verbose, true)
-    resolve()
-  }
-
-  $.verbose = false
-  assert.equal($.verbose, false)
-
-  within(() => {
-    $.verbose = true
-  })
-  assert.equal($.verbose, false)
-
-  within(async () => {
-    $.verbose = true
-    setTimeout(yes, 10)
-  })
-  assert.equal($.verbose, false)
-
-  await promise
-})
-
-test('within() restores previous cwd', async () => {
-  let resolve, reject
-  let promise = new Promise((...args) => ([resolve, reject] = args))
-
-  let pwd = await $`pwd`
-
-  within(async () => {
-    $.verbose = false
-    cd('/tmp')
-    setTimeout(async () => {
-      assert.match((await $`pwd`).stdout, '/tmp')
-      resolve()
-    }, 1000)
-  })
-
-  assert.equal((await $`pwd`).stdout, pwd.stdout)
-  await promise
 })
 
 test.run()

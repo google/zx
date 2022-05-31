@@ -12,88 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import chalk from 'chalk'
-import { promisify } from 'node:util'
-import psTreeModule from 'ps-tree'
-import { ProcessPromise } from './core.js'
-
-export const psTree = promisify(psTreeModule)
-
-export function noop() {}
-
 export function randomId() {
   return Math.random().toString(36).slice(2)
 }
 
 export function isString(obj: any) {
   return typeof obj === 'string'
-}
-
-export function quote(arg: string) {
-  if (/^[a-z0-9/_.-]+$/i.test(arg) || arg === '') {
-    return arg
-  }
-  return (
-    `$'` +
-    arg
-      .replace(/\\/g, '\\\\')
-      .replace(/'/g, "\\'")
-      .replace(/\f/g, '\\f')
-      .replace(/\n/g, '\\n')
-      .replace(/\r/g, '\\r')
-      .replace(/\t/g, '\\t')
-      .replace(/\v/g, '\\v')
-      .replace(/\0/g, '\\0') +
-    `'`
-  )
-}
-
-export function substitute(arg: ProcessPromise | any) {
-  if (arg?.stdout) {
-    return arg.stdout.replace(/\n$/, '')
-  }
-  return `${arg}`
-}
-
-export function colorize(cmd: string) {
-  return cmd.replace(/^[\w_.-]+(\s|$)/, (substr) => {
-    return chalk.greenBright(substr)
-  })
-}
-
-export function exitCodeInfo(exitCode: number | null): string | undefined {
-  return {
-    2: 'Misuse of shell builtins',
-    126: 'Invoked command cannot execute',
-    127: 'Command not found',
-    128: 'Invalid exit argument',
-    129: 'Hangup',
-    130: 'Interrupt',
-    131: 'Quit and dump core',
-    132: 'Illegal instruction',
-    133: 'Trace/breakpoint trap',
-    134: 'Process aborted',
-    135: 'Bus error: "access to undefined portion of memory object"',
-    136: 'Floating point exception: "erroneous arithmetic operation"',
-    137: 'Kill (terminate immediately)',
-    138: 'User-defined 1',
-    139: 'Segmentation violation',
-    140: 'User-defined 2',
-    141: 'Write to pipe with no one reading',
-    142: 'Signal raised by alarm',
-    143: 'Termination (request to terminate)',
-    145: 'Child process terminated, stopped (or continued*)',
-    146: 'Continue if stopped',
-    147: 'Stop executing temporarily',
-    148: 'Terminal stop signal',
-    149: 'Background process attempting to read from tty ("in")',
-    150: 'Background process attempting to write to tty ("out")',
-    151: 'Urgent data available on socket',
-    152: 'CPU time limit exceeded',
-    153: 'File size limit exceeded',
-    154: 'Signal raised by timer counting virtual time: "virtual timer expired"',
-    155: 'Profiling timer expired',
-    157: 'Pollable event',
-    159: 'Bad syscall',
-  }[exitCode || -1]
 }

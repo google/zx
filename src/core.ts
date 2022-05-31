@@ -12,185 +12,77 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { ChalkInstance } from 'chalk'
 import {
   ChildProcessByStdio,
   SpawnOptionsWithStdioTuple,
   StdioPipe,
 } from 'child_process'
-import { AsyncLocalStorage } from 'node:async_hooks'
 import { Readable, Writable } from 'node:stream'
 import { inspect, promisify } from 'node:util'
 import { spawn } from 'node:child_process'
-import assert from 'node:assert'
-import { ChalkInstance } from 'chalk'
+
 import { chalk, which } from './goods.js'
-import { printCmd } from './print.js'
-import { noop, quote, substitute, psTree, exitCodeInfo } from './util.js'
+import { runInCtx, getCtx, setRootCtx, Context } from './context.js'
+import { printStd, printCmd } from './print.js'
+import { quote, substitute } from './guards.js'
 
-type Shell = (pieces: TemplateStringsArray, ...args: any[]) => ProcessPromise
+import psTreeModule from 'ps-tree'
 
-type Options = {
-  verbose: boolean
-  cwd: string
-  env: NodeJS.ProcessEnv
-  shell: string | boolean
-  prefix: string
-  quote: typeof quote
-  spawn: typeof spawn
+const psTree = promisify(psTreeModule)
+
+export function $(pieces: TemplateStringsArray, ...args: any[]) {
+  let resolve, reject
+  let promise = new ProcessPromise((...args) => ([resolve, reject] = args))
+
+  let cmd = pieces[0],
+    i = 0
+  let quote = getCtx().quote
+  while (i < args.length) {
+    let s
+    if (Array.isArray(args[i])) {
+      s = args[i].map((x: any) => quote(substitute(x))).join(' ')
+    } else {
+      s = quote(substitute(args[i]))
+    }
+    cmd += s + pieces[++i]
+  }
+
+  promise.ctx = {
+    ...getCtx(),
+    cmd,
+    __from: new Error().stack!.split(/^\s*at\s/m)[2].trim(),
+    resolve,
+    reject,
+  }
+
+  setImmediate(() => promise._run()) // Make sure all subprocesses are started, if not explicitly by await or then().
+
+  return promise
 }
 
-const storage = new AsyncLocalStorage<Options>()
+setRootCtx($)
 
-export const $ = new Proxy<Shell & Options>(
-  function (pieces, ...args) {
-    let from = new Error().stack!.split(/^\s*at\s/m)[2].trim()
-    let resolve: Resolve, reject: Resolve
-    let promise = new ProcessPromise((...args) => ([resolve, reject] = args))
-    let cmd = pieces[0],
-      i = 0
-    while (i < args.length) {
-      let s
-      if (Array.isArray(args[i])) {
-        s = args[i].map((x: any) => $.quote(substitute(x))).join(' ')
-      } else {
-        s = $.quote(substitute(args[i]))
-      }
-      cmd += s + pieces[++i]
-    }
-    promise._bind(cmd, $.cwd, from, resolve!, reject!)
-    // Make sure all subprocesses are started, if not explicitly by await or then().
-    setImmediate(() => promise._run())
-    return promise
-  } as Shell & Options,
-  {
-    set(_, key, value) {
-      let context = storage.getStore()
-      assert(context)
-      Reflect.set(context, key, value)
-      return true
-    },
-    get(_, key) {
-      let context = storage.getStore()
-      assert(context)
-      return Reflect.get(context, key)
-    },
-  }
-)
-
-void (function init() {
-  storage.enterWith({
-    verbose: true,
-    cwd: process.cwd(),
-    env: process.env,
-    shell: true,
-    prefix: '',
-    quote,
-    spawn,
-  })
-  try {
-    $.shell = which.sync('bash')
-    $.prefix = 'set -euo pipefail;'
-  } catch (err) {
-    // ¯\_(ツ)_/¯
-  }
-})()
-
-type Resolve = (out: ProcessOutput) => void
+$.cwd = process.cwd()
+$.env = process.env
+$.quote = quote
+$.spawn = spawn
+$.verbose = true
+$.maxBuffer = 200 * 1024 * 1024 /* 200 MiB*/
+$.prefix = '' // Bash not found, no prefix.
+try {
+  $.shell = which.sync('bash')
+  $.prefix = 'set -euo pipefail;'
+} catch (e) {}
 
 export class ProcessPromise extends Promise<ProcessOutput> {
   child?: ChildProcessByStdio<Writable, Readable, Readable>
-  private _command = ''
-  private _cwd = ''
-  private _from = ''
-  private _resolve: Resolve = noop
-  private _reject: Resolve = noop
-  _nothrow = false
-  _quiet = false
-  private _resolved = false
+  _resolved = false
   _inheritStdin = true
   _piped = false
-  _prerun = noop
-  _postrun = noop
-
-  _bind(
-    cmd: string,
-    cwd: string,
-    from: string,
-    resolve: Resolve,
-    reject: Resolve
-  ) {
-    this._command = cmd
-    this._cwd = cwd
-    this._from = from
-    this._resolve = resolve
-    this._reject = reject
-  }
-
-  _run() {
-    if (this.child) return // The _run() called from two places: then() and setTimeout().
-    this._prerun() // In case $1.pipe($2), the $2 returned, and on $2._run() invoke $1._run().
-
-    if ($.verbose && !this._quiet) {
-      printCmd(this._command)
-    }
-
-    let options: SpawnOptionsWithStdioTuple<any, StdioPipe, StdioPipe> = {
-      cwd: this._cwd,
-      shell: typeof $.shell === 'string' ? $.shell : true,
-      stdio: [this._inheritStdin ? 'inherit' : 'pipe', 'pipe', 'pipe'],
-      windowsHide: true,
-      env: $.env,
-    }
-    let child: ChildProcessByStdio<Writable, Readable, Readable> = spawn(
-      $.prefix + this._command,
-      options
-    )
-
-    child.on('close', (code, signal) => {
-      let message = `exit code: ${code}`
-      if (code != 0 || signal != null) {
-        message = `${stderr || '\n'}    at ${this._from}`
-        message += `\n    exit code: ${code}${
-          exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : ''
-        }`
-        if (signal != null) {
-          message += `\n    signal: ${signal}`
-        }
-      }
-      let output = new ProcessOutput({
-        code,
-        signal,
-        stdout,
-        stderr,
-        combined,
-        message,
-      })
-      if (code === 0 || this._nothrow) {
-        this._resolve(output)
-      } else {
-        this._reject(output)
-      }
-      this._resolved = true
-    })
-
-    let stdout = '',
-      stderr = '',
-      combined = ''
-    let onStdout = (data: any) => {
-      if ($.verbose && !this._quiet) process.stdout.write(data)
-      stdout += data
-      combined += data
-    }
-    let onStderr = (data: any) => {
-      if ($.verbose && !this._quiet) process.stderr.write(data)
-      stderr += data
-      combined += data
-    }
-    if (!this._piped) child.stdout.on('data', onStdout) // If process is piped, don't collect or print output.
-    child.stderr.on('data', onStderr) // Stderr should be printed regardless of piping.
-    this.child = child
-    this._postrun() // In case $1.pipe($2), after both subprocesses are running, we can pipe $1.stdout to $2.stdin.
-  }
+  _prerun: any = undefined
+  _postrun: any = undefined
+  ctx?: Context
 
   get stdin() {
     this._inheritStdin = false
@@ -265,14 +157,91 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       process.kill(this.child.pid, signal)
     } catch (e) {}
   }
+
+  _run() {
+    if (this.child) return // The _run() called from two places: then() and setTimeout().
+    if (this._prerun) this._prerun() // In case $1.pipe($2), the $2 returned, and on $2._run() invoke $1._run().
+
+    runInCtx(this.ctx!, () => {
+      const {
+        nothrow,
+        cmd,
+        cwd,
+        env,
+        prefix,
+        shell,
+        maxBuffer,
+        __from,
+        resolve,
+        reject,
+      } = this.ctx!
+
+      printCmd(cmd)
+
+      let options: SpawnOptionsWithStdioTuple<any, StdioPipe, StdioPipe> = {
+        cwd,
+        shell: typeof shell === 'string' ? shell : true,
+        stdio: [this._inheritStdin ? 'inherit' : 'pipe', 'pipe', 'pipe'],
+        windowsHide: true,
+        // TODO: Surprise: maxBuffer have no effect for spawn.
+        // maxBuffer,
+        env,
+      }
+      let child: ChildProcessByStdio<Writable, Readable, Readable> = spawn(
+        prefix + cmd,
+        options
+      )
+
+      child.on('close', (code, signal) => {
+        let message = `exit code: ${code}`
+        if (code != 0 || signal != null) {
+          message = `${stderr || '\n'}    at ${__from}`
+          message += `\n    exit code: ${code}${
+            exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : ''
+          }`
+          if (signal != null) {
+            message += `\n    signal: ${signal}`
+          }
+        }
+        let output = new ProcessOutput({
+          code,
+          signal,
+          stdout,
+          stderr,
+          combined,
+          message,
+        })
+        ;(code === 0 || nothrow ? resolve : reject)(output)
+        this._resolved = true
+      })
+
+      let stdout = '',
+        stderr = '',
+        combined = ''
+      let onStdout = (data: any) => {
+        printStd(data)
+        stdout += data
+        combined += data
+      }
+      let onStderr = (data: any) => {
+        printStd(null, data)
+        stderr += data
+        combined += data
+      }
+      if (!this._piped) child.stdout.on('data', onStdout) // If process is piped, don't collect or print output.
+      child.stderr.on('data', onStderr) // Stderr should be printed regardless of piping.
+      this.child = child
+      if (this._postrun) this._postrun() // In case $1.pipe($2), after both subprocesses are running, we can pipe $1.stdout to $2.stdin.
+    })
+  }
 }
 
 export class ProcessOutput extends Error {
-  readonly #code: number | null
-  readonly #signal: NodeJS.Signals | null
-  readonly #stdout: string
-  readonly #stderr: string
-  readonly #combined: string
+  #code: number | null = null
+  #signal: NodeJS.Signals | null = null
+  #stdout = ''
+  #stderr = ''
+  #combined = ''
 
   constructor({
     code,
@@ -333,18 +302,39 @@ export class ProcessOutput extends Error {
   }
 }
 
-export function nothrow(promise: ProcessPromise) {
-  promise._nothrow = true
-  return promise
-}
-
-export function quiet(promise: ProcessPromise) {
-  promise._quiet = true
-  return promise
-}
-
-export function within(callback: () => void) {
-  let context = storage.getStore()
-  assert(context)
-  storage.run({ ...context }, callback)
+function exitCodeInfo(exitCode: number | null): string | undefined {
+  return {
+    2: 'Misuse of shell builtins',
+    126: 'Invoked command cannot execute',
+    127: 'Command not found',
+    128: 'Invalid exit argument',
+    129: 'Hangup',
+    130: 'Interrupt',
+    131: 'Quit and dump core',
+    132: 'Illegal instruction',
+    133: 'Trace/breakpoint trap',
+    134: 'Process aborted',
+    135: 'Bus error: "access to undefined portion of memory object"',
+    136: 'Floating point exception: "erroneous arithmetic operation"',
+    137: 'Kill (terminate immediately)',
+    138: 'User-defined 1',
+    139: 'Segmentation violation',
+    140: 'User-defined 2',
+    141: 'Write to pipe with no one reading',
+    142: 'Signal raised by alarm',
+    143: 'Termination (request to terminate)',
+    145: 'Child process terminated, stopped (or continued*)',
+    146: 'Continue if stopped',
+    147: 'Stop executing temporarily',
+    148: 'Terminal stop signal',
+    149: 'Background process attempting to read from tty ("in")',
+    150: 'Background process attempting to write to tty ("out")',
+    151: 'Urgent data available on socket',
+    152: 'CPU time limit exceeded',
+    153: 'File size limit exceeded',
+    154: 'Signal raised by timer counting virtual time: "virtual timer expired"',
+    155: 'Profiling timer expired',
+    157: 'Pollable event',
+    159: 'Bad syscall',
+  }[exitCode || -1]
 }

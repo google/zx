@@ -25,7 +25,6 @@ VAR=$(echo hello)
 echo "$VAR"
 ```
 
-    // ignore
     console.log('world')
 
 Other code blocks are ignored:
