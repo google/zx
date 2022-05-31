@@ -16,20 +16,6 @@ import {getCtx, getRootCtx} from './context.js'
 import { chalk } from './goods.js'
 import { default as ignore } from 'ignore'
 
-export function printCmd(cmd: string) {
-  if (!getCtx()?.verbose) return
-  if (/\n/.test(cmd)) {
-    console.log(
-      cmd
-        .split('\n')
-        .map((line, i) => (i === 0 ? '$' : '>') + ' ' + colorize(line))
-        .join('\n')
-    )
-  } else {
-    console.log('$', colorize(cmd))
-  }
-}
-
 export function printStd(data: any, err?: any) {
   if (data) process.stdout.write(data)
   if (err) process.stderr.write(err)
@@ -59,5 +45,19 @@ export function log(opts: {scope: string, verbose?: 0|1|2, output?: 'stdout'|'st
   if (!ig.ignores(scope)) {
     msg = raw ? msg[0] : logFormat(msg)?.join(' ') + '\n'
     logPrint(...(logOutput === 'stdout' ? [msg] : [null, msg]))
+  }
+}
+
+export function printCmd(cmd: string) {
+  if (/\n/.test(cmd)) {
+    log(
+        { scope: 'cmd' },
+        cmd
+            .split('\n')
+            .map((line, i) => (i === 0 ? '$' : '>') + ' ' + colorize(line))
+            .join('\n')
+    )
+  } else {
+    log({ scope: 'cmd' }, '$', colorize(cmd))
   }
 }

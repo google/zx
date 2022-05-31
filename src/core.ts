@@ -24,7 +24,7 @@ import { inspect, promisify } from 'node:util'
 
 import { chalk, which } from './goods.js'
 import { runInCtx, getCtx, setRootCtx } from './context.js'
-import { log, colorize } from './log.js'
+import { log, printCmd } from './log.js'
 import { quote, substitute } from './guards.js'
 
 import psTreeModule from 'ps-tree'
@@ -314,20 +314,6 @@ export class ProcessOutput extends Error {
         : ''
     }
 }`
-  }
-}
-
-function printCmd(cmd: string) {
-  if (/\n/.test(cmd)) {
-    log(
-      { scope: 'cmd' },
-      cmd
-        .split('\n')
-        .map((line, i) => (i === 0 ? '$' : '>') + ' ' + colorize(line))
-        .join('\n')
-    )
-  } else {
-    log({ scope: 'cmd' }, '$', colorize(cmd))
   }
 }
 
