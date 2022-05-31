@@ -209,13 +209,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   pipe(dest: Writable | ProcessPromise) {
-    if (typeof dest == 'string') {
+    if (typeof dest == 'string')
       throw new Error('The pipe() method does not take strings. Forgot $?')
-    }
     if (this._resolved) {
-      if (dest instanceof ProcessPromise) {
-        dest.stdin.end()
-      }
+      if (dest instanceof ProcessPromise) dest.stdin.end() // In case of piped stdin, we may want to close stdin of dest as well.
       throw new Error(
         "The pipe() method shouldn't be called after promise is already resolved!"
       )
@@ -264,11 +261,11 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 }
 
 export class ProcessOutput extends Error {
-  readonly #code: number | null
-  readonly #signal: NodeJS.Signals | null
-  readonly #stdout: string
-  readonly #stderr: string
-  readonly #combined: string
+  private readonly _code: number | null
+  private readonly _signal: NodeJS.Signals | null
+  private readonly _stdout: string
+  private readonly _stderr: string
+  private readonly _combined: string
 
   constructor(
     code: number | null,
@@ -279,31 +276,31 @@ export class ProcessOutput extends Error {
     message: string
   ) {
     super(message)
-    this.#code = code
-    this.#signal = signal
-    this.#stdout = stdout
-    this.#stderr = stderr
-    this.#combined = combined
+    this._code = code
+    this._signal = signal
+    this._stdout = stdout
+    this._stderr = stderr
+    this._combined = combined
   }
 
   toString() {
-    return this.#combined
+    return this._combined
   }
 
   get stdout() {
-    return this.#stdout
+    return this._stdout
   }
 
   get stderr() {
-    return this.#stderr
+    return this._stderr
   }
 
   get exitCode() {
-    return this.#code
+    return this._code
   }
 
   get signal() {
-    return this.#signal
+    return this._signal
   }
 
   [inspect.custom]() {
