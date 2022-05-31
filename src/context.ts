@@ -14,20 +14,38 @@
 
 import { AsyncLocalStorage } from 'node:async_hooks'
 
-let root: any
+export type Options = {
+  verbose: boolean
+  cwd: string
+  env: NodeJS.ProcessEnv
+  prefix: string
+  shell: string
+  maxBuffer: number
+  quote: (v: string) => string
+}
 
-const storage = new AsyncLocalStorage<any>()
+export type Context = Options & {
+  nothrow?: boolean
+  cmd: string
+  __from: string
+  resolve: any
+  reject: any
+}
+
+let root: Options
+
+const storage = new AsyncLocalStorage<Options>()
 
 export function getCtx() {
-  return storage.getStore()
+  return storage.getStore() as Context
 }
-export function setRootCtx(ctx: any) {
+export function setRootCtx(ctx: Options) {
   storage.enterWith(ctx)
   root = ctx
 }
 export function getRootCtx() {
   return root
 }
-export function runInCtx(ctx: any, cb: any) {
+export function runInCtx(ctx: Options, cb: any) {
   return storage.run(ctx, cb)
 }
