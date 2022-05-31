@@ -22,6 +22,8 @@ import '../build/globals.js'
 import { ProcessPromise } from '../build/index.js'
 import { getCtx, runInCtx } from '../build/context.js'
 
+$.verbose = false
+
 test('only stdout is used during command substitution', async () => {
   let hello = await $`echo Error >&2; echo Hello`
   let len = +(await $`echo ${hello} | wc -c`)
@@ -48,6 +50,7 @@ test('undefined and empty string correctly quoted', async () => {
   $.verbose = true
   assert.is((await $`echo -n ${undefined}`).toString(), 'undefined')
   assert.is((await $`echo -n ${''}`).toString(), '')
+  $.verbose = false
 })
 
 test('can create a dir with a space in the name', async () => {
