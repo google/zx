@@ -217,8 +217,6 @@ test('globby available', async () => {
   assert.is(typeof globby.isDynamicPattern, 'function')
   assert.is(typeof globby.isGitIgnored, 'function')
   assert.is(typeof globby.isGitIgnoredSync, 'function')
-  console.log(chalk.greenBright('globby available'))
-
   assert.equal(await globby('*.md'), ['README.md'])
 })
 
