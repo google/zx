@@ -14,11 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { startSpinner } from 'zx/experimental'
-
 let tests = await glob('test/*.test.js')
 let stop = startSpinner('running tests')
-$.verbose = false
 try {
   let res = await Promise.all(tests.map((file) => $`npx uvu . ${file}`))
   res.forEach((r) => console.log(r.toString()))

@@ -17,8 +17,8 @@ import * as assert from 'uvu/assert'
 import { inspect } from 'node:util'
 import { Writable } from 'node:stream'
 import { Socket } from 'node:net'
-import '../build/globals.js'
 import { ProcessPromise } from '../build/index.js'
+import '../build/globals.js'
 
 $.verbose = false
 
@@ -379,6 +379,12 @@ test('within() restores previous cwd', async () => {
 
   assert.equal((await $`pwd`).stdout, pwd.stdout)
   await promise
+})
+
+test('spinner works', async () => {
+  let s = startSpinner('waiting')
+  await sleep(1000)
+  s()
 })
 
 test('inherit() works', async () => {

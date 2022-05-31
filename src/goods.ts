@@ -52,3 +52,21 @@ export function cd(dir: string) {
   if ($.verbose) console.log('$', colorize(`cd ${dir}`))
   $.cwd = path.resolve($.cwd, dir)
 }
+
+/**
+ * Starts a simple CLI spinner.
+ * @param title Spinner's title.
+ * @return A stop() func.
+ */
+export function startSpinner(title = '') {
+  let i = 0,
+    v = $.verbose
+  $.verbose = false
+  let spin = () =>
+    process.stdout.write(`  ${'⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'[i++ % 10]} ${title}\r`)
+  let id = setInterval(spin, 100)
+  return () => {
+    clearInterval(id)
+    $.verbose = v
+  }
+}
