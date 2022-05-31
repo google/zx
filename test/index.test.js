@@ -177,20 +177,19 @@ test('ProcessOutput thrown as error', async () => {
 })
 
 test('pipe() throws if already resolved', async (t) => {
-  let out,
-    p = $`echo "Hello"`
+  let ok = true
+  let p = $`echo "Hello"`
   await p
   try {
-    out = await p.pipe($`less`)
+    await p.pipe($`less`)
+    ok = false
   } catch (err) {
     assert.is(
       err.message,
       `The pipe() method shouldn't be called after promise is already resolved!`
     )
   }
-  if (out) {
-    t.fail('Expected failure!')
-  }
+  assert.ok(ok, 'Expected failure!')
 })
 
 test('await $`cmd`.exitCode does not throw', async () => {

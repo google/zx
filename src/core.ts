@@ -15,6 +15,7 @@
 import {
   ChildProcessByStdio,
   SpawnOptionsWithStdioTuple,
+  StdioNull,
   StdioPipe,
 } from 'child_process'
 import { AsyncLocalStorage } from 'node:async_hooks'
@@ -107,7 +108,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   _nothrow = false
   _quiet = false
   private _resolved = false
-  _inheritStdin = true
   _piped = false
   _prerun = noop
   _postrun = noop
@@ -134,19 +134,15 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       printCmd(this._command)
     }
 
-    let options: SpawnOptionsWithStdioTuple<any, StdioPipe, StdioPipe> = {
+    this.child = spawn($.prefix + this._command, {
       cwd: this._cwd,
       shell: typeof $.shell === 'string' ? $.shell : true,
-      stdio: [this._inheritStdin ? 'inherit' : 'pipe', 'pipe', 'pipe'],
+      stdio: ['pipe', 'pipe', 'pipe'],
       windowsHide: true,
       env: $.env,
-    }
-    let child: ChildProcessByStdio<Writable, Readable, Readable> = spawn(
-      $.prefix + this._command,
-      options
-    )
+    })
 
-    child.on('close', (code, signal) => {
+    this.child.on('close', (code, signal) => {
       let message = `exit code: ${code}`
       if (code != 0 || signal != null) {
         message = `${stderr || '\n'}    at ${this._from}`
@@ -186,30 +182,33 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       stderr += data
       combined += data
     }
-    if (!this._piped) child.stdout.on('data', onStdout) // If process is piped, don't collect or print output.
-    child.stderr.on('data', onStderr) // Stderr should be printed regardless of piping.
-    this.child = child
-    this._postrun() // In case $1.pipe($2), after both subprocesses are running, we can pipe $1.stdout to $2.stdin.
+
+    // If process is piped, don't collect or print output.
+    if (!this._piped) this.child.stdout.on('data', onStdout)
+
+    // Stderr should be printed regardless of piping.
+    this.child.stderr.on('data', onStderr)
+
+    // In case $1.pipe($2), after both subprocesses are running,
+    // we can pipe $1.stdout to $2.stdin.
+    this._postrun()
   }
 
-  get stdin() {
-    this._inheritStdin = false
+  get stdin(): Writable {
     this._run()
     if (!this.child)
       throw new Error('Access to stdin without creation a subprocess.')
     return this.child.stdin
   }
 
-  get stdout() {
-    this._inheritStdin = false
+  get stdout(): Readable {
     this._run()
     if (!this.child)
       throw new Error('Access to stdout without creation a subprocess.')
     return this.child.stdout
   }
 
-  get stderr() {
-    this._inheritStdin = false
+  get stderr(): Readable {
     this._run()
     if (!this.child)
       throw new Error('Access to stderr without creation a subprocess.')
@@ -228,13 +227,15 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       throw new Error('The pipe() method does not take strings. Forgot $?')
     }
     if (this._resolved) {
+      if (dest instanceof ProcessPromise) {
+        dest.stdin.end()
+      }
       throw new Error(
         "The pipe() method shouldn't be called after promise is already resolved!"
       )
     }
     this._piped = true
     if (dest instanceof ProcessPromise) {
-      dest._inheritStdin = false
       dest._prerun = this._run.bind(this)
       dest._postrun = () => {
         if (!dest.child)
