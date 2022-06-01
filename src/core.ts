@@ -37,6 +37,35 @@ type Options = {
 
 const storage = new AsyncLocalStorage<Options>()
 
+function init() {
+  storage.enterWith({
+    verbose: true,
+    cwd: process.cwd(),
+    env: process.env,
+    shell: true,
+    prefix: '',
+    quote,
+    spawn,
+  })
+  if (process.env.ZX_VERBOSE) $.verbose = process.env.ZX_VERBOSE == 'true'
+  try {
+    $.shell = which.sync('bash')
+    $.prefix = 'set -euo pipefail;'
+  } catch (err) {
+    // ¯\_(ツ)_/¯
+  }
+}
+
+function getStore() {
+  let context = storage.getStore()
+  if (!context) {
+    init()
+    context = storage.getStore()
+    assert(context)
+  }
+  return context
+}
+
 export const $ = new Proxy<Shell & Options>(
   function (pieces, ...args) {
     let from = new Error().stack!.split(/^\s*at\s/m)[2].trim()
@@ -60,36 +89,14 @@ export const $ = new Proxy<Shell & Options>(
   } as Shell & Options,
   {
     set(_, key, value) {
-      let context = storage.getStore()
-      assert(context)
-      Reflect.set(context, key, value)
+      Reflect.set(getStore(), key, value)
       return true
     },
     get(_, key) {
-      let context = storage.getStore()
-      assert(context)
-      return Reflect.get(context, key)
+      return Reflect.get(getStore(), key)
     },
   }
 )
-
-void (function init() {
-  storage.enterWith({
-    verbose: true,
-    cwd: process.cwd(),
-    env: process.env,
-    shell: true,
-    prefix: '',
-    quote,
-    spawn,
-  })
-  try {
-    $.shell = which.sync('bash')
-    $.prefix = 'set -euo pipefail;'
-  } catch (err) {
-    // ¯\_(ツ)_/¯
-  }
-})()
 
 type Resolve = (out: ProcessOutput) => void
 
@@ -330,7 +337,5 @@ export function quiet(promise: ProcessPromise) {
 }
 
 export function within<R>(callback: (...args: any) => R): R {
-  let context = storage.getStore()
-  assert(context)
-  return storage.run({ ...context }, callback)
+  return storage.run({ ...getStore() }, callback)
 }

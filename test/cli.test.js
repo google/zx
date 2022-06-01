@@ -18,15 +18,32 @@ import '../build/globals.js'
 
 $.verbose = false
 
-test('supports `-v` flag / prints version', async () => {
+test('prints version', async () => {
   assert.match((await $`node build/cli.js -v`).toString(), /\d+.\d+.\d+/)
 })
 
 test('prints help', async () => {
-  let p = nothrow($`node build/cli.js`)
+  let p = $`node build/cli.js -h`
   p.stdin.end()
   let help = await p
   assert.match(help.stdout, 'zx')
+})
+
+test('starts repl', async () => {
+  let p = $`node build/cli.js`
+  p.stdin.end()
+  let out = await p
+  assert.match(out.stdout, '❯')
+})
+
+test('starts repl with -i', async () => {
+  let p = $`node build/cli.js -i`
+  p.stdin.write('await $`echo f"o"o`\n')
+  p.stdin.write('"b"+"ar"\n')
+  p.stdin.end()
+  let out = await p
+  assert.match(out.stdout, 'foo')
+  assert.match(out.stdout, 'bar')
 })
 
 test('supports `--experimental` flag', async () => {
