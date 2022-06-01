@@ -53,11 +53,11 @@ export function log(
   if (!ig.ignores(scope)) {
     msg = raw ? msg[0] : asArray(logFormat(msg)).join(' ') + '\n'
     // @ts-ignore
-    logPrint(...(logOutput === 'stdout' ? [msg] : [null, msg]))
+    logPrint(...(logOutput === 'stderr' ? [null, msg] : [msg]))
   }
 }
 
-export function printCmd(cmd: string) {
+export function printCmd(cmd: string): void {
   if (/\n/.test(cmd)) {
     log(
       { scope: 'cmd' },
