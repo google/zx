@@ -329,8 +329,8 @@ export function quiet(promise: ProcessPromise) {
   return promise
 }
 
-export function within(callback: () => void) {
+export function within<R>(callback: (...args: any) => R): R {
   let context = storage.getStore()
   assert(context)
-  storage.run({ ...context }, callback)
+  return storage.run({ ...context }, callback)
 }

@@ -381,6 +381,27 @@ test('within() restores previous cwd', async () => {
   await promise
 })
 
+test(`within() isolates nested context and returns cb result`, async () => {
+  within(async () => {
+    const res = await within(async () => {
+      $.verbose = true
+
+      return within(async () => {
+        assert.equal($.verbose, true)
+        $.verbose = false
+
+        return within(async () => {
+          assert.equal($.verbose, false)
+          $.verbose = true
+          return 'foo'
+        })
+      })
+    })
+    assert.equal($.verbose, false)
+    assert.equal(res, 'foo')
+  })
+})
+
 test('spinner works', async () => {
   let s = startSpinner('waiting')
   await sleep(1000)
