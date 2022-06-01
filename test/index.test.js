@@ -395,6 +395,7 @@ test('inherit() works', async () => {
   let b = $`printf bar`
   assert.is((await b).stdout, 'bar')
   assert.throws(() => b.inherit())
+  assert.not.throws(() => b.stdin)
 })
 
 test.run()
