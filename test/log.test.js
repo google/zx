@@ -31,14 +31,14 @@ test('logger works', async () => {
   log({ scope: 'baz' }, 'baz-test')
   log({ scope: 'fetch' }, 'example.com')
 
-  assert.ok(stderr.includes('FOO-TEST'))
-  assert.ok(!stderr.includes('BAR-TEST'))
-  assert.ok(!stderr.includes('BAZ-TEST'))
-  assert.ok(!stderr.includes('EXAMPLE.COM'))
+  assert.ok(stdout.includes('FOO-TEST'))
+  assert.ok(!stdout.includes('BAR-TEST'))
+  assert.ok(!stdout.includes('BAZ-TEST'))
+  assert.ok(!stdout.includes('EXAMPLE.COM'))
 
-  $.logOutput = 'stdout'
+  $.logOutput = 'stderr'
   log({ scope: 'foo' }, 'foo')
-  assert.ok(stdout.includes('FOO'))
+  assert.ok(stderr.includes('FOO'))
 
   delete $.logPrint
   delete $.logFormat
