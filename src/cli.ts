@@ -20,6 +20,7 @@ import { tmpdir } from 'node:os'
 import { basename, dirname, extname, join, resolve } from 'node:path'
 import url from 'node:url'
 import { $, argv, fetch, ProcessOutput, chalk } from './index.js'
+import { startRepl } from './repl.js'
 import { randomId } from './util.js'
 import './globals.js'
 
@@ -35,16 +36,32 @@ await (async function main() {
     Object.assign(global, await import('./experimental.js'))
   }
   try {
-    if (['--version', '-v', '-V'].includes(process.argv[2])) {
-      console.log(createRequire(import.meta.url)('../package.json').version)
+    if (
+      process.argv.length == 3 &&
+      ['--version', '-v', '-V'].includes(process.argv[2])
+    ) {
+      console.log(getVersion())
+      return (process.exitCode = 0)
+    }
+    if (
+      process.argv.length == 3 &&
+      ['--help', '-h'].includes(process.argv[2])
+    ) {
+      printUsage()
+      return (process.exitCode = 0)
+    }
+    if (
+      process.argv.length == 3 &&
+      ['--interactive', '-i'].includes(process.argv[2])
+    ) {
+      startRepl()
       return (process.exitCode = 0)
     }
     let firstArg = process.argv.slice(2).find((a) => !a.startsWith('--'))
     if (typeof firstArg === 'undefined' || firstArg === '-') {
       let ok = await scriptFromStdin()
       if (!ok) {
-        printUsage()
-        return (process.exitCode = 2)
+        startRepl()
       }
     } else if (
       firstArg.startsWith('http://') ||
@@ -211,18 +228,25 @@ function transformMarkdown(buf: Buffer) {
   return output.join('\n')
 }
 
+function getVersion(): string {
+  return createRequire(import.meta.url)('../package.json').version
+}
+
 function printUsage() {
   console.log(`
- ${chalk.bgGreenBright.black(' ZX ')}
+ ${chalk.bold('zx ' + getVersion())}
+   A tool for writing better scripts
 
- Usage:
+ ${chalk.bold('Usage')}
    zx [options] <script>
 
- Options:
-   --quiet            : don't echo commands
-   --shell=<path>     : custom shell binary
-   --prefix=<command> : prefix all commands
-   --experimental     : enable new api proposals
-   --version, -v      : print current zx version
+ ${chalk.bold('Options')}
+   --quiet             don't echo commands
+   --shell=<path>      custom shell binary
+   --prefix=<command>  prefix all commands
+   --interactive, -i   start repl
+   --experimental      enable new api proposals
+   --version, -v       print current zx version
+   --help, -h          print help
 `)
 }
