@@ -269,6 +269,21 @@ await $`pwd` // => /home/path
 assert($.verbose == true)
 ```
 
+Building profiled commands stack:
+
+ ```js
+const nodev = async (v) => within(async () => {
+  $.verbose = false
+  $.prefix += 'export NVM_DIR=$HOME/.nvm; source $NVM_DIR/nvm.sh; '
+
+  await $`nvm use ${v}`
+
+  return $`node -v`.then(r => r.stdout.trim().slice(1)) // 'v18.0.0\n' → '18.0.0'
+})
+
+await nodev(18) // '18.0.0'
+````
+
 ## Packages
 
 Following packages are available without importing inside scripts.
