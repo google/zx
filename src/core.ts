@@ -37,8 +37,8 @@ type Options = {
 
 const storage = new AsyncLocalStorage<Options>()
 
-function init() {
-  storage.enterWith({
+function initStore(): Options {
+  const context = {
     verbose: true,
     cwd: process.cwd(),
     env: process.env,
@@ -46,7 +46,8 @@ function init() {
     prefix: '',
     quote,
     spawn,
-  })
+  }
+  storage.enterWith(context)
   if (process.env.ZX_VERBOSE) $.verbose = process.env.ZX_VERBOSE == 'true'
   try {
     $.shell = which.sync('bash')
@@ -54,16 +55,11 @@ function init() {
   } catch (err) {
     // ¯\_(ツ)_/¯
   }
+  return context
 }
 
 function getStore() {
-  let context = storage.getStore()
-  if (!context) {
-    init()
-    context = storage.getStore()
-    assert(context)
-  }
-  return context
+  return storage.getStore() || initStore()
 }
 
 export const $ = new Proxy<Shell & Options>(
