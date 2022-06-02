@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import { AsyncLocalStorage } from 'node:async_hooks'
+import { spawn } from 'node:child_process'
 
 export type Options = {
   verbose: boolean | number
@@ -22,6 +23,7 @@ export type Options = {
   shell: string
   maxBuffer: number
   quote: (v: string) => string
+  spawn: typeof spawn
   logOutput?: 'stdout' | 'stderr'
   logFormat?: (...msg: any[]) => string | string[]
   logPrint?: (data: any, err?: any) => void
