@@ -332,7 +332,7 @@ export class ProcessOutput extends Error {
   }
 }
 
-export function within<R>(callback: (...args: any) => R): R {
+export function within<R>(callback: () => R): R {
   return storage.run({ ...getStore() }, callback)
 }
 
