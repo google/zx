@@ -38,7 +38,7 @@
     "fmt": "prettier --write .",
     "build": "tsc",
     "test": "tsc && uvu test -i fixtures",
-    "coverage": "c8 --reporter=html npm test"
+    "coverage": "c8 npm test"
   },
   "dependencies": {
     "@types/fs-extra": "^9.0.13",
