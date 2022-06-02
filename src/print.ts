@@ -16,13 +16,13 @@ import { colorize } from './util.js'
 
 export function printCmd(cmd: string) {
   if (/\n/.test(cmd)) {
-    console.log(
+    process.stderr.write(
       cmd
         .split('\n')
-        .map((line, i) => (i === 0 ? '$' : '>') + ' ' + colorize(line))
-        .join('\n')
+        .map((line, i) => `${i == 0 ? '$' : '>'} ${colorize(line)}`)
+        .join('\n') + '\n'
     )
   } else {
-    console.log('$', colorize(cmd))
+    process.stderr.write(`$ ${colorize(cmd)}\n`)
   }
 }

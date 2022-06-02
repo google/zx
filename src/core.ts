@@ -168,7 +168,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       stderr = '',
       combined = ''
     let onStdout = (data: any) => {
-      if ($.verbose && !this._quiet) process.stdout.write(data)
+      if ($.verbose && !this._quiet) process.stderr.write(data)
       stdout += data
       combined += data
     }
