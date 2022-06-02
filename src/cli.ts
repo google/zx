@@ -35,60 +35,51 @@ await (async function main() {
   if (argv.experimental) {
     Object.assign(global, await import('./experimental.js'))
   }
-  try {
-    if (
-      process.argv.length == 3 &&
-      ['--version', '-v', '-V'].includes(process.argv[2])
-    ) {
+  if (process.argv.length == 3) {
+    if (['--version', '-v', '-V'].includes(process.argv[2])) {
       console.log(getVersion())
       return (process.exitCode = 0)
     }
-    if (
-      process.argv.length == 3 &&
-      ['--help', '-h'].includes(process.argv[2])
-    ) {
+    if (['--help', '-h'].includes(process.argv[2])) {
       printUsage()
       return (process.exitCode = 0)
     }
-    if (
-      process.argv.length == 3 &&
-      ['--interactive', '-i'].includes(process.argv[2])
-    ) {
+    if (['--interactive', '-i'].includes(process.argv[2])) {
       startRepl()
       return (process.exitCode = 0)
     }
-    let firstArg = process.argv.slice(2).find((a) => !a.startsWith('--'))
-    if (typeof firstArg === 'undefined' || firstArg === '-') {
-      let ok = await scriptFromStdin()
-      if (!ok) {
-        startRepl()
-      }
-    } else if (
-      firstArg.startsWith('http://') ||
-      firstArg.startsWith('https://')
-    ) {
-      await scriptFromHttp(firstArg)
-    } else {
-      let filepath
-      if (firstArg.startsWith('/')) {
-        filepath = firstArg
-      } else if (firstArg.startsWith('file:///')) {
-        filepath = url.fileURLToPath(firstArg)
-      } else {
-        filepath = resolve(firstArg)
-      }
-      await importPath(filepath)
+  }
+  let firstArg = process.argv.slice(2).find((a) => !a.startsWith('--'))
+  if (typeof firstArg === 'undefined' || firstArg === '-') {
+    let ok = await scriptFromStdin()
+    if (!ok) {
+      startRepl()
     }
-  } catch (p) {
-    if (p instanceof ProcessOutput) {
-      console.error('Error: ' + p.message)
-      return (process.exitCode = 1)
+  } else if (
+    firstArg.startsWith('http://') ||
+    firstArg.startsWith('https://')
+  ) {
+    await scriptFromHttp(firstArg)
+  } else {
+    let filepath
+    if (firstArg.startsWith('/')) {
+      filepath = firstArg
+    } else if (firstArg.startsWith('file:///')) {
+      filepath = url.fileURLToPath(firstArg)
     } else {
-      throw p
+      filepath = resolve(firstArg)
     }
+    await importPath(filepath)
   }
   return (process.exitCode = 0)
-})()
+})().catch((err) => {
+  if (err instanceof ProcessOutput) {
+    console.error('Error:', err.message)
+  } else {
+    console.error(err)
+  }
+  process.exitCode = 1
+})
 
 async function scriptFromStdin() {
   let script = ''

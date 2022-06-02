@@ -47,13 +47,14 @@ test('starts repl with -i', async () => {
 })
 
 test('supports `--experimental` flag', async () => {
-  await $`echo 'echo("test")' | node build/cli.js --experimental`
+  let out = await $`echo 'echo("test")' | node build/cli.js --experimental`
+  assert.match(out.stdout, 'test')
 })
 
 test('supports `--quiet` flag', async () => {
   let p = await $`node build/cli.js test/fixtures/markdown.md`
-  assert.ok(!p.stdout.includes('ignore'), 'ignore was printed')
-  assert.ok(p.stdout.includes('hello'), 'no hello')
+  assert.ok(!p.stderr.includes('ignore'), 'ignore was printed')
+  assert.ok(p.stderr.includes('hello'), 'no hello')
   assert.ok(p.stdout.includes('world'), 'no world')
 })
 
@@ -61,31 +62,26 @@ test('supports `--shell` flag ', async () => {
   let shell = $.shell
   let p =
     await $`node build/cli.js --shell=${shell} <<< '$\`echo \${$.shell}\`'`
-  assert.ok(p.stdout.includes(shell))
+  assert.ok(p.stderr.includes(shell))
 })
 
 test('supports `--prefix` flag ', async () => {
   let prefix = 'set -e;'
   let p =
     await $`node build/cli.js --prefix=${prefix} <<< '$\`echo \${$.prefix}\`'`
-  assert.ok(p.stdout.includes(prefix))
+  assert.ok(p.stderr.includes(prefix))
 })
 
 test('scripts from https', async () => {
-  let script = path.resolve('test/fixtures/echo.http')
-  let server = $`while true; do cat ${script} | nc -l 8080; done`.quiet()
-  let p = await $`node build/cli.js http://127.0.0.1:8080/echo.mjs`.quiet()
+  $`cat ${path.resolve('test/fixtures/echo.http')} | nc -l 8080`
+  let out = await $`node build/cli.js http://127.0.0.1:8080/echo.mjs`
+  assert.match(out.stderr, 'test')
+})
 
-  assert.ok(p.stdout.includes('test'))
-  server.kill()
-
-  let err
-  try {
-    await $`node build/cli.js http://127.0.0.1:8081/echo.mjs`.quiet()
-  } catch (e) {
-    err = e
-  }
-  assert.ok(err.stderr.includes('ECONNREFUSED'))
+test('scripts from https not ok', async () => {
+  $`echo $'HTTP/1.1 500\n\n' | nc -l 8081`
+  let out = await $`node build/cli.js http://127.0.0.1:8081`.nothrow()
+  assert.match(out.stderr, "Error: Can't get")
 })
 
 test('scripts with no extension', async () => {
@@ -98,7 +94,9 @@ test('scripts with no extension', async () => {
 })
 
 test('require() is working from stdin', async () => {
-  await $`node build/cli.js <<< 'require("./package.json").name'`
+  let out =
+    await $`node build/cli.js <<< 'console.log(require("./package.json").name)'`
+  assert.match(out.stdout, 'zx')
 })
 
 test('require() is working in ESM', async () => {
@@ -111,6 +109,13 @@ test('__filename & __dirname are defined', async () => {
 
 test('markdown scripts are working', async () => {
   await $`node build/cli.js docs/markdown.md`
+})
+
+test('exceptions are caught', async () => {
+  let out1 = await $`node build/cli.js <<<${'await $`wtf`'}`.nothrow()
+  assert.match(out1.stderr, 'Error:')
+  let out2 = await $`node build/cli.js <<<'throw 42'`.nothrow()
+  assert.match(out2.stderr, '42')
 })
 
 test.run()
