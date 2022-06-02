@@ -21,7 +21,7 @@ import { basename, dirname, extname, join, resolve } from 'node:path'
 import url from 'node:url'
 import { $, argv, fetch, ProcessOutput, chalk } from './index.js'
 import { startRepl } from './repl.js'
-import { randomId } from './util.js'
+import { randomId, stdin } from './util.js'
 import './globals.js'
 
 await (async function main() {
@@ -48,6 +48,16 @@ await (async function main() {
       startRepl()
       return (process.exitCode = 0)
     }
+  }
+  if (argv.eval || argv.e) {
+    Object.defineProperty(global, 'stdin', {
+      configurable: false,
+      enumerable: true,
+      get: stdin,
+    })
+    let script = (argv.eval || argv.e).toString()
+    await runScript(addLogOnLastLine(script))
+    return (process.exitCode = 0)
   }
   let firstArg = process.argv.slice(2).find((a) => !a.startsWith('--'))
   if (typeof firstArg === 'undefined' || firstArg === '-') {
@@ -81,6 +91,17 @@ await (async function main() {
   process.exitCode = 1
 })
 
+function addLogOnLastLine(script: string) {
+  let lines = script.trim().split('\n')
+  return lines.slice(0, -1).join('\n') + '\n' + `console.log(${lines.at(-1)})`
+}
+
+async function runScript(script: string) {
+  let filepath = join(tmpdir(), randomId() + '.mjs')
+  await fs.mkdtemp(filepath)
+  await writeAndImport(script, filepath, join(process.cwd(), 'stdin.mjs'))
+}
+
 async function scriptFromStdin() {
   let script = ''
   if (!process.stdin.isTTY) {
@@ -90,9 +111,7 @@ async function scriptFromStdin() {
     }
 
     if (script.length > 0) {
-      let filepath = join(tmpdir(), randomId() + '.mjs')
-      await fs.mkdtemp(filepath)
-      await writeAndImport(script, filepath, join(process.cwd(), 'stdin.mjs'))
+      await runScript(script)
       return true
     }
   }
@@ -236,6 +255,7 @@ function printUsage() {
    --shell=<path>      custom shell binary
    --prefix=<command>  prefix all commands
    --interactive, -i   start repl
+   --eval=<js>, -e     evaluate script 
    --experimental      enable new api proposals
    --version, -v       print current zx version
    --help, -h          print help
