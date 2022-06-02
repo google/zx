@@ -118,4 +118,20 @@ test('exceptions are caught', async () => {
   assert.match(out2.stderr, '42')
 })
 
+test('eval works', async () => {
+  let { stdout } = await $`node build/cli.js --eval '69'`
+  assert.is(stdout, '69\n')
+})
+
+test('eval works with stdin', async () => {
+  let { stdout } =
+    await $`printf "Hello world" | node build/cli.js --eval='stdin'`
+  assert.is(stdout, 'Hello world\n')
+})
+
+test('--eval works with async stdin', async () => {
+  let p = $`(printf foo; sleep 0.1; printf bar) | FX_ASYNC_STDIN=true node build/cli.js --eval 'await stdin'`
+  assert.is((await p).stdout, 'foobar\n')
+})
+
 test.run()
