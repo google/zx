@@ -23,7 +23,7 @@ import { inspect, promisify } from 'node:util'
 import { spawn } from 'node:child_process'
 
 import { chalk, which } from './goods.js'
-import { runInCtx, getCtx, setRootCtx, Context } from './context.js'
+import { runInCtx, getCtx, setRootCtx, Context, Options } from './context.js'
 import { printCmd, log } from './print.js'
 import { quote, substitute } from './guards.js'
 
@@ -31,7 +31,11 @@ import psTreeModule from 'ps-tree'
 
 const psTree = promisify(psTreeModule)
 
-export function $(pieces: TemplateStringsArray, ...args: any[]) {
+interface Zx extends Options {
+  (pieces: TemplateStringsArray, ...args: any[]): ProcessPromise
+}
+
+export const $: Zx = function (pieces: TemplateStringsArray, ...args: any[]) {
   let resolve, reject
   let promise = new ProcessPromise((...args) => ([resolve, reject] = args))
 
