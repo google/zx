@@ -73,15 +73,15 @@ test('supports `--prefix` flag ', async () => {
 
 test('scripts from https', async () => {
   let script = path.resolve('test/fixtures/echo.http')
-  let server = quiet($`while true; do cat ${script} | nc -l 8080; done`)
-  let p = await quiet($`node build/cli.js http://127.0.0.1:8080/echo.mjs`)
+  let server = $`while true; do cat ${script} | nc -l 8080; done`.quiet()
+  let p = await $`node build/cli.js http://127.0.0.1:8080/echo.mjs`.quiet()
 
   assert.ok(p.stdout.includes('test'))
   server.kill()
 
   let err
   try {
-    await quiet($`node build/cli.js http://127.0.0.1:8081/echo.mjs`)
+    await $`node build/cli.js http://127.0.0.1:8081/echo.mjs`.quiet()
   } catch (e) {
     err = e
   }
