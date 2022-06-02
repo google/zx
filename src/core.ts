@@ -104,8 +104,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _resolve: Resolve = noop
   private _reject: Resolve = noop
   private _inherit = false
-  _nothrow = false
-  _quiet = false
+  private _nothrow = false
+  private _quiet = false
   private _resolved = false
   _piped = false
   _prerun = noop
@@ -261,6 +261,16 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     this._inherit = true
     return this
   }
+
+  nothrow() {
+    this._nothrow = true
+    return this
+  }
+
+  quiet() {
+    this._quiet = true
+    return this
+  }
 }
 
 export class ProcessOutput extends Error {
@@ -322,16 +332,20 @@ export class ProcessOutput extends Error {
   }
 }
 
-export function nothrow(promise: ProcessPromise) {
-  promise._nothrow = true
-  return promise
-}
-
-export function quiet(promise: ProcessPromise) {
-  promise._quiet = true
-  return promise
-}
-
 export function within<R>(callback: (...args: any) => R): R {
   return storage.run({ ...getStore() }, callback)
+}
+
+/**
+ *  @deprecated Use $.nothrow() instead.
+ */
+export function nothrow(promise: ProcessPromise) {
+  return promise.nothrow()
+}
+
+/**
+ * @deprecated Use $.quiet() instead.
+ */
+export function quiet(promise: ProcessPromise) {
+  return promise.quiet()
 }

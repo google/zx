@@ -87,7 +87,7 @@ test('quiet mode is working', async () => {
   console.log = (...args) => {
     stdout += args.join(' ')
   }
-  await quiet($`echo 'test'`)
+  await $`echo 'test'`.quiet()
   console.log = log
   assert.is(stdout, '')
 })
@@ -198,7 +198,7 @@ test('await $`cmd`.exitCode does not throw', async () => {
 })
 
 test('nothrow() do not throw', async () => {
-  let { exitCode } = await nothrow($`exit 42`)
+  let { exitCode } = await $`exit 42`.nothrow()
   assert.is(exitCode, 42)
 })
 
@@ -309,7 +309,7 @@ test('cd() does affect parallel contexts', async () => {
 })
 
 test('kill() method works', async () => {
-  let p = nothrow($`sleep 9999`)
+  let p = $`sleep 9999`.nothrow()
   setTimeout(() => {
     p.kill()
   }, 100)
