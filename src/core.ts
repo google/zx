@@ -23,12 +23,11 @@ import { inspect, promisify } from 'node:util'
 import { spawn } from 'node:child_process'
 
 import { chalk, which } from './goods.js'
-import { runInCtx, getCtx, root, Context, Options } from './context.js'
+import { runInCtx, getCtx, Context, Options, setRootCtx } from './context.js'
 import { printCmd, log } from './print.js'
 import { quote, substitute } from './guards.js'
 
 import psTreeModule from 'ps-tree'
-import { DeepProxy } from '@qiwi/deep-proxy'
 
 const psTree = promisify(psTreeModule)
 
@@ -36,12 +35,12 @@ interface Zx extends Options {
   (pieces: TemplateStringsArray, ...args: any[]): ProcessPromise
 }
 
-function Zx(pieces: TemplateStringsArray, ...args: any[]) {
+export const $: Zx = function (pieces: TemplateStringsArray, ...args: any[]) {
   let resolve, reject
   let promise = new ProcessPromise((...args) => ([resolve, reject] = args))
 
   let cmd = pieces[0],
-      i = 0
+    i = 0
   let quote = getCtx().quote
   while (i < args.length) {
     let s
@@ -66,14 +65,6 @@ function Zx(pieces: TemplateStringsArray, ...args: any[]) {
   return promise
 }
 
-export const $: Zx = new DeepProxy<Zx>(root as Zx, ({trapName, DEFAULT, args: _args}) => {
-  if (trapName === 'apply') {
-    const [,, [...args]] = _args
-    return Zx(...args as [pieces: TemplateStringsArray, ...args: any[]])
-  }
-  return DEFAULT
-})
-
 $.cwd = process.cwd()
 $.env = process.env
 $.quote = quote
@@ -87,6 +78,7 @@ try {
   $.prefix = 'set -euo pipefail;'
 } catch (e) {}
 
+setRootCtx($)
 
 export class ProcessPromise extends Promise<ProcessOutput> {
   child?: ChildProcessByStdio<Writable, Readable, Readable>

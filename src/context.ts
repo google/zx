@@ -38,13 +38,17 @@ export type Context = Options & {
   reject: any
 }
 
-// @ts-ignore
-export let root: Options = function () {}
+let root: Options
 
 const storage = new AsyncLocalStorage<Options>()
 
 export function getCtx() {
-  return storage.getStore() as Context || root
+  return (storage.getStore() as Context) || getRootCtx()
+}
+
+export function setRootCtx(ctx: Options) {
+  storage.enterWith(ctx)
+  root = ctx
 }
 
 export function getRootCtx() {
