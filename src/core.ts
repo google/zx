@@ -59,7 +59,7 @@ export const $: Zx = function (pieces: TemplateStringsArray, ...args: any[]) {
     resolve,
     reject,
   }
-  Object.defineProperty(promise, 'ctx', {value: ctx})
+  Object.defineProperty(promise, 'ctx', { value: ctx })
 
   setImmediate(() => promise._run()) // Make sure all subprocesses are started, if not explicitly by await or then().
 

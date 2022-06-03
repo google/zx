@@ -54,4 +54,9 @@ export function setRootCtx(ctx: Options) {
 export function getRootCtx() {
   return root
 }
-export const runInCtx = storage.run.bind(storage)
+
+export const runInCtx = <R, TArgs extends any[]>(
+  ctx: Options = root,
+  cb: (...args: TArgs) => R,
+  ...args: TArgs
+): R => storage.run(ctx, cb, ...args)
