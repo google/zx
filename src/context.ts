@@ -20,7 +20,7 @@ export type Options = {
   cwd: string
   env: NodeJS.ProcessEnv
   prefix: string
-  shell: string
+  shell: string | boolean
   maxBuffer: number
   quote: (v: string) => string
   spawn: typeof spawn
@@ -38,17 +38,15 @@ export type Context = Options & {
   reject: any
 }
 
-let root: Options
+// @ts-ignore
+export let root: Options = function () {}
 
 const storage = new AsyncLocalStorage<Options>()
 
 export function getCtx() {
-  return storage.getStore() as Context
+  return storage.getStore() as Context || root
 }
-export function setRootCtx(ctx: Options) {
-  storage.enterWith(ctx)
-  root = ctx
-}
+
 export function getRootCtx() {
   return root
 }

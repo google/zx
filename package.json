@@ -41,6 +41,7 @@
     "coverage": "c8 --reporter=html npm test"
   },
   "dependencies": {
+    "@qiwi/deep-proxy": "^1.10.3",
     "@types/fs-extra": "^9.0.13",
     "@types/minimist": "^1.2.2",
     "@types/node": "^17.0",
@@ -51,7 +52,7 @@
     "globby": "^13.1.1",
     "ignore": "^5.2.0",
     "minimist": "^1.2.6",
-    "node-fetch": "^3.2.4",
+    "node-fetch": "^3.2.5",
     "ps-tree": "^1.2.0",
     "which": "^2.0.2",
     "yaml": "^2.1.1"

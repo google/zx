@@ -23,11 +23,12 @@ import { inspect, promisify } from 'node:util'
 import { spawn } from 'node:child_process'
 
 import { chalk, which } from './goods.js'
-import { runInCtx, getCtx, setRootCtx, Context, Options } from './context.js'
+import { runInCtx, getCtx, root, Context, Options } from './context.js'
 import { printCmd, log } from './print.js'
 import { quote, substitute } from './guards.js'
 
 import psTreeModule from 'ps-tree'
+import { DeepProxy } from '@qiwi/deep-proxy'
 
 const psTree = promisify(psTreeModule)
 
@@ -35,35 +36,40 @@ interface Zx extends Options {
   (pieces: TemplateStringsArray, ...args: any[]): ProcessPromise
 }
 
-export const $: Zx = function (pieces: TemplateStringsArray, ...args: any[]) {
-  let resolve, reject
-  let promise = new ProcessPromise((...args) => ([resolve, reject] = args))
+export const $: Zx = new DeepProxy<Zx>(root as Zx, ({trapName, DEFAULT, args: _args}) => {
+  if (trapName === 'apply') {
+    const [,, [pieces, ...args]] = _args
+    let resolve, reject
+    let promise = new ProcessPromise((...args) => ([resolve, reject] = args))
 
-  let cmd = pieces[0],
-    i = 0
-  let quote = getCtx().quote
-  while (i < args.length) {
-    let s
-    if (Array.isArray(args[i])) {
-      s = args[i].map((x: any) => quote(substitute(x))).join(' ')
-    } else {
-      s = quote(substitute(args[i]))
+    let cmd = pieces[0],
+        i = 0
+    let quote = getCtx().quote
+    while (i < args.length) {
+      let s
+      if (Array.isArray(args[i])) {
+        s = args[i].map((x: any) => quote(substitute(x))).join(' ')
+      } else {
+        s = quote(substitute(args[i]))
+      }
+      cmd += s + pieces[++i]
     }
-    cmd += s + pieces[++i]
+
+    promise.ctx = {
+      ...getCtx(),
+      cmd,
+      __from: new Error().stack!.split(/^\s*at\s/m)[2].trim(),
+      resolve,
+      reject,
+    }
+
+    setImmediate(() => promise._run()) // Make sure all subprocesses are started, if not explicitly by await or then().
+
+    return promise
   }
 
-  promise.ctx = {
-    ...getCtx(),
-    cmd,
-    __from: new Error().stack!.split(/^\s*at\s/m)[2].trim(),
-    resolve,
-    reject,
-  }
-
-  setImmediate(() => promise._run()) // Make sure all subprocesses are started, if not explicitly by await or then().
-
-  return promise
-}
+  return DEFAULT
+})
 
 $.cwd = process.cwd()
 $.env = process.env
@@ -72,12 +78,12 @@ $.spawn = spawn
 $.verbose = 2
 $.maxBuffer = 200 * 1024 * 1024 /* 200 MiB*/
 $.prefix = '' // Bash not found, no prefix.
+$.shell = true
 try {
   $.shell = which.sync('bash')
   $.prefix = 'set -euo pipefail;'
 } catch (e) {}
 
-setRootCtx($)
 
 export class ProcessPromise extends Promise<ProcessOutput> {
   child?: ChildProcessByStdio<Writable, Readable, Readable>
@@ -184,7 +190,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
       let options: SpawnOptionsWithStdioTuple<any, StdioPipe, StdioPipe> = {
         cwd,
-        shell: typeof shell === 'string' ? shell : true,
+        shell,
         stdio: [this._inheritStdin ? 'inherit' : 'pipe', 'pipe', 'pipe'],
         windowsHide: true,
         // TODO: Surprise: maxBuffer have no effect for spawn.
