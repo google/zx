@@ -185,7 +185,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
       let options: SpawnOptionsWithStdioTuple<any, StdioPipe, StdioPipe> = {
         cwd,
-        shell,
+        shell: typeof shell === 'string' ? shell : true,
         stdio: [this._inheritStdin ? 'inherit' : 'pipe', 'pipe', 'pipe'],
         windowsHide: true,
         // TODO: Surprise: maxBuffer have no effect for spawn.
