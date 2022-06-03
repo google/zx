@@ -36,38 +36,41 @@ interface Zx extends Options {
   (pieces: TemplateStringsArray, ...args: any[]): ProcessPromise
 }
 
-export const $: Zx = new DeepProxy<Zx>(root as Zx, ({trapName, DEFAULT, args: _args}) => {
-  if (trapName === 'apply') {
-    const [,, [pieces, ...args]] = _args
-    let resolve, reject
-    let promise = new ProcessPromise((...args) => ([resolve, reject] = args))
+function Zx(pieces: TemplateStringsArray, ...args: any[]) {
+  let resolve, reject
+  let promise = new ProcessPromise((...args) => ([resolve, reject] = args))
 
-    let cmd = pieces[0],
-        i = 0
-    let quote = getCtx().quote
-    while (i < args.length) {
-      let s
-      if (Array.isArray(args[i])) {
-        s = args[i].map((x: any) => quote(substitute(x))).join(' ')
-      } else {
-        s = quote(substitute(args[i]))
-      }
-      cmd += s + pieces[++i]
+  let cmd = pieces[0],
+      i = 0
+  let quote = getCtx().quote
+  while (i < args.length) {
+    let s
+    if (Array.isArray(args[i])) {
+      s = args[i].map((x: any) => quote(substitute(x))).join(' ')
+    } else {
+      s = quote(substitute(args[i]))
     }
-
-    promise.ctx = {
-      ...getCtx(),
-      cmd,
-      __from: new Error().stack!.split(/^\s*at\s/m)[2].trim(),
-      resolve,
-      reject,
-    }
-
-    setImmediate(() => promise._run()) // Make sure all subprocesses are started, if not explicitly by await or then().
-
-    return promise
+    cmd += s + pieces[++i]
   }
 
+  promise.ctx = {
+    ...getCtx(),
+    cmd,
+    __from: new Error().stack!.split(/^\s*at\s/m)[2].trim(),
+    resolve,
+    reject,
+  }
+
+  setImmediate(() => promise._run()) // Make sure all subprocesses are started, if not explicitly by await or then().
+
+  return promise
+}
+
+export const $: Zx = new DeepProxy<Zx>(root as Zx, ({trapName, DEFAULT, args: _args}) => {
+  if (trapName === 'apply') {
+    const [,, [...args]] = _args
+    return Zx(...args as [pieces: TemplateStringsArray, ...args: any[]])
+  }
   return DEFAULT
 })
 
