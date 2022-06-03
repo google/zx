@@ -52,13 +52,14 @@ export const $: Zx = function (pieces: TemplateStringsArray, ...args: any[]) {
     cmd += s + pieces[++i]
   }
 
-  promise.ctx = {
+  const ctx = {
     ...getCtx(),
     cmd,
     __from: new Error().stack!.split(/^\s*at\s/m)[2].trim(),
     resolve,
     reject,
   }
+  Object.defineProperty(promise, 'ctx', {value: ctx})
 
   setImmediate(() => promise._run()) // Make sure all subprocesses are started, if not explicitly by await or then().
 
