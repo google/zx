@@ -16,7 +16,7 @@ import * as globbyModule from 'globby'
 import minimist from 'minimist'
 import { setTimeout as sleep } from 'node:timers/promises'
 import nodeFetch, { RequestInfo, RequestInit } from 'node-fetch'
-import { colorize } from './util.js'
+import { colorize, isString, stringify } from './util.js'
 
 export { default as chalk } from 'chalk'
 export { default as fs } from 'fs-extra'
@@ -51,6 +51,23 @@ export async function fetch(url: RequestInfo, init?: RequestInit) {
 export function cd(dir: string) {
   if ($.verbose) console.log('$', colorize(`cd ${dir}`))
   $.cwd = path.resolve($.cwd, dir)
+}
+
+// A console.log() alternative which can take ProcessOutput.
+export function echo(pieces: TemplateStringsArray, ...args: any[]) {
+  let msg
+  let lastIdx = pieces.length - 1
+  if (
+    Array.isArray(pieces) &&
+    pieces.every(isString) &&
+    lastIdx === args.length
+  ) {
+    msg =
+      args.map((a, i) => pieces[i] + stringify(a)).join('') + pieces[lastIdx]
+  } else {
+    msg = [pieces, ...args].map(stringify).join(' ')
+  }
+  console.log(msg)
 }
 
 /**

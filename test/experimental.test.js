@@ -15,7 +15,7 @@
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 import '../build/globals.js'
-import { echo, retry, withTimeout } from '../build/experimental.js'
+import { retry, withTimeout } from '../build/experimental.js'
 
 import chalk from 'chalk'
 
@@ -47,16 +47,6 @@ test('withTimeout works', async () => {
 
   let p = await withTimeout(0)`echo 'test'`
   assert.is(p.stdout.trim(), 'test')
-})
-
-test('echo works', async () => {
-  echo(chalk.cyan('foo'), chalk.green('bar'), chalk.bold('baz'))
-  echo`${chalk.cyan('foo')} ${chalk.green('bar')} ${chalk.bold('baz')}`
-  echo(
-    await $`echo ${chalk.cyan('foo')}`,
-    await $`echo ${chalk.green('bar')}`,
-    await $`echo ${chalk.bold('baz')}`
-  )
 })
 
 test.run()

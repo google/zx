@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import chalk from 'chalk'
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 import { inspect } from 'node:util'
@@ -219,6 +220,23 @@ test('fetch', async () => {
     await fetch('https://medv.io').then((res) => res.text()),
     /Anton Medvedev/
   )
+})
+
+test('echo works', async () => {
+  let stdout = ''
+  let log = console.log
+  console.log = (...args) => {
+    stdout += args.join(' ')
+  }
+  echo(chalk.cyan('foo'), chalk.green('bar'), chalk.bold('baz'))
+  echo`${chalk.cyan('foo')} ${chalk.green('bar')} ${chalk.bold('baz')}`
+  echo(
+    await $`echo ${chalk.cyan('foo')}`,
+    await $`echo ${chalk.green('bar')}`,
+    await $`echo ${chalk.bold('baz')}`
+  )
+  console.log = log
+  assert.match(stdout, 'foo')
 })
 
 test('executes a script from $PATH', async () => {
