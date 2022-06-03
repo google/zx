@@ -42,27 +42,3 @@ export function withTimeout(timeout: number, signal: string) {
     return p.finally(() => clearTimeout(timer))
   }
 }
-
-// A console.log() alternative which can take ProcessOutput.
-export function echo(pieces: TemplateStringsArray, ...args: any[]) {
-  let msg
-  let lastIdx = pieces.length - 1
-  if (
-    Array.isArray(pieces) &&
-    pieces.every(isString) &&
-    lastIdx === args.length
-  ) {
-    msg =
-      args.map((a, i) => pieces[i] + stringify(a)).join('') + pieces[lastIdx]
-  } else {
-    msg = [pieces, ...args].map(stringify).join(' ')
-  }
-  console.log(msg)
-}
-
-function stringify(arg: ProcessOutput | any) {
-  if (arg instanceof ProcessOutput) {
-    return arg.toString().replace(/\n$/, '')
-  }
-  return `${arg}`
-}
