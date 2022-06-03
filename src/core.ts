@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { ChildProcessByStdio } from 'node:child_process'
+import { StdioNull, StdioPipe } from 'child_process'
+import { ChildProcess } from 'node:child_process'
 import { AsyncLocalStorage } from 'node:async_hooks'
 import { Readable, Writable } from 'node:stream'
 import { inspect } from 'node:util'
@@ -95,15 +96,16 @@ export const $ = new Proxy<Shell & Options>(
 )
 
 type Resolve = (out: ProcessOutput) => void
+type IO = StdioPipe | StdioNull
 
 export class ProcessPromise extends Promise<ProcessOutput> {
-  child?: ChildProcessByStdio<Writable, Readable, Readable>
+  child?: ChildProcess
   private _command = ''
   private _cwd = ''
   private _from = ''
   private _resolve: Resolve = noop
   private _reject: Resolve = noop
-  private _inherit = false
+  private _stdio: [IO, IO, IO] = ['inherit', 'pipe', 'pipe']
   private _nothrow = false
   private _quiet = false
   private _resolved = false
@@ -134,7 +136,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     this.child = spawn($.prefix + this._command, {
       cwd: this._cwd,
       shell: typeof $.shell === 'string' ? $.shell : true,
-      stdio: [this._inherit ? ('inherit' as 'pipe') : 'pipe', 'pipe', 'pipe'],
+      stdio: this._stdio,
       windowsHide: true,
       env: $.env,
     })
@@ -177,30 +179,33 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       stderr += data
       combined += data
     }
-    if (!this._piped) this.child.stdout.on('data', onStdout) // If process is piped, don't collect or print output.
-    this.child.stderr.on('data', onStderr) // Stderr should be printed regardless of piping.
+    if (!this._piped) this.child.stdout?.on('data', onStdout) // If process is piped, don't collect or print output.
+    this.child.stderr?.on('data', onStderr) // Stderr should be printed regardless of piping.
     this._postrun() // In case $1.pipe($2), after both subprocesses are running, we can pipe $1.stdout to $2.stdin.
   }
 
   get stdin(): Writable {
+    this.stdio('pipe')
     this._run()
     assert(this.child)
-    if (!this.child.stdin && this._inherit)
-      throw new Error(
-        "Can't access stdin of subprocess started in inherited mode."
-      )
+    if (this.child.stdin == null)
+      throw new Error('The stdin of subprocess is null.')
     return this.child.stdin
   }
 
   get stdout(): Readable {
     this._run()
     assert(this.child)
+    if (this.child.stdout == null)
+      throw new Error('The stdout of subprocess is null.')
     return this.child.stdout
   }
 
   get stderr(): Readable {
     this._run()
     assert(this.child)
+    if (this.child.stderr == null)
+      throw new Error('The stderr of subprocess is null.')
     return this.child.stderr
   }
 
@@ -222,13 +227,14 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     }
     this._piped = true
     if (dest instanceof ProcessPromise) {
+      dest.stdio('pipe')
       dest._prerun = this._run.bind(this)
       dest._postrun = () => {
         if (!dest.child)
           throw new Error(
             'Access to stdin of pipe destination without creation a subprocess.'
           )
-        this.stdout.pipe(dest.child.stdin)
+        this.stdout.pipe(dest.stdin)
       }
       return dest
     } else {
@@ -253,12 +259,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     } catch (e) {}
   }
 
-  inherit() {
-    if (this.child)
-      throw new Error(
-        "Subprocess already created and stdin can't be inherited (try to remove await)."
-      )
-    this._inherit = true
+  stdio(stdin: IO, stdout: IO = 'pipe', stderr: IO = 'pipe') {
+    this._stdio = [stdin, stdout, stderr]
     return this
   }
 
