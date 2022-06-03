@@ -426,15 +426,15 @@ test('spinner works', async () => {
   s()
 })
 
-test('inherit() works', async () => {
-  let p = $`printf foo`.inherit()
+test('stdio() works', async () => {
+  let p = $`printf foo`
+  await p
   assert.throws(() => p.stdin)
   assert.is((await p).stdout, 'foo')
 
-  let b = $`printf bar`
+  let b = $`read; printf $REPLY`
+  b.stdin.write('bar\n')
   assert.is((await b).stdout, 'bar')
-  assert.throws(() => b.inherit())
-  assert.not.throws(() => b.stdin)
 })
 
 test.run()
