@@ -119,8 +119,8 @@ test('exceptions are caught', async () => {
 })
 
 test('eval works', async () => {
-  let { stdout } = await $`node build/cli.js --eval '69'`
-  assert.is(stdout, '69\n')
+  assert.is((await $`node build/cli.js --eval '42'`).stdout, '42\n')
+  assert.is((await $`node build/cli.js -e='69'`).stdout, '69\n')
 })
 
 test('eval works with stdin', async () => {

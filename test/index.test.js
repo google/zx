@@ -111,16 +111,30 @@ test('pipes are working', async () => {
   }
 })
 
-test('question', async () => {
+test('question() works', async () => {
+  let log = console.log
+  console.log = () => {}
   let p = question('foo or bar? ', { choices: ['foo', 'bar'] })
-
   setImmediate(() => {
     process.stdin.emit('data', 'fo')
     process.stdin.emit('data', '\t')
     process.stdin.emit('data', '\n')
   })
-
   assert.is(await p, 'foo')
+  console.log = log
+})
+
+test('empty question() works', async () => {
+  let log = console.log
+  console.log = () => {}
+  let p = question(undefined, { choices: [] })
+  setImmediate(() => {
+    process.stdin.emit('data', 'xxx')
+    process.stdin.emit('data', '\t')
+    process.stdin.emit('data', '\n')
+  })
+  assert.match(await p, 'xxx')
+  console.log = log
 })
 
 test('ProcessPromise', async () => {
