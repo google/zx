@@ -26,7 +26,6 @@ export { default as which } from 'which'
 export { default as YAML } from 'yaml'
 export { default as path } from 'node:path'
 export { default as os } from 'node:os'
-export { sleep }
 
 export const argv = minimist(process.argv.slice(2))
 
@@ -110,4 +109,12 @@ export function startSpinner(title = '') {
     clearInterval(id)
     $.verbose = v
   }
+}
+
+export function sleep<T = void>(delay?: number, value?: T): Promise<T> {
+  return new Promise((resolve) => {
+      setTimeout(() => {
+          resolve(value as T);
+      }, delay)
+  })
 }

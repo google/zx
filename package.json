@@ -32,7 +32,7 @@
     "zx": "./build/cli.js"
   },
   "engines": {
-    "node": ">= 16.0.0"
+    "node": ">= 14.0.0"
   },
   "scripts": {
     "fmt": "prettier --write .",
