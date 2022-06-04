@@ -169,6 +169,17 @@ test('ProcessPromise: inherits native Promise', async () => {
   assert.ok(p5 !== p1)
 })
 
+test('ProcessPromise: ctx is protected from removal', async () => {
+  const p = $`echo 1`
+
+  try {
+    delete p.ctx
+    assert.unreachable()
+  } catch (e) {
+    assert.match(e.message, /Cannot delete property/)
+  }
+})
+
 test('ProcessOutput thrown as error', async () => {
   let err
   try {

@@ -23,7 +23,7 @@ import { inspect, promisify } from 'node:util'
 import { spawn } from 'node:child_process'
 
 import { chalk, which } from './goods.js'
-import { runInCtx, getCtx, setRootCtx, Context, Options } from './context.js'
+import { runInCtx, getCtx, Context, Options, setRootCtx } from './context.js'
 import { printCmd, log } from './print.js'
 import { quote, substitute } from './guards.js'
 
@@ -52,13 +52,14 @@ export const $: Zx = function (pieces: TemplateStringsArray, ...args: any[]) {
     cmd += s + pieces[++i]
   }
 
-  promise.ctx = {
+  const ctx = {
     ...getCtx(),
     cmd,
     __from: new Error().stack!.split(/^\s*at\s/m)[2].trim(),
     resolve,
     reject,
   }
+  Object.defineProperty(promise, 'ctx', { value: ctx })
 
   setImmediate(() => promise._run()) // Make sure all subprocesses are started, if not explicitly by await or then().
 
@@ -72,6 +73,7 @@ $.spawn = spawn
 $.verbose = 2
 $.maxBuffer = 200 * 1024 * 1024 /* 200 MiB*/
 $.prefix = '' // Bash not found, no prefix.
+$.shell = true
 try {
   $.shell = which.sync('bash')
   $.prefix = 'set -euo pipefail;'
