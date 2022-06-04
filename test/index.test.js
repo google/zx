@@ -167,6 +167,17 @@ test('ProcessPromise: inherits native Promise', async () => {
   assert.ok(p2 !== p3)
   assert.ok(p3 !== p4)
   assert.ok(p5 !== p1)
+
+  assert.ok(p1.ctx)
+  assert.ok(p2.ctx)
+  assert.ok(p3.ctx)
+  assert.ok(p4.ctx)
+  assert.ok(p5.ctx)
+
+  assert.not.equal(p1.ctx, p2.ctx)
+  assert.equal(p2.ctx, p3.ctx)
+  assert.equal(p3.ctx, p4.ctx)
+  assert.equal(p4.ctx, p5.ctx)
 })
 
 test('ProcessPromise: ctx is protected from removal', async () => {
