@@ -41,7 +41,7 @@ export const $: Zx = function (pieces: TemplateStringsArray, ...args: any[]) {
 
   let cmd = pieces[0],
     i = 0
-  let quote = getCtx().quote
+  let quote = promise.ctx.quote
   while (i < args.length) {
     let s
     if (Array.isArray(args[i])) {
@@ -52,14 +52,12 @@ export const $: Zx = function (pieces: TemplateStringsArray, ...args: any[]) {
     cmd += s + pieces[++i]
   }
 
-  const ctx = {
-    ...getCtx(),
+  Object.assign(promise.ctx, {
     cmd,
     __from: new Error().stack!.split(/^\s*at\s/m)[2].trim(),
     resolve,
     reject,
-  }
-  Object.defineProperty(promise, 'ctx', { value: ctx })
+  })
 
   setImmediate(() => promise._run()) // Make sure all subprocesses are started, if not explicitly by await or then().
 
@@ -88,7 +86,12 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   _piped = false
   _prerun: any = undefined
   _postrun: any = undefined
-  ctx?: Context
+  readonly ctx: Context
+  constructor(cb: (resolve: Function, reject?: Function) => void) {
+    super(cb)
+    this.ctx = {...getCtx()}
+    Object.defineProperty(this, 'ctx', { value: this.ctx, writable: false, configurable: false })
+  }
 
   get stdin() {
     this._inheritStdin = false
@@ -168,7 +171,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     if (this.child) return // The _run() called from two places: then() and setTimeout().
     if (this._prerun) this._prerun() // In case $1.pipe($2), the $2 returned, and on $2._run() invoke $1._run().
 
-    runInCtx(this.ctx!, () => {
+    runInCtx(this.ctx, () => {
       const {
         nothrow,
         cmd,
@@ -180,7 +183,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
         __from,
         resolve,
         reject,
-      } = this.ctx!
+      } = this.ctx
 
       printCmd(cmd)
 
