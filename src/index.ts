@@ -14,12 +14,7 @@
 
 import { ProcessPromise } from './core.js'
 
-export {
-  $,
-  ProcessPromise,
-  ProcessOutput,
-  within,
-} from './core.js'
+export { $, ProcessPromise, ProcessOutput, within } from './core.js'
 
 export {
   argv,
@@ -39,12 +34,7 @@ export {
   YAML,
 } from './goods.js'
 
-export {
-  log,
-  formatCmd,
-  LogKind,
-  LogExtra,
-} from './log.js'
+export { log, formatCmd, LogKind, LogExtra } from './log.js'
 
 /**
  *  @deprecated Use $.nothrow() instead.
