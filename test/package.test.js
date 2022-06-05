@@ -16,9 +16,9 @@ import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
 import '../build/globals.js'
 
-const pack = suite('package')
+const test = suite('package')
 
-pack.before(async () => {
+test.before(async () => {
   $.verbose = false
   const pack = await $`npm pack`
   await $`tar xf ${pack}`
@@ -35,17 +35,17 @@ pack.before(async () => {
   await $`mv ${fullPath} /tmp/zx-pack-test/node_modules/zx`
 })
 
-pack.after(async () => {
+test.after(async () => {
   await $`rm -rf /tmp/zx-pack-test`.nothrow()
 })
 
-pack('zx globals works', async () => {
+test('zx globals works', async () => {
   fs.writeFileSync('/tmp/zx-pack-test/script.mjs', 'await $`echo hello`')
   let out = await $`npx zx script.mjs`
   assert.match(out.toString(), 'hello')
 })
 
-pack('imports works', async () => {
+test('imports works', async () => {
   fs.writeFileSync(
     '/tmp/zx-pack-test/script.mjs',
     'import {$} from "zx"; await $`printf imported`'
@@ -54,4 +54,4 @@ pack('imports works', async () => {
   assert.match(out.toString(), 'imported')
 })
 
-pack.run()
+test.run()
