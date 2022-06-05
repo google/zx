@@ -12,29 +12,41 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { test } from 'uvu'
+import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
 import '../build/globals.js'
 
-$.verbose = false
+const pack = suite('package')
 
-test('package works', async () => {
-  let pack
-  try {
-    await $`mkdir -p /tmp/zx-pack-test/node_modules`
-    pack = await $`npm pack`
-    await $`tar xf ${pack}`
-    await $`rm ${pack}`.nothrow()
-    await $`mv package/ /tmp/zx-pack-test/node_modules/zx`
-    let packageJSON = {private: true, dependencies: {zx: '*'}}
-    fs.writeFileSync('/tmp/zx-pack-test/package.json', JSON.stringify(packageJSON))
-    fs.writeFileSync('/tmp/zx-pack-test/script.mjs', 'await $`echo hello`')
-    cd('/tmp/zx-pack-test')
-    let out = await $`npx zx script.mjs`
-    assert.match(out.toString(), 'hello')
-  } finally {
-    await $`rm -rf /tmp/zx-pack-test`.nothrow()
-  }
+pack.before(async () => {
+  $.verbose = false
+  const pack = await $`npm pack`
+  await $`tar xf ${pack}`
+  await $`rm ${pack}`.nothrow()
+  await $`mkdir -p /tmp/zx-pack-test/node_modules`
+  await $`mv package/ /tmp/zx-pack-test/node_modules/zx`
+  fs.writeFileSync(
+    '/tmp/zx-pack-test/package.json',
+    JSON.stringify({ private: true, dependencies: { zx: '*' } })
+  )
+  cd('/tmp/zx-pack-test')
+  await $`npm i`
 })
 
-test.run()
+pack.after(async () => {
+  await $`rm -rf /tmp/zx-pack-test`.nothrow()
+})
+
+pack('zx globals works', async () => {
+  fs.writeFileSync('/tmp/zx-pack-test/script.mjs', 'await $`echo hello`')
+  let out = await $`npx zx script.mjs`
+  assert.match(out.toString(), 'hello')
+})
+
+pack('imports works', async () => {
+  fs.writeFileSync('/tmp/zx-pack-test/script.mjs', 'import {$} from "zx"; await $`printf imported`')
+  let out = await $`node script.mjs`
+  assert.match(out.toString(), 'imported')
+})
+
+pack.run()
