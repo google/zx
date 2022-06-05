@@ -84,7 +84,7 @@ test('can use array as an argument', async () => {
   assert.is((await $`echo ${args}`).toString(), 'foo')
 })
 
-test('quiet mode is working', async () => {
+test('quiet() mode is working', async () => {
   let stdout = ''
   let log = console.log
   console.log = (...args) => {
@@ -93,6 +93,17 @@ test('quiet mode is working', async () => {
   await $`echo 'test'`.quiet()
   console.log = log
   assert.is(stdout, '')
+  {
+    // Deprecated.
+    let stdout = ''
+    let log = console.log
+    console.log = (...args) => {
+      stdout += args.join(' ')
+    }
+    await quiet($`echo 'test'`)
+    console.log = log
+    assert.is(stdout, '')
+  }
 })
 
 test('pipes are working', async () => {
@@ -211,6 +222,11 @@ test('await $`cmd`.exitCode does not throw', async () => {
 test('nothrow() do not throw', async () => {
   let { exitCode } = await $`exit 42`.nothrow()
   assert.is(exitCode, 42)
+  {
+    // Deprecated.
+    let { exitCode } = await nothrow($`exit 42`)
+    assert.is(exitCode, 42)
+  }
 })
 
 test('globby available', async () => {

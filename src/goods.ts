@@ -14,9 +14,10 @@
 
 import * as globbyModule from 'globby'
 import minimist from 'minimist'
-import { setTimeout as sleep } from 'node:timers/promises'
 import nodeFetch, { RequestInfo, RequestInit } from 'node-fetch'
-import { colorize, isString, stringify } from './util.js'
+import { createInterface } from 'node:readline'
+import { setTimeout as sleep } from 'node:timers/promises'
+import { isString, stringify } from './util.js'
 
 export { default as chalk } from 'chalk'
 export { default as fs } from 'fs-extra'
@@ -38,18 +39,12 @@ globbyModule)
 export const glob = globby
 
 export async function fetch(url: RequestInfo, init?: RequestInit) {
-  if ($.verbose) {
-    if (typeof init !== 'undefined') {
-      console.log('$', colorize(`fetch ${url}`), init)
-    } else {
-      console.log('$', colorize(`fetch ${url}`))
-    }
-  }
+  $.log('fetch', url.toString(), { init })
   return nodeFetch(url, init)
 }
 
 export function cd(dir: string) {
-  if ($.verbose) console.log('$', colorize(`cd ${dir}`))
+  $.log('cd', dir)
   $.cwd = path.resolve($.cwd, dir)
 }
 
@@ -68,6 +63,33 @@ export function echo(pieces: TemplateStringsArray, ...args: any[]) {
     msg = [pieces, ...args].map(stringify).join(' ')
   }
   console.log(msg)
+}
+
+export async function question(
+  query?: string,
+  options?: { choices: string[] }
+): Promise<string> {
+  let completer = undefined
+  if (options && Array.isArray(options.choices)) {
+    completer = function completer(line: string) {
+      const completions = options.choices
+      const hits = completions.filter((c) => c.startsWith(line))
+      return [hits.length ? hits : completions, line]
+    }
+  }
+  const rl = createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    terminal: true,
+    completer,
+  })
+
+  return new Promise((resolve) =>
+    rl.question(query ?? '', (answer) => {
+      rl.close()
+      resolve(answer)
+    })
+  )
 }
 
 /**
