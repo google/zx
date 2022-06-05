@@ -23,14 +23,16 @@ pack.before(async () => {
   const pack = await $`npm pack`
   await $`tar xf ${pack}`
   await $`rm ${pack}`.nothrow()
-  await $`mkdir -p /tmp/zx-pack-test/node_modules`
-  await $`mv package/ /tmp/zx-pack-test/node_modules/zx`
+  const fullPath = path.resolve('package')
+  await $`mkdir -p /tmp/zx-pack-test`
   fs.writeFileSync(
     '/tmp/zx-pack-test/package.json',
     JSON.stringify({ private: true, dependencies: { zx: '*' } })
   )
   cd('/tmp/zx-pack-test')
   await $`npm i`
+  await $`rm -rf /tmp/zx-pack-test/node_modules/zx`
+  await $`mv ${fullPath} /tmp/zx-pack-test/node_modules/zx`
 })
 
 pack.after(async () => {
