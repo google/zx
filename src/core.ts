@@ -365,12 +365,11 @@ export function log(kind: LogKind, data: string, extra: LogExtra = {}) {
         process.stderr.write(data)
         break
       case 'cd':
-        process.stderr.write('$ ' + colorize(`cd ${data}`))
+        process.stderr.write('$ ' + colorize(`cd ${data}`) + '\n')
         break
       case 'fetch':
-        process.stderr.write(
-          '$ ' + colorize(`fetch ${data} `) + inspect(extra.init)
-        )
+        const init = extra.init ? ' ' + inspect(extra.init) : ''
+        process.stderr.write('$ ' + colorize(`fetch ${data}`) + init + '\n')
         break
       default:
         throw new Error(`Unknown log kind "${kind}".`)
