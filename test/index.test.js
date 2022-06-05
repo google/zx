@@ -13,13 +13,15 @@
 // limitations under the License.
 
 import chalk from 'chalk'
-import { test } from 'uvu'
+import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
 import { inspect } from 'node:util'
 import { Writable } from 'node:stream'
 import { Socket } from 'node:net'
 import { ProcessPromise } from '../build/index.js'
 import '../build/globals.js'
+
+const test = suite('index')
 
 $.verbose = false
 

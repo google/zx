@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { test } from 'uvu'
+import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
 import '../build/globals.js'
 import { retry, withTimeout } from '../build/experimental.js'
 
-import chalk from 'chalk'
+const test = suite('experimental')
 
 $.verbose = false
 
