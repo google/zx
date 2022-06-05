@@ -5,7 +5,6 @@ on: [push, pull_request]
 jobs:
   coverage:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
       - run: npm i
@@ -13,3 +12,10 @@ jobs:
         timeout-minutes: 1
         env:
           FORCE_COLOR: 3
+
+  code-style:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm i
+      - run: npx prettier --check .
