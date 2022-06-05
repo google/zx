@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { test } from 'uvu'
+import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
 import '../build/globals.js'
+
+const test = suite('cli')
 
 $.verbose = false
 
