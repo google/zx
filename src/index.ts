@@ -19,10 +19,6 @@ export {
   ProcessPromise,
   ProcessOutput,
   within,
-  log,
-  formatCmd,
-  LogKind,
-  LogExtra,
 } from './core.js'
 
 export {
@@ -42,6 +38,13 @@ export {
   which,
   YAML,
 } from './goods.js'
+
+export {
+  log,
+  formatCmd,
+  LogKind,
+  LogExtra,
+} from './log.js'
 
 /**
  *  @deprecated Use $.nothrow() instead.

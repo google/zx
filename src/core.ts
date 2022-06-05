@@ -13,21 +13,14 @@
 // limitations under the License.
 
 import { ChalkInstance } from 'chalk'
-import { RequestInit } from 'node-fetch'
 import assert from 'node:assert'
 import { AsyncLocalStorage } from 'node:async_hooks'
 import { ChildProcess, spawn, StdioNull, StdioPipe } from 'node:child_process'
 import { Readable, Writable } from 'node:stream'
 import { inspect } from 'node:util'
 import { chalk, which } from './goods.js'
-import {
-  colorize,
-  exitCodeInfo,
-  noop,
-  psTree,
-  quote,
-  substitute,
-} from './util.js'
+import { log } from './log.js'
+import { exitCodeInfo, noop, psTree, quote, substitute } from './util.js'
 
 type Shell = (pieces: TemplateStringsArray, ...args: any[]) => ProcessPromise
 
@@ -345,47 +338,4 @@ export class ProcessOutput extends Error {
 
 export function within<R>(callback: () => R): R {
   return storage.run({ ...getStore() }, callback)
-}
-
-export type LogKind = 'cmd' | 'stdout' | 'stderr' | 'cd' | 'fetch'
-export type LogExtra = {
-  source?: ProcessPromise
-  init?: RequestInit
-}
-
-export function log(kind: LogKind, data: string, extra: LogExtra = {}) {
-  if (extra.source?.isQuiet()) return
-  if ($.verbose) {
-    switch (kind) {
-      case 'cmd':
-        process.stderr.write(formatCmd(data))
-        break
-      case 'stdout':
-      case 'stderr':
-        process.stderr.write(data)
-        break
-      case 'cd':
-        process.stderr.write('$ ' + colorize(`cd ${data}`) + '\n')
-        break
-      case 'fetch':
-        const init = extra.init ? ' ' + inspect(extra.init) : ''
-        process.stderr.write('$ ' + colorize(`fetch ${data}`) + init + '\n')
-        break
-      default:
-        throw new Error(`Unknown log kind "${kind}".`)
-    }
-  }
-}
-
-export function formatCmd(cmd: string) {
-  if (/\n/.test(cmd)) {
-    return (
-      cmd
-        .split('\n')
-        .map((line, i) => `${i == 0 ? '$' : '>'} ${colorize(line)}`)
-        .join('\n') + '\n'
-    )
-  } else {
-    return `$ ${colorize(cmd)}\n`
-  }
 }
