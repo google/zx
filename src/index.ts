@@ -12,36 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  argv,
-  cd,
-  chalk,
-  echo,
-  fetch,
-  fs,
-  glob,
-  globby,
-  path,
-  sleep,
-  startSpinner,
-  which,
-  YAML,
-  os,
-} from './goods.js'
-import { question } from './question.js'
-import {
-  $,
-  ProcessPromise,
-  ProcessOutput,
-  nothrow,
-  quiet,
-  within,
-} from './core.js'
+import { ProcessPromise } from './core.js'
 
 export {
   $,
   ProcessPromise,
   ProcessOutput,
+  within,
+  log,
+  formatCmd,
+  LogKind,
+  LogExtra,
+} from './core.js'
+
+export {
   argv,
   cd,
   chalk,
@@ -50,14 +34,25 @@ export {
   fs,
   glob,
   globby,
-  nothrow,
   os,
   path,
   question,
-  quiet,
   sleep,
   startSpinner,
   which,
-  within,
   YAML,
+} from './goods.js'
+
+/**
+ *  @deprecated Use $.nothrow() instead.
+ */
+export function nothrow(promise: ProcessPromise) {
+  return promise.nothrow()
+}
+
+/**
+ * @deprecated Use $.quiet() instead.
+ */
+export function quiet(promise: ProcessPromise) {
+  return promise.quiet()
 }

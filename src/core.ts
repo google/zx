@@ -12,17 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { StdioNull, StdioPipe } from 'child_process'
-import { ChildProcess } from 'node:child_process'
+import { ChalkInstance } from 'chalk'
+import { RequestInit } from 'node-fetch'
+import assert from 'node:assert'
 import { AsyncLocalStorage } from 'node:async_hooks'
+import { ChildProcess, spawn, StdioNull, StdioPipe } from 'node:child_process'
 import { Readable, Writable } from 'node:stream'
 import { inspect } from 'node:util'
-import { spawn } from 'node:child_process'
-import assert from 'node:assert'
-import { ChalkInstance } from 'chalk'
 import { chalk, which } from './goods.js'
-import { printCmd } from './print.js'
-import { noop, quote, substitute, psTree, exitCodeInfo } from './util.js'
+import {
+  colorize,
+  exitCodeInfo,
+  noop,
+  psTree,
+  quote,
+  substitute,
+} from './util.js'
 
 type Shell = (pieces: TemplateStringsArray, ...args: any[]) => ProcessPromise
 
@@ -34,6 +39,7 @@ type Options = {
   prefix: string
   quote: typeof quote
   spawn: typeof spawn
+  log: typeof log
 }
 
 const storage = new AsyncLocalStorage<Options>()
@@ -47,6 +53,7 @@ function initStore(): Options {
     prefix: '',
     quote,
     spawn,
+    log,
   }
   storage.enterWith(context)
   if (process.env.ZX_VERBOSE) $.verbose = process.env.ZX_VERBOSE == 'true'
@@ -130,9 +137,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   _run() {
     if (this.child) return // The _run() called from two places: then() and setImmediate().
     this._prerun() // In case $1.pipe($2), the $2 returned, and on $2._run() invoke $1._run().
-    if ($.verbose && !this._quiet) {
-      printCmd(this._command)
-    }
+    $.log('cmd', this._command, { source: this })
     this.child = spawn($.prefix + this._command, {
       cwd: this._cwd,
       shell: typeof $.shell === 'string' ? $.shell : true,
@@ -170,12 +175,12 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       stderr = '',
       combined = ''
     let onStdout = (data: any) => {
-      if ($.verbose && !this._quiet) process.stderr.write(data)
+      $.log('stdout', data, { source: this })
       stdout += data
       combined += data
     }
     let onStderr = (data: any) => {
-      if ($.verbose && !this._quiet) process.stderr.write(data)
+      $.log('stderr', data, { source: this })
       stderr += data
       combined += data
     }
@@ -273,6 +278,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     this._quiet = true
     return this
   }
+
+  isQuiet() {
+    return this._quiet
+  }
 }
 
 export class ProcessOutput extends Error {
@@ -338,16 +347,46 @@ export function within<R>(callback: () => R): R {
   return storage.run({ ...getStore() }, callback)
 }
 
-/**
- *  @deprecated Use $.nothrow() instead.
- */
-export function nothrow(promise: ProcessPromise) {
-  return promise.nothrow()
+export type LogKind = 'cmd' | 'stdout' | 'stderr' | 'cd' | 'fetch'
+export type LogExtra = {
+  source?: ProcessPromise
+  init?: RequestInit
 }
 
-/**
- * @deprecated Use $.quiet() instead.
- */
-export function quiet(promise: ProcessPromise) {
-  return promise.quiet()
+export function log(kind: LogKind, data: string, extra: LogExtra = {}) {
+  if (extra.source?.isQuiet()) return
+  if ($.verbose) {
+    switch (kind) {
+      case 'cmd':
+        process.stderr.write(formatCmd(data))
+        break
+      case 'stdout':
+      case 'stderr':
+        process.stderr.write(data)
+        break
+      case 'cd':
+        process.stderr.write('$ ' + colorize(`cd ${data}`))
+        break
+      case 'fetch':
+        process.stderr.write(
+          '$ ' + colorize(`fetch ${data} `) + inspect(extra.init)
+        )
+        break
+      default:
+        throw new Error(`Unknown log kind "${kind}".`)
+    }
+  }
+}
+
+export function formatCmd(cmd: string) {
+  if (/\n/.test(cmd)) {
+    return (
+      cmd
+        .split('\n')
+        .map((line, i) => `${i == 0 ? '$' : '>'} ${colorize(line)}`)
+        .join('\n') + '\n'
+    )
+  } else {
+    return `$ ${colorize(cmd)}\n`
+  }
 }
