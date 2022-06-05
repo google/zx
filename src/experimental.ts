@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { ProcessOutput, $ } from './core.js'
+import { $ } from './core.js'
 import { sleep } from './goods.js'
-import { isString } from './util.js'
 
 // Retries a command a few times. Will return after the first
 // successful attempt, or will throw after specifies attempts count.

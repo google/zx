@@ -44,7 +44,10 @@ pack('zx globals works', async () => {
 })
 
 pack('imports works', async () => {
-  fs.writeFileSync('/tmp/zx-pack-test/script.mjs', 'import {$} from "zx"; await $`printf imported`')
+  fs.writeFileSync(
+    '/tmp/zx-pack-test/script.mjs',
+    'import {$} from "zx"; await $`printf imported`'
+  )
   let out = await $`node script.mjs`
   assert.match(out.toString(), 'imported')
 })
