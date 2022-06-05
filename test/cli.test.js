@@ -131,9 +131,19 @@ test('eval works with stdin', async () => {
   assert.is(stdout, 'Hello world\n')
 })
 
-test('--eval works with async stdin', async () => {
+test('eval works with async stdin', async () => {
   let p = $`(printf foo; sleep 0.1; printf bar) | FX_ASYNC_STDIN=true node build/cli.js --eval 'await stdin'`
   assert.is((await p).stdout, 'foobar\n')
+})
+
+test('eval works with newlines', async () => {
+  let p = $`node build/cli.js -e 'console.log(1)\nawait 2'`
+  assert.is((await p).stdout, '1\n2\n')
+})
+
+test('eval works with semicolon', async () => {
+  let p = $`node build/cli.js -e 'console.log(1); await 2'`
+  assert.is((await p).stdout, '1\n2\n')
 })
 
 test.run()

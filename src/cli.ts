@@ -92,8 +92,15 @@ await (async function main() {
 })
 
 function addLogOnLastLine(script: string) {
-  let lines = script.trim().split('\n')
-  return lines.slice(0, -1).join('\n') + '\n' + `console.log(${lines.at(-1)})`
+  // We don't want to bring a JS parser as a dependency of zx,
+  // so the next code should work for most of the cases.
+  const lines = script.trim().split('\n')
+  let out = lines.slice(0, -1).join('\n') + '\n'
+  const lastLine = ';' + lines.at(-1)
+  const statements = lastLine.split(';')
+  out += statements.slice(0, -1).join(';') + ';'
+  out += `console.log(${statements.at(-1)})`
+  return out
 }
 
 async function runScript(script: string) {
