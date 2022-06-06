@@ -14,7 +14,7 @@
 
 import { ChalkInstance } from 'chalk'
 import assert from 'node:assert'
-import { AsyncLocalStorage } from 'node:async_hooks'
+import { AsyncLocalStorage, createHook } from 'node:async_hooks'
 import { ChildProcess, spawn, StdioNull, StdioPipe } from 'node:child_process'
 import { Readable, Writable } from 'node:stream'
 import { inspect } from 'node:util'
@@ -36,6 +36,12 @@ type Options = {
 }
 
 const storage = new AsyncLocalStorage<Options>()
+const hook = createHook({
+  before() {
+    if ($.cwd != process.cwd()) process.chdir($.cwd)
+  },
+})
+hook.enable()
 
 function initStore(): Options {
   const context = {
@@ -337,5 +343,7 @@ export class ProcessOutput extends Error {
 }
 
 export function within<R>(callback: () => R): R {
-  return storage.run({ ...getStore() }, callback)
+  const result = storage.run({ ...getStore() }, callback)
+  if ($.cwd != process.cwd()) process.chdir($.cwd)
+  return result
 }
