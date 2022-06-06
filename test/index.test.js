@@ -467,4 +467,15 @@ test('stdio() works', async () => {
   assert.is((await b).stdout, 'bar')
 })
 
+test('snapshots works', async () => {
+  await within(async () => {
+    $.prefix += 'echo success;'
+    let p = $`:`
+    $.prefix += 'echo fail;'
+    let out = await p
+    assert.is(out.stdout, 'success\n')
+    assert.not.match(out.stdout, 'fail')
+  })
+})
+
 test.run()

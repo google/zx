@@ -12,38 +12,54 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { RequestInit } from 'node-fetch'
+import { RequestInfo, RequestInit } from 'node-fetch'
 import { inspect } from 'node:util'
-import { $, ProcessPromise } from './core.js'
+import { $ } from './core.js'
 import { colorize } from './util.js'
 
-export type LogKind = 'cmd' | 'stdout' | 'stderr' | 'cd' | 'fetch'
-export type LogExtra = {
-  source?: ProcessPromise
-  init?: RequestInit
-}
-
-export function log(kind: LogKind, data: string, extra: LogExtra = {}) {
-  if (extra.source?.isQuiet()) return
-  if ($.verbose) {
-    switch (kind) {
-      case 'cmd':
-        process.stderr.write(formatCmd(data))
-        break
-      case 'stdout':
-      case 'stderr':
-        process.stderr.write(data)
-        break
-      case 'cd':
-        process.stderr.write('$ ' + colorize(`cd ${data}`) + '\n')
-        break
-      case 'fetch':
-        const init = extra.init ? ' ' + inspect(extra.init) : ''
-        process.stderr.write('$ ' + colorize(`fetch ${data}`) + init + '\n')
-        break
-      default:
-        throw new Error(`Unknown log kind "${kind}".`)
+export type LogEntry =
+  | {
+      kind: 'cmd'
+      verbose: boolean
+      cmd: string
     }
+  | {
+      kind: 'stdout' | 'stderr'
+      verbose: boolean
+      data: Buffer
+    }
+  | {
+      kind: 'cd'
+      dir: string
+    }
+  | {
+      kind: 'fetch'
+      url: RequestInfo
+      init?: RequestInit
+    }
+
+export function log(entry: LogEntry) {
+  switch (entry.kind) {
+    case 'cmd':
+      if (!entry.verbose) return
+      process.stderr.write(formatCmd(entry.cmd))
+      break
+    case 'stdout':
+    case 'stderr':
+      if (!entry.verbose) return
+      process.stderr.write(entry.data)
+      break
+    case 'cd':
+      if (!$.verbose) return
+      process.stderr.write('$ ' + colorize(`cd ${entry.dir}`) + '\n')
+      break
+    case 'fetch':
+      if (!$.verbose) return
+      const init = entry.init ? ' ' + inspect(entry.init) : ''
+      process.stderr.write('$ ' + colorize(`fetch ${entry.url}`) + init + '\n')
+      break
+    default:
+      throw new Error(`Unknown log kind.`)
   }
 }
 
