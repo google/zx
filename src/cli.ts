@@ -96,10 +96,10 @@ function addLogOnLastLine(script: string) {
   // so the next code should work for most of the cases.
   const lines = script.trim().split('\n')
   let out = lines.slice(0, -1).join('\n') + '\n'
-  const lastLine = ';' + lines.at(-1)
+  const lastLine = ';' + lines[lines.length - 1]
   const statements = lastLine.split(';')
   out += statements.slice(0, -1).join(';') + ';'
-  out += `console.log(${statements.at(-1)})`
+  out += `console.log(${statements[statements.length - 1]})`
   return out
 }
 

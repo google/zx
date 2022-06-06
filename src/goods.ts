@@ -112,8 +112,8 @@ export function startSpinner(title = '') {
 
 export function sleep<T = void>(delay?: number, value?: T): Promise<T> {
   return new Promise((resolve) => {
-      setTimeout(() => {
-          resolve(value as T);
-      }, delay)
+    setTimeout(() => {
+      resolve(value as T)
+    }, delay)
   })
 }
