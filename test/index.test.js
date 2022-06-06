@@ -473,8 +473,7 @@ test('snapshots works', async () => {
 })
 
 test('timeout() works', async () => {
-  let exitCode = 0
-  let signal
+  let exitCode, signal
   try {
     await $`sleep 9999`.timeout(10, 'SIGKILL')
   } catch (p) {
@@ -483,6 +482,24 @@ test('timeout() works', async () => {
   }
   assert.is(exitCode, null)
   assert.is(signal, 'SIGKILL')
+})
+
+test('timeout() expiration works', async () => {
+  let exitCode, signal
+  try {
+    await $`sleep 1`.timeout(999)
+  } catch (p) {
+    exitCode = p.exitCode
+    signal = p.signal
+  }
+  assert.is(exitCode, undefined)
+  assert.is(signal, undefined)
+})
+
+test('timeout() with string durations works', async () => {
+  assert.is($`:`.timeout('2s')._timeout, 2000)
+  assert.is($`:`.timeout('500ms')._timeout, 500)
+  assert.throws(() => $`:`.timeout('100'))
 })
 
 test.run()
