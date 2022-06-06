@@ -45,7 +45,7 @@ test('js project with zx', async () => {
     await $`rm -rf node_modules`
     await $`mkdir node_modules`
     await $`mv ${pack} node_modules/zx`
-    return $`npx zx script.js`
+    return $`node node_modules/zx/build/cli.js script.js`
   })
   assert.match(out.stderr, 'js-script')
 })

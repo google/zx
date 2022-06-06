@@ -124,25 +124,15 @@ test('pipes are working', async () => {
   }
 })
 
-// test('question() works', async () => {
-//   let p = question('foo or bar? ', { choices: ['foo', 'bar'] })
-//   setImmediate(() => {
-//     process.stdin.emit('data', 'fo')
-//     process.stdin.emit('data', '\t')
-//     process.stdin.emit('data', '\n')
-//   })
-//   assert.is(await p, 'foo')
-// })
-//
-// test('empty question() works', async () => {
-//   let p = question(undefined, { choices: [] })
-//   setImmediate(() => {
-//     process.stdin.emit('data', 'xxx')
-//     process.stdin.emit('data', '\t')
-//     process.stdin.emit('data', '\n')
-//   })
-//   assert.match(await p, 'xxx')
-// })
+test('question() works', async () => {
+  let p = $`node build/cli.js --eval "
+  let answer = await question('foo or bar? ', { choices: ['foo', 'bar'] })
+  echo('Answer is', answer)
+"`
+  p.stdin.write('foo\n')
+  p.stdin.end()
+  assert.match((await p).stdout, 'Answer is foo')
+})
 
 test('ProcessPromise', async () => {
   let contents = ''
