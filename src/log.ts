@@ -37,6 +37,7 @@ export type LogEntry =
       url: RequestInfo
       init?: RequestInit
     }
+  | { kind: 'custom'; data: any }
 
 export function log(entry: LogEntry) {
   switch (entry.kind) {
@@ -58,8 +59,6 @@ export function log(entry: LogEntry) {
       const init = entry.init ? ' ' + inspect(entry.init) : ''
       process.stderr.write('$ ' + colorize(`fetch ${entry.url}`) + init + '\n')
       break
-    default:
-      throw new Error(`Unknown log kind.`)
   }
 }
 
