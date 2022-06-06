@@ -1,5 +1,6 @@
-/node_modules/
-/build/
-/coverage/
+node_modules/
+build/
+coverage/
+package/
 package-lock.json
 yarn.lock

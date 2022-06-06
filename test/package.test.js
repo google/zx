@@ -18,40 +18,36 @@ import '../build/globals.js'
 
 const test = suite('package')
 
-test.before(async () => {
+test.before.each(async () => {
   $.verbose = false
   const pack = await $`npm pack`
   await $`tar xf ${pack}`
   await $`rm ${pack}`.nothrow()
-  const fullPath = path.resolve('package')
-  await $`mkdir -p /tmp/zx-pack-test`
-  fs.writeFileSync(
-    '/tmp/zx-pack-test/package.json',
-    JSON.stringify({ private: true, dependencies: { zx: '*' } })
-  )
-  cd('/tmp/zx-pack-test')
-  await $`npm i`
-  await $`rm -rf /tmp/zx-pack-test/node_modules/zx`
-  await $`mv ${fullPath} /tmp/zx-pack-test/node_modules/zx`
 })
 
-test.after(async () => {
-  await $`rm -rf /tmp/zx-pack-test`.nothrow()
+test('ts project', async () => {
+  const pack = path.resolve('package')
+  const out = await within(async () => {
+    cd('test/fixtures/ts-project')
+    await $`npm i`
+    await $`rm -rf node_modules/zx`
+    await $`mv ${pack} node_modules/zx`
+    await $`npx tsc`
+    return $`node build/script.js`
+  })
+  assert.match(out.stderr, 'ts-script')
 })
 
-test('zx globals works', async () => {
-  fs.writeFileSync('/tmp/zx-pack-test/script.mjs', 'await $`echo hello`')
-  let out = await $`npx zx script.mjs`
-  assert.match(out.toString(), 'hello')
-})
-
-test('imports works', async () => {
-  fs.writeFileSync(
-    '/tmp/zx-pack-test/script.mjs',
-    'import {$} from "zx"; await $`printf imported`'
-  )
-  let out = await $`node script.mjs`
-  assert.match(out.toString(), 'imported')
+test('js project with zx', async () => {
+  const pack = path.resolve('package')
+  const out = await within(async () => {
+    cd('test/fixtures/js-project')
+    await $`rm -rf node_modules`
+    await $`mkdir node_modules`
+    await $`mv ${pack} node_modules/zx`
+    return $`npx zx script.js`
+  })
+  assert.match(out.stderr, 'js-script')
 })
 
 test.run()
