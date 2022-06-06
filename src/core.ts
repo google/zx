@@ -37,11 +37,19 @@ type Options = {
 
 const storage = new AsyncLocalStorage<Options>()
 const hook = createHook({
-  before() {
-    if ($.cwd != process.cwd()) process.chdir($.cwd)
-  },
+  init: syncCwd,
+  before: syncCwd,
+  promiseResolve: syncCwd,
+  after: syncCwd,
+  destroy: syncCwd,
 })
 hook.enable()
+
+function syncCwd() {
+  if ($.cwd != process.cwd()) {
+    process.chdir($.cwd)
+  }
+}
 
 function initStore(): Options {
   const context = {
@@ -344,6 +352,8 @@ export class ProcessOutput extends Error {
 
 export function within<R>(callback: () => R): R {
   const result = storage.run({ ...getStore() }, callback)
-  if ($.cwd != process.cwd()) process.chdir($.cwd)
+  if ($.cwd != process.cwd()) {
+    process.chdir($.cwd)
+  }
   return result
 }
