@@ -114,6 +114,7 @@ export const $ = new Proxy<Shell & Options>(
 
 type Resolve = (out: ProcessOutput) => void
 type IO = StdioPipe | StdioNull
+export type Duration = number | `${number}s` | `${number}ms`
 
 export class ProcessPromise extends Promise<ProcessOutput> {
   child?: ChildProcess
@@ -125,6 +126,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _stdio: [IO, IO, IO] = ['inherit', 'pipe', 'pipe']
   private _nothrow = false
   private _quiet = false
+  private _timeout?: number
+  private _timeoutSignal?: string
   private _resolved = false
   _piped = false
   _prerun = noop
@@ -202,6 +205,13 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     if (!this._piped) this.child.stdout?.on('data', onStdout) // If process is piped, don't collect or print output.
     this.child.stderr?.on('data', onStderr) // Stderr should be printed regardless of piping.
     this._postrun() // In case $1.pipe($2), after both subprocesses are running, we can pipe $1.stdout to $2.stdin.
+    if (this._timeout && this._timeoutSignal) {
+      const t = setTimeout(
+        () => this.kill(this._timeoutSignal),
+        this._timeout
+      )
+      this.finally(() => clearTimeout(t)).catch(noop)
+    }
   }
 
   get stdin(): Writable {
@@ -264,7 +274,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   async kill(signal = 'SIGTERM') {
-    this.catch((_) => _)
     if (!this.child)
       throw new Error('Trying to kill child process without creating one.')
     if (!this.child.pid) throw new Error('Child process pid is undefined.')
@@ -294,8 +303,18 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this
   }
 
-  isQuiet() {
-    return this._quiet
+  timeout(d: Duration, signal = 'SIGTERM') {
+    if (typeof d == 'number') {
+      this._timeout = d
+    } else if (/\d+s/.test(d)) {
+      this._timeout = +d.slice(0, -1) * 1000
+    } else if (/\d+ms/.test(d)) {
+      this._timeout = +d.slice(0, -2)
+    } else {
+      throw new Error(`Unknown timeout duration: "${d}".`)
+    }
+    this._timeoutSignal = signal
+    return this
   }
 }
 
