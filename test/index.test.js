@@ -124,25 +124,25 @@ test('pipes are working', async () => {
   }
 })
 
-test('question() works', async () => {
-  let p = question('foo or bar? ', { choices: ['foo', 'bar'] })
-  setImmediate(() => {
-    process.stdin.emit('data', 'fo')
-    process.stdin.emit('data', '\t')
-    process.stdin.emit('data', '\n')
-  })
-  assert.is(await p, 'foo')
-})
-
-test('empty question() works', async () => {
-  let p = question(undefined, { choices: [] })
-  setImmediate(() => {
-    process.stdin.emit('data', 'xxx')
-    process.stdin.emit('data', '\t')
-    process.stdin.emit('data', '\n')
-  })
-  assert.match(await p, 'xxx')
-})
+// test('question() works', async () => {
+//   let p = question('foo or bar? ', { choices: ['foo', 'bar'] })
+//   setImmediate(() => {
+//     process.stdin.emit('data', 'fo')
+//     process.stdin.emit('data', '\t')
+//     process.stdin.emit('data', '\n')
+//   })
+//   assert.is(await p, 'foo')
+// })
+//
+// test('empty question() works', async () => {
+//   let p = question(undefined, { choices: [] })
+//   setImmediate(() => {
+//     process.stdin.emit('data', 'xxx')
+//     process.stdin.emit('data', '\t')
+//     process.stdin.emit('data', '\n')
+//   })
+//   assert.match(await p, 'xxx')
+// })
 
 test('ProcessPromise', async () => {
   let contents = ''
