@@ -26,6 +26,10 @@
       "types": "./build/core.d.ts",
       "import": "./build/core.js"
     },
+    "./util": {
+      "types": "./build/util.d.ts",
+      "import": "./build/util.js"
+    },
     "./package.json": "./package.json"
   },
   "bin": {
