@@ -298,15 +298,17 @@ test('cd() works with relative paths', async () => {
     cd('/tmp/zx-cd-test/one/two')
     let p1 = $`pwd`
     assert.match($.cwd, '/two')
-    assert.equal(process.cwd(), cwd)
+    assert.match(process.cwd(), '/two')
 
     cd('..')
     let p2 = $`pwd`
     assert.match($.cwd, '/one')
+    assert.match(process.cwd(), '/one')
 
     cd('..')
     let p3 = $`pwd`
     assert.match($.cwd, '/tmp/zx-cd-test')
+    assert.match(process.cwd(), '/tmp/zx-cd-test')
 
     let results = (await Promise.all([p1, p2, p3])).map((p) =>
       path.basename(p.stdout.trim())
@@ -333,13 +335,15 @@ test('cd() does affect parallel contexts', async () => {
       assert.equal($.cwd, cwd)
       await sleep(10)
       cd('/tmp/zx-cd-parallel')
-      assert.ok($.cwd.endsWith('/zx-cd-parallel'))
+      assert.match($.cwd, '/zx-cd-parallel')
+      assert.match(process.cwd(), '/zx-cd-parallel')
     })
 
     within(async () => {
       assert.equal($.cwd, cwd)
       await sleep(20)
-      assert.ok(!$.cwd.endsWith('/zx-cd-parallel'))
+      assert.not.match($.cwd, '/zx-cd-parallel')
+      assert.not.match(process.cwd(), '/zx-cd-parallel')
       resolve()
     })
 

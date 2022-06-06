@@ -17,6 +17,7 @@ import minimist from 'minimist'
 import nodeFetch, { RequestInfo, RequestInit } from 'node-fetch'
 import { createInterface } from 'node:readline'
 import { setTimeout as sleep } from 'node:timers/promises'
+import { $ } from './core.js'
 import { isString, stringify } from './util.js'
 
 export { default as chalk } from 'chalk'
@@ -46,6 +47,7 @@ export async function fetch(url: RequestInfo, init?: RequestInit) {
 export function cd(dir: string) {
   $.log('cd', dir)
   $.cwd = path.resolve($.cwd, dir)
+  process.chdir($.cwd)
 }
 
 // A console.log() alternative which can take ProcessOutput.
