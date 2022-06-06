@@ -450,12 +450,6 @@ test(`within() isolates nested context and returns cb result`, async () => {
   })
 })
 
-test('spinner works', async () => {
-  let s = startSpinner('waiting')
-  await sleep(1000)
-  s()
-})
-
 test('stdio() works', async () => {
   let p = $`printf foo`
   await p

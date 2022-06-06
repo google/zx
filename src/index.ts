@@ -36,7 +36,6 @@ export {
   path,
   question,
   sleep,
-  startSpinner,
   which,
   YAML,
 } from './goods.js'

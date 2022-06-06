@@ -206,10 +206,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     this.child.stderr?.on('data', onStderr) // Stderr should be printed regardless of piping.
     this._postrun() // In case $1.pipe($2), after both subprocesses are running, we can pipe $1.stdout to $2.stdin.
     if (this._timeout && this._timeoutSignal) {
-      const t = setTimeout(
-        () => this.kill(this._timeoutSignal),
-        this._timeout
-      )
+      const t = setTimeout(() => this.kill(this._timeoutSignal), this._timeout)
       this.finally(() => clearTimeout(t)).catch(noop)
     }
   }
