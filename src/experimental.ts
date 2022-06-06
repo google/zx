@@ -30,14 +30,20 @@ export function retry(count = 5, delay = 0) {
   }
 }
 
-// Runs and sets a timeout for a cmd
-export function withTimeout(timeout: number, signal: string) {
-  return async function (cmd: TemplateStringsArray, ...args: any[]) {
-    let p = $(cmd, ...args)
-    if (!timeout) return p
-
-    let timer = setTimeout(() => p.kill(signal), timeout)
-
-    return p.finally(() => clearTimeout(timer))
+/**
+ * Starts a simple CLI spinner.
+ * @param title Spinner's title.
+ * @return A stop() func.
+ */
+export function startSpinner(title = '') {
+  let i = 0,
+    v = $.verbose
+  $.verbose = false
+  let spin = () =>
+    process.stderr.write(`  ${'⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'[i++ % 10]} ${title}\r`)
+  let id = setInterval(spin, 100)
+  return () => {
+    clearInterval(id)
+    $.verbose = v
   }
 }

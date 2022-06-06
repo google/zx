@@ -31,7 +31,6 @@ declare global {
   var question: typeof _.question
   var quiet: typeof _.quiet
   var sleep: typeof _.sleep
-  var startSpinner: typeof _.startSpinner
   var which: typeof _.which
   var within: typeof _.within
   var YAML: typeof _.YAML

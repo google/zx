@@ -14,8 +14,8 @@
 
 import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
+import { retry } from '../build/experimental.js'
 import '../build/globals.js'
-import { retry, withTimeout } from '../build/experimental.js'
 
 const test = suite('experimental')
 
@@ -33,20 +33,13 @@ test('retry works', async () => {
   assert.ok(Date.now() >= now + 50 * (5 - 1))
 })
 
-test('withTimeout works', async () => {
-  let exitCode = 0
-  let signal
-  try {
-    await withTimeout(100, 'SIGKILL')`sleep 9999`
-  } catch (p) {
-    exitCode = p.exitCode
-    signal = p.signal
-  }
-  assert.is(exitCode, null)
-  assert.is(signal, 'SIGKILL')
-
-  let p = await withTimeout(0)`echo 'test'`
-  assert.is(p.stdout.trim(), 'test')
+test('spinner works', async () => {
+  let out = await $`node build/cli.js --experimental <<'EOF'
+  let stop = startSpinner('waiting')
+  await sleep(1000)
+  stop()
+EOF`
+  assert.match(out.stderr, 'waiting')
 })
 
 test.run()

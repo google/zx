@@ -14,6 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { startSpinner } from 'zx/experimental'
+
 let tests = await glob('test/*.test.js')
 let stop = startSpinner('running tests')
 try {
