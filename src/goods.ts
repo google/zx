@@ -16,7 +16,6 @@ import * as globbyModule from 'globby'
 import minimist from 'minimist'
 import nodeFetch, { RequestInfo, RequestInit } from 'node-fetch'
 import { createInterface } from 'node:readline'
-import { setTimeout as sleep } from 'node:timers/promises'
 import { $ } from './core.js'
 import { isString, stringify } from './util.js'
 
