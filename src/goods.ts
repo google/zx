@@ -73,6 +73,7 @@ export async function question(
 ): Promise<string> {
   let completer = undefined
   if (options && Array.isArray(options.choices)) {
+    /* c8 ignore next 5 */
     completer = function completer(line: string) {
       const completions = options.choices
       const hits = completions.filter((c) => c.startsWith(line))
