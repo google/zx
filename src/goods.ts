@@ -40,12 +40,12 @@ globbyModule)
 export const glob = globby
 
 export async function fetch(url: RequestInfo, init?: RequestInit) {
-  $.log('fetch', url.toString(), { init })
+  $.log({ kind: 'fetch', url, init })
   return nodeFetch(url, init)
 }
 
 export function cd(dir: string) {
-  $.log('cd', dir)
+  $.log({ kind: 'cd', dir })
   $.cwd = path.resolve($.cwd, dir)
   process.chdir($.cwd)
 }

@@ -22,9 +22,12 @@ import { chalk, which } from './goods.js'
 import { log } from './log.js'
 import { exitCodeInfo, noop, psTree, quote, substitute } from './util.js'
 
-type Shell = (pieces: TemplateStringsArray, ...args: any[]) => ProcessPromise
+export type Shell = (
+  pieces: TemplateStringsArray,
+  ...args: any[]
+) => ProcessPromise
 
-type Options = {
+export type Options = {
   verbose: boolean
   cwd: string
   env: NodeJS.ProcessEnv
@@ -93,7 +96,7 @@ export const $ = new Proxy<Shell & Options>(
       }
       cmd += s + pieces[++i]
     }
-    promise._bind(cmd, $.cwd, from, resolve!, reject!)
+    promise._bind(cmd, from, resolve!, reject!, getStore())
     // Make sure all subprocesses are started, if not explicitly by await or then().
     setImmediate(() => promise._run())
     return promise
@@ -115,10 +118,10 @@ type IO = StdioPipe | StdioNull
 export class ProcessPromise extends Promise<ProcessOutput> {
   child?: ChildProcess
   private _command = ''
-  private _cwd = ''
   private _from = ''
   private _resolve: Resolve = noop
   private _reject: Resolve = noop
+  private _snapshot = getStore()
   private _stdio: [IO, IO, IO] = ['inherit', 'pipe', 'pipe']
   private _nothrow = false
   private _quiet = false
@@ -129,24 +132,29 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   _bind(
     cmd: string,
-    cwd: string,
     from: string,
     resolve: Resolve,
-    reject: Resolve
+    reject: Resolve,
+    options: Options
   ) {
     this._command = cmd
-    this._cwd = cwd
     this._from = from
     this._resolve = resolve
     this._reject = reject
+    this._snapshot = { ...options }
   }
 
   _run() {
+    const $ = this._snapshot
     if (this.child) return // The _run() called from two places: then() and setImmediate().
     this._prerun() // In case $1.pipe($2), the $2 returned, and on $2._run() invoke $1._run().
-    $.log('cmd', this._command, { source: this })
+    $.log({
+      kind: 'cmd',
+      cmd: this._command,
+      verbose: $.verbose && !this._quiet,
+    })
     this.child = spawn($.prefix + this._command, {
-      cwd: this._cwd,
+      cwd: $.cwd,
       shell: typeof $.shell === 'string' ? $.shell : true,
       stdio: this._stdio,
       windowsHide: true,
@@ -182,12 +190,12 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       stderr = '',
       combined = ''
     let onStdout = (data: any) => {
-      $.log('stdout', data, { source: this })
+      $.log({ kind: 'stdout', data, verbose: $.verbose && !this._quiet })
       stdout += data
       combined += data
     }
     let onStderr = (data: any) => {
-      $.log('stderr', data, { source: this })
+      $.log({ kind: 'stderr', data, verbose: $.verbose && !this._quiet })
       stderr += data
       combined += data
     }
