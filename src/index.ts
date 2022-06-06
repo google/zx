@@ -18,6 +18,7 @@ export {
   $,
   Shell,
   Options,
+  Duration,
   ProcessPromise,
   ProcessOutput,
   within,
