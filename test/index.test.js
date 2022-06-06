@@ -478,4 +478,17 @@ test('snapshots works', async () => {
   })
 })
 
+test('timeout() works', async () => {
+  let exitCode = 0
+  let signal
+  try {
+    await $`sleep 9999`.timeout(10, 'SIGKILL')
+  } catch (p) {
+    exitCode = p.exitCode
+    signal = p.signal
+  }
+  assert.is(exitCode, null)
+  assert.is(signal, 'SIGKILL')
+})
+
 test.run()
