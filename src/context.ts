@@ -42,12 +42,14 @@ let root: Options
 
 const storage = new AsyncLocalStorage<Options>()
 
+// @ts-ignore
+export const kResourceStoreSymbol = storage.kResourceStore
+
 export function getCtx() {
   return (storage.getStore() as Context) || getRootCtx()
 }
 
 export function setRootCtx(ctx: Options) {
-  storage.enterWith(ctx)
   root = ctx
 }
 
