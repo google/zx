@@ -44,12 +44,6 @@ export async function fetch(url: RequestInfo, init?: RequestInit) {
   return nodeFetch(url, init)
 }
 
-export function cd(dir: string) {
-  $.log({ kind: 'cd', dir })
-  $.cwd = path.resolve($.cwd, dir)
-  process.chdir($.cwd)
-}
-
 // A console.log() alternative which can take ProcessOutput.
 export function echo(pieces: TemplateStringsArray, ...args: any[]) {
   let msg
