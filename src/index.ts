@@ -21,11 +21,11 @@ export {
   ProcessPromise,
   ProcessOutput,
   within,
+  cd,
 } from './core.js'
 
 export {
   argv,
-  cd,
   chalk,
   echo,
   fetch,

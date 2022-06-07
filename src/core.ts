@@ -35,9 +35,12 @@ export type Shell = (
   ...args: any[]
 ) => ProcessPromise
 
+const processCwd = Symbol('processCwd')
+
 export type Options = {
+  [processCwd]: string
+  cwd?: string
   verbose: boolean
-  cwd: string
   env: NodeJS.ProcessEnv
   shell: string | boolean
   prefix: string
@@ -56,16 +59,10 @@ const hook = createHook({
 })
 hook.enable()
 
-function syncCwd() {
-  if ($.cwd != process.cwd()) {
-    process.chdir($.cwd)
-  }
-}
-
 function initStore(): Options {
   const context = {
+    [processCwd]: process.cwd(),
     verbose: (global as any).ZX_VERBOSE ?? true,
-    cwd: process.cwd(),
     env: process.env,
     shell: true,
     prefix: '',
@@ -135,7 +132,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _timeout?: number
   private _timeoutSignal?: string
   private _resolved = false
-  _piped = false
+  private _piped = false
   _prerun = noop
   _postrun = noop
 
@@ -163,7 +160,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       verbose: $.verbose && !this._quiet,
     })
     this.child = spawn($.prefix + this._command, {
-      cwd: $.cwd,
+      cwd: $.cwd ?? $[processCwd],
       shell: typeof $.shell === 'string' ? $.shell : true,
       stdio: this._stdio,
       windowsHide: true,
@@ -374,8 +371,16 @@ export class ProcessOutput extends Error {
 
 export function within<R>(callback: () => R): R {
   const result = storage.run({ ...getStore() }, callback)
-  if ($.cwd != process.cwd()) {
-    process.chdir($.cwd)
-  }
+  syncCwd()
   return result
+}
+
+function syncCwd() {
+  if ($[processCwd] != process.cwd()) process.chdir($[processCwd])
+}
+
+export function cd(dir: string) {
+  $.log({ kind: 'cd', dir })
+  process.chdir(dir)
+  $[processCwd] = process.cwd()
 }

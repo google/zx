@@ -282,62 +282,59 @@ test('executes a script from $PATH', async () => {
 
 test('cd() works with relative paths', async () => {
   let cwd = process.cwd()
-  assert.equal($.cwd, cwd)
   try {
     fs.mkdirpSync('/tmp/zx-cd-test/one/two')
     cd('/tmp/zx-cd-test/one/two')
     let p1 = $`pwd`
-    assert.match($.cwd, '/two')
+    assert.is($.cwd, undefined)
     assert.match(process.cwd(), '/two')
 
     cd('..')
     let p2 = $`pwd`
-    assert.match($.cwd, '/one')
+    assert.is($.cwd, undefined)
     assert.match(process.cwd(), '/one')
 
     cd('..')
     let p3 = $`pwd`
-    assert.match($.cwd, '/tmp/zx-cd-test')
+    assert.is($.cwd, undefined)
     assert.match(process.cwd(), '/tmp/zx-cd-test')
 
-    let results = (await Promise.all([p1, p2, p3])).map((p) =>
+    const results = (await Promise.all([p1, p2, p3])).map((p) =>
       path.basename(p.stdout.trim())
     )
-
     assert.equal(results, ['two', 'one', 'zx-cd-test'])
   } catch (e) {
     assert.ok(!e, e)
   } finally {
     fs.rmSync('/tmp/zx-cd-test', { recursive: true })
     cd(cwd)
-    assert.equal($.cwd, cwd)
   }
 })
 
 test('cd() does affect parallel contexts', async () => {
-  let cwd = process.cwd()
-  let resolve, reject
-  let promise = new Promise((...args) => ([resolve, reject] = args))
-
+  const cwd = process.cwd()
   try {
-    fs.mkdirpSync('/tmp/zx-cd-parallel')
-    within(async () => {
-      assert.equal($.cwd, cwd)
-      await sleep(10)
-      cd('/tmp/zx-cd-parallel')
-      assert.match($.cwd, '/zx-cd-parallel')
-      assert.match(process.cwd(), '/zx-cd-parallel')
-    })
-
-    within(async () => {
-      assert.equal($.cwd, cwd)
-      await sleep(20)
-      assert.not.match($.cwd, '/zx-cd-parallel')
-      assert.not.match(process.cwd(), '/zx-cd-parallel')
-      resolve()
-    })
-
-    await promise
+    fs.mkdirpSync('/tmp/zx-cd-parallel/one/two')
+    await Promise.all([
+      within(async () => {
+        assert.is(process.cwd(), cwd)
+        await sleep(1)
+        cd('/tmp/zx-cd-parallel/one')
+        assert.match(process.cwd(), '/tmp/zx-cd-parallel/one')
+      }),
+      within(async () => {
+        assert.is(process.cwd(), cwd)
+        await sleep(2)
+        assert.is(process.cwd(), cwd)
+      }),
+      within(async () => {
+        assert.is(process.cwd(), cwd)
+        await sleep(3)
+        $.cwd = '/tmp/zx-cd-parallel/one/two'
+        assert.is(process.cwd(), cwd)
+        assert.match((await $`pwd`).stdout, '/tmp/zx-cd-parallel/one/two')
+      }),
+    ])
   } catch (e) {
     assert.ok(!e, e)
   } finally {
