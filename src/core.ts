@@ -56,7 +56,7 @@ function syncCwd() {
 
 function initStore(): Options {
   const context = {
-    verbose: true,
+    verbose: (global as any).ZX_VERBOSE ?? true,
     cwd: process.cwd(),
     env: process.env,
     shell: true,
@@ -66,7 +66,6 @@ function initStore(): Options {
     log,
   }
   storage.enterWith(context)
-  if (process.env.ZX_VERBOSE) $.verbose = process.env.ZX_VERBOSE == 'true'
   try {
     $.shell = which.sync('bash')
     $.prefix = 'set -euo pipefail;'
