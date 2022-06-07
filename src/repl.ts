@@ -20,7 +20,7 @@ import chalk from 'chalk'
 import { ProcessOutput } from './core.js'
 
 export function startRepl() {
-  process.env.ZX_VERBOSE = 'false'
+  (global as any).ZX_VERBOSE = false
   const r = repl.start({
     prompt: chalk.greenBright.bold('❯ '),
     useGlobal: true,
