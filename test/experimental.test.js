@@ -14,31 +14,38 @@
 
 import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
-import { retry } from '../build/experimental.js'
 import '../build/globals.js'
 
 const test = suite('experimental')
 
 $.verbose = false
 
+function zx(script) {
+  return $`node build/cli.js --experimental --eval ${script}`
+}
+
 test('retry works', async () => {
-  let exitCode = 0
-  let now = Date.now()
-  try {
-    await retry(5, 50)`exit 123`
-  } catch (p) {
-    exitCode = p.exitCode
-  }
-  assert.is(exitCode, 123)
+  const now = Date.now()
+  let p = await zx(`
+    try {
+      await retry(5, 50, () => $\`exit 123\`)
+    } catch (e) {
+      echo('exitCode:', e.exitCode)
+    }
+    await retry(5, () => $\`exit 0\`)
+    echo('success')
+`)
+  assert.match(p.toString(), 'exitCode: 123')
+  assert.match(p.toString(), 'success')
   assert.ok(Date.now() >= now + 50 * (5 - 1))
 })
 
 test('spinner works', async () => {
-  let out = await $`node build/cli.js --experimental <<'EOF'
-  let stop = startSpinner('waiting')
-  await sleep(1000)
-  stop()
-EOF`
+  let out = await zx(`
+    let stop = startSpinner('waiting')
+    await sleep(1000)
+    stop()
+  `)
   assert.match(out.stderr, 'waiting')
 })
 

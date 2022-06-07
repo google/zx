@@ -14,7 +14,14 @@
 
 import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
-import { exitCodeInfo, randomId, noop, isString, quote } from '../build/util.js'
+import {
+  exitCodeInfo,
+  randomId,
+  noop,
+  isString,
+  quote,
+  parseDuration,
+} from '../build/util.js'
 
 const test = suite('util')
 
@@ -41,6 +48,13 @@ test('isString()', () => {
 test('quote()', () => {
   assert.ok(quote('string') === 'string')
   assert.ok(quote(`'\f\n\r\t\v\0`) === `$'\\'\\f\\n\\r\\t\\v\\0'`)
+})
+
+test('duration parsing works', () => {
+  assert.is(parseDuration(1000), 1000)
+  assert.is(parseDuration('2s'), 2000)
+  assert.is(parseDuration('500ms'), 500)
+  assert.throws(() => parseDuration('100'))
 })
 
 test.run()

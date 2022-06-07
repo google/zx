@@ -20,7 +20,15 @@ import { Readable, Writable } from 'node:stream'
 import { inspect } from 'node:util'
 import { chalk, which } from './goods.js'
 import { log } from './log.js'
-import { exitCodeInfo, noop, psTree, quote, substitute } from './util.js'
+import {
+  Duration,
+  exitCodeInfo,
+  noop,
+  parseDuration,
+  psTree,
+  quote,
+  substitute,
+} from './util.js'
 
 export type Shell = (
   pieces: TemplateStringsArray,
@@ -113,7 +121,6 @@ export const $ = new Proxy<Shell & Options>(
 
 type Resolve = (out: ProcessOutput) => void
 type IO = StdioPipe | StdioNull
-export type Duration = number | `${number}s` | `${number}ms`
 
 export class ProcessPromise extends Promise<ProcessOutput> {
   child?: ChildProcess
@@ -300,15 +307,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   timeout(d: Duration, signal = 'SIGTERM') {
-    if (typeof d == 'number') {
-      this._timeout = d
-    } else if (/\d+s/.test(d)) {
-      this._timeout = +d.slice(0, -1) * 1000
-    } else if (/\d+ms/.test(d)) {
-      this._timeout = +d.slice(0, -2)
-    } else {
-      throw new Error(`Unknown timeout duration: "${d}".`)
-    }
+    this._timeout = parseDuration(d)
     this._timeoutSignal = signal
     return this
   }

@@ -120,3 +120,17 @@ export function stdin() {
     })()
   }
 }
+
+export type Duration = number | `${number}s` | `${number}ms`
+
+export function parseDuration(d: Duration) {
+  if (typeof d == 'number') {
+    return d
+  } else if (/\d+s/.test(d)) {
+    return +d.slice(0, -1) * 1000
+  } else if (/\d+ms/.test(d)) {
+    return +d.slice(0, -2)
+  } else {
+    throw new Error(`Unknown duration: "${d}".`)
+  }
+}

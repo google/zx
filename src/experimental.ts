@@ -12,22 +12,48 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import assert from 'node:assert'
 import { $ } from './core.js'
 import { sleep } from './goods.js'
+import { Duration, parseDuration } from './util.js'
 
-// Retries a command a few times. Will return after the first
-// successful attempt, or will throw after specifies attempts count.
-export function retry(count = 5, delay = 0) {
-  return async function (cmd: TemplateStringsArray, ...args: any[]) {
-    while (count-- > 0)
-      try {
-        return await $(cmd, ...args)
-      } catch (p) {
-        if (count === 0) throw p
-        if (delay) await sleep(delay)
-      }
-    return
+export async function retry<T>(count: number, callback: () => T): Promise<T>
+export async function retry<T>(
+  count: number,
+  duration: Duration,
+  callback?: () => T
+): Promise<T>
+export async function retry<T>(
+  count: number,
+  a: Duration | (() => T),
+  b?: () => T
+): Promise<T> {
+  const total = count
+  let cb: () => T
+  let delay = 0
+  if (typeof a == 'function') {
+    cb = a
+  } else {
+    delay = parseDuration(a)
+    assert(b)
+    cb = b
   }
+  while (count-- > 0) {
+    try {
+      return await cb()
+    } catch (err) {
+      if ($.verbose) {
+        console.error(
+          chalk.bgRed.white(' FAIL '),
+          `Attempt: ${total - count}/${total}` +
+            (delay > 0 ? `; next in ${delay}ms` : '')
+        )
+      }
+      if (count == 0) throw err
+      if (delay) await sleep(delay)
+    }
+  }
+  throw 'unreachable'
 }
 
 /**
