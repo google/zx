@@ -15,7 +15,6 @@
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 import '../build/globals.js'
-import { kResourceStoreSymbol } from '../build/context.js'
 
 import {
   echo,
@@ -113,6 +112,9 @@ test('ctx() provides isolates running scopes', async () => {
 })
 
 test('bound ctx is attached to Promise', async () => {
+  const kResourceStoreSymbol = Object.getOwnPropertySymbols(
+    new Promise(() => {})
+  )[2]
   assert.is(new Promise(() => {})[kResourceStoreSymbol], undefined)
 
   await ctx(async ($) => {
