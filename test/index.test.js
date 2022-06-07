@@ -343,6 +343,10 @@ test('cd() does affect parallel contexts', async () => {
   }
 })
 
+test('cd() fails on entering not existing dir', async () => {
+  assert.throws(() => cd('/tmp/abra-kadabra'))
+})
+
 test('kill() method works', async () => {
   let p = $`sleep 9999`.nothrow()
   setTimeout(() => {
