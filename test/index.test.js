@@ -486,10 +486,4 @@ test('timeout() expiration works', async () => {
   assert.is(signal, undefined)
 })
 
-test('timeout() with string durations works', async () => {
-  assert.is($`:`.timeout('2s')._timeout, 2000)
-  assert.is($`:`.timeout('500ms')._timeout, 500)
-  assert.throws(() => $`:`.timeout('100'))
-})
-
 test.run()

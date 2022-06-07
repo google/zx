@@ -18,7 +18,6 @@ export {
   $,
   Shell,
   Options,
-  Duration,
   ProcessPromise,
   ProcessOutput,
   within,
@@ -42,6 +41,8 @@ export {
 } from './goods.js'
 
 export { log, formatCmd, LogEntry } from './log.js'
+
+export { Duration } from './util.js'
 
 /**
  *  @deprecated Use $.nothrow() instead.
