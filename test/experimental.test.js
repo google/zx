@@ -24,11 +24,11 @@ function zx(script) {
   return $`node build/cli.js --experimental --eval ${script}`
 }
 
-test('retry works', async () => {
+test('retry() works', async () => {
   const now = Date.now()
   let p = await zx(`
     try {
-      await retry(5, 50, () => $\`exit 123\`)
+      await retry(5, '50ms', () => $\`exit 123\`)
     } catch (e) {
       echo('exitCode:', e.exitCode)
     }
@@ -55,7 +55,7 @@ test('spinner() works', async () => {
 
 test('spinner() with title works', async () => {
   let out = await zx(`
-    await spinner('processing', async () => sleep(100))
+    await spinner('processing', () => sleep(100))
   `)
   assert.match(out.stderr, 'processing')
 })
