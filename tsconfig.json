@@ -5,8 +5,6 @@
     "moduleResolution": "nodenext",
     "module": "nodenext",
     "strict": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
     "outDir": "./build",
     "declaration": true
   },

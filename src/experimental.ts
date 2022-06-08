@@ -21,7 +21,7 @@ export async function retry<T>(count: number, callback: () => T): Promise<T>
 export async function retry<T>(
   count: number,
   duration: Duration,
-  callback?: () => T
+  callback: () => T
 ): Promise<T>
 export async function retry<T>(
   count: number,
@@ -29,18 +29,19 @@ export async function retry<T>(
   b?: () => T
 ): Promise<T> {
   const total = count
-  let cb: () => T
+  let callback: () => T
   let delay = 0
   if (typeof a == 'function') {
-    cb = a
+    callback = a
   } else {
     delay = parseDuration(a)
     assert(b)
-    cb = b
+    callback = b
   }
+  let lastErr: unknown
   while (count-- > 0) {
     try {
-      return await cb()
+      return await callback()
     } catch (err) {
       if ($.verbose) {
         console.error(
@@ -49,11 +50,12 @@ export async function retry<T>(
             (delay > 0 ? `; next in ${delay}ms` : '')
         )
       }
-      if (count == 0) throw err
+      lastErr = err
+      if (count == 0) break
       if (delay) await sleep(delay)
     }
   }
-  throw 'unreachable'
+  throw lastErr
 }
 
 export async function spinner<T>(callback: () => T): Promise<T>
@@ -62,9 +64,7 @@ export async function spinner<T>(
   title: string | (() => T),
   callback?: () => T
 ): Promise<T> {
-  if (typeof title == 'string') {
-    assert(callback)
-  } else {
+  if (typeof title == 'function') {
     callback = title
     title = ''
   }
