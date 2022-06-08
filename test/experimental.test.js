@@ -111,6 +111,23 @@ test('ctx() provides isolates running scopes', async () => {
   $.verbose = false
 })
 
+test('bound ctx is attached to Promise', async () => {
+  const kResourceStoreSymbol = Object.getOwnPropertySymbols(
+    new Promise(() => {})
+  )[2]
+  assert.is(new Promise(() => {})[kResourceStoreSymbol], undefined)
+
+  await ctx(async ($) => {
+    await ctx(async ($) => {
+      assert.is(new Promise(() => {})[kResourceStoreSymbol], $)
+    })
+
+    assert.is(new Promise(() => {})[kResourceStoreSymbol], $)
+  })
+
+  assert.is(new Promise(() => {})[kResourceStoreSymbol], undefined)
+})
+
 test('log() API is available', () => {
   assert.ok(typeof log === 'function')
 })

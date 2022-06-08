@@ -47,7 +47,6 @@ export function getCtx() {
 }
 
 export function setRootCtx(ctx: Options) {
-  storage.enterWith(ctx)
   root = ctx
 }
 

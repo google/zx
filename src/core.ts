@@ -89,8 +89,12 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   readonly ctx: Context
   constructor(cb: (resolve: Function, reject?: Function) => void) {
     super(cb)
-    this.ctx = {...getCtx()}
-    Object.defineProperty(this, 'ctx', { value: this.ctx, writable: false, configurable: false })
+    this.ctx = { ...getCtx() }
+    Object.defineProperty(this, 'ctx', {
+      value: this.ctx,
+      writable: false,
+      configurable: false,
+    })
   }
 
   get stdin() {
