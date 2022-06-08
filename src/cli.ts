@@ -56,7 +56,7 @@ await (async function main() {
       get: stdin,
     })
     let script = (argv.eval || argv.e).toString()
-    await runScript(addLogOnLastLine(script))
+    await runScript(script)
     return (process.exitCode = 0)
   }
   let firstArg = process.argv.slice(2).find((a) => !a.startsWith('--'))
@@ -90,18 +90,6 @@ await (async function main() {
   }
   process.exitCode = 1
 })
-
-function addLogOnLastLine(script: string) {
-  // We don't want to bring a JS parser as a dependency of zx,
-  // so the next code should work for most of the cases.
-  const lines = script.trim().split('\n')
-  let out = lines.slice(0, -1).join('\n') + '\n'
-  const lastLine = ';' + lines.at(-1)
-  const statements = lastLine.split(';')
-  out += statements.slice(0, -1).join(';') + ';'
-  out += `console.log(${statements.at(-1)})`
-  return out
-}
 
 async function runScript(script: string) {
   let filepath = join(tmpdir(), randomId() + '.mjs')
