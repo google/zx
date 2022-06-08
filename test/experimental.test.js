@@ -40,13 +40,24 @@ test('retry works', async () => {
   assert.ok(Date.now() >= now + 50 * (5 - 1))
 })
 
-test('spinner works', async () => {
+test('spinner() works', async () => {
   let out = await zx(`
-    let stop = startSpinner('waiting')
-    await sleep(1000)
-    stop()
+    echo(await spinner(async () => {
+      await sleep(100)
+      await $\`echo hidden\`
+      return $\`echo result\`
+    }))
   `)
-  assert.match(out.stderr, 'waiting')
+  assert.match(out.stdout, 'result')
+  assert.not.match(out.stderr, 'result')
+  assert.not.match(out.stderr, 'hidden')
+})
+
+test('spinner() with title works', async () => {
+  let out = await zx(`
+    await spinner('processing', async () => sleep(100))
+  `)
+  assert.match(out.stderr, 'processing')
 })
 
 test.run()

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import assert from 'node:assert'
-import { $ } from './core.js'
+import { $, within } from './core.js'
 import { sleep } from './goods.js'
 import { Duration, parseDuration } from './util.js'
 
@@ -56,20 +56,26 @@ export async function retry<T>(
   throw 'unreachable'
 }
 
-/**
- * Starts a simple CLI spinner.
- * @param title Spinner's title.
- * @return A stop() func.
- */
-export function startSpinner(title = '') {
-  let i = 0,
-    v = $.verbose
-  $.verbose = false
-  let spin = () =>
-    process.stderr.write(`  ${'⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'[i++ % 10]} ${title}\r`)
-  let id = setInterval(spin, 100)
-  return () => {
-    clearInterval(id)
-    $.verbose = v
+export async function spinner<T>(callback: () => T): Promise<T>
+export async function spinner<T>(title: string, callback: () => T): Promise<T>
+export async function spinner<T>(
+  title: string | (() => T),
+  callback?: () => T
+): Promise<T> {
+  if (typeof title == 'string') {
+    assert(callback)
+  } else {
+    callback = title
+    title = ''
   }
+  let i = 0
+  const spin = () =>
+    process.stderr.write(`  ${'⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'[i++ % 10]} ${title}\r`)
+  return within(async () => {
+    $.verbose = false
+    const id = setInterval(spin, 100)
+    const result = await callback!()
+    clearInterval(id)
+    return result
+  })
 }
