@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import chalk from 'chalk'
 import { RequestInfo, RequestInit } from 'node-fetch'
 import { inspect } from 'node:util'
 import { $ } from './core.js'
-import { colorize } from './util.js'
+import { formatCmd } from './util.js'
 
 export type LogEntry =
   | {
@@ -55,25 +56,14 @@ export function log(entry: LogEntry) {
       break
     case 'cd':
       if (!$.verbose) return
-      process.stderr.write('$ ' + colorize(`cd ${entry.dir}`) + '\n')
+      process.stderr.write('$ ' + chalk.greenBright('cd') + ` ${entry.dir}\n`)
       break
     case 'fetch':
       if (!$.verbose) return
       const init = entry.init ? ' ' + inspect(entry.init) : ''
-      process.stderr.write('$ ' + colorize(`fetch ${entry.url}`) + init + '\n')
+      process.stderr.write(
+        '$ ' + chalk.greenBright('fetch') + ` ${entry.url}${init}\n`
+      )
       break
-  }
-}
-
-export function formatCmd(cmd: string) {
-  if (/\n/.test(cmd)) {
-    return (
-      cmd
-        .split('\n')
-        .map((line, i) => `${i == 0 ? '$' : '>'} ${colorize(line)}`)
-        .join('\n') + '\n'
-    )
-  } else {
-    return `$ ${colorize(cmd)}\n`
   }
 }

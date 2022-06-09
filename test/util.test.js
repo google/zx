@@ -16,11 +16,12 @@ import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
 import {
   exitCodeInfo,
-  randomId,
-  noop,
+  formatCmd,
   isString,
-  quote,
+  noop,
   parseDuration,
+  quote,
+  randomId,
 } from '../build/util.js'
 
 const test = suite('util')
@@ -55,6 +56,25 @@ test('duration parsing works', () => {
   assert.is(parseDuration('2s'), 2000)
   assert.is(parseDuration('500ms'), 500)
   assert.throws(() => parseDuration('100'))
+})
+
+test('formatCwd works', () => {
+  assert.is(
+    formatCmd(`echo $'hi'`),
+    "$ \u001b[92mecho\u001b[39m \u001b[93m$\u001b[39m\u001b[93m'hi\u001b[39m\u001b[93m'\u001b[39m\n"
+  )
+  assert.is(
+    formatCmd(`while true; do "$" done`),
+    '$ \u001b[96mwhile\u001b[39m \u001b[92mtrue\u001b[39m\u001b[96m;\u001b[39m \u001b[96mdo\u001b[39m \u001b[93m"$\u001b[39m\u001b[93m"\u001b[39m \u001b[96mdone\u001b[39m\n'
+  )
+  assert.is(
+    formatCmd(`echo '\n str\n'`),
+    "$ \u001b[92mecho\u001b[39m \u001b[93m'\u001b[39m\n> \u001b[93m str\u001b[39m\n> \u001b[93m'\u001b[39m\n"
+  )
+  assert.is(
+    formatCmd(`$'\\''`),
+    "$ \u001b[93m$\u001b[39m\u001b[93m'\u001b[39m\u001b[93m\\\u001b[39m\u001b[93m'\u001b[39m\u001b[93m'\u001b[39m\n"
+  )
 })
 
 test.run()
