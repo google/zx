@@ -16,10 +16,10 @@
 
 import { spinner } from 'zx/experimental'
 
-let tests = await glob('test/*.test.js')
+const tests = await glob('test/*.test.js')
 await spinner('running tests', async () => {
   try {
-    let res = await Promise.all(tests.map((file) => $`npx uvu . ${file}`))
+    const res = await Promise.all(tests.map((file) => $`npx uvu . ${file}`))
     res.forEach((r) => console.log(r.toString()))
     console.log(chalk.bgGreen.black(' SUCCESS '))
   } catch (e) {

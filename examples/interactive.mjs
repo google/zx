@@ -14,17 +14,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-let { stdin, stdout } = $`npm init`
+const p = $`npm init`.stdio('pipe')
 
-for await (let chunk of stdout) {
-  if (chunk.includes('package name:')) stdin.write('test\n')
-  if (chunk.includes('version:')) stdin.write('1.0.0\n')
-  if (chunk.includes('description:')) stdin.write('My test package\n')
-  if (chunk.includes('entry point:')) stdin.write('index.mjs\n')
-  if (chunk.includes('test command:')) stdin.write('test.mjs\n')
-  if (chunk.includes('git repository:')) stdin.write('my-org/repo\n')
-  if (chunk.includes('keywords:')) stdin.write('foo, bar\n')
-  if (chunk.includes('author:')) stdin.write('Anton Medvedev\n')
-  if (chunk.includes('license:')) stdin.write('MIT\n')
-  if (chunk.includes('Is this OK?')) stdin.write('yes\n')
+for await (const chunk of p.stdout) {
+  if (chunk.includes('package name:')) p.stdin.write('test\n')
+  if (chunk.includes('version:')) p.stdin.write('1.0.0\n')
+  if (chunk.includes('description:')) p.stdin.write('My test package\n')
+  if (chunk.includes('entry point:')) p.stdin.write('index.mjs\n')
+  if (chunk.includes('test command:')) p.stdin.write('test.mjs\n')
+  if (chunk.includes('git repository:')) p.stdin.write('my-org/repo\n')
+  if (chunk.includes('keywords:')) p.stdin.write('foo, bar\n')
+  if (chunk.includes('author:')) p.stdin.write('Anton Medvedev\n')
+  if (chunk.includes('license:')) p.stdin.write('MIT\n')
+  if (chunk.includes('Is this OK?')) p.stdin.write('yes\n')
 }
