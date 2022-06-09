@@ -40,7 +40,7 @@ export {
   YAML,
 } from './goods.js'
 
-export { log, formatCmd, LogEntry } from './log.js'
+export { log, LogEntry } from './log.js'
 
 export { Duration } from './util.js'
 
