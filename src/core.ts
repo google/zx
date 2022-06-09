@@ -217,6 +217,20 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     }
   }
 
+  then<T = ProcessOutput, E = ProcessOutput>(
+    onfulfilled?:
+      | ((value: ProcessOutput) => PromiseLike<T> | T)
+      | undefined
+      | null,
+    onrejected?:
+      | ((reason: ProcessOutput) => PromiseLike<E> | E)
+      | undefined
+      | null
+  ): Promise<T | E> {
+    this._run()
+    return super.then(onfulfilled, onrejected)
+  }
+
   get stdin(): Writable {
     this.stdio('pipe')
     this._run()
