@@ -487,4 +487,8 @@ test('timeout() expiration works', async () => {
   assert.is(signal, undefined)
 })
 
+test('malformed cmd error', async () => {
+  assert.throws(() => $`\033`, /malformed/i)
+})
+
 test.run()
