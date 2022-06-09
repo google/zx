@@ -37,7 +37,10 @@ export type LogEntry =
       url: RequestInfo
       init?: RequestInit
     }
-  | { kind: 'custom'; data: any }
+  | {
+      kind: 'custom'
+      data: any
+    }
 
 export function log(entry: LogEntry) {
   switch (entry.kind) {
