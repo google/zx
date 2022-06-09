@@ -20,6 +20,20 @@ const test = suite('cli')
 
 $.verbose = false
 
+// Helps detect unresolved ProcessPromise.
+let promiseResolved = false
+process.on('exit', () => {
+  if (!promiseResolved) {
+    console.error('Error: ProcessPromise never resolved.')
+    process.exitCode = 1
+  }
+})
+
+test('promise resolved', async () => {
+  await $`echo`
+  promiseResolved = true
+})
+
 test('prints version', async () => {
   assert.match((await $`node build/cli.js -v`).toString(), /\d+.\d+.\d+/)
 })
