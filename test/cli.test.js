@@ -126,13 +126,7 @@ test('eval works', async () => {
 })
 
 test('eval works with stdin', async () => {
-  let { stdout } =
-    await $`printf "Hello world" | node build/cli.js --eval='echo(stdin)'`
-  assert.is(stdout, 'Hello world\n')
-})
-
-test('eval works with async stdin', async () => {
-  let p = $`(printf foo; sleep 0.1; printf bar) | FX_ASYNC_STDIN=true node build/cli.js --eval 'echo(await stdin)'`
+  let p = $`(printf foo; sleep 0.1; printf bar) | node build/cli.js --eval 'echo(await stdin)'`
   assert.is((await p).stdout, 'foobar\n')
 })
 

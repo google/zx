@@ -99,20 +99,13 @@ export function exitCodeInfo(exitCode: number | null): string | undefined {
   }[exitCode || -1]
 }
 
-export function stdin() {
-  try {
-    if (process.env.FX_ASYNC_STDIN == 'true') throw 'yes'
-    return fs.readFileSync(process.stdin.fd).toString()
-  } catch (err) {
-    return (async function () {
-      let buf = ''
-      process.stdin.setEncoding('utf8')
-      for await (const chunk of process.stdin) {
-        buf += chunk
-      }
-      return buf
-    })()
+export async function stdin() {
+  let buf = ''
+  process.stdin.setEncoding('utf8')
+  for await (const chunk of process.stdin) {
+    buf += chunk
   }
+  return buf
 }
 
 export type Duration = number | `${number}s` | `${number}ms`
