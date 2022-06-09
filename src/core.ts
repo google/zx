@@ -86,7 +86,10 @@ function getStore() {
 
 export const $ = new Proxy<Shell & Options>(
   function (pieces, ...args) {
-    let from = new Error().stack!.split(/^\s*at\s/m)[2].trim()
+    const from = new Error().stack!.split(/^\s*at\s/m)[2].trim()
+    if (pieces.some((p) => p == undefined)) {
+      throw new Error(`Malformed command at ${from}`)
+    }
     let resolve: Resolve, reject: Resolve
     let promise = new ProcessPromise((...args) => ([resolve, reject] = args))
     let cmd = pieces[0],
