@@ -14,8 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-let username = await question('What is your GitHub username? ')
-let token = await question('Do you have GitHub token in env? ', {
+const username = await question('What is your GitHub username? ')
+const token = await question('Do you have GitHub token in env? ', {
   choices: Object.keys(process.env),
 })
 
@@ -29,14 +29,14 @@ let res = await fetch(
   `https://api.github.com/users/${username}/repos?per_page=1000`,
   { headers }
 )
-let data = await res.json()
-let urls = data.map((x) =>
+const data = await res.json()
+const urls = data.map((x) =>
   x.git_url.replace('git://github.com/', 'git@github.com:')
 )
 
 await $`mkdir -p backups`
 cd('./backups')
 
-for (let url of urls) {
+for (const url of urls) {
   await $`git clone ${url}`
 }
