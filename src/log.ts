@@ -39,6 +39,10 @@ export type LogEntry =
       init?: RequestInit
     }
   | {
+      kind: 'retry'
+      error: string
+    }
+  | {
       kind: 'custom'
       data: any
     }
@@ -65,5 +69,8 @@ export function log(entry: LogEntry) {
         '$ ' + chalk.greenBright('fetch') + ` ${entry.url}${init}\n`
       )
       break
+    case 'retry':
+      if (!$.verbose) return
+      process.stderr.write(entry.error + '\n')
   }
 }
