@@ -56,6 +56,8 @@ test('duration parsing works', () => {
   assert.is(parseDuration('2s'), 2000)
   assert.is(parseDuration('500ms'), 500)
   assert.throws(() => parseDuration('100'))
+  assert.throws(() => parseDuration(NaN))
+  assert.throws(() => parseDuration(-1))
 })
 
 test('formatCwd works', () => {
