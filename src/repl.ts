@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import repl from 'node:repl'
-import path from 'node:path'
-import os from 'node:os'
-import { inspect } from 'node:util'
 import chalk from 'chalk'
+import os from 'node:os'
+import path from 'node:path'
+import repl from 'node:repl'
+import { inspect } from 'node:util'
 import { ProcessOutput } from './core.js'
 
 export function startRepl() {

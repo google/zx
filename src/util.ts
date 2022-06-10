@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import chalk, { ChalkInstance } from 'chalk'
+import chalk from 'chalk'
 import { promisify } from 'node:util'
 import psTreeModule from 'ps-tree'
 import { ProcessOutput, ProcessPromise } from './core.js'
@@ -97,15 +97,6 @@ export function exitCodeInfo(exitCode: number | null): string | undefined {
     157: 'Pollable event',
     159: 'Bad syscall',
   }[exitCode || -1]
-}
-
-export async function stdin() {
-  let buf = ''
-  process.stdin.setEncoding('utf8')
-  for await (const chunk of process.stdin) {
-    buf += chunk
-  }
-  return buf
 }
 
 export type Duration = number | `${number}s` | `${number}ms`

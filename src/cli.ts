@@ -19,10 +19,10 @@ import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { basename, dirname, extname, join, resolve } from 'node:path'
 import url from 'node:url'
-import { $, argv, fetch, ProcessOutput, chalk } from './index.js'
-import { startRepl } from './repl.js'
-import { randomId, stdin } from './util.js'
 import './globals.js'
+import { $, argv, chalk, fetch, ProcessOutput } from './index.js'
+import { startRepl } from './repl.js'
+import { randomId } from './util.js'
 
 await (async function main() {
   $.verbose = !argv.quiet
@@ -50,12 +50,7 @@ await (async function main() {
     }
   }
   if (argv.eval || argv.e) {
-    Object.defineProperty(global, 'stdin', {
-      configurable: false,
-      enumerable: true,
-      get: stdin,
-    })
-    let script = (argv.eval || argv.e).toString()
+    const script = (argv.eval || argv.e).toString()
     await runScript(script)
     return (process.exitCode = 0)
   }
