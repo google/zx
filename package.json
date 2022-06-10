@@ -37,7 +37,7 @@
   "scripts": {
     "fmt": "prettier --write .",
     "build": "tsc",
-    "test": "tsc && uvu test -i fixtures",
+    "test": "tsc && PATH=$(env -i bash -c 'echo $PATH') node_modules/.bin/uvu test -i fixtures",
     "coverage": "c8 --check-coverage npm test -- -i package",
     "mutation": "stryker run"
   },
