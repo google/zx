@@ -40,6 +40,21 @@ test('retry() works', async () => {
   assert.ok(Date.now() >= now + 50 * (5 - 1))
 })
 
+test('retry() with expBackoff() works', async () => {
+  const now = Date.now()
+  let p = await zx(`
+    try {
+      await retry(5, expBackoff('60s', 0), () => $\`exit 123\`)
+    } catch (e) {
+      echo('exitCode:', e.exitCode)
+    }
+    echo('success')
+`)
+  assert.match(p.toString(), 'exitCode: 123')
+  assert.match(p.toString(), 'success')
+  assert.ok(Date.now() >= now + 2 + 4 + 8 + 16 + 32)
+})
+
 test('spinner() works', async () => {
   let out = await zx(`
     echo(await spinner(async () => {
