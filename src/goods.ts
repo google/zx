@@ -92,3 +92,12 @@ export async function question(
     })
   )
 }
+
+export async function stdin() {
+  let buf = ''
+  process.stdin.setEncoding('utf8')
+  for await (const chunk of process.stdin) {
+    buf += chunk
+  }
+  return buf
+}

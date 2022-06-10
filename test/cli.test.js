@@ -140,7 +140,7 @@ test('eval works', async () => {
 })
 
 test('eval works with stdin', async () => {
-  let p = $`(printf foo; sleep 0.1; printf bar) | node build/cli.js --eval 'echo(await stdin)'`
+  let p = $`(printf foo; sleep 0.1; printf bar) | node build/cli.js --eval 'echo(await stdin())'`
   assert.is((await p).stdout, 'foobar\n')
 })
 

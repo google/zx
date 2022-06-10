@@ -36,6 +36,7 @@ export {
   path,
   question,
   sleep,
+  stdin,
   which,
   YAML,
 } from './goods.js'
