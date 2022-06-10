@@ -43,13 +43,13 @@ export async function retry<T>(
     try {
       return await callback()
     } catch (err) {
-      if ($.verbose) {
-        console.error(
-          chalk.bgRed.white(' FAIL '),
-          `Attempt: ${total - count}/${total}` +
-            (delay > 0 ? `; next in ${delay}ms` : '')
-        )
-      }
+      $.log({
+        kind: 'retry',
+        error:
+          chalk.bgRed.white(' FAIL ') +
+          ` Attempt: ${total - count}/${total}` +
+          (delay > 0 ? `; next in ${delay}ms` : ''),
+      })
       lastErr = err
       if (count == 0) break
       if (delay) await sleep(delay)
