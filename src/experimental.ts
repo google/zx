@@ -20,34 +20,44 @@ import { Duration, parseDuration } from './util.js'
 export async function retry<T>(count: number, callback: () => T): Promise<T>
 export async function retry<T>(
   count: number,
-  duration: Duration,
+  duration: Duration | Generator<number>,
   callback: () => T
 ): Promise<T>
 export async function retry<T>(
   count: number,
-  a: Duration | (() => T),
+  a: Duration | Generator<number> | (() => T),
   b?: () => T
 ): Promise<T> {
   const total = count
   let callback: () => T
-  let delay = 0
+  let delayStatic = 0
+  let delayGen: Generator<number> | undefined
   if (typeof a == 'function') {
     callback = a
   } else {
-    delay = parseDuration(a)
+    if (typeof a == 'object') {
+      delayGen = a
+    } else {
+      delayStatic = parseDuration(a)
+    }
     assert(b)
     callback = b
   }
   let lastErr: unknown
+  let attempt = 0
   while (count-- > 0) {
+    attempt++
     try {
       return await callback()
     } catch (err) {
+      let delay = 0
+      if (delayStatic > 0) delay = delayStatic
+      if (delayGen) delay = delayGen.next().value
       $.log({
         kind: 'retry',
         error:
           chalk.bgRed.white(' FAIL ') +
-          ` Attempt: ${total - count}/${total}` +
+          ` Attempt: ${attempt}${total == Infinity ? '' : `/${total}`}` +
           (delay > 0 ? `; next in ${delay}ms` : ''),
       })
       lastErr = err
@@ -56,6 +66,16 @@ export async function retry<T>(
     }
   }
   throw lastErr
+}
+
+export function* expBackoff(max: Duration = '60s', rand: Duration = '100ms') {
+  const maxMs = parseDuration(max)
+  const randMs = parseDuration(rand)
+  let n = 1
+  while (true) {
+    const ms = Math.floor(Math.random() * randMs)
+    yield Math.min(2 ** n++, maxMs) + ms
+  }
 }
 
 export async function spinner<T>(callback: () => T): Promise<T>
