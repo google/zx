@@ -16,9 +16,8 @@ import * as globbyModule from 'globby'
 import minimist from 'minimist'
 import nodeFetch, { RequestInfo, RequestInit } from 'node-fetch'
 import { createInterface } from 'node:readline'
-import { setTimeout as sleep } from 'node:timers/promises'
 import { $ } from './core.js'
-import { isString, stringify } from './util.js'
+import { Duration, isString, parseDuration, stringify } from './util.js'
 
 export { default as chalk } from 'chalk'
 export { default as fs } from 'fs-extra'
@@ -26,7 +25,6 @@ export { default as which } from 'which'
 export { default as YAML } from 'yaml'
 export { default as path } from 'node:path'
 export { default as os } from 'node:os'
-export { sleep }
 
 export const argv = minimist(process.argv.slice(2))
 
@@ -38,6 +36,12 @@ export const globby = Object.assign(function globby(
 },
 globbyModule)
 export const glob = globby
+
+export function sleep(duration: Duration) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, parseDuration(duration))
+  })
+}
 
 export async function fetch(url: RequestInfo, init?: RequestInit) {
   $.log({ kind: 'fetch', url, init })

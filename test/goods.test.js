@@ -43,14 +43,14 @@ test('globby available', async () => {
   assert.equal(await globby('*.md'), ['README.md'])
 })
 
-test('fetch', async () => {
+test('fetch() works', async () => {
   assert.match(
     await fetch('https://medv.io').then((res) => res.text()),
     /Anton Medvedev/
   )
 })
 
-test('echo works', async () => {
+test('echo() works', async () => {
   let stdout = ''
   let log = console.log
   console.log = (...args) => {
@@ -73,6 +73,12 @@ test('YAML works', async () => {
 
 test('which() available', async () => {
   assert.is(which.sync('npm'), await which('npm'))
+})
+
+test('sleep() works', async () => {
+  const now = Date.now()
+  await sleep(10)
+  assert.ok(Date.now() >= now + 10)
 })
 
 test.run()
