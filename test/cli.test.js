@@ -144,7 +144,6 @@ test('eval works with stdin', async () => {
   assert.is((await p).stdout, 'foobar\n')
 })
 
-
 test('executes a script from $PATH', async () => {
   const isWindows = process.platform === 'win32'
   const oldPath = process.env.PATH
