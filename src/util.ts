@@ -103,16 +103,13 @@ export type Duration = number | `${number}s` | `${number}ms`
 
 export function parseDuration(d: Duration) {
   if (typeof d == 'number') {
-    if (isNaN(d) || d < 0) {
-      throw new Error(`Invalid duration: "${d}".`)
-    }
+    if (isNaN(d) || d < 0) throw new Error(`Invalid duration: "${d}".`)
     return d
   } else if (/\d+s/.test(d)) {
     return +d.slice(0, -1) * 1000
   } else if (/\d+ms/.test(d)) {
     return +d.slice(0, -2)
   }
-
   throw new Error(`Unknown duration: "${d}".`)
 }
 
@@ -158,7 +155,7 @@ export function formatCmd(cmd?: string): string {
     return s
   }
   function isSyntax(ch: string) {
-    return '()[]{}<>;:+|='.includes(ch)
+    return '()[]{}<>;:+|&='.includes(ch)
   }
   function root() {
     if (/\s/.test(ch)) return space
