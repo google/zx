@@ -104,8 +104,7 @@ export const $ = new Proxy<Shell & Options>(
       cmd += s + pieces[++i]
     }
     promise._bind(cmd, from, resolve!, reject!, getStore())
-    // Make sure all subprocesses are started, if not explicitly by await or then().
-    setImmediate(() => promise._run())
+    setImmediate(() => promise._run()) // Postpone run to allow promise configuration.
     return promise
   } as Shell & Options,
   {
@@ -155,7 +154,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   _run() {
     const $ = this._snapshot
-    if (this.child) return // The _run() called from two places: then() and setImmediate().
+    if (this.child) return // The _run() can be called from a few places.
     this._prerun() // In case $1.pipe($2), the $2 returned, and on $2._run() invoke $1._run().
     $.log({
       kind: 'cmd',
@@ -215,20 +214,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       const t = setTimeout(() => this.kill(this._timeoutSignal), this._timeout)
       this.finally(() => clearTimeout(t)).catch(noop)
     }
-  }
-
-  then<T = ProcessOutput, E = ProcessOutput>(
-    onfulfilled?:
-      | ((value: ProcessOutput) => PromiseLike<T> | T)
-      | undefined
-      | null,
-    onrejected?:
-      | ((reason: ProcessOutput) => PromiseLike<E> | E)
-      | undefined
-      | null
-  ): Promise<T | E> {
-    this._run()
-    return super.then(onfulfilled, onrejected)
   }
 
   get stdin(): Writable {
