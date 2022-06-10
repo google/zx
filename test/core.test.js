@@ -21,7 +21,7 @@ import { Socket } from 'node:net'
 import { ProcessPromise } from '../build/index.js'
 import '../build/globals.js'
 
-const test = suite('index')
+const test = suite('core')
 
 $.verbose = false
 
@@ -124,16 +124,6 @@ test('pipes are working', async () => {
   }
 })
 
-test('question() works', async () => {
-  let p = $`node build/cli.js --eval "
-  let answer = await question('foo or bar? ', { choices: ['foo', 'bar'] })
-  echo('Answer is', answer)
-"`
-  p.stdin.write('foo\n')
-  p.stdin.end()
-  assert.match((await p).stdout, 'Answer is foo')
-})
-
 test('ProcessPromise', async () => {
   let contents = ''
   let stream = new Writable({
@@ -216,67 +206,6 @@ test('nothrow() do not throw', async () => {
     // Deprecated.
     let { exitCode } = await nothrow($`exit 42`)
     assert.is(exitCode, 42)
-  }
-})
-
-test('globby available', async () => {
-  assert.is(globby, glob)
-  assert.is(typeof globby, 'function')
-  assert.is(typeof globby.globbySync, 'function')
-  assert.is(typeof globby.globbyStream, 'function')
-  assert.is(typeof globby.generateGlobTasks, 'function')
-  assert.is(typeof globby.isDynamicPattern, 'function')
-  assert.is(typeof globby.isGitIgnored, 'function')
-  assert.is(typeof globby.isGitIgnoredSync, 'function')
-  assert.equal(await globby('*.md'), ['README.md'])
-})
-
-test('fetch', async () => {
-  assert.match(
-    await fetch('https://medv.io').then((res) => res.text()),
-    /Anton Medvedev/
-  )
-})
-
-test('echo works', async () => {
-  let stdout = ''
-  let log = console.log
-  console.log = (...args) => {
-    stdout += args.join(' ')
-  }
-  echo(chalk.cyan('foo'), chalk.green('bar'), chalk.bold('baz'))
-  echo`${chalk.cyan('foo')} ${chalk.green('bar')} ${chalk.bold('baz')}`
-  echo(
-    await $`echo ${chalk.cyan('foo')}`,
-    await $`echo ${chalk.green('bar')}`,
-    await $`echo ${chalk.bold('baz')}`
-  )
-  console.log = log
-  assert.match(stdout, 'foo')
-})
-
-test('executes a script from $PATH', async () => {
-  const isWindows = process.platform === 'win32'
-  const oldPath = process.env.PATH
-
-  const envPathSeparator = isWindows ? ';' : ':'
-  process.env.PATH += envPathSeparator + path.resolve('/tmp/')
-
-  const toPOSIXPath = (_path) => _path.split(path.sep).join(path.posix.sep)
-
-  const zxPath = path.resolve('./build/cli.js')
-  const zxLocation = isWindows ? toPOSIXPath(zxPath) : zxPath
-  const scriptCode = `#!/usr/bin/env ${zxLocation}\nconsole.log('The script from path runs.')`
-
-  try {
-    await $`chmod +x ${zxLocation}`
-    await $`echo ${scriptCode}`.pipe(
-      fs.createWriteStream('/tmp/script-from-path', { mode: 0o744 })
-    )
-    await $`script-from-path`
-  } finally {
-    process.env.PATH = oldPath
-    fs.rmSync('/tmp/script-from-path')
   }
 })
 
@@ -365,14 +294,6 @@ test('a signal is passed with kill() method', async () => {
     signal = p.signal
   }
   assert.equal(signal, 'SIGKILL')
-})
-
-test('YAML works', async () => {
-  assert.equal(YAML.parse(YAML.stringify({ foo: 'bar' })), { foo: 'bar' })
-})
-
-test('which available', async () => {
-  assert.is(which.sync('npm'), await which('npm'))
 })
 
 test('within() works', async () => {
