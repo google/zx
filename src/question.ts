@@ -14,11 +14,14 @@
 
 import { createInterface } from 'node:readline'
 
-export async function question(query: string, options: { choices: string[] }) {
+export async function question(
+  query: string,
+  { choices }: { choices?: string[] } = {}
+) {
   let completer = undefined
-  if (Array.isArray(options?.choices)) {
+  if (Array.isArray(choices)) {
     completer = function completer(line: string) {
-      const completions = options.choices
+      const completions = choices
       const hits = completions.filter((c) => c.startsWith(line))
       return [hits.length ? hits : completions, line]
     }
