@@ -111,6 +111,14 @@ test('ctx() provides isolates running scopes', async () => {
   $.verbose = false
 })
 
+test('ctx accepts optional ref', () => {
+  const ref = $.bind(null)
+
+  ctx(($) => {
+    assert.is(ref, $)
+  }, ref)
+})
+
 test('bound ctx is attached to Promise', async () => {
   const kResourceStoreSymbol = Object.getOwnPropertySymbols(
     new Promise(() => {})
