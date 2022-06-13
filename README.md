@@ -502,6 +502,11 @@ ctx(async ($) => {
   // _$.cwd refers to /foo
   // but _$.cwd !== $.cwd
 })
+
+const ref = $.bind(null)
+ctx(($) => {
+  ref === $ // true
+}, ref)
 ```
 
 ### `log()`

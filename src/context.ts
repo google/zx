@@ -15,7 +15,7 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
 import { spawn } from 'node:child_process'
 
-export type Options = {
+export interface Options {
   verbose: boolean | number
   cwd: string
   env: NodeJS.ProcessEnv
@@ -30,7 +30,7 @@ export type Options = {
   logIgnore?: string | string[]
 }
 
-export type Context = Options & {
+export interface Context extends Options {
   nothrow?: boolean
   cmd: string
   __from: string
