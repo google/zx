@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { ProcessOutput, $ } from './core.js'
+import { ProcessOutput, $, Zx } from './core.js'
 import { sleep } from './goods.js'
 import { isString } from './util.js'
 import { getCtx, runInCtx } from './context.js'
@@ -81,7 +81,7 @@ export function startSpinner(title = '') {
   )(setInterval(spin, 100))
 }
 
-export function ctx<R extends any>(cb: (_$: typeof $) => R): R {
+export function ctx<R extends any>(cb: (_$: Zx) => R): R {
   const _$ = Object.assign($.bind(null), getCtx())
 
   return runInCtx(_$, cb, _$)

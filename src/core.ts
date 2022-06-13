@@ -31,7 +31,7 @@ import psTreeModule from 'ps-tree'
 
 const psTree = promisify(psTreeModule)
 
-interface Zx extends Options {
+export interface Zx extends Options {
   (pieces: TemplateStringsArray, ...args: any[]): ProcessPromise
 }
 
