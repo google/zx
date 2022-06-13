@@ -14,7 +14,7 @@
 
 import { createInterface } from 'node:readline'
 
-export async function question(query: string, options: { choices: string[] }) {
+export async function question(query: string, options?: { choices: string[] }) {
   let completer = undefined
   if (Array.isArray(options?.choices)) {
     completer = function completer(line: string) {
