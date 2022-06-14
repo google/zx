@@ -134,7 +134,7 @@ class ProcessOutput {
   readonly stderr: string
   readonly signal: string
   readonly exitCode: number
-  toString(): string // Comined stdout & stderr.
+  toString(): string // Combined stdout & stderr.
 }
 ```
 
