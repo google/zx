@@ -22,6 +22,8 @@ $.verbose = false
 
 function zx(script) {
   return $`node build/cli.js --experimental --eval ${script}`
+    .nothrow()
+    .timeout('5s')
 }
 
 test('retry() works', async () => {
@@ -73,6 +75,14 @@ test('spinner() with title works', async () => {
     await spinner('processing', () => sleep(100))
   `)
   assert.match(out.stderr, 'processing')
+})
+
+test('spinner() stops on throw', async () => {
+  let out = await zx(`
+    await spinner('processing', () => $\`wtf-cmd\`)
+  `)
+  assert.match(out.stderr, 'Error:')
+  assert.is.not(out.exitCode, 0)
 })
 
 test.run()
