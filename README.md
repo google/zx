@@ -140,7 +140,7 @@ class ProcessOutput {
 
 The output of the process is captured as is. Usually, programs print a new line `\n` at the end.  
 If `ProcessOutput` is used as an argument to some other `$` process,
-**zx** will use stdout and trim new line.
+**zx** will use stdout and trim the new line.
 
 ```js
 let date = await $`date`
