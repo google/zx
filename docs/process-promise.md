@@ -3,7 +3,7 @@
 ## `stdin`
 
 Returns a writable stream of stdin of a child process. Accessing
-this getter will trigger execution of a subprocess with `stdio('pipe')`[#stdio].
+this getter will trigger execution of a subprocess with [`stdio('pipe')`](#stdio).
 
 Do not forget to end the stream.
 
