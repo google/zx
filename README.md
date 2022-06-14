@@ -187,7 +187,7 @@ echo('Current branch is', branch)
 
 Returns the stdin as a string.
 
-```
+```js
 let content = JSON.parse(await stdin())
 ```
 
