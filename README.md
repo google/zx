@@ -117,8 +117,10 @@ class ProcessPromise extends Promise<ProcessOutput> {
   stdout: Readable
   stderr: Readable
   exitCode: Promise<number>
-  pipe(): ProcessPromise
-  kill(signal = 'SIGTERM'): Promise<void>
+  pipe(dest): ProcessPromise
+  kill(): Promise<void>
+  nothrow(): this
+  quiet(): this
 }
 ```
 
