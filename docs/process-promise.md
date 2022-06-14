@@ -10,7 +10,7 @@ await p
 
 ## `stdin`
 
-Returns a writable stream of stdin of a child process. Accessing
+Returns a writable stream of the stdin process. Accessing
 this getter will trigger execution of a subprocess with [`stdio('pipe')`](#stdio).
 
 Do not forget to end the stream.
@@ -25,7 +25,7 @@ By default, each process is created with stdin in _inherit_ mode.
 
 ## `stdout`/`stderr`
 
-Returns a readable streams of stdout and stderr of a child process.
+Returns a readable streams of stdout/stderr process.
 
 ```js
 const p = $`npm init`
@@ -36,7 +36,7 @@ for await (const chunk of p.stdout) {
 
 ## `exitCode`
 
-Returns a promise which resolves to the exit code of the child process. 
+Returns a promise which resolves to the exit code of the process. 
 
 ```js
 if (await $`[[ -d path ]]`.exitCode == 0) {
@@ -46,7 +46,7 @@ if (await $`[[ -d path ]]`.exitCode == 0) {
 
 ## `pipe()`
 
-Redirects the stdout of the child process.
+Redirects the stdout of the process.
 
 ```js
 await $`echo "Hello, stdout!"`
@@ -55,7 +55,7 @@ await $`echo "Hello, stdout!"`
 await $`cat /tmp/output.txt`
 ```
 
-Pipes can be used to show a real-time output of the child process:
+Pipes can be used to show a real-time output of the process:
 
 ```js
 await $`echo 1; sleep 1; echo 2; sleep 1; echo 3;`
@@ -82,7 +82,7 @@ await $`find ./examples -type f -print0`
 
 ## `kill()`
 
-Kills the child process and all its children. 
+Kills the process and all children. 
 
 By default, signal `SIGTERM` is sent. You can specify a signal via an argument.
 
@@ -94,7 +94,7 @@ await p
 
 ## `stdio()`
 
-Specifies a stdio for the child process. 
+Specifies a stdio for the process. 
 
 Default is `.stdio('inherit', 'pipe', 'pipe')`.
 
@@ -141,7 +141,7 @@ await $`grep something from-file`.quiet()
 
 ## `timeout()`
 
-Kills the child process after specified timeout.
+Kills the process after a specified timeout.
 
 ```js
 await $`sleep 999`.timeout('5s')
