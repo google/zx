@@ -1,9 +1,44 @@
 # ProcessPromise
 
+## `stdin`
+
+Returns a writable stream of stdin of a child process. Accessing
+this getter will trigger execution of a subprocess with `stdio('pipe')`[#stdio].
+
+Do not forget to end the stream.
+
+```js
+let p = $`while read; do echo $REPLY; done`
+p.stdin.write('Hello, World!\n')
+p.stdin.end()
+```
+
+By default, each process is created with stdin in _inherit_ mode.
+
+## `stdout`/`stderr`
+
+Returns a readable streams of stdout and stderr of a child process.
+
+```js
+const p = $`npm init`
+for await (const chunk of p.stdout) {
+  echo(chunk)
+}
+```
+
+## `exitCode`
+
+Returns a promise which resolves to the exit code of the child process. 
+
+```js
+if (await $`[[ -d path ]]`.exitCode == 0) {
+  ...
+}
+```
+
 ## `pipe()`
 
-The `zx` supports Node.js streams and special `pipe()` method can be used to
-redirect stdout.
+Redirects the stdout of the child process.
 
 ```js
 await $`echo "Hello, stdout!"`
@@ -12,73 +47,68 @@ await $`echo "Hello, stdout!"`
 await $`cat /tmp/output.txt`
 ```
 
-Processes created with `$` gets stdin from `process.stdin`, but we can also
-write to child process too:
+Pipes can be used to show a real-time output of the child process:
 
 ```js
-let p = $`read var; echo "$var";`
-p.stdin.write('Hello, stdin!\n')
-
-let {stdout} = await p
-```
-
-Pipes can be used to show real-time output of programs:
-
-```js
-$.verbose = false
-
 await $`echo 1; sleep 1; echo 2; sleep 1; echo 3;`
   .pipe(process.stdout)
 ```
 
-Pipe both stdout and stderr:
-
-```js
-let echo = $`echo stdout; echo stderr 1>&2`
-echo.stdout.pipe(process.stdout)
-echo.stderr.pipe(process.stdout)
-await echo
-```
-
-Also, the `pipe()` method can combine `$` programs. Same as `|` in bash:
+The `pipe()` method can combine `$` processes. Same as `|` in bash:
 
 ```js
 let greeting = await $`printf "hello"`
   .pipe($`awk '{printf $1", world!"}'`)
   .pipe($`tr '[a-z]' '[A-Z]'`)
 
-console.log(greeting.stdout)
+echo(greeting)
 ```
 
-Use combinations of `pipe()` and [`nothrow()`](https://github.com/google/zx#nothrow):
+Use combinations of `pipe()` and [`nothrow()`](#nothrow):
 
 ```js
 await $`find ./examples -type f -print0`
-  .pipe(nothrow($`xargs -0 grep ${'missing' + 'part'}`))
+  .pipe($`xargs -0 grep ${'missing' + 'part'}`.nothrow())
   .pipe($`wc -l`)
+```
+
+## `kill()`
+
+Kills the child process and all its children. 
+
+By default, signal `SIGTERM` is sent. You can specify a signal via an argument.
+
+```js
+let p = $`sleep 999`
+setTimeout(() => p.kill('SIGINT'), 100)
+await p
+```
+
+## `stdio()`
+
+Specifies a stdio for the child process. 
+
+Default is `.stdio('inherit', 'pipe', 'pipe')`.
+
+```js
+let p = $`read`.stdio('pipe')
 ```
 
 ## `nothrow()`
 
 Changes behavior of `$` to not throw an exception on non-zero exit codes.
 
-```ts
-function nothrow<P>(p: P): P
-```
-
-Usage:
-
 ```js
-await nothrow($`grep something from-file`)
+await $`grep something from-file`.nothrow()
 
 // Inside a pipe():
 
 await $`find ./examples -type f -print0`
-  .pipe(nothrow($`xargs -0 grep something`))
+  .pipe($`xargs -0 grep something`.nothrow())
   .pipe($`wc -l`)
 ```
 
-If only the `exitCode` is needed, you can use the next code instead:
+If only the `exitCode` is needed, you can use [`exitCode`](#exitcode) directly:
 
 ```js
 if (await $`[[ -d path ]]`.exitCode == 0) {
@@ -87,17 +117,27 @@ if (await $`[[ -d path ]]`.exitCode == 0) {
 
 // Equivalent of:
 
-if ((await nothrow($`[[ -d path ]]`)).exitCode == 0) {
+if ((await $`[[ -d path ]]`.nothrow()).exitCode == 0) {
   ...
 }
 ```
 
-## `withTimeout()`
+## `quiet()`
 
-Runs and sets a timeout for a cmd.
+Changes behavior of `$` to disable verbose output.
 
 ```js
-import {withTimeout} from 'zx/experimental'
+// Command and output will not be displayed.
+await $`grep something from-file`.quiet()
+```
 
-await withTimeout(100, 'SIGTERM')`sleep 9999`
+## `timeout()`
+
+Kills the child process after specified timeout.
+
+```js
+await $`sleep 999`.timeout('5s')
+
+// Or with a specific signal.
+await $`sleep 999`.timeout('5s', 'SIGKILL')
 ```
