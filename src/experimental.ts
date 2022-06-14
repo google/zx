@@ -94,8 +94,12 @@ export async function spinner<T>(
   return within(async () => {
     $.verbose = false
     const id = setInterval(spin, 100)
-    const result = await callback!()
-    clearInterval(id)
+    let result: T
+    try {
+      result = await callback!()
+    } finally {
+      clearInterval(id)
+    }
     return result
   })
 }
