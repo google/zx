@@ -134,8 +134,17 @@ class ProcessOutput {
   readonly stderr: string
   readonly signal: string
   readonly exitCode: number
-  toString(): string
+  toString(): string // Comined stdout & stderr.
 }
+```
+
+The output of the process is captured as is. Usually, programs print a new line
+`\n` at the end. If `ProcessOutput` used as an argument to some other `$` process,
+**zx** will use stdout and trim new line.
+
+```js
+let date = await $`date`
+await $`echo Current date is ${date}.`
 ```
 
 ## Functions
