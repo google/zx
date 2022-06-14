@@ -18,4 +18,4 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: npm i
-      - run: npx prettier --check .
+      - run: npm run fmt:check
