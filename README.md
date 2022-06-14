@@ -35,8 +35,8 @@ npm i -g zx
 
 ## Goods
 
-[$](#command-) · [cd()](#cd) · [fetch()](#fetch) · [question()](#question) · [sleep()](#sleep) · [nothrow()](#nothrow) · [quiet()](#quiet) · [within()](#within) ·
-[chalk](#chalk-package) · [fs](#fs-package) · [os](#os-package) · [path](#path-package) · [globby](#globby-package) · [yaml](#yaml-package) · [minimist](#minimist-package) · [which](#which-package) ·
+[$](#command-) · [cd()](#cd) · [fetch()](#fetch) · [question()](#question) · [sleep()](#sleep) · [echo()](#echo) · [stdin()](#stdin) · [within()](#within) ·
+[chalk](#chalk-package) · [fs](#fs-package) · [os](#os-package) · [path](#path-package) · [glob](#globby-package) · [yaml](#yaml-package) · [minimist](#minimist-package) · [which](#which-package) ·
 [__filename](#__filename--__dirname) · [__dirname](#__filename--__dirname) · [require()](#require)
 
 ## Documentation
@@ -74,7 +74,7 @@ import 'zx/globals'
 ### ``$`command` ``
 
 Executes a given string using the `spawn` function from the
-`child_process` package and returns `ProcessPromise<ProcessOutput>`.
+`child_process` package and returns `ProcessPromise`.
 
 Everything passed through `${...}` will be automatically escaped and quoted.
 
@@ -112,23 +112,17 @@ try {
 ### `ProcessPromise`
 
 ```ts
-class ProcessPromise<T> extends Promise<T> {
-  readonly stdin: Writable
-  readonly stdout: Readable
-  readonly stderr: Readable
-  readonly exitCode: Promise<number>
-  pipe(dest): ProcessPromise<T>
+class ProcessPromise extends Promise<ProcessOutput> {
+  stdin: Writable
+  stdout: Readable
+  stderr: Readable
+  exitCode: Promise<number>
+  pipe(): ProcessPromise
   kill(signal = 'SIGTERM'): Promise<void>
 }
 ```
 
-The `pipe()` method can be used to redirect stdout:
-
-```js
-await $`cat file.txt`.pipe(process.stdout)
-```
-
-Read more about [pipelines](docs/pipelines.md).
+Read more about the [ProcessPromise](docs/process-promise.md).
 
 ### `ProcessOutput`
 
@@ -136,8 +130,8 @@ Read more about [pipelines](docs/pipelines.md).
 class ProcessOutput {
   readonly stdout: string
   readonly stderr: string
+  readonly signal: string
   readonly exitCode: number
-  readonly signal: 'SIGTERM' | 'SIGKILL' | ...
   toString(): string
 }
 ```
@@ -150,7 +144,7 @@ Changes the current working directory.
 
 ```js
 cd('/tmp')
-await $`pwd` // outputs /tmp
+await $`pwd` // => /tmp
 ```
 
 ### `fetch()`
@@ -158,30 +152,15 @@ await $`pwd` // outputs /tmp
 A wrapper around the [node-fetch](https://www.npmjs.com/package/node-fetch) package.
 
 ```js
-let resp = await fetch('https://wttr.in')
-if (resp.ok) {
-  console.log(await resp.text())
-}
+let resp = await fetch('https://medv.io/*')
 ```
 
 ### `question()`
 
 A wrapper around the [readline](https://nodejs.org/api/readline.html) package.
 
-Usage:
-
 ```js
 let bear = await question('What kind of bear is best? ')
-let token = await question('Choose env variable: ', {
-  choices: Object.keys(process.env)
-})
-```
-
-In second argument, array of choices for Tab autocompletion can be specified.
-  
-```ts
-function question(query?: string, options?: QuestionOptions): Promise<string>
-type QuestionOptions = { choices: string[] }
 ```
 
 ### `sleep()`
@@ -192,96 +171,50 @@ A wrapper around the `setTimeout` function.
 await sleep(1000)
 ```
 
-### `nothrow()`
+### `echo()`
 
-Changes behavior of `$` to not throw an exception on non-zero exit codes.
-
-```ts
-function nothrow<P>(p: P): P
-```
-
-Usage:
+A `console.log()` alternative which can take [ProcessOutput](#processoutput).
 
 ```js
-await nothrow($`grep something from-file`)
+let branch = await $`git branch --show-current`
 
-// Inside a pipe():
-
-await $`find ./examples -type f -print0`
-  .pipe(nothrow($`xargs -0 grep something`))
-  .pipe($`wc -l`)
+echo`Current branch is ${branch}.`
+// or
+echo('Current branch is', branch)
 ```
 
-If only the `exitCode` is needed, you can use the next code instead:
+### `stdin()`
 
-```js
-if (await $`[[ -d path ]]`.exitCode == 0) {
-  ...
-}
+Returns the stdin as a string.
 
-// Equivalent of:
-
-if ((await nothrow($`[[ -d path ]]`)).exitCode == 0) {
-  ...
-}
 ```
-
-### `quiet()`
-
-Changes behavior of `$` to disable verbose output.
-
-```ts
-function quiet<P>(p: P): P
-```
-
-Usage:
-
-```js
-await quiet($`grep something from-file`)
-// Command and output will not be displayed.
+let content = JSON.parse(await stdin())
 ```
 
 ### `within()`
 
 Creates a new async context.
 
-```ts
-function within(callback): void
-```
-
-Usage:
-
 ```js
-$.verbose = true
 await $`pwd` // => /home/path
 
 within(async () => {
-  $.verbose = false
   cd('/tmp')
   
   setTimeout(async () => {
     await $`pwd` // => /tmp
-    assert($.verbose == false)
   }, 1000)
 })
 
 await $`pwd` // => /home/path
-assert($.verbose == true)
 ```
 
-Building profiled commands stack:
-
  ```js
-const nodev = async (v) => within(async () => {
-  $.verbose = false
+let version = await within(async () => {
   $.prefix += 'export NVM_DIR=$HOME/.nvm; source $NVM_DIR/nvm.sh; '
-
-  await $`nvm use ${v}`
-
-  return $`node -v`.then(r => r.stdout.trim().slice(1)) // 'v18.0.0\n' → '18.0.0'
+  await $`nvm use 16`
+  return $`node -v`
 })
-
-await nodev(18) // '18.0.0'
 ````
 
 ## Packages
@@ -301,7 +234,7 @@ console.log(chalk.blue('Hello world!'))
 The [fs-extra](https://www.npmjs.com/package/fs-extra) package.
 
 ```js
-let content = await fs.readFile('./package.json')
+let {version} = await fs.readJson('./package.json')
 ```
 
 ### `os` package
@@ -325,15 +258,7 @@ await $`mkdir ${path.join(basedir, 'output')}`
 The [globby](https://github.com/sindresorhus/globby) package.
 
 ```js
-let packages = await globby(['package.json', 'packages/*/package.json'])
-
-let pictures = globby.globbySync('content/*.(jpg|png)')
-```
-
-Also, globby available via the `glob` shortcut:
-
-```js
-await $`svgo ${await glob('*.svg')}`
+let packages = await glob(['package.json', 'packages/*/package.json'])
 ```
 
 ### `yaml` package
@@ -346,9 +271,12 @@ console.log(YAML.parse('foo: bar').foo)
 
 ### `minimist` package
 
-The [minimist](https://www.npmjs.com/package/minimist) package.
+The [minimist](https://www.npmjs.com/package/minimist) package available
+as global const `argv`.
 
-Available as global const `argv`.
+```js
+if( argv.someFlag ){ echo('yes') }
+```
 
 ### `which` package
 
@@ -356,8 +284,6 @@ The [which](https://github.com/npm/node-which) package.
 
 ```js
 let node = await which('node')
-
-let node = which.sync('node')
 ```
 
 ## Configuration
@@ -375,11 +301,6 @@ Or use a CLI argument: `--shell=/bin/bash`
 ### `$.spawn`
 
 Specifies a `spawn` api. Defaults to `require('child_process').spawn`.
-
-### `$.maxBuffer`
-
-Specifies the largest number of bytes allowed on stdout or stderr.
-Defaults to `200 * 1024 * 1024` (200 MiB).
 
 ### `$.prefix`
 
@@ -405,7 +326,20 @@ Or use a CLI argument `--quiet` to set `$.verbose = false`.
 
 ### `$.env`
 
-Specifies env map. Defaults to `process.env`.
+Specifies an environment variables map.
+
+Defaults to `process.env`.
+
+### `$.cwd`
+
+Specifies a current working directory of all processes created with the `$`.
+
+The [cd()](#cd) func changes only `process.cwd()` and if no `$.cwd` specified,
+all `$` processes use `process.cwd()` by default (same as `spawn` behavior).
+
+### `$.log`
+
+Specifies a [logging function](src/log.ts).
 
 ## Polyfills 
 
@@ -434,52 +368,32 @@ To enable new features via CLI pass `--experimental` flag.
 
 ### `retry()`
 
-Retries a command a few times. Will return after the first
+Retries a callback for a few times. Will return after the first
 successful attempt, or will throw after specifies attempts count.
 
 ```js
-import {retry} from 'zx/experimental'
+import { retry, expBackoff } from 'zx/experimental'
 
-let {stdout} = await retry(5)`curl localhost`
+let p = await retry(10, () => $`curl https://medv.io`)
 
-// with a specified delay between attempts
-let {stdout} = await retry(3, 500)`npm whoami`
+// With a specified delay between attempts.
+let p = await retry(20, '1s', () => $`curl https://medv.io`)
+
+// With an exponential backoff.
+let p = await retry(30, expBackoff(), () => $`curl https://medv.io`)
 ```
 
-### `echo()`
+### `spinner()`
 
-A `console.log()` alternative which can take [ProcessOutput](#processoutput).
-
-```js
-import {echo} from 'zx/experimental'
-
-let branch = await $`git branch --show-current`
-
-echo`Current branch is ${branch}.`
-// or
-echo('Current branch is', branch)
-```
-
-### `startSpinner()`
-
-Starts a simple CLI spinner, and returns `stop()` function.
+Starts a simple CLI spinner.
 
 ```js
-import {startSpinner} from 'zx/experimental'
+import { spinner } from 'zx/experimental'
 
-let stop = startSpinner()
-await $`long-running command`
-stop()
-```
+await spinner(() => $`long-running command`)
 
-### `withTimeout()`
-
-Runs and sets a timeout for a cmd.
-
-```js
-import {withTimeout} from 'zx/experimental'
-
-await withTimeout(100, 'SIGTERM')`sleep 9999`
+// With a message.
+await spinner('working...', () => $`sleep 99`)
 ```
 
 ## FAQ
@@ -539,31 +453,9 @@ void async function () {
 }()
 ```
 
-Use [ts-node](https://github.com/TypeStrong/ts-node#native-ecmascript-modules) as
-a esm node [loader](https://nodejs.org/api/esm.html#esm_experimental_loaders).
-
-```bash
-node --loader ts-node/esm script.ts
-```
-
-You must set [`"type": "module"`](https://nodejs.org/api/packages.html#packages_type) 
-in `package.json` and [`"module": "ESNext"`](https://www.typescriptlang.org/tsconfig/#module) 
-in `tsconfig.json`.
-
-```json
-{
-  "type": "module"
-}
-```
-
-```json
-{
-  "compilerOptions": {
-    "module": "ESNext"
-  }
-}
-```
-
+Set [`"type": "module"`](https://nodejs.org/api/packages.html#packages_type) 
+in **package.json** and [`"module": "ESNext"`](https://www.typescriptlang.org/tsconfig/#module) 
+in **tsconfig.json**.
 
 ### Executing remote scripts
 
@@ -584,7 +476,15 @@ await $`pwd`
 EOF
 ```
 
-### Attaching .bash_profile/.zshrc
+### Executing scripts via --eval
+
+Evaluate the following argument as a script.
+
+```bash
+cat package.json | zx --eval 'let v = JSON.parse(await stdin()).version; echo(v)'
+```
+
+### Attaching a profile
 
 By default `child_process` does not include aliases and bash functions. 
 But you are still able to do it by hand. Just attach necessary directives to `$.prefix`.
