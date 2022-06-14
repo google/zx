@@ -163,7 +163,7 @@ await $`pwd` // => /tmp
 A wrapper around the [node-fetch](https://www.npmjs.com/package/node-fetch) package.
 
 ```js
-let resp = await fetch('https://medv.io/*')
+let resp = await fetch('https://medv.io')
 ```
 
 ### `question()`
