@@ -73,8 +73,8 @@ import 'zx/globals'
 
 ### ``$`command` ``
 
-Executes a given string using the `spawn` function from the
-`child_process` package and returns [`ProcessPromise`](#processpromise).
+Executes a given command using the `spawn` func 
+and returns [`ProcessPromise`](#processpromise).
 
 Everything passed through `${...}` will be automatically escaped and quoted.
 
