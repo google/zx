@@ -1,5 +1,13 @@
 # ProcessPromise
 
+The `$` returns a `ProcessPromise` instance.
+
+```js
+let p = $`command`
+
+await p
+```
+
 ## `stdin`
 
 Returns a writable stream of stdin of a child process. Accessing
