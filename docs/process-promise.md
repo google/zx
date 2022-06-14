@@ -1,10 +1,6 @@
-# Pipelines
+# ProcessPromise
 
-> You can run this markdown file: 
-> 
-> ```
-> zx docs/pipelines.md
-> ```
+## `pipe()`
 
 The `zx` supports Node.js streams and special `pipe()` method can be used to
 redirect stdout.
@@ -60,4 +56,48 @@ Use combinations of `pipe()` and [`nothrow()`](https://github.com/google/zx#noth
 await $`find ./examples -type f -print0`
   .pipe(nothrow($`xargs -0 grep ${'missing' + 'part'}`))
   .pipe($`wc -l`)
+```
+
+## `nothrow()`
+
+Changes behavior of `$` to not throw an exception on non-zero exit codes.
+
+```ts
+function nothrow<P>(p: P): P
+```
+
+Usage:
+
+```js
+await nothrow($`grep something from-file`)
+
+// Inside a pipe():
+
+await $`find ./examples -type f -print0`
+  .pipe(nothrow($`xargs -0 grep something`))
+  .pipe($`wc -l`)
+```
+
+If only the `exitCode` is needed, you can use the next code instead:
+
+```js
+if (await $`[[ -d path ]]`.exitCode == 0) {
+  ...
+}
+
+// Equivalent of:
+
+if ((await nothrow($`[[ -d path ]]`)).exitCode == 0) {
+  ...
+}
+```
+
+## `withTimeout()`
+
+Runs and sets a timeout for a cmd.
+
+```js
+import {withTimeout} from 'zx/experimental'
+
+await withTimeout(100, 'SIGTERM')`sleep 9999`
 ```
