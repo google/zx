@@ -74,7 +74,7 @@ import 'zx/globals'
 ### ``$`command` ``
 
 Executes a given string using the `spawn` function from the
-`child_process` package and returns `ProcessPromise`.
+`child_process` package and returns [`ProcessPromise`](#processpromise).
 
 Everything passed through `${...}` will be automatically escaped and quoted.
 
@@ -98,7 +98,7 @@ await $`git log ${flags}`
 ```
 
 If the executed program returns a non-zero exit code,
-`ProcessOutput` will be thrown.
+[`ProcessOutput`](#processoutput) will be thrown.
 
 ```js
 try {
