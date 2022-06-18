@@ -59,8 +59,8 @@ const hook = createHook({
 })
 hook.enable()
 
-function initStore(): Options {
-  const context = {
+const initStore = (() => {
+  const context: Options = {
     [processCwd]: process.cwd(),
     verbose: (global as any).ZX_VERBOSE ?? true,
     env: process.env,
@@ -70,15 +70,18 @@ function initStore(): Options {
     spawn,
     log,
   }
-  storage.enterWith(context)
+
   try {
-    $.shell = which.sync('bash')
-    $.prefix = 'set -euo pipefail;'
+    context.shell = which.sync('bash')
+    context.prefix = 'set -euo pipefail;'
   } catch (err) {
     // ¯\_(ツ)_/¯
   }
-  return context
-}
+
+  return function initStore(): Options {
+    return context
+  }
+})()
 
 function getStore() {
   return storage.getStore() || initStore()
@@ -372,9 +375,7 @@ export class ProcessOutput extends Error {
 }
 
 export function within<R>(callback: () => R): R {
-  const result = storage.run({ ...getStore() }, callback)
-  syncCwd()
-  return result
+  return storage.run({ ...getStore() }, callback)
 }
 
 function syncCwd() {
