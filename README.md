@@ -18,10 +18,10 @@ let name = 'foo bar'
 await $`mkdir /tmp/${name}`
 ```
 
-Bash is great, but when it comes to writing scripts,
-people usually choose a more convenient programming language.
-JavaScript is a perfect choice, but standard Node.js libraries
-require additional hassle before using. The `zx` package provides
+Bash is great, but when it comes to writing more complex scripts,
+many people prefer a more convenient programming language.
+JavaScript is a perfect choice, but the Node.js standard library
+requires additional hassle before using. The `zx` package provides
 useful wrappers around `child_process`, escapes arguments and
 gives sensible defaults.
 
@@ -445,8 +445,7 @@ module.
 
 ### Markdown scripts
 
-The `zx` can execute scripts embedded in markdown files
-([docs/markdown.md](docs/markdown.md)):
+The `zx` can execute [scripts written as markdown](docs/markdown.md):
 
 ```bash
 zx docs/markdown.md
