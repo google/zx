@@ -18,9 +18,9 @@ let name = 'foo bar'
 await $`mkdir /tmp/${name}`
 ```
 
-Bash is great, but when it comes to writing scripts, 
-people usually choose a more convenient programming language.
-JavaScript is a perfect choice, but standard Node.js library 
+Bash is great, but when it comes to writing more complex scripts,
+many people prefer a more convenient programming language.
+JavaScript is a perfect choice, but the Node.js standard library
 requires additional hassle before using. The `zx` package provides
 useful wrappers around `child_process`, escapes arguments and
 gives sensible defaults.
@@ -41,8 +41,8 @@ npm i -g zx
 
 ## Documentation
 
-Write your scripts in a file with `.mjs` extension in order to 
-be able to use `await` on top level. If you prefer the `.js` extension,
+Write your scripts in a file with an `.mjs` extension in order to
+use `await` at the top level. If you prefer the `.js` extension,
 wrap your scripts in something like `void async function () {...}()`.
 
 Add the following shebang to the beginning of your `zx` scripts:
@@ -62,8 +62,8 @@ Or via the `zx` executable:
 zx ./script.mjs
 ```
 
-All functions (`$`, `cd`, `fetch`, etc) are available straight away 
-without any imports. 
+All functions (`$`, `cd`, `fetch`, etc) are available straight away
+without any imports.
 
 Or import globals explicitly (for better autocomplete in VS Code).
 
@@ -73,7 +73,7 @@ import 'zx/globals'
 
 ### ``$`command` ``
 
-Executes a given command using the `spawn` func 
+Executes a given command using the `spawn` func
 and returns [`ProcessPromise`](#processpromise).
 
 Everything passed through `${...}` will be automatically escaped and quoted.
@@ -83,7 +83,7 @@ let name = 'foo & bar'
 await $`mkdir ${name}`
 ```
 
-**There is no need to add extra quotes.** Read more about it in 
+**There is no need to add extra quotes.** Read more about it in
 [quotes](docs/quotes.md).
 
 You can pass an array of arguments if needed:
@@ -138,7 +138,7 @@ class ProcessOutput {
 }
 ```
 
-The output of the process is captured as is. Usually, programs print a new line `\n` at the end.  
+The output of the process is captured as-is. Usually, programs print a new line `\n` at the end.
 If `ProcessOutput` is used as an argument to some other `$` process,
 **zx** will use stdout and trim the new line.
 
@@ -211,7 +211,7 @@ await $`pwd` // => /home/path
 
 within(async () => {
   cd('/tmp')
-  
+
   setTimeout(async () => {
     await $`pwd` // => /tmp
   }, 1000)
@@ -220,17 +220,17 @@ within(async () => {
 await $`pwd` // => /home/path
 ```
 
- ```js
+```js
 let version = await within(async () => {
   $.prefix += 'export NVM_DIR=$HOME/.nvm; source $NVM_DIR/nvm.sh; '
   await $`nvm use 16`
   return $`node -v`
 })
-````
+```
 
 ## Packages
 
-Following packages are available without importing inside scripts.
+The following packages are available without importing inside scripts.
 
 ### `chalk` package
 
@@ -323,17 +323,17 @@ Or use a CLI argument: `--prefix='set -e;'`
 
 ### `$.quote`
 
-Specifies a function for escaping special characters during 
+Specifies a function for escaping special characters during
 command substitution.
 
 ### `$.verbose`
 
 Specifies verbosity. Default is `true`.
 
-In verbose mode, the `zx` prints all executed commands alongside with their 
+In verbose mode, `zx` prints all executed commands alongside with their
 outputs.
 
-Or use a CLI argument `--quiet` to set `$.verbose = false`.
+Or use the CLI argument `--quiet` to set `$.verbose = false`.
 
 ### `$.env`
 
@@ -352,7 +352,7 @@ all `$` processes use `process.cwd()` by default (same as `spawn` behavior).
 
 Specifies a [logging function](src/log.ts).
 
-## Polyfills 
+## Polyfills
 
 ### `__filename` & `__dirname`
 
@@ -373,7 +373,7 @@ let {version} = require('./package.json')
 
 ## Experimental
 
-The zx also provides a few experimental functions. Please leave a feedback about 
+The zx provides a few experimental functions. Please leave feedback about
 those features in [the discussion](https://github.com/google/zx/discussions/299).
 To enable new features via CLI pass `--experimental` flag.
 
@@ -418,7 +418,7 @@ await $`echo $FOO`
 
 ### Passing array of values
 
-If array of values passed as argument to `$`, items of the array will be escaped
+When passing an array of values as an argument to `$`, items of the array will be escaped
 individually and concatenated via space.
 
 Example:
@@ -427,7 +427,7 @@ let files = [...]
 await $`tar cz ${files}`
 ```
 
-### Importing from other scripts
+### Importing into other scripts
 
 It is possible to make use of `$` and other functions via explicit imports:
 
@@ -445,18 +445,17 @@ module.
 
 ### Markdown scripts
 
-The `zx` can execute scripts written in markdown 
-([docs/markdown.md](docs/markdown.md)):
+The `zx` can execute [scripts written as markdown](docs/markdown.md):
 
 ```bash
 zx docs/markdown.md
 ```
 
 ### TypeScript scripts
- 
+
 ```ts
 import {$} from 'zx'
-// Or 
+// Or
 import 'zx/globals'
 
 void async function () {
@@ -464,8 +463,8 @@ void async function () {
 }()
 ```
 
-Set [`"type": "module"`](https://nodejs.org/api/packages.html#packages_type) 
-in **package.json** and [`"module": "ESNext"`](https://www.typescriptlang.org/tsconfig/#module) 
+Set [`"type": "module"`](https://nodejs.org/api/packages.html#packages_type)
+in **package.json** and [`"module": "ESNext"`](https://www.typescriptlang.org/tsconfig/#module)
 in **tsconfig.json**.
 
 ### Executing remote scripts
@@ -497,7 +496,7 @@ cat package.json | zx --eval 'let v = JSON.parse(await stdin()).version; echo(v)
 
 ### Attaching a profile
 
-By default `child_process` does not include aliases and bash functions. 
+By default `child_process` does not include aliases and bash functions.
 But you are still able to do it by hand. Just attach necessary directives to `$.prefix`.
 
 ```js
@@ -507,7 +506,7 @@ await $`nvm -v`
 
 ### Using GitHub Actions
 
-Default GitHub Action runner comes with npx installed.
+The default GitHub Action runner comes with `npx` installed.
 
 ```yaml
 jobs:
