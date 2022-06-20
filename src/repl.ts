@@ -17,10 +17,10 @@ import os from 'node:os'
 import path from 'node:path'
 import repl from 'node:repl'
 import { inspect } from 'node:util'
-import { ProcessOutput } from './core.js'
+import { ProcessOutput, defaults } from './core.js'
 
 export function startRepl() {
-  ;(global as any).ZX_VERBOSE = false
+  defaults.verbose = false
   const r = repl.start({
     prompt: chalk.greenBright.bold('❯ '),
     useGlobal: true,

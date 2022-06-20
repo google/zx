@@ -62,6 +62,14 @@ test('starts repl with -i', async () => {
   assert.match(out.stdout, 'bar')
 })
 
+test('starts repl with verbosity off', async () => {
+  let p = $`node build/cli.js -i`
+  p.stdin.write('"verbose" + " is " + $.verbose\n')
+  p.stdin.end()
+  let out = await p
+  assert.match(out.stdout, 'verbose is false')
+})
+
 test('supports `--experimental` flag', async () => {
   let out = await $`echo 'echo("test")' | node build/cli.js --experimental`
   assert.match(out.stdout, 'test')

@@ -59,9 +59,9 @@ const hook = createHook({
 })
 hook.enable()
 
-const defaults: Options = {
+export const defaults: Options = {
   [processCwd]: process.cwd(),
-  verbose: (global as any).ZX_VERBOSE ?? true,
+  verbose: true,
   env: process.env,
   shell: true,
   prefix: '',
