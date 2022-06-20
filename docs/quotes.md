@@ -1,6 +1,6 @@
 # Quotes
 
-When passing arguments to `${...}` there is no need to add quotes. **Quotes will 
+When passing arguments to `${...}` there is no need to add quotes. **Quotes will
 be added automatically if needed.**
 
 ```js
@@ -15,7 +15,7 @@ mkdir $'foo & bar'
 $'ls' $'-la'
 ```
 
-If you add quotes `"${name}"`, it will produce a wrong command. 
+If you add quotes `"${name}"`, it will produce a wrong command.
 
 If you need to add something extra, consider putting it inside curly brackets.
 
@@ -32,9 +32,11 @@ await $`mkdir path/to-dir/${name}`
 ### Array of arguments
 
 The `zx` can also take an array or arguments in the `${...}`. Items of the array
-will be quoted separately and concatenated via a space. 
+will be quoted separately and concatenated via a space.
 
 Do **not** add a `.join(' ')`.
+
+<!-- prettier-ignore-start -->
 
 ```js
 let flags = [
@@ -45,8 +47,10 @@ let flags = [
 await $`git log ${flags}`
 ```
 
-If you already have a string with arrays, it's your responsibility
-to correctly parse it and distinguish separate arguments. For example like this:
+<!-- prettier-ignore-end -->
+
+If you already have a string with arrays, it's your responsibility to correctly
+parse it and distinguish separate arguments. For example like this:
 
 ```js
 await $`git log ${'--oneline --decorate --color'.split(' ')}`
@@ -55,9 +59,9 @@ await $`git log ${'--oneline --decorate --color'.split(' ')}`
 ### globbing and `~`
 
 As everything passed through `${...}` will be escaped, you can't use `~` or glob
-syntax. 
+syntax.
 
-In order for this to work the zx provides 
+In order for this to work the zx provides
 [globby package](../README.md#globby-package).
 
 For instead of this:
@@ -73,5 +77,3 @@ Use `glob` function and `os` package:
 let files = await glob(os.homedir() + '/dev/**/*.md')
 await $`ls ${files}`
 ```
-
-

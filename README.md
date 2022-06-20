@@ -1,5 +1,7 @@
 # 🐚 zx
 
+<!-- prettier-ignore-start -->
+
 ```js
 #!/usr/bin/env zx
 
@@ -18,11 +20,12 @@ let name = 'foo bar'
 await $`mkdir /tmp/${name}`
 ```
 
-Bash is great, but when it comes to writing scripts, 
-people usually choose a more convenient programming language.
-JavaScript is a perfect choice, but standard Node.js library 
-requires additional hassle before using. The `zx` package provides
-useful wrappers around `child_process`, escapes arguments and
+<!-- prettier-ignore-end -->
+
+Bash is great, but when it comes to writing scripts, people usually choose a
+more convenient programming language. JavaScript is a perfect choice, but
+standard Node.js library requires additional hassle before using. The `zx`
+package provides useful wrappers around `child_process`, escapes arguments and
 gives sensible defaults.
 
 ## Install
@@ -35,22 +38,28 @@ npm i -g zx
 
 ## Goods
 
-[$](#command-) · [cd()](#cd) · [fetch()](#fetch) · [question()](#question) · [sleep()](#sleep) · [echo()](#echo) · [stdin()](#stdin) · [within()](#within) ·
-[chalk](#chalk-package) · [fs](#fs-package) · [os](#os-package) · [path](#path-package) · [glob](#globby-package) · [yaml](#yaml-package) · [minimist](#minimist-package) · [which](#which-package) ·
-[__filename](#__filename--__dirname) · [__dirname](#__filename--__dirname) · [require()](#require)
+[$](#command-) · [cd()](#cd) · [fetch()](#fetch) · [question()](#question) ·
+[sleep()](#sleep) · [echo()](#echo) · [stdin()](#stdin) · [within()](#within) ·
+[chalk](#chalk-package) · [fs](#fs-package) · [os](#os-package) ·
+[path](#path-package) · [glob](#globby-package) · [yaml](#yaml-package) ·
+[minimist](#minimist-package) · [which](#which-package) ·
+[\_\_filename](#__filename--__dirname) · [\_\_dirname](#__filename--__dirname) ·
+[require()](#require)
 
 ## Documentation
 
-Write your scripts in a file with `.mjs` extension in order to 
-be able to use `await` on top level. If you prefer the `.js` extension,
-wrap your scripts in something like `void async function () {...}()`.
+Write your scripts in a file with `.mjs` extension in order to be able to use
+`await` on top level. If you prefer the `.js` extension, wrap your scripts in
+something like `void async function () {...}()`.
 
 Add the following shebang to the beginning of your `zx` scripts:
+
 ```bash
 #!/usr/bin/env zx
 ```
 
 Now you will be able to run your script like so:
+
 ```bash
 chmod +x ./script.mjs
 ./script.mjs
@@ -62,8 +71,8 @@ Or via the `zx` executable:
 zx ./script.mjs
 ```
 
-All functions (`$`, `cd`, `fetch`, etc) are available straight away 
-without any imports. 
+All functions (`$`, `cd`, `fetch`, etc) are available straight away without any
+imports.
 
 Or import globals explicitly (for better autocomplete in VS Code).
 
@@ -71,10 +80,11 @@ Or import globals explicitly (for better autocomplete in VS Code).
 import 'zx/globals'
 ```
 
+<!-- prettier-ignore -->
 ### ``$`command` ``
 
-Executes a given command using the `spawn` func 
-and returns [`ProcessPromise`](#processpromise).
+Executes a given command using the `spawn` func and returns
+[`ProcessPromise`](#processpromise).
 
 Everything passed through `${...}` will be automatically escaped and quoted.
 
@@ -83,10 +93,12 @@ let name = 'foo & bar'
 await $`mkdir ${name}`
 ```
 
-**There is no need to add extra quotes.** Read more about it in 
+**There is no need to add extra quotes.** Read more about it in
 [quotes](docs/quotes.md).
 
 You can pass an array of arguments if needed:
+
+<!-- prettier-ignore-start -->
 
 ```js
 let flags = [
@@ -96,6 +108,8 @@ let flags = [
 ]
 await $`git log ${flags}`
 ```
+
+<!-- prettier-ignore-end -->
 
 If the executed program returns a non-zero exit code,
 [`ProcessOutput`](#processoutput) will be thrown.
@@ -138,9 +152,9 @@ class ProcessOutput {
 }
 ```
 
-The output of the process is captured as is. Usually, programs print a new line `\n` at the end.  
-If `ProcessOutput` is used as an argument to some other `$` process,
-**zx** will use stdout and trim the new line.
+The output of the process is captured as is. Usually, programs print a new line
+`\n` at the end. If `ProcessOutput` is used as an argument to some other `$`
+process, **zx** will use stdout and trim the new line.
 
 ```js
 let date = await $`date`
@@ -160,7 +174,8 @@ await $`pwd` // => /tmp
 
 ### `fetch()`
 
-A wrapper around the [node-fetch](https://www.npmjs.com/package/node-fetch) package.
+A wrapper around the [node-fetch](https://www.npmjs.com/package/node-fetch)
+package.
 
 ```js
 let resp = await fetch('https://medv.io')
@@ -211,7 +226,7 @@ await $`pwd` // => /home/path
 
 within(async () => {
   cd('/tmp')
-  
+
   setTimeout(async () => {
     await $`pwd` // => /tmp
   }, 1000)
@@ -220,13 +235,13 @@ within(async () => {
 await $`pwd` // => /home/path
 ```
 
- ```js
+```js
 let version = await within(async () => {
   $.prefix += 'export NVM_DIR=$HOME/.nvm; source $NVM_DIR/nvm.sh; '
   await $`nvm use 16`
   return $`node -v`
 })
-````
+```
 
 ## Packages
 
@@ -245,7 +260,7 @@ console.log(chalk.blue('Hello world!'))
 The [fs-extra](https://www.npmjs.com/package/fs-extra) package.
 
 ```js
-let {version} = await fs.readJson('./package.json')
+let { version } = await fs.readJson('./package.json')
 ```
 
 ### `os` package
@@ -282,11 +297,13 @@ console.log(YAML.parse('foo: bar').foo)
 
 ### `minimist` package
 
-The [minimist](https://www.npmjs.com/package/minimist) package available
-as global const `argv`.
+The [minimist](https://www.npmjs.com/package/minimist) package available as
+global const `argv`.
 
 ```js
-if( argv.someFlag ){ echo('yes') }
+if (argv.someFlag) {
+  echo('yes')
+}
 ```
 
 ### `which` package
@@ -323,14 +340,14 @@ Or use a CLI argument: `--prefix='set -e;'`
 
 ### `$.quote`
 
-Specifies a function for escaping special characters during 
-command substitution.
+Specifies a function for escaping special characters during command
+substitution.
 
 ### `$.verbose`
 
 Specifies verbosity. Default is `true`.
 
-In verbose mode, the `zx` prints all executed commands alongside with their 
+In verbose mode, the `zx` prints all executed commands alongside with their
 outputs.
 
 Or use a CLI argument `--quiet` to set `$.verbose = false`.
@@ -352,35 +369,38 @@ all `$` processes use `process.cwd()` by default (same as `spawn` behavior).
 
 Specifies a [logging function](src/log.ts).
 
-## Polyfills 
+## Polyfills
 
 ### `__filename` & `__dirname`
 
 In [ESM](https://nodejs.org/api/esm.html) modules, Node.js does not provide
-`__filename` and `__dirname` globals. As such globals are really handy in scripts,
-`zx` provides these for use in `.mjs` files (when using the `zx` executable).
+`__filename` and `__dirname` globals. As such globals are really handy in
+scripts, `zx` provides these for use in `.mjs` files (when using the `zx`
+executable).
 
 ### `require()`
 
-In [ESM](https://nodejs.org/api/modules.html#modules_module_createrequire_filename)
-modules, the `require()` function is not defined.
-The `zx` provides `require()` function, so it can be used with imports in `.mjs`
-files (when using `zx` executable).
+In
+[ESM](https://nodejs.org/api/modules.html#modules_module_createrequire_filename)
+modules, the `require()` function is not defined. The `zx` provides `require()`
+function, so it can be used with imports in `.mjs` files (when using `zx`
+executable).
 
 ```js
-let {version} = require('./package.json')
+let { version } = require('./package.json')
 ```
 
 ## Experimental
 
-The zx also provides a few experimental functions. Please leave a feedback about 
-those features in [the discussion](https://github.com/google/zx/discussions/299).
-To enable new features via CLI pass `--experimental` flag.
+The zx also provides a few experimental functions. Please leave a feedback about
+those features in
+[the discussion](https://github.com/google/zx/discussions/299). To enable new
+features via CLI pass `--experimental` flag.
 
 ### `retry()`
 
-Retries a callback for a few times. Will return after the first
-successful attempt, or will throw after specifies attempts count.
+Retries a callback for a few times. Will return after the first successful
+attempt, or will throw after specifies attempts count.
 
 ```js
 import { retry, expBackoff } from 'zx/experimental'
@@ -422,6 +442,7 @@ If array of values passed as argument to `$`, items of the array will be escaped
 individually and concatenated via space.
 
 Example:
+
 ```js
 let files = [...]
 await $`tar cz ${files}`
@@ -433,19 +454,20 @@ It is possible to make use of `$` and other functions via explicit imports:
 
 ```js
 #!/usr/bin/env node
-import {$} from 'zx'
+import { $ } from 'zx'
 await $`date`
 ```
 
 ### Scripts without extensions
 
 If script does not have a file extension (like `.git/hooks/pre-commit`), zx
-assumes that it is an [ESM](https://nodejs.org/api/modules.html#modules_module_createrequire_filename)
+assumes that it is an
+[ESM](https://nodejs.org/api/modules.html#modules_module_createrequire_filename)
 module.
 
 ### Markdown scripts
 
-The `zx` can execute scripts written in markdown 
+The `zx` can execute scripts written in markdown
 ([docs/markdown.md](docs/markdown.md)):
 
 ```bash
@@ -453,20 +475,21 @@ zx docs/markdown.md
 ```
 
 ### TypeScript scripts
- 
+
 ```ts
-import {$} from 'zx'
-// Or 
+import { $ } from 'zx'
+// Or
 import 'zx/globals'
 
-void async function () {
+async function main(): Promise<void> {
   await $`ls -la`
 }()
 ```
 
-Set [`"type": "module"`](https://nodejs.org/api/packages.html#packages_type) 
-in **package.json** and [`"module": "ESNext"`](https://www.typescriptlang.org/tsconfig/#module) 
-in **tsconfig.json**.
+Set [`"type": "module"`](https://nodejs.org/api/packages.html#packages_type) in
+**package.json** and
+[`"module": "ESNext"`](https://www.typescriptlang.org/tsconfig/#module) in
+**tsconfig.json**.
 
 ### Executing remote scripts
 
@@ -482,7 +505,7 @@ zx https://medv.io/game-of-life.js
 The `zx` supports executing scripts from stdin.
 
 ```js
-zx <<'EOF'
+zx << 'EOF'
 await $`pwd`
 EOF
 ```
@@ -497,8 +520,8 @@ cat package.json | zx --eval 'let v = JSON.parse(await stdin()).version; echo(v)
 
 ### Attaching a profile
 
-By default `child_process` does not include aliases and bash functions. 
-But you are still able to do it by hand. Just attach necessary directives to `$.prefix`.
+By default `child_process` does not include aliases and bash functions. But you
+are still able to do it by hand. Just attach necessary directives to `$.prefix`.
 
 ```js
 $.prefix += 'export NVM_DIR=$HOME/.nvm; source $NVM_DIR/nvm.sh; '
@@ -514,15 +537,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Build
-      env:
-        FORCE_COLOR: 3
-      run: |
-        npx zx <<'EOF'
-        await $`...`
-        EOF
+      - name: Build
+        env:
+          FORCE_COLOR: 3
+        run: |
+          npx zx <<'EOF'
+          await $`...`
+          EOF
 ```
 
 ## License

@@ -6,4 +6,3 @@ reports/
 .stryker-tmp/
 package-lock.json
 yarn.lock
-*.md

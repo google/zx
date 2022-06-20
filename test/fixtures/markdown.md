@@ -2,7 +2,6 @@
 
 ignore
 
->
 > ```
 > echo ignore
 > ```
@@ -31,5 +30,6 @@ echo "$VAR"
 Other code blocks are ignored:
 
 ```css
-.ignore {}
+.ignore {
+}
 ```

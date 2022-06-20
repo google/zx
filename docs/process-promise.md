@@ -10,8 +10,8 @@ await p
 
 ## `stdin`
 
-Returns a writable stream of the stdin process. Accessing
-this getter will trigger execution of a subprocess with [`stdio('pipe')`](#stdio).
+Returns a writable stream of the stdin process. Accessing this getter will
+trigger execution of a subprocess with [`stdio('pipe')`](#stdio).
 
 Do not forget to end the stream.
 
@@ -36,7 +36,7 @@ for await (const chunk of p.stdout) {
 
 ## `exitCode`
 
-Returns a promise which resolves to the exit code of the process. 
+Returns a promise which resolves to the exit code of the process.
 
 ```js
 if (await $`[[ -d path ]]`.exitCode == 0) {
@@ -48,6 +48,8 @@ if (await $`[[ -d path ]]`.exitCode == 0) {
 
 Redirects the stdout of the process.
 
+<!-- prettier-ignore-start -->
+
 ```js
 await $`echo "Hello, stdout!"`
   .pipe(fs.createWriteStream('/tmp/output.txt'))
@@ -55,12 +57,18 @@ await $`echo "Hello, stdout!"`
 await $`cat /tmp/output.txt`
 ```
 
+<!-- prettier-ignore-end -->
+
 Pipes can be used to show a real-time output of the process:
+
+<!-- prettier-ignore-start -->
 
 ```js
 await $`echo 1; sleep 1; echo 2; sleep 1; echo 3;`
   .pipe(process.stdout)
 ```
+
+<!-- prettier-ignore-end -->
 
 The `pipe()` method can combine `$` processes. Same as `|` in bash:
 
@@ -82,7 +90,7 @@ await $`find ./examples -type f -print0`
 
 ## `kill()`
 
-Kills the process and all children. 
+Kills the process and all children.
 
 By default, signal `SIGTERM` is sent. You can specify a signal via an argument.
 
@@ -94,7 +102,7 @@ await p
 
 ## `stdio()`
 
-Specifies a stdio for the process. 
+Specifies a stdio for the process.
 
 Default is `.stdio('inherit', 'pipe', 'pipe')`.
 

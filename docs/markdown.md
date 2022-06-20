@@ -1,7 +1,7 @@
 # Markdown Scripts
 
 It's possible to write scripts using markdown. Only code blocks will be executed
-by zx. 
+by zx.
 
 > You can run this markdown file:
 >
@@ -37,6 +37,6 @@ Other code blocks are ignored:
 
 ```css
 body .hero {
-    margin: 42px;
+  margin: 42px;
 }
 ```
