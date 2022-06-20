@@ -59,32 +59,26 @@ const hook = createHook({
 })
 hook.enable()
 
-const initStore = (() => {
-  const context: Options = {
-    [processCwd]: process.cwd(),
-    verbose: (global as any).ZX_VERBOSE ?? true,
-    env: process.env,
-    shell: true,
-    prefix: '',
-    quote,
-    spawn,
-    log,
-  }
+const context: Options = {
+  [processCwd]: process.cwd(),
+  verbose: (global as any).ZX_VERBOSE ?? true,
+  env: process.env,
+  shell: true,
+  prefix: '',
+  quote,
+  spawn,
+  log,
+}
 
-  try {
-    context.shell = which.sync('bash')
-    context.prefix = 'set -euo pipefail;'
-  } catch (err) {
-    // ¯\_(ツ)_/¯
-  }
-
-  return function initStore(): Options {
-    return context
-  }
-})()
+try {
+  context.shell = which.sync('bash')
+  context.prefix = 'set -euo pipefail;'
+} catch (err) {
+  // ¯\_(ツ)_/¯
+}
 
 function getStore() {
-  return storage.getStore() || initStore()
+  return storage.getStore() || context
 }
 
 export const $ = new Proxy<Shell & Options>(
