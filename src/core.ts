@@ -59,7 +59,7 @@ const hook = createHook({
 })
 hook.enable()
 
-const context: Options = {
+const defaults: Options = {
   [processCwd]: process.cwd(),
   verbose: (global as any).ZX_VERBOSE ?? true,
   env: process.env,
@@ -71,14 +71,14 @@ const context: Options = {
 }
 
 try {
-  context.shell = which.sync('bash')
-  context.prefix = 'set -euo pipefail;'
+  defaults.shell = which.sync('bash')
+  defaults.prefix = 'set -euo pipefail;'
 } catch (err) {
   // ¯\_(ツ)_/¯
 }
 
 function getStore() {
-  return storage.getStore() || context
+  return storage.getStore() || defaults
 }
 
 export const $ = new Proxy<Shell & Options>(
