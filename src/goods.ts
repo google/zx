@@ -26,7 +26,11 @@ export { default as YAML } from 'yaml'
 export { default as path } from 'node:path'
 export { default as os } from 'node:os'
 
-export const argv = minimist(process.argv.slice(2))
+export let argv = minimist(process.argv.slice(2))
+export function updateArgv(params: { sliceAt: number }) {
+  argv = minimist(process.argv.slice(params.sliceAt))
+  global.argv = argv
+}
 
 export const globby = Object.assign(function globby(
   patterns: string | readonly string[],

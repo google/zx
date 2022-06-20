@@ -20,6 +20,7 @@ import { tmpdir } from 'node:os'
 import { basename, dirname, extname, join, resolve } from 'node:path'
 import url from 'node:url'
 import './globals.js'
+import { updateArgv } from './goods.js'
 import { $, argv, chalk, fetch, ProcessOutput } from './index.js'
 import { startRepl } from './repl.js'
 import { randomId } from './util.js'
@@ -74,6 +75,7 @@ await (async function main() {
     } else {
       filepath = resolve(firstArg)
     }
+    updateArgv({ sliceAt: 3 })
     await importPath(filepath)
   }
   return (process.exitCode = 0)

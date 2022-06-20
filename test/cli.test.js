@@ -169,4 +169,19 @@ test('executes a script from $PATH', async () => {
   }
 })
 
+test('argv works with zx and node', async () => {
+  assert.is(
+    (await $`node build/cli.js test/fixtures/argv.mjs foo`).toString(),
+    `global {"_":["foo"]}\nimported {"_":["foo"]}\n`
+  )
+  assert.is(
+    (await $`node test/fixtures/argv.mjs bar`).toString(),
+    `global {"_":["bar"]}\nimported {"_":["bar"]}\n`
+  )
+  assert.is(
+    (await $`node build/cli.js --eval 'console.log(argv._)' baz`).toString(),
+    `[ 'baz' ]\n`
+  )
+})
+
 test.run()
