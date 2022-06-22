@@ -192,4 +192,9 @@ test('argv works with zx and node', async () => {
   )
 })
 
+test('exit code can be set', async () => {
+  let p = await $`node build/cli.js test/fixtures/exit-code.mjs`.nothrow()
+  assert.is(p.exitCode, 42)
+})
+
 test.run()

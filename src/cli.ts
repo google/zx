@@ -39,21 +39,21 @@ await (async function main() {
   if (process.argv.length == 3) {
     if (['--version', '-v', '-V'].includes(process.argv[2])) {
       console.log(getVersion())
-      return (process.exitCode = 0)
+      return
     }
     if (['--help', '-h'].includes(process.argv[2])) {
       printUsage()
-      return (process.exitCode = 0)
+      return
     }
     if (['--interactive', '-i'].includes(process.argv[2])) {
       startRepl()
-      return (process.exitCode = 0)
+      return
     }
   }
   if (argv.eval || argv.e) {
     const script = (argv.eval || argv.e).toString()
     await runScript(script)
-    return (process.exitCode = 0)
+    return
   }
   let firstArg = process.argv.slice(2).find((a) => !a.startsWith('--'))
   if (typeof firstArg === 'undefined' || firstArg === '-') {
@@ -78,7 +78,7 @@ await (async function main() {
     updateArgv({ sliceAt: 3 })
     await importPath(filepath)
   }
-  return (process.exitCode = 0)
+  return
 })().catch((err) => {
   if (err instanceof ProcessOutput) {
     console.error('Error:', err.message)
