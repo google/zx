@@ -16,7 +16,7 @@ import * as globbyModule from 'globby'
 import minimist from 'minimist'
 import nodeFetch, { RequestInfo, RequestInit } from 'node-fetch'
 import { createInterface } from 'node:readline'
-import { $ } from './core.js'
+import { $, ProcessOutput } from './core.js'
 import { Duration, isString, parseDuration, stringify } from './util.js'
 
 export { default as chalk } from 'chalk'
@@ -53,16 +53,19 @@ export async function fetch(url: RequestInfo, init?: RequestInit) {
 }
 
 // A console.log() alternative which can take ProcessOutput.
-export function echo(pieces: TemplateStringsArray, ...args: any[]) {
+export function echo(
+  pieces: TemplateStringsArray | ProcessOutput | string,
+  ...args: any[]
+) {
   let msg
-  let lastIdx = pieces.length - 1
   if (
     Array.isArray(pieces) &&
     pieces.every(isString) &&
-    lastIdx === args.length
+    pieces.length - 1 === args.length
   ) {
     msg =
-      args.map((a, i) => pieces[i] + stringify(a)).join('') + pieces[lastIdx]
+      args.map((a, i) => pieces[i] + stringify(a)).join('') +
+      pieces[pieces.length - 1]
   } else {
     msg = [pieces, ...args].map(stringify).join(' ')
   }
