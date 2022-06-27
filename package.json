@@ -39,6 +39,7 @@
     "fmt:check": "prettier --check .",
     "build": "tsc",
     "test": "tsc && PATH=$(env -i bash -c 'echo $PATH') node_modules/.bin/uvu test -i fixtures",
+    "test:win32": "tsc && uvu test/win32",
     "coverage": "c8 --check-coverage npm test -- -i package",
     "mutation": "stryker run"
   },
