@@ -71,8 +71,10 @@ export const defaults: Options = {
 }
 
 try {
-  defaults.shell = which.sync('bash')
-  defaults.prefix = 'set -euo pipefail;'
+  if (process.platform !== 'win32') {
+    defaults.shell = which.sync('bash')
+    defaults.prefix = 'set -euo pipefail;'
+  }
 } catch (err) {
   // ¯\_(ツ)_/¯
 }
