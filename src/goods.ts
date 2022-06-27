@@ -29,7 +29,7 @@ export { default as os } from 'node:os'
 export let argv = minimist(process.argv.slice(2))
 export function updateArgv(params: { sliceAt: number }) {
   argv = minimist(process.argv.slice(params.sliceAt))
-  global.argv = argv
+  ;(global as any).argv = argv
 }
 
 export const globby = Object.assign(function globby(
@@ -52,7 +52,7 @@ export async function fetch(url: RequestInfo, init?: RequestInit) {
   return nodeFetch(url, init)
 }
 
-// A console.log() alternative which can take ProcessOutput.
+export function echo(...args: any[]): void
 export function echo(pieces: TemplateStringsArray, ...args: any[]) {
   let msg
   let lastIdx = pieces.length - 1

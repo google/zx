@@ -39,6 +39,7 @@
     "fmt:check": "prettier --check .",
     "build": "tsc",
     "test": "tsc && PATH=$(env -i bash -c 'echo $PATH') node_modules/.bin/uvu test -i fixtures",
+    "tsd": "tsd",
     "coverage": "c8 --check-coverage npm test -- -i package",
     "mutation": "stryker run"
   },
@@ -61,6 +62,7 @@
     "@stryker-mutator/core": "^6.0.2",
     "c8": "^7.11.3",
     "prettier": "^2.7.0",
+    "tsd": "^0.21.0",
     "typescript": "^4.8.0-dev.20220529",
     "uvu": "^0.5.3"
   },
