@@ -32,6 +32,7 @@ jobs:
         with:
           node-version: 16.x
       - run: npm i
+      - run: npm run build
       - run: npx uvu test win32
         timeout-minutes: 1
         env:
