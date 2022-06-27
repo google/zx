@@ -14,17 +14,17 @@
 
 import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
-import '../../build/globals.js'
+import '../build/globals.js'
 
-const test = suite('core')
+const test = suite('win32')
 
 $.verbose = false
 
-test('should work with windows-specific commands', async () => {
-  if (process.platform === 'win32') {
-    let p = await $`ver`
+if (process.platform === 'win32') {
+  test('should work with windows-specific commands', async () => {
+    const p = await $`ver`
     assert.match(p.stdout, /Windows/)
-  }
-})
+  })
+}
 
 test.run()
