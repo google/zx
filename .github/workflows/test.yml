@@ -36,7 +36,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm i
-      - run: npm test
+      - run: npx uvu test -i fixtures
         timeout-minutes: 1
         env:
           FORCE_COLOR: 3
