@@ -53,7 +53,7 @@ export async function fetch(url: RequestInfo, init?: RequestInit) {
 }
 
 // A console.log() alternative which can take ProcessOutput.
-export function echo(pieces: any, ...args: any[]) {
+export function echo(pieces: TemplateStringsArray | any, ...args: any[]) {
   let msg
   let lastIdx = Array.isArray(pieces) ? pieces.length - 1 : 0
   if (
