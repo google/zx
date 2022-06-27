@@ -58,14 +58,14 @@ export function echo(
   ...args: any[]
 ) {
   let msg
+  let lastIdx = Array.isArray(pieces) ? pieces.length - 1 : 0
   if (
     Array.isArray(pieces) &&
     pieces.every(isString) &&
-    pieces.length - 1 === args.length
+    lastIdx === args.length
   ) {
     msg =
-      args.map((a, i) => pieces[i] + stringify(a)).join('') +
-      pieces[pieces.length - 1]
+      args.map((a, i) => pieces[i] + stringify(a)).join('') + pieces[lastIdx]
   } else {
     msg = [pieces, ...args].map(stringify).join(' ')
   }
