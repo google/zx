@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import assert from 'node:assert'
+import chalk from 'chalk'
 import { $, within } from './core.js'
 import { sleep } from './goods.js'
 import { Duration, parseDuration } from './util.js'
