@@ -1,6 +1,6 @@
 {
   "name": "zx",
-  "version": "7.0.3",
+  "version": "7.0.4",
   "description": "A tool for writing better scripts.",
   "type": "module",
   "main": "./build/index.js",
