@@ -17,8 +17,8 @@ import * as _ from './index.js'
 Object.assign(global, _)
 
 declare global {
-  var ProcessPromise: typeof _.ProcessPromise
-  var ProcessOutput: typeof _.ProcessOutput
+  type ProcessPromise = _.ProcessPromise
+  type ProcessOutput = _.ProcessOutput
   var log: typeof _.log
   var $: typeof _.$
   var argv: typeof _.argv
