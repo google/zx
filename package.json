@@ -5,27 +5,31 @@
   "type": "module",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
+  "typesVersions": {
+    "*": {
+      ".": [
+        "./build/index.d.ts"
+      ],
+      "globals": [
+        "./build/globals.d.ts"
+      ],
+      "experimental": [
+        "./build/experimental.d.ts"
+      ],
+      "cli": [
+        "./build/cli.d.ts"
+      ],
+      "core": [
+        "./build/core.d.ts"
+      ]
+    }
+  },
   "exports": {
-    ".": {
-      "types": "./build/index.d.ts",
-      "import": "./build/index.js"
-    },
-    "./globals": {
-      "types": "./build/globals.d.ts",
-      "import": "./build/globals.js"
-    },
-    "./experimental": {
-      "types": "./build/experimental.d.ts",
-      "import": "./build/experimental.js"
-    },
-    "./cli": {
-      "types": "./build/cli.d.ts",
-      "import": "./build/cli.js"
-    },
-    "./core": {
-      "types": "./build/core.d.ts",
-      "import": "./build/core.js"
-    },
+    ".": "./build/index.js",
+    "./globals": "./build/globals.js",
+    "./experimental": "./build/experimental.js",
+    "./cli": "./build/cli.js",
+    "./core": "./build/core.js",
     "./package.json": "./package.json"
   },
   "bin": {
