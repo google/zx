@@ -32,7 +32,11 @@ test('ts project', async () => {
     await $`npm i`
     await $`rm -rf node_modules/zx`
     await $`mv ${pack} node_modules/zx`
-    await $`npx tsc`
+    try {
+      await $`npx tsc`
+    } catch (err) {
+      throw new Error(err.stdout)
+    }
     return $`node build/script.js`
   })
   assert.match(out.stderr, 'ts-script')
