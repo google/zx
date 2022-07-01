@@ -370,7 +370,10 @@ export class ProcessOutput extends Error {
   }
 }
 
-export function within<R, O extends Partial<Options>>(callback: (store: Options) => R, opts?: O): R {
+export function within<R, O extends Partial<Options>>(
+  callback: (store: Options) => R,
+  opts?: O
+): R {
   const store = { ...getStore(), ...opts }
   return storage.run(store, callback, store)
 }
