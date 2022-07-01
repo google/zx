@@ -22,6 +22,8 @@ export {
   ProcessOutput,
   within,
   cd,
+  log,
+  LogEntry,
 } from './core.js'
 
 export {
@@ -40,8 +42,6 @@ export {
   which,
   YAML,
 } from './goods.js'
-
-export { log, LogEntry } from './log.js'
 
 export { Duration } from './util.js'
 
