@@ -16,6 +16,7 @@ import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
 import {
   exitCodeInfo,
+  errnoMessage,
   formatCmd,
   isString,
   noop,
@@ -27,7 +28,13 @@ import {
 const test = suite('util')
 
 test('exitCodeInfo()', () => {
-  assert.ok(exitCodeInfo(2) === 'Misuse of shell builtins')
+  assert.is(exitCodeInfo(2), 'Misuse of shell builtins')
+})
+
+test('errnoMessage()', () => {
+  assert.is(errnoMessage(-2), 'No such file or directory')
+  assert.is(errnoMessage(1e9), 'Unknown error')
+  assert.is(errnoMessage(undefined), 'Unknown error')
 })
 
 test('randomId()', () => {

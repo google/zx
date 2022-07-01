@@ -22,6 +22,7 @@ import { chalk, which } from './goods.js'
 import { log } from './log.js'
 import {
   Duration,
+  errnoMessage,
   exitCodeInfo,
   noop,
   parseDuration,
@@ -191,6 +192,17 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       } else {
         this._reject(output)
       }
+      this._resolved = true
+    })
+    this.child.on('error', (err: NodeJS.ErrnoException) => {
+      const message =
+        `${err.message}\n` +
+        `    errno: ${err.errno} (${errnoMessage(err.errno)})\n` +
+        `    code: ${err.code}\n` +
+        `    at ${this._from}`
+      this._reject(
+        new ProcessOutput(null, null, stdout, stderr, combined, message)
+      )
       this._resolved = true
     })
     let stdout = '',

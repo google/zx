@@ -18,7 +18,7 @@ import * as assert from 'uvu/assert'
 import { inspect } from 'node:util'
 import { Writable } from 'node:stream'
 import { Socket } from 'node:net'
-import { ProcessPromise } from '../build/index.js'
+import { ProcessPromise, ProcessOutput } from '../build/index.js'
 import '../build/globals.js'
 
 const test = suite('core')
@@ -164,49 +164,6 @@ test('ProcessPromise: inherits native Promise', async () => {
   assert.ok(p2 !== p3)
   assert.ok(p3 !== p4)
   assert.ok(p5 !== p1)
-})
-
-test('ProcessOutput thrown as error', async () => {
-  let err
-  try {
-    await $`wtf`
-  } catch (p) {
-    err = p
-  }
-  assert.ok(err.exitCode > 0)
-  assert.ok(err.stderr.includes('/bin/bash: wtf: command not found\n'))
-  assert.ok(err[inspect.custom]().includes('Command not found'))
-})
-
-test('pipe() throws if already resolved', async (t) => {
-  let ok = true
-  let p = $`echo "Hello"`
-  await p
-  try {
-    await p.pipe($`less`)
-    ok = false
-  } catch (err) {
-    assert.is(
-      err.message,
-      `The pipe() method shouldn't be called after promise is already resolved!`
-    )
-  }
-  assert.ok(ok, 'Expected failure!')
-})
-
-test('await $`cmd`.exitCode does not throw', async () => {
-  assert.is.not(await $`grep qwerty README.md`.exitCode, 0)
-  assert.is(await $`[[ -f README.md ]]`.exitCode, 0)
-})
-
-test('nothrow() do not throw', async () => {
-  let { exitCode } = await $`exit 42`.nothrow()
-  assert.is(exitCode, 42)
-  {
-    // Deprecated.
-    let { exitCode } = await nothrow($`exit 42`)
-    assert.is(exitCode, 42)
-  }
 })
 
 test('cd() works with relative paths', async () => {
@@ -406,6 +363,62 @@ test('timeout() expiration works', async () => {
   }
   assert.is(exitCode, undefined)
   assert.is(signal, undefined)
+})
+
+test('$ thrown as error', async () => {
+  let err
+  try {
+    await $`wtf`
+  } catch (p) {
+    err = p
+  }
+  assert.ok(err.exitCode > 0)
+  assert.ok(err.stderr.includes('/bin/bash: wtf: command not found\n'))
+  assert.ok(err[inspect.custom]().includes('Command not found'))
+})
+
+test('error event is handled', async () => {
+  await within(async () => {
+    $.cwd = 'wtf'
+    try {
+      await $`pwd`
+      assert.unreachable('should have thrown')
+    } catch (err) {
+      assert.instance(err, ProcessOutput)
+      assert.match(err.message, /No such file or directory/)
+    }
+  })
+})
+
+test('pipe() throws if already resolved', async (t) => {
+  let ok = true
+  let p = $`echo "Hello"`
+  await p
+  try {
+    await p.pipe($`less`)
+    ok = false
+  } catch (err) {
+    assert.is(
+      err.message,
+      `The pipe() method shouldn't be called after promise is already resolved!`
+    )
+  }
+  assert.ok(ok, 'Expected failure!')
+})
+
+test('await $`cmd`.exitCode does not throw', async () => {
+  assert.is.not(await $`grep qwerty README.md`.exitCode, 0)
+  assert.is(await $`[[ -f README.md ]]`.exitCode, 0)
+})
+
+test('nothrow() do not throw', async () => {
+  let { exitCode } = await $`exit 42`.nothrow()
+  assert.is(exitCode, 42)
+  {
+    // Deprecated.
+    let { exitCode } = await nothrow($`exit 42`)
+    assert.is(exitCode, 42)
+  }
 })
 
 test('malformed cmd error', async () => {
