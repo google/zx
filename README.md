@@ -228,6 +228,18 @@ let version = await within(async () => {
 })
 ```
 
+You may also pass zx options preset to configure the bound context.
+
+```js
+await within(async () => {
+  await $`yarn build`
+  await $`yarn test`
+
+  // $.verbose === true
+  // $.cwd === 'packages/foo'
+}, {verbose: true, cwd: 'packages/foo'})
+```
+
 ## Packages
 
 The following packages are available without importing inside scripts.

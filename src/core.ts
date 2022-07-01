@@ -37,7 +37,7 @@ export type Shell = (
 
 const processCwd = Symbol('processCwd')
 
-export type Options = {
+export interface Options {
   [processCwd]: string
   cwd?: string
   verbose: boolean
@@ -370,8 +370,9 @@ export class ProcessOutput extends Error {
   }
 }
 
-export function within<R>(callback: () => R): R {
-  return storage.run({ ...getStore() }, callback)
+export function within<R, O extends Partial<Options>>(callback: (store: Options) => R, opts?: O): R {
+  const store = { ...getStore(), ...opts }
+  return storage.run(store, callback, store)
 }
 
 function syncCwd() {

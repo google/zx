@@ -322,6 +322,32 @@ test('within() works', async () => {
   await promise
 })
 
+test('within() `callback` injects `store` extra and gets a `store` ref as the first argument', async () => {
+  let resolve, reject
+  let promise = new Promise((...args) => ([resolve, reject] = args))
+
+  function yes() {
+    assert.equal($.verbose, true)
+    resolve()
+  }
+
+  $.verbose = false
+  assert.equal($.verbose, false)
+
+  within((store) => {
+    assert.equal(store.verbose, true)
+    assert.equal($.verbose, true)
+    assert.equal($.cwd, '/tmp')
+
+    setTimeout(yes, 10)
+  }, {verbose: true, cwd: '/tmp'})
+
+  assert.equal($.verbose, false)
+  assert.equal($.cwd, undefined)
+
+  await promise
+})
+
 test('within() restores previous cwd', async () => {
   let resolve, reject
   let promise = new Promise((...args) => ([resolve, reject] = args))
