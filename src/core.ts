@@ -29,7 +29,6 @@ import {
   parseDuration,
   psTree,
   quote,
-  substitute,
 } from './util.js'
 
 export type Shell = (
@@ -118,6 +117,13 @@ export const $ = new Proxy<Shell & Options>(
     },
   }
 )
+
+function substitute(arg: ProcessPromise | any) {
+  if (arg?.stdout) {
+    return arg.stdout.replace(/\n$/, '')
+  }
+  return `${arg}`
+}
 
 type Resolve = (out: ProcessOutput) => void
 type IO = StdioPipe | StdioNull

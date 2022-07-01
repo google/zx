@@ -16,8 +16,8 @@ import * as globbyModule from 'globby'
 import minimist from 'minimist'
 import nodeFetch, { RequestInfo, RequestInit } from 'node-fetch'
 import { createInterface } from 'node:readline'
-import { $ } from './core.js'
-import { Duration, isString, parseDuration, stringify } from './util.js'
+import { $, ProcessOutput } from './core.js'
+import { Duration, isString, parseDuration } from './util.js'
 
 export { default as chalk } from 'chalk'
 export { default as fs } from 'fs-extra'
@@ -67,6 +67,13 @@ export function echo(pieces: TemplateStringsArray, ...args: any[]) {
     msg = [pieces, ...args].map(stringify).join(' ')
   }
   console.log(msg)
+}
+
+function stringify(arg: ProcessOutput | any) {
+  if (arg instanceof ProcessOutput) {
+    return arg.toString().replace(/\n$/, '')
+  }
+  return `${arg}`
 }
 
 export async function question(

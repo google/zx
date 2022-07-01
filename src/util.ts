@@ -15,7 +15,6 @@
 import chalk from 'chalk'
 import { promisify } from 'node:util'
 import psTreeModule from 'ps-tree'
-import { ProcessOutput, ProcessPromise } from './core.js'
 
 export const psTree = promisify(psTreeModule)
 
@@ -46,20 +45,6 @@ export function quote(arg: string) {
       .replace(/\0/g, '\\0') +
     `'`
   )
-}
-
-export function substitute(arg: ProcessPromise | any) {
-  if (arg?.stdout) {
-    return arg.stdout.replace(/\n$/, '')
-  }
-  return `${arg}`
-}
-
-export function stringify(arg: ProcessOutput | any) {
-  if (arg instanceof ProcessOutput) {
-    return arg.toString().replace(/\n$/, '')
-  }
-  return `${arg}`
 }
 
 export function exitCodeInfo(exitCode: number | null): string | undefined {
