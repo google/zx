@@ -19,6 +19,8 @@ Object.assign(global, _)
 declare global {
   type ProcessPromise = _.ProcessPromise
   type ProcessOutput = _.ProcessOutput
+  var ProcessPromise: typeof _.ProcessPromise
+  var ProcessOutput: typeof _.ProcessOutput
   var log: typeof _.log
   var $: typeof _.$
   var argv: typeof _.argv
