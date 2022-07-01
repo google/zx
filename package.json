@@ -46,7 +46,8 @@
     "test": "npm run build && PATH=$(env -i bash -c 'echo $PATH') node_modules/.bin/uvu test -i fixtures",
     "test:types": "tsd",
     "coverage": "c8 --check-coverage npm test -- -i package",
-    "mutation": "stryker run"
+    "mutation": "stryker run",
+    "circular": "madge --circular src/*"
   },
   "dependencies": {
     "@types/fs-extra": "^9.0.13",
@@ -66,6 +67,7 @@
   "devDependencies": {
     "@stryker-mutator/core": "^6.0.2",
     "c8": "^7.11.3",
+    "madge": "^5.0.1",
     "prettier": "^2.7.0",
     "tsd": "^0.21.0",
     "typescript": "^4.8.0-dev.20220529",

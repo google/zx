@@ -12,18 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { ChalkInstance } from 'chalk'
 import assert from 'node:assert'
-import { AsyncLocalStorage, createHook } from 'node:async_hooks'
 import { ChildProcess, spawn, StdioNull, StdioPipe } from 'node:child_process'
+import { AsyncLocalStorage, createHook } from 'node:async_hooks'
 import { Readable, Writable } from 'node:stream'
 import { inspect } from 'node:util'
-import { chalk, which } from './goods.js'
-import { log } from './log.js'
+import { RequestInfo, RequestInit } from 'node-fetch'
+import chalk, { ChalkInstance } from 'chalk'
+import * as which from 'which'
 import {
   Duration,
   errnoMessage,
   exitCodeInfo,
+  formatCmd,
   noop,
   parseDuration,
   psTree,
@@ -394,4 +395,61 @@ export function cd(dir: string) {
   $.log({ kind: 'cd', dir })
   process.chdir(dir)
   $[processCwd] = process.cwd()
+}
+
+export type LogEntry =
+  | {
+  kind: 'cmd'
+  verbose: boolean
+  cmd: string
+}
+  | {
+  kind: 'stdout' | 'stderr'
+  verbose: boolean
+  data: Buffer
+}
+  | {
+  kind: 'cd'
+  dir: string
+}
+  | {
+  kind: 'fetch'
+  url: RequestInfo
+  init?: RequestInit
+}
+  | {
+  kind: 'retry'
+  error: string
+}
+  | {
+  kind: 'custom'
+  data: any
+}
+
+export function log(entry: LogEntry) {
+  switch (entry.kind) {
+    case 'cmd':
+      if (!entry.verbose) return
+      process.stderr.write(formatCmd(entry.cmd))
+      break
+    case 'stdout':
+    case 'stderr':
+      if (!entry.verbose) return
+      process.stderr.write(entry.data)
+      break
+    case 'cd':
+      if (!$.verbose) return
+      process.stderr.write('$ ' + chalk.greenBright('cd') + ` ${entry.dir}\n`)
+      break
+    case 'fetch':
+      if (!$.verbose) return
+      const init = entry.init ? ' ' + inspect(entry.init) : ''
+      process.stderr.write(
+        '$ ' + chalk.greenBright('fetch') + ` ${entry.url}${init}\n`
+      )
+      break
+    case 'retry':
+      if (!$.verbose) return
+      process.stderr.write(entry.error + '\n')
+  }
 }
