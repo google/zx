@@ -19,7 +19,7 @@ import { Readable, Writable } from 'node:stream'
 import { inspect } from 'node:util'
 import { RequestInfo, RequestInit } from 'node-fetch'
 import chalk, { ChalkInstance } from 'chalk'
-import * as which from 'which'
+import which from 'which'
 import {
   Duration,
   errnoMessage,
