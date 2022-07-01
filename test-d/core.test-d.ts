@@ -29,8 +29,8 @@ expectType<ProcessPromise>(p.pipe($`cmd`))
 expectType<ProcessPromise>(p.stdio('pipe'))
 expectType<ProcessPromise>(p.timeout('1s'))
 expectType<Promise<void>>(p.kill())
-expectType<Promise<ProcessOutput>>(p.then(p => p))
-expectType<Promise<any>>(p.catch(p => p))
+expectType<Promise<ProcessOutput>>(p.then((p) => p))
+expectType<Promise<any>>(p.catch((p) => p))
 
 let o = await p
 assert(o instanceof ProcessOutput)
@@ -41,4 +41,3 @@ expectType<number | null>(o.exitCode)
 expectType<NodeJS.Signals | null>(o.signal)
 
 expectType<'banana'>(within(() => 'apple' as 'banana'))
-

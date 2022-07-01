@@ -399,32 +399,32 @@ export function cd(dir: string) {
 
 export type LogEntry =
   | {
-  kind: 'cmd'
-  verbose: boolean
-  cmd: string
-}
+      kind: 'cmd'
+      verbose: boolean
+      cmd: string
+    }
   | {
-  kind: 'stdout' | 'stderr'
-  verbose: boolean
-  data: Buffer
-}
+      kind: 'stdout' | 'stderr'
+      verbose: boolean
+      data: Buffer
+    }
   | {
-  kind: 'cd'
-  dir: string
-}
+      kind: 'cd'
+      dir: string
+    }
   | {
-  kind: 'fetch'
-  url: RequestInfo
-  init?: RequestInit
-}
+      kind: 'fetch'
+      url: RequestInfo
+      init?: RequestInit
+    }
   | {
-  kind: 'retry'
-  error: string
-}
+      kind: 'retry'
+      error: string
+    }
   | {
-  kind: 'custom'
-  data: any
-}
+      kind: 'custom'
+      data: any
+    }
 
 export function log(entry: LogEntry) {
   switch (entry.kind) {
