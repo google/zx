@@ -425,4 +425,12 @@ test('malformed cmd error', async () => {
   assert.throws(() => $`\033`, /malformed/i)
 })
 
+test('$ is a regular function', async () => {
+  const _$ = $.bind(null)
+  let foo = await _$`echo foo`
+  assert.is(foo.stdout, 'foo\n')
+  assert.ok(typeof $.call === 'function')
+  assert.ok(typeof $.apply === 'function')
+})
+
 test.run()

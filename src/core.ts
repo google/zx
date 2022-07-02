@@ -109,11 +109,13 @@ export const $ = new Proxy<Shell & Options>(
   } as Shell & Options,
   {
     set(_, key, value) {
-      Reflect.set(getStore(), key, value)
+      const target = key in Function.prototype ? _ : getStore()
+      Reflect.set(target, key, value)
       return true
     },
     get(_, key) {
-      return Reflect.get(getStore(), key)
+      const target = key in Function.prototype ? _ : getStore()
+      return Reflect.get(target, key)
     },
   }
 )
