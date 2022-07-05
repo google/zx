@@ -27,7 +27,9 @@ import { randomId } from './util.js'
 await (async function main() {
   const globals = './globals.js'
   await import(globals)
-  $.verbose = !argv.quiet
+  if (argv.quiet) {
+    $.verbose = false
+  }
   if (typeof argv.shell === 'string') {
     $.shell = argv.shell
   }
