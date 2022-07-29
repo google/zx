@@ -4,5 +4,4 @@ coverage/
 package/
 reports/
 .stryker-tmp/
-package-lock.json
 yarn.lock
