@@ -7,4 +7,3 @@ reports/
 package-lock.json
 yarn.lock
 *.md
-npm-shrinkwrap.json
