@@ -170,7 +170,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       cmd: this._command,
       verbose: $.verbose && !this._quiet,
     })
-    this.child = spawn($.prefix + this._command, {
+    this.child = $.spawn($.prefix + this._command, {
       cwd: $.cwd ?? $[processCwd],
       shell: typeof $.shell === 'string' ? $.shell : true,
       stdio: this._stdio,
