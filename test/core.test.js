@@ -433,4 +433,28 @@ test('$ is a regular function', async () => {
   assert.ok(typeof $.apply === 'function')
 })
 
+test('halt() works', async () => {
+  let filepath = `/tmp/${Math.random().toString()}`
+  let p = $`touch ${filepath}`.halt()
+  await sleep(1)
+  assert.not.ok(
+    fs.existsSync(filepath),
+    'The cmd called, but it should not have been called'
+  )
+  await p.run()
+  assert.ok(fs.existsSync(filepath), 'The cmd should have been called')
+})
+
+test('await on halted throws', async () => {
+  let p = $`sleep 1`.halt()
+  let ok = true
+  try {
+    await p
+    ok = false
+  } catch (err) {
+    assert.is(err.message, 'The process is halted!')
+  }
+  assert.ok(ok, 'Expected failure!')
+})
+
 test.run()

@@ -30,7 +30,8 @@ expectType<ProcessPromise>(p.stdio('pipe'))
 expectType<ProcessPromise>(p.timeout('1s'))
 expectType<Promise<void>>(p.kill())
 expectType<Promise<ProcessOutput>>(p.then((p) => p))
-expectType<Promise<any>>(p.catch((p) => p))
+expectType<Promise<ProcessOutput>>(p.catch((p) => p))
+expectType<Promise<any>>(p.then((p) => p).catch((p) => p))
 
 let o = await p
 assert(o instanceof ProcessOutput)
