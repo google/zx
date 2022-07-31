@@ -100,6 +100,7 @@ export async function spinner<T>(
       result = await callback!()
     } finally {
       clearInterval(id)
+      process.stderr.write(' '.repeat(process.stdout.columns - 1) + '\r')
     }
     return result
   })
