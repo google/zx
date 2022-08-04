@@ -36,7 +36,7 @@ npm i -g zx
 ## Goods
 
 [$](#command-) · [cd()](#cd) · [fetch()](#fetch) · [question()](#question) · [sleep()](#sleep) · [echo()](#echo) · [stdin()](#stdin) · [within()](#within) ·
-[chalk](#chalk-package) · [fs](#fs-package) · [open](#open-package) · [os](#os-package) · [path](#path-package) · [glob](#globby-package) · [yaml](#yaml-package) · [minimist](#minimist-package) · [which](#which-package) ·
+[chalk](#chalk-package) · [fs](#fs-package) · [opn](#open-package) · [os](#os-package) · [path](#path-package) · [glob](#globby-package) · [yaml](#yaml-package) · [minimist](#minimist-package) · [which](#which-package) ·
 [__filename](#__filename--__dirname) · [__dirname](#__filename--__dirname) · [require()](#require)
 
 ## Documentation
@@ -250,10 +250,11 @@ let {version} = await fs.readJson('./package.json')
 
 ### `open` package
 
-The [open](https://www.npmjs.com/package/open) package.
+The [open](https://www.npmjs.com/package/open) package. 
+Since the `open` global is already defined, we use `opn` instead.
 
 ```js
-await open('https://github.com/google/zx');
+await opn('https://github.com/google/zx');
 ```
 
 ### `os` package

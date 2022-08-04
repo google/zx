@@ -31,6 +31,7 @@ declare global {
   var glob: typeof _.glob
   var globby: typeof _.globby
   var nothrow: typeof _.nothrow
+  var opn: typeof _.open
   var os: typeof _.os
   var path: typeof _.path
   var question: typeof _.question
