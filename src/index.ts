@@ -34,6 +34,7 @@ export {
   fs,
   glob,
   globby,
+  open,
   os,
   path,
   question,

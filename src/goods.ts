@@ -21,6 +21,7 @@ import { Duration, isString, parseDuration } from './util.js'
 
 export { default as chalk } from 'chalk'
 export { default as fs } from 'fs-extra'
+export { default as open } from 'open'
 export { default as which } from 'which'
 export { default as YAML } from 'yaml'
 export { default as path } from 'node:path'
