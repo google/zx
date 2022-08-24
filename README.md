@@ -228,6 +228,25 @@ let version = await within(async () => {
 })
 ```
 
+### `deps()`
+
+Fetches the required deps from the registry.
+
+```js
+await deps({lodash: '4.17.21'})
+
+const lodash = require('lodash')
+lodash.VERSION // 4.17.21
+
+const { cpy: {default: cpy}, lodash } = await deps({ cpy: '9.0.1', lodash: '4.17.21' }, {registry: 'https://registry.yarnpkg.com/', userconfig: '/path/to/.npmrc'})
+await cpy([
+  'source/*.png',
+  '!source/cat.png',
+], 'dst')
+
+lodash.size({ 'a': 1, 'b': 2 }) // 2
+```
+
 ## Packages
 
 The following packages are available without importing inside scripts.

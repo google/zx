@@ -29,7 +29,7 @@ export function isString(obj: any) {
 }
 
 export function quote(arg: string) {
-  if (/^[a-z0-9/_.-]+$/i.test(arg) || arg === '') {
+  if (/^[a-z0-9/_.-@:-]+$/i.test(arg) || arg === '') {
     return arg
   }
   return (
@@ -350,3 +350,15 @@ const reservedWords = [
   'done',
   'in',
 ]
+
+type IFunction<A extends any[] = any[], R = any> = (...args: A) => R
+
+export function safe<T extends IFunction>(fn: T, fallback?: any): T {
+  return function(...args) {
+    try {
+        return fn(...args)
+    } catch (e) {
+        return fallback ?? e
+    }
+  } as T
+}

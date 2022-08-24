@@ -45,6 +45,8 @@ export {
 
 export { Duration } from './util.js'
 
+export { deps } from './deps.js'
+
 /**
  *  @deprecated Use $.nothrow() instead.
  */
