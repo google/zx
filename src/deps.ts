@@ -28,13 +28,17 @@ export async function deps(
   dependencies: Record<string, any> = {},
   options: DepOptions = {}
 ) {
+  const pkgs = Object.entries(dependencies)
+    .map(([name, version]) => `${name}@${version}`)
+    .filter(Boolean)
+
   const flags = Object.entries(options).map(
     ([name, value]) => `--${name}=${value}`
   )
 
-  const pkgs = Object.entries(dependencies)
-    .map(([name, version]) => `${name}@${version}`)
-    .filter(Boolean)
+  if (pkgs.length === 0) {
+    return {}
+  }
 
   const args = [
     'npm',
@@ -47,9 +51,7 @@ export async function deps(
   ]
   const pieces = new Array(args.length + 1).fill(' ')
 
-  if (pkgs.length) {
-    const res = await $(pieces as any as TemplateStringsArray, ...args)
-  }
+  await $(pieces as any as TemplateStringsArray, ...args)
 
   return (
     await Promise.all(
