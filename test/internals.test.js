@@ -39,8 +39,8 @@ test('importDeps() loader works via JS API', async () => {
 
 test('importDeps() loader works via CLI', async () => {
   let out =
-    await $`node build/cli.js <<< 'import lodash from "lodash"; console.log(lodash.VERSION)'`
-  assert.match(out.stdout, '4.17.21')
+    await $`node build/cli.js <<< 'import lodash from "lodash" /* 4.17.15 */; console.log(lodash.VERSION)'`
+  assert.match(out.stdout, '4.17.15')
 })
 
 test('parseDeps() extracts deps map', () => {
@@ -48,6 +48,8 @@ test('parseDeps() extracts deps map', () => {
   import fs from 'fs'
   import path from 'path'
   import foo from "foo"
+  import bar from "bar" /* 1.0.0 */
+  import baz from "baz" //    ^2.0
 
   const cpy = await import('cpy')
   const { pick } = require('lodash')
@@ -55,6 +57,8 @@ test('parseDeps() extracts deps map', () => {
 
   assert.equal(parseDeps(contents), {
     foo: 'latest',
+    bar: '1.0.0',
+    baz: '^2.0',
     cpy: 'latest',
     lodash: 'latest',
   })

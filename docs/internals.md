@@ -38,10 +38,20 @@ const contents = `
 import fs from 'fs'
 import path from 'path'
 import foo from "foo"
+import bar from "bar" /* 1.0.0 */
+import baz from "baz" //    ^2.0
 
 const cpy = await import('cpy')
 const { pick } = require('lodash')
 `
 
-parseDeps(contents) //  { foo: 'latest', cpy: 'latest', lodash: 'latest' }
+parseDeps(contents)
+// →
+{
+  foo: 'latest',
+  bar: '1.0.0',
+  baz: '^2.0',
+  cpy: 'latest',
+  lodash: 'latest'
+}
 ```
