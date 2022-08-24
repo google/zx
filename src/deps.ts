@@ -24,34 +24,42 @@ interface DepOptions {
 
 export const resolve = createRequire(import.meta.url).resolve
 
-const safeResolve = safe(resolve, false)
-
 export async function deps(
   dependencies: Record<string, any> = {},
   options: DepOptions = {}
 ) {
-  const flags = Object.entries(options)
-    .map(([name, value]) => `--${name}=${value}`)
+  const flags = Object.entries(options).map(
+    ([name, value]) => `--${name}=${value}`
+  )
 
   const pkgs = Object.entries(dependencies)
     .map(([name, version]) => `${name}@${version}`)
     .filter(Boolean)
 
-  const args = ['npm', 'install', '--no-save', '--no-audit', '--no-fund', ...flags, ...pkgs]
+  const args = [
+    'npm',
+    'install',
+    '--no-save',
+    '--no-audit',
+    '--no-fund',
+    ...flags,
+    ...pkgs,
+  ]
   const pieces = new Array(args.length + 1).fill(' ')
 
-  await $(pieces as any as TemplateStringsArray, ...args)
+  if (pkgs.length) {
+    const res = await $(pieces as any as TemplateStringsArray, ...args)
+  }
 
-  return (await Promise.all(Object.entries(dependencies).map(async ([name]) => ({
-    module: await import(resolve(name)),
-    name
-  })))).reduce<Record<string, any>>((acc, { name, module }) => {
+  return (
+    await Promise.all(
+      Object.entries(dependencies).map(async ([name]) => ({
+        module: await import(resolve(name)),
+        name,
+      }))
+    )
+  ).reduce<Record<string, any>>((acc, { name, module }) => {
     acc[name] = module
     return acc
   }, {})
 }
-
-deps.require = async <T = any>(name: string, version: string = '*',options: DepOptions = {}): Promise<T> => {
-  return (await deps({ [name]: version }, options))[name] as T
-}
-deps.resolve = safeResolve

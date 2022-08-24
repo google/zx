@@ -25,7 +25,16 @@ test('deps() loader works', async () => {
     await $`node build/cli.js <<< 'await deps({ lodash: "4.17.21" }, { registry: "https://registry.yarnpkg.com/" }); console.log(require("lodash").VERSION)'`
   assert.match(out.stdout, '4.17.21')
 
-  const { 'lodash-es': lodash, cpy: {default: cpy} } = await deps({ 'lodash-es': '4.17.21', cpy: '9.0.1' }, {registry: 'https://registry.yarnpkg.com/'})
+  const {
+    'lodash-es': lodash,
+    cpy: { default: cpy },
+  } = await deps(
+    {
+      cpy: '9.0.1',
+      'lodash-es': '4.17.21',
+    },
+    { registry: 'https://registry.yarnpkg.com/' }
+  )
 
   assert.instance(cpy, Function)
   assert.instance(lodash.pick, Function)
