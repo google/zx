@@ -21,6 +21,9 @@
       ],
       "core": [
         "./build/core.d.ts"
+      ],
+      "internals": [
+        "./build/internals.d.ts"
       ]
     }
   },
@@ -30,6 +33,7 @@
     "./experimental": "./build/experimental.js",
     "./cli": "./build/cli.js",
     "./core": "./build/core.js",
+    "./internals": "./build/internals.js",
     "./package.json": "./package.json"
   },
   "bin": {

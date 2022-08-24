@@ -14,7 +14,6 @@
 
 import { createRequire } from 'node:module'
 import { $ } from './core.js'
-import { safe } from './util.js'
 
 interface DepOptions {
   userconfig?: string
@@ -24,7 +23,7 @@ interface DepOptions {
 
 export const resolve = createRequire(import.meta.url).resolve
 
-export async function deps(
+export async function importDeps(
   dependencies: Record<string, any> = {},
   options: DepOptions = {}
 ) {
@@ -40,18 +39,7 @@ export async function deps(
     return {}
   }
 
-  const args = [
-    'npm',
-    'install',
-    '--no-save',
-    '--no-audit',
-    '--no-fund',
-    ...flags,
-    ...pkgs,
-  ]
-  const pieces = new Array(args.length + 1).fill(' ')
-
-  await $(pieces as any as TemplateStringsArray, ...args)
+  await $`npm install --no-save --no-audit --no-fund ${flags} ${pkgs}`
 
   return (
     await Promise.all(
@@ -62,6 +50,27 @@ export async function deps(
     )
   ).reduce<Record<string, any>>((acc, { name, module }) => {
     acc[name] = module
+    return acc
+  }, {})
+}
+
+export function parseDeps(content: string): Record<string, any> {
+  const re =
+    /(?:\sfrom\s+|[\s(:\[](?:import|require)\s*\()["']((?:@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*)[/a-z0-9-._~]*["']/g
+  const builtinsRe =
+    /^(_http_agent|_http_client|_http_common|_http_incoming|_http_outgoing|_http_server|_stream_duplex|_stream_passthrough|_stream_readable|_stream_transform|_stream_wrap|_stream_writable|_tls_common|_tls_wrap|assert|async_hooks|buffer|child_process|cluster|console|constants|crypto|dgram|diagnostics_channel|dns|domain|events|fs|http|http2|https|inspector|module|net|os|path|perf_hooks|process|punycode|querystring|readline|repl|stream|string_decoder|sys|timers|tls|trace_events|tty|url|util|v8|vm|wasi|worker_threads|zlib)$/
+  const deps = []
+  let m
+
+  do {
+    m = re.exec(content)
+    if (m && !builtinsRe.test(m[1])) {
+      deps.push(m[1])
+    }
+  } while (m)
+
+  return deps.reduce<Record<string, any>>((acc, name) => {
+    acc[name] = 'latest'
     return acc
   }, {})
 }

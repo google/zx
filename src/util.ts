@@ -350,17 +350,3 @@ const reservedWords = [
   'done',
   'in',
 ]
-
-type IFunction<A extends any[] = any[], R = any> = (...args: A) => R
-
-export function safe<T extends IFunction>(fn: T, fallback?: any): T {
-  return function (...args) {
-    try {
-      const res = fn(...args)
-      console.log('!!!!!!! resolve', res)
-      return res
-    } catch (e) {
-      return fallback ?? e
-    }
-  } as T
-}

@@ -14,21 +14,18 @@
 
 import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
-import { deps, $ } from '../build/index.js'
+import { $ } from '../build/index.js'
+import { importDeps, parseDeps } from '../build/internals.js'
 
-const test = suite('deps')
+const test = suite('internals')
 
 $.verbose = false
 
-test('deps() loader works', async () => {
-  let out =
-    await $`node build/cli.js <<< 'await deps({ lodash: "4.17.21" }, { registry: "https://registry.yarnpkg.com/" }); console.log(require("lodash").VERSION)'`
-  assert.match(out.stdout, '4.17.21')
-
+test('importDeps() loader works via JS API', async () => {
   const {
     'lodash-es': lodash,
     cpy: { default: cpy },
-  } = await deps(
+  } = await importDeps(
     {
       cpy: '9.0.1',
       'lodash-es': '4.17.21',
@@ -38,6 +35,29 @@ test('deps() loader works', async () => {
 
   assert.instance(cpy, Function)
   assert.instance(lodash.pick, Function)
+})
+
+test('importDeps() loader works via CLI', async () => {
+  let out =
+    await $`node build/cli.js <<< 'import lodash from "lodash"; console.log(lodash.VERSION)'`
+  assert.match(out.stdout, '4.17.21')
+})
+
+test('parseDeps() extracts deps map', () => {
+  const contents = `
+  import fs from 'fs'
+  import path from 'path'
+  import foo from "foo"
+
+  const cpy = await import('cpy')
+  const { pick } = require('lodash')
+  `
+
+  assert.equal(parseDeps(contents), {
+    foo: 'latest',
+    cpy: 'latest',
+    lodash: 'latest',
+  })
 })
 
 test.run()

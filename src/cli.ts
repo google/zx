@@ -23,6 +23,7 @@ import { updateArgv } from './goods.js'
 import { $, argv, chalk, fetch, ProcessOutput } from './index.js'
 import { startRepl } from './repl.js'
 import { randomId } from './util.js'
+import { importDeps, parseDeps } from './internals.js'
 
 await (async function main() {
   const globals = './globals.js'
@@ -135,7 +136,10 @@ async function writeAndImport(
   filepath: string,
   origin = filepath
 ) {
-  await fs.writeFile(filepath, script.toString())
+  const contents = script.toString()
+  await fs.writeFile(filepath, contents)
+  await importDeps(parseDeps(contents), { prefix: dirname(filepath) })
+
   let wait = importPath(filepath, origin)
   await fs.rm(filepath)
   await wait
