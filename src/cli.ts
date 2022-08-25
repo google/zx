@@ -139,7 +139,7 @@ async function writeAndImport(
   const contents = script.toString()
   await fs.writeFile(filepath, contents)
 
-  if (argv.import) {
+  if (argv.install) {
     await installDeps(parseDeps(contents), {
       prefix: dirname(filepath),
       registry: argv.registy,
@@ -263,9 +263,9 @@ function printUsage() {
    --interactive, -i        start repl
    --eval=<js>, -e          evaluate script 
    --experimental           enable new api proposals
-   --import                 parse and load script dependencies from the registry
-   --registry=<url>         registry url to use for import
-   --userconfig=<path>      .npmrc config path to use for import
+   --install                parse and load script dependencies from the registry
+   --registry=<url>         registry url to use for install
+   --userconfig=<path>      .npmrc config path to use for install
    --version, -v            print current zx version
    --help, -h               print help
 `)

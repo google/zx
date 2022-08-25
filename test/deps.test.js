@@ -35,7 +35,7 @@ test('installDeps() loader works via JS API', async () => {
 
 test('installDeps() loader works via CLI', async () => {
   let out =
-    await $`node build/cli.js --import --registry="https://registry.yarnpkg.com" <<< 'import lodash from "lodash" /* 4.17.15 */; console.log(lodash.VERSION)'`
+    await $`node build/cli.js --install --registry="https://registry.yarnpkg.com" <<< 'import lodash from "lodash" /* 4.17.15 */; console.log(lodash.VERSION)'`
   assert.match(out.stdout, '4.17.15')
 })
 
