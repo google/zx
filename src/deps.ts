@@ -27,8 +27,9 @@ export async function installDeps(
   dependencies: Record<string, any> = {},
   options: DepOptions = {}
 ) {
-  const pkgs = Object.entries(dependencies)
-    .map(([name, version]) => `${name}@${version}`)
+  const pkgs = Object.entries(dependencies).map(
+    ([name, version]) => `${name}@${version}`
+  )
 
   const flags = Object.entries(options)
     .filter(([, value]) => !!value)
