@@ -409,17 +409,19 @@ await spinner('working...', () => $`sleep 99`)
 
 ## CLI
 
-| Flag                 | Description                                                                                                          | Default |
-|----------------------|----------------------------------------------------------------------------------------------------------------------|---------|
-| `--quiet`            | don't echo commands                                                                                                  | `false` |
-| `--shell=<path>`     | custom shell binary                                                                                                  |         |
-| `--prefix=<command>` | prefix all commands                                                                                                  |         |
-| `--interactive, -i`  | start repl                                                                                                           |         |
-| `--eval=<js>, -e`    | evaluate script                                                                                                      |         |
-| `--experimental`     | enable new api proposals                                                                                             |         |
-| `--import`           | parse and load script dependencies from the registry. Examples: `--import=true`, `--import=lodash@4.17.20,cpy@9.0.1` | `false` |
-| `--version, -v`      | print current zx version                                                                                             |         |
-| `--help, -h`         | print help                                                                                                           |         |
+| Flag                  | Description                                          | Default |
+|-----------------------|------------------------------------------------------|---------|
+| `--quiet`             | don't echo commands                                  | `false` |
+| `--shell=<path>`      | custom shell binary                                  |         |
+| `--prefix=<command>`  | prefix all commands                                  |         |
+| `--interactive, -i`   | start repl                                           |         |
+| `--eval=<js>, -e`     | evaluate script                                      |         |
+| `--experimental`      | enable new api proposals                             |         |
+| `--import`            | parse and load script dependencies from the registry | `false` |
+| `--registry=<url>`    | registry url to use for import                       |         |
+| `--userconfig=<path>` | .npmrc config path to use for import                 |         |
+| `--version, -v`       | print current zx version                             |         |
+| `--help, -h`          | print help                                           |         |
 
 ```bash
 zx script.js

@@ -15,36 +15,28 @@
 import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
 import { $ } from '../build/index.js'
-import { importDeps, parseDeps } from '../build/internals.js'
+import { installDeps, parseDeps } from '../build/deps.js'
 
-const test = suite('internals')
+const test = suite('deps')
 
 $.verbose = false
 
-test('importDeps() loader works via JS API', async () => {
-  const {
-    'lodash-es': lodash,
-    cpy: { default: cpy },
-  } = await importDeps(
+test('installDeps() loader works via JS API', async () => {
+  await installDeps(
     {
       cpy: '9.0.1',
       'lodash-es': '4.17.21',
     },
     { registry: 'https://registry.yarnpkg.com/' }
   )
-
-  assert.instance(cpy, Function)
-  assert.instance(lodash.pick, Function)
+  assert.instance((await import('cpy')).default, Function)
+  assert.instance((await import('lodash-es')).pick, Function)
 })
 
-test('importDeps() loader works via CLI', async () => {
-  let out1 =
-    await $`node build/cli.js --import <<< 'import lodash from "lodash" /* 4.17.15 */; console.log(lodash.VERSION)'`
-  assert.match(out1.stdout, '4.17.15')
-
-  let out2 =
-    await $`node build/cli.js --import=lodash@4.17.16 <<< 'import lodash from "lodash"; console.log(lodash.VERSION)'`
-  assert.match(out2.stdout, '4.17.16')
+test('installDeps() loader works via CLI', async () => {
+  let out =
+    await $`node build/cli.js --import --registry="https://registry.yarnpkg.com" <<< 'import lodash from "lodash" /* 4.17.15 */; console.log(lodash.VERSION)'`
+  assert.match(out.stdout, '4.17.15')
 })
 
 test('parseDeps() extracts deps map', () => {

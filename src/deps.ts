@@ -23,35 +23,22 @@ interface DepOptions {
 
 export const resolve = createRequire(import.meta.url).resolve
 
-export async function importDeps(
+export async function installDeps(
   dependencies: Record<string, any> = {},
   options: DepOptions = {}
 ) {
   const pkgs = Object.entries(dependencies)
     .map(([name, version]) => `${name}@${version}`)
-    .filter(Boolean)
 
-  const flags = Object.entries(options).map(
-    ([name, value]) => `--${name}=${value}`
-  )
+  const flags = Object.entries(options)
+    .filter(([, value]) => !!value)
+    .map(([name, value]) => `--${name}=${value}`)
 
   if (pkgs.length === 0) {
-    return {}
+    return
   }
 
   await $`npm install --no-save --no-audit --no-fund ${flags} ${pkgs}`
-
-  return (
-    await Promise.all(
-      Object.entries(dependencies).map(async ([name]) => ({
-        module: await import(resolve(name)),
-        name,
-      }))
-    )
-  ).reduce<Record<string, any>>((acc, { name, module }) => {
-    acc[name] = module
-    return acc
-  }, {})
 }
 
 const builtinsRe =
@@ -71,14 +58,4 @@ export function parseDeps(content: string): Record<string, any> {
   } while (m)
 
   return deps
-}
-
-export function parseImportFlag(flag: string): Record<string, any> {
-  return flag.split(',').reduce<Record<string, any>>((acc, dep) => {
-    const [name, version] = dep.split(/(?<!^)@/)
-    if (!builtinsRe.test(name)) {
-      acc[name] = version || 'latest'
-    }
-    return acc
-  }, {})
 }

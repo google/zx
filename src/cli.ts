@@ -23,7 +23,7 @@ import { updateArgv } from './goods.js'
 import { $, argv, chalk, fetch, ProcessOutput } from './index.js'
 import { startRepl } from './repl.js'
 import { randomId } from './util.js'
-import { importDeps, parseDeps, parseImportFlag } from './internals.js'
+import { installDeps, parseDeps } from './deps.js'
 
 await (async function main() {
   const globals = './globals.js'
@@ -140,9 +140,11 @@ async function writeAndImport(
   await fs.writeFile(filepath, contents)
 
   if (argv.import) {
-    const deps =
-      argv.import === true ? parseDeps(contents) : parseImportFlag(argv.import)
-    await importDeps(deps, { prefix: dirname(filepath) })
+    await installDeps(parseDeps(contents), {
+      prefix: dirname(filepath),
+      registry: argv.registy,
+      userconfig: argv.userconfig,
+    })
   }
 
   let wait = importPath(filepath, origin)
@@ -255,14 +257,16 @@ function printUsage() {
    zx [options] <script>
 
  ${chalk.bold('Options')}
-   --quiet             don't echo commands
-   --shell=<path>      custom shell binary
-   --prefix=<command>  prefix all commands
-   --interactive, -i   start repl
-   --eval=<js>, -e     evaluate script 
-   --experimental      enable new api proposals
-   --import            parse and load script dependencies from the registry
-   --version, -v       print current zx version
-   --help, -h          print help
+   --quiet                  don't echo commands
+   --shell=<path>           custom shell binary
+   --prefix=<command>       prefix all commands
+   --interactive, -i        start repl
+   --eval=<js>, -e          evaluate script 
+   --experimental           enable new api proposals
+   --import                 parse and load script dependencies from the registry
+   --registry=<url>         registry url to use for import
+   --userconfig=<path>      .npmrc config path to use for import
+   --version, -v            print current zx version
+   --help, -h               print help
 `)
 }
