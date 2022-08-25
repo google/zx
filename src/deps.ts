@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { createRequire } from 'node:module'
 import { $ } from './core.js'
 
 interface DepOptions {
@@ -20,8 +19,6 @@ interface DepOptions {
   registry?: string
   prefix?: string
 }
-
-export const resolve = createRequire(import.meta.url).resolve
 
 export async function installDeps(
   dependencies: Record<string, any> = {},
