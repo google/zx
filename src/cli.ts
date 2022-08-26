@@ -142,7 +142,7 @@ async function writeAndImport(
   if (argv.install) {
     await installDeps(parseDeps(contents), {
       prefix: dirname(filepath),
-      registry: argv.registy,
+      registry: argv.registry,
       userconfig: argv.userconfig,
     })
   }
