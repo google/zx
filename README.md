@@ -524,6 +524,13 @@ jobs:
         EOF
 ```
 
+### Canary / Beta / RC builds
+Impatient early adopters can try the experimental zx versions. But keep in mind: these builds are ⚠️️ __unstable__ in every sense.
+```bash
+npm i zx@dev
+npx zx@dev --install --quiet <<< 'import _ from "lodash" /* 4.17.15 */; console.log(_.VERSION)'
+```
+
 ## License
 
 [Apache-2.0](LICENSE)
