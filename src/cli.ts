@@ -23,6 +23,7 @@ import { updateArgv } from './goods.js'
 import { $, argv, chalk, fetch, ProcessOutput } from './index.js'
 import { startRepl } from './repl.js'
 import { randomId } from './util.js'
+import { installDeps, parseDeps } from './deps.js'
 
 await (async function main() {
   const globals = './globals.js'
@@ -135,7 +136,13 @@ async function writeAndImport(
   filepath: string,
   origin = filepath
 ) {
-  await fs.writeFile(filepath, script.toString())
+  const contents = script.toString()
+  await fs.writeFile(filepath, contents)
+
+  if (argv.install) {
+    await installDeps(parseDeps(contents), dirname(filepath))
+  }
+
   let wait = importPath(filepath, origin)
   await fs.rm(filepath)
   await wait
@@ -246,13 +253,14 @@ function printUsage() {
    zx [options] <script>
 
  ${chalk.bold('Options')}
-   --quiet             don't echo commands
-   --shell=<path>      custom shell binary
-   --prefix=<command>  prefix all commands
-   --interactive, -i   start repl
-   --eval=<js>, -e     evaluate script 
-   --experimental      enable new api proposals
-   --version, -v       print current zx version
-   --help, -h          print help
+   --quiet              don't echo commands
+   --shell=<path>       custom shell binary
+   --prefix=<command>   prefix all commands
+   --interactive, -i    start repl
+   --eval=<js>, -e      evaluate script 
+   --experimental       enable new api proposals
+   --install            parse and load script dependencies from the registry
+   --version, -v        print current zx version
+   --help, -h           print help
 `)
 }

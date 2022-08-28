@@ -73,5 +73,3 @@ Use `glob` function and `os` package:
 let files = await glob(os.homedir() + '/dev/**/*.md')
 await $`ls ${files}`
 ```
-
-

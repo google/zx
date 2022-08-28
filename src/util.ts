@@ -29,7 +29,7 @@ export function isString(obj: any) {
 }
 
 export function quote(arg: string) {
-  if (/^[a-z0-9/_.-]+$/i.test(arg) || arg === '') {
+  if (/^[a-z0-9/_.\-@:=]+$/i.test(arg) || arg === '') {
     return arg
   }
   return (
