@@ -14,23 +14,15 @@
 
 import { $ } from './core.js'
 
-interface DepOptions {
-  userconfig?: string
-  registry?: string
-  prefix?: string
-}
-
 export async function installDeps(
   dependencies: Record<string, any> = {},
-  options: DepOptions = {}
+  prefix?: string
 ) {
   const pkgs = Object.entries(dependencies).map(
     ([name, version]) => `${name}@${version}`
   )
 
-  const flags = Object.entries(options)
-    .filter(([, value]) => !!value)
-    .map(([name, value]) => `--${name}=${value}`)
+  const flags = prefix ? `--prefix=${prefix}` : ''
 
   if (pkgs.length === 0) {
     return

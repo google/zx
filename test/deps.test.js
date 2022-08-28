@@ -22,20 +22,17 @@ const test = suite('deps')
 $.verbose = false
 
 test('installDeps() loader works via JS API', async () => {
-  await installDeps(
-    {
-      cpy: '9.0.1',
-      'lodash-es': '4.17.21',
-    },
-    { registry: 'https://registry.yarnpkg.com/' }
-  )
+  await installDeps({
+    cpy: '9.0.1',
+    'lodash-es': '4.17.21',
+  })
   assert.instance((await import('cpy')).default, Function)
   assert.instance((await import('lodash-es')).pick, Function)
 })
 
 test('installDeps() loader works via CLI', async () => {
   let out =
-    await $`node build/cli.js --install --registry="https://registry.yarnpkg.com" <<< 'import lodash from "lodash" /* 4.17.15 */; console.log(lodash.VERSION)'`
+    await $`npm_config_registry="https://registry.yarnpkg.com" node build/cli.js --install <<< 'import _ from "lodash" /* 4.17.15 */; console.log(_.VERSION)'`
   assert.match(out.stdout, '4.17.15')
 })
 

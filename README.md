@@ -409,19 +409,17 @@ await spinner('working...', () => $`sleep 99`)
 
 ## CLI
 
-| Flag                  | Description                                           | Default |
-|-----------------------|-------------------------------------------------------|---------|
-| `--quiet`             | don't echo commands                                   | `false` |
-| `--shell=<path>`      | custom shell binary                                   |         |
-| `--prefix=<command>`  | prefix all commands                                   |         |
-| `--interactive, -i`   | start repl                                            |         |
-| `--eval=<js>, -e`     | evaluate script                                       |         |
-| `--experimental`      | enable new api proposals                              |         |
-| `--install`           | parse and load script dependencies from the registry  | `false` |
-| `--registry=<url>`    | registry url to use for install                       |         |
-| `--userconfig=<path>` | .npmrc config path to use for install                 |         |
-| `--version, -v`       | print current zx version                              |         |
-| `--help, -h`          | print help                                            |         |
+| Flag                  | Description                                                                                                                                                                                                             | Default |
+|-----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
+| `--quiet`             | don't echo commands                                                                                                                                                                                                     | `false` |
+| `--shell=<path>`      | custom shell binary                                                                                                                                                                                                     |         |
+| `--prefix=<command>`  | prefix all commands                                                                                                                                                                                                     |         |
+| `--interactive, -i`   | start repl                                                                                                                                                                                                              |         |
+| `--eval=<js>, -e`     | evaluate script                                                                                                                                                                                                         |         |
+| `--experimental`      | enable new api proposals                                                                                                                                                                                                |         |
+| `--install`           | parse and load script dependencies from the registry. You can pass additional [params via env vars](https://docs.npmjs.com/cli/v8/using-npm/config) like `npm_config_registry=<url>` or `npm_config_userconfig=<path>`. | `false` |
+| `--version, -v`       | print current zx version                                                                                                                                                                                                |         |
+| `--help, -h`          | print help                                                                                                                                                                                                              |         |
 
 ```bash
 zx script.js

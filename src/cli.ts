@@ -140,11 +140,7 @@ async function writeAndImport(
   await fs.writeFile(filepath, contents)
 
   if (argv.install) {
-    await installDeps(parseDeps(contents), {
-      prefix: dirname(filepath),
-      registry: argv.registry,
-      userconfig: argv.userconfig,
-    })
+    await installDeps(parseDeps(contents), dirname(filepath))
   }
 
   let wait = importPath(filepath, origin)
@@ -257,16 +253,14 @@ function printUsage() {
    zx [options] <script>
 
  ${chalk.bold('Options')}
-   --quiet                  don't echo commands
-   --shell=<path>           custom shell binary
-   --prefix=<command>       prefix all commands
-   --interactive, -i        start repl
-   --eval=<js>, -e          evaluate script 
-   --experimental           enable new api proposals
-   --install                parse and load script dependencies from the registry
-   --registry=<url>         registry url to use for install
-   --userconfig=<path>      .npmrc config path to use for install
-   --version, -v            print current zx version
-   --help, -h               print help
+   --quiet              don't echo commands
+   --shell=<path>       custom shell binary
+   --prefix=<command>   prefix all commands
+   --interactive, -i    start repl
+   --eval=<js>, -e      evaluate script 
+   --experimental       enable new api proposals
+   --install            parse and load script dependencies from the registry
+   --version, -v        print current zx version
+   --help, -h           print help
 `)
 }
