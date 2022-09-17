@@ -15,74 +15,97 @@
 // limitations under the License.
 
 import fs from 'fs-extra'
+import minimist from 'minimist'
 import { createRequire } from 'node:module'
-import { tmpdir } from 'node:os'
 import { basename, dirname, extname, join, resolve } from 'node:path'
 import url from 'node:url'
 import { updateArgv } from './goods.js'
-import { $, argv, chalk, fetch, ProcessOutput } from './index.js'
+import { $, chalk, fetch, ProcessOutput } from './index.js'
 import { startRepl } from './repl.js'
 import { randomId } from './util.js'
 import { installDeps, parseDeps } from './deps.js'
 
+function printUsage() {
+  // language=txt
+  console.log(`
+ ${chalk.bold('zx ' + getVersion())}
+   A tool for writing better scripts
+
+ ${chalk.bold('Usage')}
+   zx [options] <script>
+
+ ${chalk.bold('Options')}
+   --quiet              don't echo commands
+   --shell=<path>       custom shell binary
+   --prefix=<command>   prefix all commands
+   --interactive, -i    start repl
+   --eval=<js>, -e      evaluate script 
+   --experimental       enable new api proposals
+   --install            parse and load script dependencies from the registry
+   --version, -v        print current zx version
+   --help, -h           print help
+`)
+}
+
+const argv = minimist(process.argv.slice(2), {
+  string: ['shell', 'prefix', 'eval'],
+  boolean: [
+    'version',
+    'help',
+    'quiet',
+    'install',
+    'interactive',
+    'experimental',
+  ],
+  alias: { e: 'eval', i: 'interactive', v: 'version', h: 'help' },
+  stopEarly: true,
+})
+
 await (async function main() {
   const globals = './globals.js'
   await import(globals)
-  if (argv.quiet) {
-    $.verbose = false
-  }
-  if (typeof argv.shell === 'string') {
-    $.shell = argv.shell
-  }
-  if (typeof argv.prefix === 'string') {
-    $.prefix = argv.prefix
-  }
+  if (argv.quiet) $.verbose = false
+  if (argv.shell) $.shell = argv.shell
+  if (argv.prefix) $.prefix = argv.prefix
   if (argv.experimental) {
     Object.assign(global, await import('./experimental.js'))
   }
-  if (process.argv.length == 3) {
-    if (['--version', '-v', '-V'].includes(process.argv[2])) {
-      console.log(getVersion())
-      return
-    }
-    if (['--help', '-h'].includes(process.argv[2])) {
-      printUsage()
-      return
-    }
-    if (['--interactive', '-i'].includes(process.argv[2])) {
-      startRepl()
-      return
-    }
-  }
-  if (argv.eval || argv.e) {
-    const script = (argv.eval || argv.e).toString()
-    await runScript(script)
+  if (argv.version) {
+    console.log(getVersion())
     return
   }
-  let firstArg = process.argv.slice(2).find((a) => !a.startsWith('--'))
-  if (typeof firstArg === 'undefined' || firstArg === '-') {
-    let ok = await scriptFromStdin()
-    if (!ok) {
-      startRepl()
-    }
-  } else if (
-    firstArg.startsWith('http://') ||
-    firstArg.startsWith('https://')
-  ) {
-    await scriptFromHttp(firstArg)
-  } else {
-    let filepath
-    if (firstArg.startsWith('/')) {
-      filepath = firstArg
-    } else if (firstArg.startsWith('file:///')) {
-      filepath = url.fileURLToPath(firstArg)
-    } else {
-      filepath = resolve(firstArg)
-    }
-    updateArgv({ sliceAt: 3 })
-    await importPath(filepath)
+  if (argv.help) {
+    printUsage()
+    return
   }
-  return
+  if (argv.interactive) {
+    startRepl()
+    return
+  }
+  if (argv.eval) {
+    await runScript(argv.eval)
+    return
+  }
+  const firstArg = argv._[0]
+  updateArgv(argv._.slice(firstArg === undefined ? 0 : 1))
+  if (!firstArg || firstArg === '-') {
+    const success = await scriptFromStdin()
+    if (!success) startRepl()
+    return
+  }
+  if (/^https?:/.test(firstArg)) {
+    await scriptFromHttp(firstArg)
+    return
+  }
+  let filepath
+  if (firstArg.startsWith('/')) {
+    filepath = firstArg
+  } else if (firstArg.startsWith('file:///')) {
+    filepath = url.fileURLToPath(firstArg)
+  } else {
+    filepath = resolve(firstArg)
+  }
+  await importPath(filepath)
 })().catch((err) => {
   if (err instanceof ProcessOutput) {
     console.error('Error:', err.message)
@@ -93,9 +116,8 @@ await (async function main() {
 })
 
 async function runScript(script: string) {
-  let filepath = join(tmpdir(), randomId() + '.mjs')
-  await fs.mkdtemp(filepath)
-  await writeAndImport(script, filepath, join(process.cwd(), 'stdin.mjs'))
+  const filepath = join(process.cwd(), `zx-${randomId()}.mjs`)
+  await writeAndImport(script, filepath)
 }
 
 async function scriptFromStdin() {
@@ -115,20 +137,17 @@ async function scriptFromStdin() {
 }
 
 async function scriptFromHttp(remote: string) {
-  let res = await fetch(remote)
+  const res = await fetch(remote)
   if (!res.ok) {
     console.error(`Error: Can't get ${remote}`)
     process.exit(1)
   }
-  let script = await res.text()
-  let filename = new URL(remote).pathname
-  let filepath = join(tmpdir(), basename(filename))
-  await fs.mkdtemp(filepath)
-  await writeAndImport(
-    script,
-    filepath,
-    join(process.cwd(), basename(filename))
-  )
+  const script = await res.text()
+  const pathname = new URL(remote).pathname
+  const name = basename(pathname)
+  const ext = extname(pathname) || '.mjs'
+  const filepath = join(process.cwd(), `${name}-${randomId()}${ext}`)
+  await writeAndImport(script, filepath)
 }
 
 async function writeAndImport(
@@ -136,16 +155,12 @@ async function writeAndImport(
   filepath: string,
   origin = filepath
 ) {
-  const contents = script.toString()
-  await fs.writeFile(filepath, contents)
-
-  if (argv.install) {
-    await installDeps(parseDeps(contents), dirname(filepath))
+  await fs.writeFile(filepath, script.toString())
+  try {
+    await importPath(filepath, origin)
+  } finally {
+    await fs.rm(filepath)
   }
-
-  let wait = importPath(filepath, origin)
-  await fs.rm(filepath)
-  await wait
 }
 
 async function importPath(filepath: string, origin = filepath) {
@@ -168,6 +183,11 @@ async function importPath(filepath: string, origin = filepath) {
       join(dirname(filepath), basename(filepath) + '.mjs'),
       origin
     )
+  }
+  if (argv.install) {
+    const deps = parseDeps(await fs.readFile(filepath))
+    console.log('Installing dependencies...', deps)
+    await installDeps(deps, dirname(filepath))
   }
   let __filename = resolve(origin)
   let __dirname = dirname(__filename)
@@ -242,25 +262,4 @@ function transformMarkdown(buf: Buffer) {
 
 function getVersion(): string {
   return createRequire(import.meta.url)('../package.json').version
-}
-
-function printUsage() {
-  console.log(`
- ${chalk.bold('zx ' + getVersion())}
-   A tool for writing better scripts
-
- ${chalk.bold('Usage')}
-   zx [options] <script>
-
- ${chalk.bold('Options')}
-   --quiet              don't echo commands
-   --shell=<path>       custom shell binary
-   --prefix=<command>   prefix all commands
-   --interactive, -i    start repl
-   --eval=<js>, -e      evaluate script 
-   --experimental       enable new api proposals
-   --install            parse and load script dependencies from the registry
-   --version, -v        print current zx version
-   --help, -h           print help
-`)
 }
