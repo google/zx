@@ -29,24 +29,22 @@ export function isString(obj: any) {
 }
 
 export function quote(arg: string) {
-  if (/^[a-z0-9/_.\-@:=]+$/i.test(arg) || arg === '') {
-    return arg
+  if (/^[a-z0-9/_.\-@:=]+$/i.test(arg) || arg === "") {
+    return arg;
   }
-  const isWindows = process.platform !== 'win32'
-  
+  const isWindows = process.platform === "win32";
+
   const sanitizedArg = arg
-    .replace(/\\/g, '\\\\')
+    .replace(/\\/g, "\\\\")
     .replace(/'/g, "\\'")
-    .replace(/\f/g, '\\f')
-    .replace(/\n/g, '\\n')
-    .replace(/\r/g, '\\r')
-    .replace(/\t/g, '\\t')
-    .replace(/\v/g, '\\v')
-    .replace(/\0/g, '\\0')
-  
-  return isWindows
-    ? sanitizedArg
-    : `$'${sanitizedArg}'`
+    .replace(/\f/g, "\\f")
+    .replace(/\n/g, "\\n")
+    .replace(/\r/g, "\\r")
+    .replace(/\t/g, "\\t")
+    .replace(/\v/g, "\\v")
+    .replace(/\0/g, "\\0");
+
+  return isWindows ? sanitizedArg : `$'${sanitizedArg}'`;
 }
 
 export function exitCodeInfo(exitCode: number | null): string | undefined {
