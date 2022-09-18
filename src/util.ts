@@ -32,8 +32,10 @@ export function quote(arg: string) {
   if (/^[a-z0-9/_.\-@:=]+$/i.test(arg) || arg === '') {
     return arg
   }
+  const isWindow = process.platform === 'win32'
+  
   return (
-    `$'` +
+    isWindow ? `$'` : '' +
     arg
       .replace(/\\/g, '\\\\')
       .replace(/'/g, "\\'")
@@ -43,7 +45,7 @@ export function quote(arg: string) {
       .replace(/\t/g, '\\t')
       .replace(/\v/g, '\\v')
       .replace(/\0/g, '\\0') +
-    `'`
+    isWindow ? `'` : ''
   )
 }
 
