@@ -44,6 +44,7 @@ test('parseDeps() extracts deps map', () => {
   ;require('g'); // 7.0.0
   const h = 1 *require('h') // 8.0.0
   {require('i') /* 9.0.0 */}
+  import 'j' // 10.0.0
 
   import fs from 'fs'
   import path from 'path'
@@ -65,6 +66,7 @@ test('parseDeps() extracts deps map', () => {
     g: '7.0.0',
     h: '8.0.0',
     i: '9.0.0',
+    j: '10.0.0',
     foo: 'latest',
     bar: '1.0.0',
     baz: '^2.0',

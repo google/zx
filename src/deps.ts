@@ -30,7 +30,6 @@ export async function installDeps(
 
 // https://github.com/nodejs/node/blob/5fad0b93667ffc6e4def52996b9529ac99b26319/test/parallel/test-internal-module-require.js
 // + wasi https://nodejs.org/api/wasi.html
-// + fs/promises https://nodejs.org/api/fs.html#promises-api
 const builtins = new Set([
   '_http_agent',
   '_http_client',
@@ -59,7 +58,6 @@ const builtins = new Set([
   'domain',
   'events',
   'fs',
-  'fs/promises',
   'http',
   'http2',
   'https',
@@ -92,7 +90,7 @@ const builtins = new Set([
 
 export function parseDeps(content: Buffer): Record<string, string> {
   const re =
-    /(?:\sfrom\s+|(?:[\b\s(\[{:;=+\-*|/]|\.{3}|^)(?:import|require)\s*\()["']((?:@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*)[/a-z0-9-._~]*["'](?:\)?[\s;,]*(?:\/\*|\/\/)\s*([a-z0-9-._~^*]+))?/g
+    /(?:\sfrom\s+|(?:[\s(\[{:;=+\-*|/~^%&,]|\.{3}|^)(?:import\s*\(?|require\s*\())["']((?:@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*)[/a-z0-9-._~]*["'](?:\)?[\s;,]*(?:\/\*|\/\/)\s*([a-z0-9-._~^*]+))?/g
   const deps: Record<string, string> = {}
 
   let m
