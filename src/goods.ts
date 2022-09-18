@@ -55,7 +55,7 @@ export async function fetch(url: RequestInfo, init?: RequestInit) {
 export function echo(...args: any[]): void
 export function echo(pieces: TemplateStringsArray, ...args: any[]) {
   let msg
-  let lastIdx = pieces.length - 1
+  const lastIdx = pieces.length - 1
   if (
     Array.isArray(pieces) &&
     pieces.every(isString) &&

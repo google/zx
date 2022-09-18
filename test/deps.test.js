@@ -37,7 +37,15 @@ test('installDeps() loader works via CLI', async () => {
 })
 
 test('parseDeps() extracts deps map', () => {
-  const contents = `
+  const contents = `require('a') // 1.0.0
+  const b =require('b') /* 2.0.0 */
+  const c = {c:require('c') /* 3.0.0 */, d: await import('d') /* 4.0.0 */, ...require('e') /* 5.0.0 */}
+  const f = [...require('f') /* 6.0.0 */] 
+  ;require('g'); // 7.0.0
+  const h = 1 *require('h') // 8.0.0
+  {require('i') /* 9.0.0 */}
+  import 'j' // 10.0.0
+
   import fs from 'fs'
   import path from 'path'
   import foo from "foo"
@@ -45,15 +53,25 @@ test('parseDeps() extracts deps map', () => {
   import baz from "baz" //    ^2.0
 
   const cpy = await import('cpy')
-  const { pick } = require('lodash')
+  const { pick } = require("lodash") //  4.17.15
   `
 
   assert.equal(parseDeps(contents), {
+    a: '1.0.0',
+    b: '2.0.0',
+    c: '3.0.0',
+    d: '4.0.0',
+    e: '5.0.0',
+    f: '6.0.0',
+    g: '7.0.0',
+    h: '8.0.0',
+    i: '9.0.0',
+    j: '10.0.0',
     foo: 'latest',
     bar: '1.0.0',
     baz: '^2.0',
     cpy: 'latest',
-    lodash: 'latest',
+    lodash: '4.17.15',
   })
 })
 

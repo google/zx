@@ -97,14 +97,9 @@ await (async function main() {
     await scriptFromHttp(firstArg)
     return
   }
-  let filepath
-  if (firstArg.startsWith('/')) {
-    filepath = firstArg
-  } else if (firstArg.startsWith('file:///')) {
-    filepath = url.fileURLToPath(firstArg)
-  } else {
-    filepath = resolve(firstArg)
-  }
+  const filepath = firstArg.startsWith('file:///')
+    ? url.fileURLToPath(firstArg)
+    : resolve(firstArg)
   await importPath(filepath)
 })().catch((err) => {
   if (err instanceof ProcessOutput) {
@@ -164,21 +159,21 @@ async function writeAndImport(
 }
 
 async function importPath(filepath: string, origin = filepath) {
-  let ext = extname(filepath)
+  const ext = extname(filepath)
 
   if (ext === '') {
-    let tmpFilename = fs.existsSync(`${filepath}.mjs`)
+    const tmpFilename = fs.existsSync(`${filepath}.mjs`)
       ? `${basename(filepath)}-${randomId()}.mjs`
       : `${basename(filepath)}.mjs`
 
-    return await writeAndImport(
+    return writeAndImport(
       await fs.readFile(filepath),
       join(dirname(filepath), tmpFilename),
       origin
     )
   }
   if (ext === '.md') {
-    return await writeAndImport(
+    return writeAndImport(
       transformMarkdown(await fs.readFile(filepath)),
       join(dirname(filepath), basename(filepath) + '.mjs'),
       origin
@@ -189,16 +184,16 @@ async function importPath(filepath: string, origin = filepath) {
     console.log('Installing dependencies...', deps)
     await installDeps(deps, dirname(filepath))
   }
-  let __filename = resolve(origin)
-  let __dirname = dirname(__filename)
-  let require = createRequire(origin)
+  const __filename = resolve(origin)
+  const __dirname = dirname(__filename)
+  const require = createRequire(origin)
   Object.assign(global, { __filename, __dirname, require })
   await import(url.pathToFileURL(filepath).toString())
 }
 
 function transformMarkdown(buf: Buffer) {
-  let source = buf.toString()
-  let output = []
+  const source = buf.toString()
+  const output = []
   let state = 'root'
   let prevLineIsEmpty = true
   for (let line of source.split('\n')) {

@@ -91,7 +91,7 @@ export const $ = new Proxy<Shell & Options>(
       throw new Error(`Malformed command at ${from}`)
     }
     let resolve: Resolve, reject: Resolve
-    let promise = new ProcessPromise((...args) => ([resolve, reject] = args))
+    const promise = new ProcessPromise((...args) => ([resolve, reject] = args))
     let cmd = pieces[0],
       i = 0
     while (i < args.length) {
