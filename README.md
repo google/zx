@@ -350,7 +350,22 @@ all `$` processes use `process.cwd()` by default (same as `spawn` behavior).
 
 ### `$.log`
 
-Specifies a [logging function](src/log.ts).
+Specifies a [logging function](src/core.ts).
+
+```ts
+import { LogEntry, log } from 'zx/core'
+
+$.log = (entry: LogEntry) => {
+  switch (entry.kind) {
+    case 'cmd':
+      // for example, apply custom data masker for cmd printing
+      process.stderr.write(masker(entry.cmd))
+      break
+    default:
+      log(entry)
+  }
+}
+```
 
 ## Polyfills
 
