@@ -350,7 +350,22 @@ all `$` processes use `process.cwd()` by default (same as `spawn` behavior).
 
 ### `$.log`
 
-Specifies a [logging function](src/log.ts).
+Specifies a [logging function](src/core.ts).
+
+```ts
+import { LogEntry, log } from 'zx/core'
+
+$.log = (entry: LogEntry) => {
+  switch (entry.kind) {
+    case 'cmd':
+      // for example, apply custom data masker for cmd printing
+      process.stderr.write(masker(entry.cmd))
+      break
+    default:
+      log(entry)
+  }
+}
+```
 
 ## Polyfills
 
@@ -545,6 +560,13 @@ jobs:
         npx zx <<'EOF'
         await $`...`
         EOF
+```
+
+### Canary / Beta / RC builds
+Impatient early adopters can try the experimental zx versions. But keep in mind: these builds are ⚠️️ __unstable__ in every sense.
+```bash
+npm i zx@dev
+npx zx@dev --install --quiet <<< 'import _ from "lodash" /* 4.17.15 */; console.log(_.VERSION)'
 ```
 
 ## License
