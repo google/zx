@@ -28,8 +28,6 @@ export async function installDeps(
   await $`npm install --no-save --no-audit --no-fund ${flags} ${packages}`
 }
 
-// https://github.com/nodejs/node/blob/5fad0b93667ffc6e4def52996b9529ac99b26319/test/parallel/test-internal-module-require.js
-// + wasi https://nodejs.org/api/wasi.html
 const builtins = new Set([
   '_http_agent',
   '_http_client',
@@ -87,18 +85,36 @@ const builtins = new Set([
   'worker_threads',
   'zlib',
 ])
+const importRe = [
+  /\bimport\s+['"](?<path>[^'"]+)['"]/,
+  /\bimport\(['"](?<path>[^'"]+)['"]\)/,
+  /\brequire\(['"](?<path>[^'"]+)['"]\)/,
+  /\bfrom\s+['"](?<path>[^'"]+)['"]/,
+]
+const nameRe = /^(?<name>(@[a-z0-9-]+\/)?[a-z0-9-]+)\/?.*$/i
+const versionRe = /(\/\/|\/\*)\s*@(?<version>[~^]?([\dvx*]+([-.][\dx*]+)*))/i
 
 export function parseDeps(content: Buffer): Record<string, string> {
-  const re =
-    /(?:\sfrom\s+|(?:[\s(\[{:;=+\-*|/~^%&,]|\.{3}|^)(?:import\s*\(?|require\s*\())["']((?:@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*)[/a-z0-9-._~]*["'](?:\)?[\s;,]*(?:\/\*|\/\/)\s*([a-z0-9-._~^*]+))?/g
   const deps: Record<string, string> = {}
-
-  let m
-  do {
-    m = re.exec(content.toString())
-    if (m && !builtins.has(m[1])) {
-      deps[m[1]] = m[2] || 'latest'
+  const lines = content.toString().split('\n')
+  for (let line of lines) {
+    for (let re of importRe) {
+      const m1 = re.exec(line)
+      if (m1 && m1.groups) {
+        const m2 = nameRe.exec(m1.groups.path)
+        if (m2 && m2.groups) {
+          const name = m2.groups.name
+          if (!builtins.has(name)) {
+            let version = 'latest'
+            const m3 = versionRe.exec(line)
+            if (m3 && m3.groups) {
+              version = m3.groups.version
+            }
+            deps[name] = version
+          }
+        }
+      }
     }
-  } while (m)
+  }
   return deps
 }

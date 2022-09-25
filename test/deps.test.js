@@ -32,28 +32,50 @@ test('installDeps() loader works via JS API', async () => {
 
 test('installDeps() loader works via CLI', async () => {
   let out =
-    await $`npm_config_registry="https://registry.yarnpkg.com" node build/cli.js --install <<< 'import _ from "lodash" /* 4.17.15 */; console.log(_.VERSION)'`
+    await $`node build/cli.js --install <<< 'import _ from "lodash" /* @4.17.15 */; console.log(_.VERSION)'`
   assert.match(out.stdout, '4.17.15')
 })
 
-test('parseDeps() extracts deps map', () => {
-  const contents = `require('a') // 1.0.0
-  const b =require('b') /* 2.0.0 */
-  const c = {c:require('c') /* 3.0.0 */, d: await import('d') /* 4.0.0 */, ...require('e') /* 5.0.0 */}
-  const f = [...require('f') /* 6.0.0 */] 
-  ;require('g'); // 7.0.0
-  const h = 1 *require('h') // 8.0.0
-  {require('i') /* 9.0.0 */}
-  import 'j' // 10.0.0
+test('parseDeps(): import or require', async () => {
+  assert.equal(parseDeps(`import "foo"`), { foo: 'latest' })
+  assert.equal(parseDeps(`import * as bar from "foo"`), { foo: 'latest' })
+  assert.equal(parseDeps(`import('foo')`), { foo: 'latest' })
+  assert.equal(parseDeps(`require('foo')`), { foo: 'latest' })
+})
+
+test('parseDeps(): import with org and filename', async () => {
+  assert.equal(parseDeps(`import "@foo/bar/file"`), { '@foo/bar': 'latest' })
+})
+
+test('parseDeps(): import with version', async () => {
+  assert.equal(parseDeps(`import "foo" // @2.x`), { foo: '2.x' })
+  assert.equal(parseDeps(`import "foo" // @^7`), { foo: '^7' })
+  assert.equal(parseDeps(`import "foo" /* @1.2.x */`), { foo: '1.2.x' })
+})
+
+test('parseDeps(): multiline', () => {
+  const contents = `
+  require('a') // @1.0.0
+  const b =require('b') /* @2.0.0 */
+  const c = {
+    c:require('c') /* @3.0.0 */, 
+    d: await import('d') /* @4.0.0 */, 
+    ...require('e') /* @5.0.0 */
+  }
+  const f = [...require('f') /* @6.0.0 */] 
+  ;require('g'); // @7.0.0
+  const h = 1 *require('h') // @8.0.0
+  {require('i') /* @9.0.0 */}
+  import 'j' // @10.0.0
 
   import fs from 'fs'
   import path from 'path'
   import foo from "foo"
-  import bar from "bar" /* 1.0.0 */
-  import baz from "baz" //    ^2.0
+  import bar from "bar" /* @1.0.0 */
+  import baz from "baz" //    @^2.0
 
   const cpy = await import('cpy')
-  const { pick } = require("lodash") //  4.17.15
+  const { pick } = require("lodash") //  @4.17.15
   `
 
   assert.equal(parseDeps(contents), {
