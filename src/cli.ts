@@ -38,12 +38,12 @@ function printUsage() {
    --quiet              don't echo commands
    --shell=<path>       custom shell binary
    --prefix=<command>   prefix all commands
-   --interactive, -i    start repl
    --eval=<js>, -e      evaluate script 
-   --experimental       enable new api proposals
-   --install            parse and load script dependencies from the registry
+   --install, -i        install dependencies
+   --experimental       enable experimental features
    --version, -v        print current zx version
    --help, -h           print help
+   --repl               start repl
 `)
 }
 
@@ -54,10 +54,10 @@ const argv = minimist(process.argv.slice(2), {
     'help',
     'quiet',
     'install',
-    'interactive',
+    'repl',
     'experimental',
   ],
-  alias: { e: 'eval', i: 'interactive', v: 'version', h: 'help' },
+  alias: { e: 'eval', i: 'install', v: 'version', h: 'help' },
   stopEarly: true,
 })
 
@@ -78,7 +78,7 @@ await (async function main() {
     printUsage()
     return
   }
-  if (argv.interactive) {
+  if (argv.repl) {
     startRepl()
     return
   }
@@ -90,7 +90,7 @@ await (async function main() {
   updateArgv(argv._.slice(firstArg === undefined ? 0 : 1))
   if (!firstArg || firstArg === '-') {
     const success = await scriptFromStdin()
-    if (!success) startRepl()
+    if (!success) printUsage()
     return
   }
   if (/^https?:/.test(firstArg)) {
