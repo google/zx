@@ -98,23 +98,44 @@ export function parseDeps(content: Buffer): Record<string, string> {
   const deps: Record<string, string> = {}
   const lines = content.toString().split('\n')
   for (let line of lines) {
-    for (let re of importRe) {
-      const m1 = re.exec(line)
-      if (m1 && m1.groups) {
-        const m2 = nameRe.exec(m1.groups.path)
-        if (m2 && m2.groups) {
-          const name = m2.groups.name
-          if (!builtins.has(name)) {
-            let version = 'latest'
-            const m3 = versionRe.exec(line)
-            if (m3 && m3.groups) {
-              version = m3.groups.version
-            }
-            deps[name] = version
-          }
-        }
-      }
+    const tuple = parseImports(line)
+    if (tuple) {
+      deps[tuple.name] = tuple.version
     }
   }
   return deps
+}
+
+function parseImports(
+  line: string
+): { name: string; version: string } | undefined {
+  for (let re of importRe) {
+    const m1 = re.exec(line)
+    if (m1 && m1.groups) {
+      const name = parsePackageName(m1.groups.path)
+      const version = parseVersion(line)
+      if (name) {
+        return { name, version }
+      }
+    }
+  }
+}
+
+function parsePackageName(path: string): string | undefined {
+  const m2 = nameRe.exec(path)
+  if (m2 && m2.groups) {
+    const name = m2.groups.name
+    if (!builtins.has(name)) {
+      return name
+    }
+  }
+}
+
+function parseVersion(line: string) {
+  let version = 'latest'
+  const m3 = versionRe.exec(line)
+  if (m3 && m3.groups) {
+    version = m3.groups.version
+  }
+  return version
 }

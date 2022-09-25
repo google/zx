@@ -49,14 +49,7 @@ function printUsage() {
 
 const argv = minimist(process.argv.slice(2), {
   string: ['shell', 'prefix', 'eval'],
-  boolean: [
-    'version',
-    'help',
-    'quiet',
-    'install',
-    'repl',
-    'experimental',
-  ],
+  boolean: ['version', 'help', 'quiet', 'install', 'repl', 'experimental'],
   alias: { e: 'eval', i: 'install', v: 'version', h: 'help' },
   stopEarly: true,
 })
