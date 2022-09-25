@@ -174,7 +174,6 @@ async function importPath(filepath: string, origin = filepath) {
   }
   if (argv.install) {
     const deps = parseDeps(await fs.readFile(filepath))
-    console.log('Installing dependencies...', deps)
     await installDeps(deps, dirname(filepath))
   }
   const __filename = resolve(origin)

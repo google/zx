@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import { $ } from './core.js'
+import { spinner } from './experimental.js'
 
 export async function installDeps(
   dependencies: Record<string, string>,
@@ -25,7 +26,9 @@ export async function installDeps(
   if (packages.length === 0) {
     return
   }
-  await $`npm install --no-save --no-audit --no-fund ${flags} ${packages}`
+  await spinner(`npm i ${packages.join(' ')}`, () =>
+    $`npm install --no-save --no-audit --no-fund ${flags} ${packages}`.nothrow()
+  )
 }
 
 const builtins = new Set([
