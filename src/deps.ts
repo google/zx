@@ -113,32 +113,22 @@ function parseImports(
   line: string
 ): { name: string; version: string } | undefined {
   for (let re of importRe) {
-    const m1 = re.exec(line)
-    if (m1 && m1.groups) {
-      const name = parsePackageName(m1.groups.path)
-      const version = parseVersion(line)
-      if (name) {
-        return { name, version }
-      }
+    const name = parsePackageName(re.exec(line)?.groups?.path)
+    const version = parseVersion(line)
+    if (name) {
+      return { name, version }
     }
   }
 }
 
-function parsePackageName(path: string): string | undefined {
-  const m2 = nameRe.exec(path)
-  if (m2 && m2.groups) {
-    const name = m2.groups.name
-    if (!builtins.has(name)) {
-      return name
-    }
+function parsePackageName(path?: string): string | undefined {
+  if (!path) return
+  const name = nameRe.exec(path)?.groups?.name
+  if (name && !builtins.has(name)) {
+    return name
   }
 }
 
 function parseVersion(line: string) {
-  let version = 'latest'
-  const m3 = versionRe.exec(line)
-  if (m3 && m3.groups) {
-    version = m3.groups.version
-  }
-  return version
+  return versionRe.exec(line)?.groups?.version || 'latest'
 }
