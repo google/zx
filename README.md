@@ -407,28 +407,6 @@ await spinner(() => $`long-running command`)
 await spinner('working...', () => $`sleep 99`)
 ```
 
-## CLI
-
-| Flag                  | Description                                                                                                                                                                                                             | Default |
-|-----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
-| `--quiet`             | don't echo commands                                                                                                                                                                                                     | `false` |
-| `--shell=<path>`      | custom shell binary                                                                                                                                                                                                     |         |
-| `--prefix=<command>`  | prefix all commands                                                                                                                                                                                                     |         |
-| `--interactive, -i`   | start repl                                                                                                                                                                                                              |         |
-| `--eval=<js>, -e`     | evaluate script                                                                                                                                                                                                         |         |
-| `--experimental`      | enable new api proposals                                                                                                                                                                                                |         |
-| `--install`           | parse and load script dependencies from the registry. You can pass additional [params via env vars](https://docs.npmjs.com/cli/v8/using-npm/config) like `npm_config_registry=<url>` or `npm_config_userconfig=<path>`. | `false` |
-| `--version, -v`       | print current zx version                                                                                                                                                                                                |         |
-| `--help, -h`          | print help                                                                                                                                                                                                              |         |
-
-```bash
-zx script.js
-zx --help
-zx --experimental <<'EOF'
-await $`pwd`
-EOF
-```
-
 ## FAQ
 
 ### Passing env variables
@@ -516,10 +494,33 @@ Evaluate the following argument as a script.
 cat package.json | zx --eval 'let v = JSON.parse(await stdin()).version; echo(v)'
 ```
 
+### Installing dependencies via --install
+
+```js
+// script.mjs:
+import sh from 'tinysh'
+sh.say('Hello, world!')
+```
+
+Add `--install` flag to the `zx` command to install missing dependencies 
+automatically.
+
+```bash
+zx --install script.mjs
+```
+
+You can also specify needed version by adding comment with `@` after 
+the import.
+
+```js
+import sh from 'tinysh' // @^1
+```
+
 ### Attaching a profile
 
 By default `child_process` does not include aliases and bash functions.
-But you are still able to do it by hand. Just attach necessary directives to `$.prefix`.
+But you are still able to do it by hand. Just attach necessary directives 
+to the `$.prefix`.
 
 ```js
 $.prefix += 'export NVM_DIR=$HOME/.nvm; source $NVM_DIR/nvm.sh; '
