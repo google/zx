@@ -52,7 +52,7 @@
   "dependencies": {
     "@types/fs-extra": "^9.0.13",
     "@types/minimist": "^1.2.2",
-    "@types/node": "^18.7.18",
+    "@types/node": "^18.7.20",
     "@types/ps-tree": "^1.1.2",
     "@types/which": "^2.0.1",
     "chalk": "^5.0.1",
