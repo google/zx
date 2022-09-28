@@ -109,6 +109,13 @@ try {
 }
 ```
 
+Alternatively you can wrap `$` in a `nothrow()`, which will print the error but continue execution.
+
+```js
+await nothrow($`exit 1`)
+console.debug('still executing...')
+```
+
 ### `ProcessPromise`
 
 ```ts
