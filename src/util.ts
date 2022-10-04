@@ -47,13 +47,6 @@ export function quote(arg: string) {
   )
 }
 
-export function quoteWindows(arg: string) {
-  if (/^[a-z0-9/_.\-@:=]+$/i.test(arg) || arg === '') {
-    return arg
-  }
-  return `"` + arg.replace(/"/g, '\\"').replace(/\n/g, '^\n') + `"`
-}
-
 export function quotePowerShell(arg: string) {
   if (/^[a-z0-9/_.\-]+$/i.test(arg) || arg === '') {
     return arg
