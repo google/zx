@@ -61,7 +61,7 @@ test('quote()', () => {
 
 test('quotePowerShgell()', () => {
   assert.is(quotePowerShell('string'), 'string')
-  assert.is(quotePowerShell(`'`), `''`)
+  assert.is(quotePowerShell(`'`), `''''`)
 })
 
 test('duration parsing works', () => {

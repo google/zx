@@ -22,8 +22,8 @@ $.verbose = false
 
 if (process.platform === 'win32') {
   test('should work with windows-specific commands', async () => {
-    const p = await $`ver`
-    assert.match(p.stdout, /Windows/)
+    const p = await $`get-host`
+    assert.match(p.stdout, /PowerShell/)
   })
 
   test('quotePowerShell works', async () => {
