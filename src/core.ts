@@ -66,15 +66,20 @@ export const defaults: Options = {
   env: process.env,
   shell: true,
   prefix: '',
-  quote,
+  quote: () => {
+    throw new Error('No quote function is defined: https://ï.at/no-quote-func')
+  },
   spawn,
   log,
 }
 
 try {
-  if (process.platform !== 'win32') {
+  if (process.platform == 'win32') {
+    defaults.shell = true
+  } else {
     defaults.shell = which.sync('bash')
     defaults.prefix = 'set -euo pipefail;'
+    defaults.quote = quote
   }
 } catch (err) {
   // ¯\_(ツ)_/¯

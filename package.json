@@ -82,7 +82,8 @@
   ],
   "prettier": {
     "semi": false,
-    "singleQuote": true
+    "singleQuote": true,
+    "endOfLine": "lf"
   },
   "repository": "google/zx",
   "author": "Anton Medvedev <anton@medv.io>",
