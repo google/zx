@@ -22,6 +22,7 @@ import {
   noop,
   parseDuration,
   quote,
+  quotePowerShell,
   randomId,
 } from '../build/util.js'
 
@@ -56,6 +57,11 @@ test('isString()', () => {
 test('quote()', () => {
   assert.ok(quote('string') === 'string')
   assert.ok(quote(`'\f\n\r\t\v\0`) === `$'\\'\\f\\n\\r\\t\\v\\0'`)
+})
+
+test('quotePowerShgell()', () => {
+  assert.is(quotePowerShell('string'), 'string')
+  assert.is(quotePowerShell(`'`), `''`)
 })
 
 test('duration parsing works', () => {

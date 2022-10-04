@@ -29,6 +29,7 @@ import {
   parseDuration,
   psTree,
   quote,
+  quotePowerShell,
 } from './util.js'
 
 export type Shell = (
@@ -75,7 +76,8 @@ export const defaults: Options = {
 
 try {
   if (process.platform == 'win32') {
-    defaults.shell = true
+    defaults.shell = which.sync('powershell.exe')
+    defaults.quote = quotePowerShell
   } else {
     defaults.shell = which.sync('bash')
     defaults.prefix = 'set -euo pipefail;'

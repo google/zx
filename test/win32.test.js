@@ -25,6 +25,11 @@ if (process.platform === 'win32') {
     const p = await $`ver`
     assert.match(p.stdout, /Windows/)
   })
+
+  test('quotePowerShell works', async () => {
+    const p = await $`echo ${`Windows 'rulez!'`}`
+    assert.match(p.stdout, /Windows 'rulez!'/)
+  })
 }
 
 test.run()
