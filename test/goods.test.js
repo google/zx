@@ -78,7 +78,7 @@ test('which() available', async () => {
 test('sleep() works', async () => {
   const now = Date.now()
   await sleep(100)
-  assert.ok(Date.now() >= now + 100)
+  assert.ok(Date.now() >= now + 99)
 })
 
 test.run()

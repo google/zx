@@ -1,4 +1,4 @@
-// Copyright 2021 Google LLC
+// Copyright 2022 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,24 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { suite } from 'uvu'
-import * as assert from 'uvu/assert'
-import '../build/globals.js'
+import { expectType } from 'tsd'
+import { spinner } from '../src/experimental.js'
 
-const test = suite('win32')
-
-$.verbose = false
-
-if (process.platform === 'win32') {
-  test('should work with windows-specific commands', async () => {
-    const p = await $`get-host`
-    assert.match(p.stdout, /PowerShell/)
-  })
-
-  test('quotePowerShell works', async () => {
-    const p = await $`echo ${`Windows 'rulez!'`}`
-    assert.match(p.stdout, /Windows 'rulez!'/)
-  })
-}
-
-test.run()
+expectType<string>(await spinner(() => 'foo'))
+expectType<string>(await spinner('title', () => 'bar'))

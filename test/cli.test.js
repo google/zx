@@ -45,15 +45,15 @@ test('prints help', async () => {
   assert.match(help.stdout, 'zx')
 })
 
-test('starts repl', async () => {
+test('zx prints usage', async () => {
   let p = $`node build/cli.js`
   p.stdin.end()
   let out = await p
-  assert.match(out.stdout, '❯')
+  assert.match(out.stdout, 'A tool for writing better scripts')
 })
 
-test('starts repl with -i', async () => {
-  let p = $`node build/cli.js -i`
+test('starts repl with --repl', async () => {
+  let p = $`node build/cli.js --repl`
   p.stdin.write('await $`echo f"o"o`\n')
   p.stdin.write('"b"+"ar"\n')
   p.stdin.end()
@@ -63,7 +63,7 @@ test('starts repl with -i', async () => {
 })
 
 test('starts repl with verbosity off', async () => {
-  let p = $`node build/cli.js -i`
+  let p = $`node build/cli.js --repl`
   p.stdin.write('"verbose" + " is " + $.verbose\n')
   p.stdin.end()
   let out = await p

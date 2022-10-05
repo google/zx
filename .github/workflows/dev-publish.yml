@@ -1,0 +1,23 @@
+name: Dev Publish
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - run: npm i
+      - run: npm test
+      - run: echo "//wombat-dressing-room.appspot.com/:_authToken=$AUTH_TOKEN" >> .npmrc
+        env:
+          AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
+      - run: |
+          npm version $(node --eval="process.stdout.write(require('./package.json').version)")-dev.$(git rev-parse --short HEAD) --no-git-tag-version
+          npm publish --no-git-tag-version --tag dev

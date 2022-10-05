@@ -509,10 +509,33 @@ Evaluate the following argument as a script.
 cat package.json | zx --eval 'let v = JSON.parse(await stdin()).version; echo(v)'
 ```
 
+### Installing dependencies via --install
+
+```js
+// script.mjs:
+import sh from 'tinysh'
+sh.say('Hello, world!')
+```
+
+Add `--install` flag to the `zx` command to install missing dependencies 
+automatically.
+
+```bash
+zx --install script.mjs
+```
+
+You can also specify needed version by adding comment with `@` after 
+the import.
+
+```js
+import sh from 'tinysh' // @^1
+```
+
 ### Attaching a profile
 
 By default `child_process` does not include aliases and bash functions.
-But you are still able to do it by hand. Just attach necessary directives to `$.prefix`.
+But you are still able to do it by hand. Just attach necessary directives 
+to the `$.prefix`.
 
 ```js
 $.prefix += 'export NVM_DIR=$HOME/.nvm; source $NVM_DIR/nvm.sh; '

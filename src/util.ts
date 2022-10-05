@@ -29,7 +29,7 @@ export function isString(obj: any) {
 }
 
 export function quote(arg: string) {
-  if (/^[a-z0-9/_.-]+$/i.test(arg) || arg === '') {
+  if (/^[a-z0-9/_.\-@:=]+$/i.test(arg) || arg === '') {
     return arg
   }
   return (
@@ -45,6 +45,13 @@ export function quote(arg: string) {
       .replace(/\0/g, '\\0') +
     `'`
   )
+}
+
+export function quotePowerShell(arg: string) {
+  if (/^[a-z0-9/_.\-]+$/i.test(arg) || arg === '') {
+    return arg
+  }
+  return `'` + arg.replace(/'/g, "''") + `'`
 }
 
 export function exitCodeInfo(exitCode: number | null): string | undefined {

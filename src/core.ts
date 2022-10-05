@@ -29,6 +29,7 @@ import {
   parseDuration,
   psTree,
   quote,
+  quotePowerShell,
 } from './util.js'
 
 export type Shell = (
@@ -66,15 +67,21 @@ export const defaults: Options = {
   env: process.env,
   shell: true,
   prefix: '',
-  quote,
+  quote: () => {
+    throw new Error('No quote function is defined: https://ï.at/no-quote-func')
+  },
   spawn,
   log,
 }
 
 try {
-  if (process.platform !== 'win32') {
+  if (process.platform == 'win32') {
+    defaults.shell = which.sync('powershell.exe')
+    defaults.quote = quotePowerShell
+  } else {
     defaults.shell = which.sync('bash')
     defaults.prefix = 'set -euo pipefail;'
+    defaults.quote = quote
   }
 } catch (err) {
   // ¯\_(ツ)_/¯
@@ -91,7 +98,7 @@ export const $ = new Proxy<Shell & Options>(
       throw new Error(`Malformed command at ${from}`)
     }
     let resolve: Resolve, reject: Resolve
-    let promise = new ProcessPromise((...args) => ([resolve, reject] = args))
+    const promise = new ProcessPromise((...args) => ([resolve, reject] = args))
     let cmd = pieces[0],
       i = 0
     while (i < args.length) {
@@ -104,7 +111,8 @@ export const $ = new Proxy<Shell & Options>(
       cmd += s + pieces[++i]
     }
     promise._bind(cmd, from, resolve!, reject!, getStore())
-    setImmediate(() => promise._run()) // Postpone run to allow promise configuration.
+    // Postpone run to allow promise configuration.
+    setImmediate(() => promise.isHalted || promise.run())
     return promise
   } as Shell & Options,
   {
@@ -143,6 +151,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _timeout?: number
   private _timeoutSignal?: string
   private _resolved = false
+  private _halted = false
   private _piped = false
   _prerun = noop
   _postrun = noop
@@ -161,9 +170,9 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     this._snapshot = { ...options }
   }
 
-  _run() {
+  run(): ProcessPromise {
     const $ = this._snapshot
-    if (this.child) return // The _run() can be called from a few places.
+    if (this.child) return this // The _run() can be called from a few places.
     this._prerun() // In case $1.pipe($2), the $2 returned, and on $2._run() invoke $1._run().
     $.log({
       kind: 'cmd',
@@ -234,11 +243,12 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       const t = setTimeout(() => this.kill(this._timeoutSignal), this._timeout)
       this.finally(() => clearTimeout(t)).catch(noop)
     }
+    return this
   }
 
   get stdin(): Writable {
     this.stdio('pipe')
-    this._run()
+    this.run()
     assert(this.child)
     if (this.child.stdin == null)
       throw new Error('The stdin of subprocess is null.')
@@ -246,7 +256,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   get stdout(): Readable {
-    this._run()
+    this.run()
     assert(this.child)
     if (this.child.stdout == null)
       throw new Error('The stdout of subprocess is null.')
@@ -254,21 +264,46 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   get stderr(): Readable {
-    this._run()
+    this.run()
     assert(this.child)
     if (this.child.stderr == null)
       throw new Error('The stderr of subprocess is null.')
     return this.child.stderr
   }
 
-  get exitCode() {
+  get exitCode(): Promise<number | null> {
     return this.then(
       (p) => p.exitCode,
       (p) => p.exitCode
     )
   }
 
-  pipe(dest: Writable | ProcessPromise) {
+  then<R = ProcessOutput, E = ProcessOutput>(
+    onfulfilled?:
+      | ((value: ProcessOutput) => PromiseLike<R> | R)
+      | undefined
+      | null,
+    onrejected?:
+      | ((reason: ProcessOutput) => PromiseLike<E> | E)
+      | undefined
+      | null
+  ): Promise<R | E> {
+    if (this.isHalted && !this.child) {
+      throw new Error('The process is halted!')
+    }
+    return super.then(onfulfilled, onrejected)
+  }
+
+  catch<T = ProcessOutput>(
+    onrejected?:
+      | ((reason: ProcessOutput) => PromiseLike<T> | T)
+      | undefined
+      | null
+  ): Promise<ProcessOutput | T> {
+    return super.catch(onrejected)
+  }
+
+  pipe(dest: Writable | ProcessPromise): ProcessPromise {
     if (typeof dest == 'string')
       throw new Error('The pipe() method does not take strings. Forgot $?')
     if (this._resolved) {
@@ -280,7 +315,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     this._piped = true
     if (dest instanceof ProcessPromise) {
       dest.stdio('pipe')
-      dest._prerun = this._run.bind(this)
+      dest._prerun = this.run.bind(this)
       dest._postrun = () => {
         if (!dest.child)
           throw new Error(
@@ -295,7 +330,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     }
   }
 
-  async kill(signal = 'SIGTERM') {
+  async kill(signal = 'SIGTERM'): Promise<void> {
     if (!this.child)
       throw new Error('Trying to kill a process without creating one.')
     if (!this.child.pid) throw new Error('The process pid is undefined.')
@@ -310,25 +345,34 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     } catch (e) {}
   }
 
-  stdio(stdin: IO, stdout: IO = 'pipe', stderr: IO = 'pipe') {
+  stdio(stdin: IO, stdout: IO = 'pipe', stderr: IO = 'pipe'): ProcessPromise {
     this._stdio = [stdin, stdout, stderr]
     return this
   }
 
-  nothrow() {
+  nothrow(): ProcessPromise {
     this._nothrow = true
     return this
   }
 
-  quiet() {
+  quiet(): ProcessPromise {
     this._quiet = true
     return this
   }
 
-  timeout(d: Duration, signal = 'SIGTERM') {
+  timeout(d: Duration, signal = 'SIGTERM'): ProcessPromise {
     this._timeout = parseDuration(d)
     this._timeoutSignal = signal
     return this
+  }
+
+  halt(): ProcessPromise {
+    this._halted = true
+    return this
+  }
+
+  get isHalted(): boolean {
+    return this._halted
   }
 }
 
