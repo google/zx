@@ -75,16 +75,14 @@ export const defaults: Options = {
 }
 
 try {
+  defaults.shell = which.sync('bash')
+  defaults.prefix = 'set -euo pipefail;'
+  defaults.quote = quote
+} catch (err) {
   if (process.platform == 'win32') {
     defaults.shell = which.sync('powershell.exe')
     defaults.quote = quotePowerShell
-  } else {
-    defaults.shell = which.sync('bash')
-    defaults.prefix = 'set -euo pipefail;'
-    defaults.quote = quote
   }
-} catch (err) {
-  // ¯\_(ツ)_/¯
 }
 
 function getStore() {
