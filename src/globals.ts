@@ -35,6 +35,8 @@ declare global {
   var path: typeof _.path
   var question: typeof _.question
   var quiet: typeof _.quiet
+  var quote: typeof _.quote
+  var quotePowerShell: typeof _.quotePowerShell
   var sleep: typeof _.sleep
   var stdin: typeof _.stdin
   var which: typeof _.which
