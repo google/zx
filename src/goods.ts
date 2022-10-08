@@ -17,7 +17,7 @@ import minimist from 'minimist'
 import nodeFetch, { RequestInfo, RequestInit } from 'node-fetch'
 import { createInterface } from 'node:readline'
 import { $, ProcessOutput } from './core.js'
-import { Duration, isString, parseDuration } from './util.js'
+import { Duration, isString, MutedWritable, parseDuration } from './util.js'
 
 export { default as chalk } from 'chalk'
 export { default as fs } from 'fs-extra'
@@ -78,30 +78,41 @@ function stringify(arg: ProcessOutput | any) {
 
 export async function question(
   query?: string,
-  options?: { choices: string[] }
+  options?: {
+    choices?: string[]
+    muted?: boolean
+    mutedCharacter?: string
+  }
 ): Promise<string> {
   let completer = undefined
   if (options && Array.isArray(options.choices)) {
     /* c8 ignore next 5 */
     completer = function completer(line: string) {
-      const completions = options.choices
+      const completions = options.choices as string[]
       const hits = completions.filter((c) => c.startsWith(line))
       return [hits.length ? hits : completions, line]
     }
   }
+
+  const output = new MutedWritable(options?.mutedCharacter)
+
   const rl = createInterface({
     input: process.stdin,
-    output: process.stdout,
+    output,
     terminal: true,
     completer,
   })
 
-  return new Promise((resolve) =>
+  return new Promise((resolve) => {
     rl.question(query ?? '', (answer) => {
       rl.close()
       resolve(answer)
     })
-  )
+
+    if (options && options.muted) {
+      output.muted = true
+    }
+  })
 }
 
 export async function stdin() {
