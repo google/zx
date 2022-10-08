@@ -28,7 +28,35 @@ test('question() works', async () => {
 "`
   p.stdin.write('foo\n')
   p.stdin.end()
-  assert.match((await p).stdout, 'Answer is foo')
+  const out = await p
+  assert.not.match(out.stdout, '*')
+  assert.match(out.stdout, 'Answer is foo')
+})
+
+test('question() with muted option works', async () => {
+  let p = $`node build/cli.js --eval "
+  let answer = await question('how are you? ', { muted: true })
+  echo(answer)
+"`
+  const stringToWrite = 'this is simple muted text'
+  p.stdin.write(`${stringToWrite}\n`)
+  p.stdin.end()
+  const out = await p
+  assert.not.match(out.stdout.split('\n')[0], stringToWrite)
+  assert.match(out.stdout, stringToWrite)
+})
+
+test('question() with muted option and custom muted character works', async () => {
+  let p = $`node build/cli.js --eval "
+  let answer = await question('how are you? ', { muted: true, mutedCharacter: '*' })
+  echo(answer)
+"`
+  const stringToWrite = 'this is simple muted text'
+  p.stdin.write(`${stringToWrite}\n`)
+  p.stdin.end()
+  const out = await p
+  assert.match(out.stdout, Array.from({ length: stringToWrite.length }).map(() => '*').join(''))
+  assert.match(out.stdout, stringToWrite)
 })
 
 test('globby available', async () => {
