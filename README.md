@@ -172,6 +172,15 @@ A wrapper around the [readline](https://nodejs.org/api/readline.html) package.
 
 ```js
 let bear = await question('What kind of bear is best? ')
+
+// Use with auto complete choices
+let bear = await question('What kind of bear is best? ', { choices: ['one', 'two'] })
+
+// Use with muted input
+let bear = await question('What kind of bear is best? ', { muted: true })
+
+// Use with muted input replacing the content with another character
+let bear = await question('What kind of bear is best? ', { muted: true, mutedCharacter: '*' })
 ```
 
 ### `sleep()`
