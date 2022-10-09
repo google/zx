@@ -55,7 +55,12 @@ test('question() with muted option and custom muted character works', async () =
   p.stdin.write(`${stringToWrite}\n`)
   p.stdin.end()
   const out = await p
-  assert.match(out.stdout, Array.from({ length: stringToWrite.length }).map(() => '*').join(''))
+  assert.match(
+    out.stdout,
+    Array.from({ length: stringToWrite.length })
+      .map(() => '*')
+      .join('')
+  )
   assert.match(out.stdout, stringToWrite)
 })
 
