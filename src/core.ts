@@ -64,6 +64,7 @@ export interface Options {
   shell: string | boolean
   nothrow: boolean
   prefix: string
+  postfix: string
   quote: typeof quote
   quiet: boolean
   spawn: typeof spawn
@@ -92,6 +93,7 @@ export const defaults: Options = {
   nothrow: false,
   quiet: false,
   prefix: '',
+  postfix: '',
   quote: () => {
     throw new Error('No quote function is defined: https://ï.at/no-quote-func')
   },
@@ -109,6 +111,7 @@ try {
   if (isWin) {
     try {
       defaults.shell = which.sync('powershell.exe')
+      defaults.postfix = '; exit $LastExitCode'
       defaults.quote = quotePowerShell
     } catch (err) {
       // no powershell?
@@ -230,7 +233,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
     this._zurk = exec({
       input,
-      cmd: $.prefix + this._command,
+      cmd: $.prefix + this._command + $.postfix,
       cwd: $.cwd ?? $[processCwd],
       ac: $.ac,
       shell: typeof $.shell === 'string' ? $.shell : true,

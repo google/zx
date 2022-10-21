@@ -91,6 +91,13 @@ describe('cli', () => {
     assert.ok(p.stderr.includes(prefix))
   })
 
+  test('supports `--postfix` flag ', async () => {
+    let postfix = '; exit 0'
+    let p =
+      await $`node build/cli.js --verbose --postfix=${postfix} <<< '$\`echo \${$.postfix}\`'`
+    assert.ok(p.stderr.includes(postfix))
+  })
+
   test('scripts from https', async () => {
     $`cat ${path.resolve('test/fixtures/echo.http')} | nc -l 8080`
     let out =
