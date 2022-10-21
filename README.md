@@ -368,9 +368,17 @@ Specifies a `spawn` api. Defaults to `require('child_process').spawn`.
 
 Specifies the command that will be prefixed to all commands run.
 
-Default is `set -euo pipefail;`.
+Default is `set -euo pipefail;` for bash, and `''` for powershell.
 
 Or use a CLI argument: `--prefix='set -e;'`
+
+### `$.postfix`
+
+Same as `$.prefix` but applied after the all commands. 
+
+Default is `''` for bash, and `; exit $LastExitCode` for powershell.
+
+Or use a CLI argument: `--postfix='; exit $LastExitCode'`
 
 ### `$.quote`
 

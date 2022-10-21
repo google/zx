@@ -38,6 +38,7 @@ function printUsage() {
    --quiet              don't echo commands
    --shell=<path>       custom shell binary
    --prefix=<command>   prefix all commands
+   --postfix=<command>  postfix all commands
    --eval=<js>, -e      evaluate script 
    --install, -i        install dependencies
    --experimental       enable experimental features
@@ -48,7 +49,7 @@ function printUsage() {
 }
 
 const argv = minimist(process.argv.slice(2), {
-  string: ['shell', 'prefix', 'eval'],
+  string: ['shell', 'prefix', 'postfix', 'eval'],
   boolean: ['version', 'help', 'quiet', 'install', 'repl', 'experimental'],
   alias: { e: 'eval', i: 'install', v: 'version', h: 'help' },
   stopEarly: true,
@@ -60,6 +61,7 @@ await (async function main() {
   if (argv.quiet) $.verbose = false
   if (argv.shell) $.shell = argv.shell
   if (argv.prefix) $.prefix = argv.prefix
+  if (argv.postfix) $.postfix = argv.postfix
   if (argv.experimental) {
     Object.assign(global, await import('./experimental.js'))
   }
