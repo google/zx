@@ -54,7 +54,16 @@ const argv = minimist(process.argv.slice(2), {
   stopEarly: true,
 })
 
-await (async function main() {
+main().catch((err) => {
+  if (err instanceof ProcessOutput) {
+    console.error('Error:', err.message)
+  } else {
+    console.error(err)
+  }
+  process.exitCode = 1
+})
+
+async function main() {
   const globals = './globals.js'
   await import(globals)
   if (argv.quiet) $.verbose = false
@@ -94,14 +103,7 @@ await (async function main() {
     ? url.fileURLToPath(firstArg)
     : resolve(firstArg)
   await importPath(filepath)
-})().catch((err) => {
-  if (err instanceof ProcessOutput) {
-    console.error('Error:', err.message)
-  } else {
-    console.error(err)
-  }
-  process.exitCode = 1
-})
+}
 
 async function runScript(script: string) {
   const filepath = join(process.cwd(), `zx-${randomId()}.mjs`)
