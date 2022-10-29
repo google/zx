@@ -23,3 +23,6 @@ expectType<ProcessPromise>(p)
 let o = await p
 assert(o instanceof ProcessOutput)
 expectType<ProcessOutput>(o)
+
+expectType<string>(quote('foo'))
+expectType<string>(quotePowerShell('foo'))

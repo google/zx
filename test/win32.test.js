@@ -22,13 +22,23 @@ $.verbose = false
 
 if (process.platform === 'win32') {
   test('should work with windows-specific commands', async () => {
-    const p = await $`get-host`
-    assert.match(p.stdout, /PowerShell/)
+    const p = await $`echo $0` // Bash is first by default.
+    assert.match(p.stdout, /bash/)
+    await within(async () => {
+      $.shell = which.sync('powershell.exe')
+      $.quote = quotePowerShell
+      const p = await $`get-host`
+      assert.match(p.stdout, /PowerShell/)
+    })
   })
 
   test('quotePowerShell works', async () => {
-    const p = await $`echo ${`Windows 'rulez!'`}`
-    assert.match(p.stdout, /Windows 'rulez!'/)
+    await within(async () => {
+      $.shell = which.sync('powershell.exe')
+      $.quote = quotePowerShell
+      const p = await $`echo ${`Windows 'rulez!'`}`
+      assert.match(p.stdout, /Windows 'rulez!'/)
+    })
   })
 }
 

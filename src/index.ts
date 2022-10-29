@@ -43,7 +43,7 @@ export {
   YAML,
 } from './goods.js'
 
-export { Duration } from './util.js'
+export { Duration, quote, quotePowerShell } from './util.js'
 
 /**
  *  @deprecated Use $.nothrow() instead.
