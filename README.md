@@ -491,6 +491,12 @@ downloaded and executed.
 zx https://medv.io/game-of-life.js
 ```
 
+You can specify arbitrary headers by specifying `--header` parameters.
+
+```bash
+zx --header User-Agent=zx --header X-Custom=42 https://medv.io/game-of-life.js
+```
+
 ### Executing scripts from stdin
 
 The `zx` supports executing scripts from stdin.

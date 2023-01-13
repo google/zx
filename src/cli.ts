@@ -16,6 +16,7 @@
 
 import fs from 'fs-extra'
 import minimist from 'minimist'
+import { RequestInit } from 'node-fetch'
 import { createRequire } from 'node:module'
 import { basename, dirname, extname, join, resolve } from 'node:path'
 import url from 'node:url'
@@ -40,6 +41,7 @@ function printUsage() {
    --prefix=<command>   prefix all commands
    --eval=<js>, -e      evaluate script 
    --install, -i        install dependencies
+   --header=<name=val>  headers for http-based scripts
    --experimental       enable experimental features
    --version, -v        print current zx version
    --help, -h           print help
@@ -48,7 +50,7 @@ function printUsage() {
 }
 
 const argv = minimist(process.argv.slice(2), {
-  string: ['shell', 'prefix', 'eval'],
+  string: ['shell', 'prefix', 'eval', 'header'],
   boolean: ['version', 'help', 'quiet', 'install', 'repl', 'experimental'],
   alias: { e: 'eval', i: 'install', v: 'version', h: 'help' },
   stopEarly: true,
@@ -87,7 +89,14 @@ await (async function main() {
     return
   }
   if (/^https?:/.test(firstArg)) {
-    await scriptFromHttp(firstArg)
+    const headers = (
+      Array.isArray(argv.header)
+        ? argv.header
+        : argv.header
+        ? [argv.header]
+        : []
+    ).map((h) => h.split('=', 2))
+    await scriptFromHttp(firstArg, { headers })
     return
   }
   const filepath = firstArg.startsWith('file:///')
@@ -124,8 +133,8 @@ async function scriptFromStdin() {
   return false
 }
 
-async function scriptFromHttp(remote: string) {
-  const res = await fetch(remote)
+async function scriptFromHttp(remote: string, init?: RequestInit) {
+  const res = await fetch(remote, init)
   if (!res.ok) {
     console.error(`Error: Can't get ${remote}`)
     process.exit(1)

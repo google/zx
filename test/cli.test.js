@@ -15,6 +15,7 @@
 import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
 import '../build/globals.js'
+import fs from 'fs-extra'
 
 const test = suite('cli')
 
@@ -100,6 +101,17 @@ test('scripts from https', async () => {
   $`cat ${path.resolve('test/fixtures/echo.http')} | nc -l 8080`
   let out = await $`node build/cli.js http://127.0.0.1:8080/echo.mjs`
   assert.match(out.stderr, 'test')
+})
+
+test('supports `--header` flag', async () => {
+  const tmpFile = path.join(
+    os.tmpdir(),
+    `${new Date().getTime().toString(36)}.text`
+  )
+  $`cat ${path.resolve('test/fixtures/echo.http')} | nc -l 8080 > ${tmpFile}`
+  await $`node build/cli.js --header foo=bar http://127.0.0.1:8080/echo.mjs`
+  const requestData = await fs.readFile(tmpFile)
+  assert.match(requestData, 'foo: bar')
 })
 
 test('scripts from https not ok', async () => {
