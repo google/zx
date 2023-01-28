@@ -187,6 +187,8 @@ function transformMarkdown(buf: Buffer) {
   const source = buf.toString()
   const output = []
   let state = 'root'
+  let sequence = ''
+  let match = ''
   let prevLineIsEmpty = true
   for (let line of source.split('\n')) {
     switch (state) {
@@ -194,15 +196,18 @@ function transformMarkdown(buf: Buffer) {
         if (/^( {4}|\t)/.test(line) && prevLineIsEmpty) {
           output.push(line)
           state = 'tab'
-        } else if (/^```(js|javascript)$/.test(line)) {
+        } else if (/^(```+|~~~+)(js|javascript)$/.test(line)) {
           output.push('')
           state = 'js'
-        } else if (/^```(sh|bash)$/.test(line)) {
+          sequence = line.match(/^(```+|~~~+)(js|javascript)$/)![1]
+        } else if (/^(```+|~~~+)(sh|bash)$/.test(line)) {
           output.push('await $`')
           state = 'bash'
-        } else if (/^```.*$/.test(line)) {
+          sequence = line.match(/^(```+|~~~+)(sh|bash)$/)![1]
+        } else if (/^(```+|~~~+).*$/.test(line)) {
           output.push('')
           state = 'other'
+          sequence = line.match(/^(```+|~~~+)(.*)$/)![1]
         } else {
           prevLineIsEmpty = line === ''
           output.push('// ' + line)
@@ -219,7 +224,7 @@ function transformMarkdown(buf: Buffer) {
         }
         break
       case 'js':
-        if (/^```$/.test(line)) {
+        if (line === sequence) {
           output.push('')
           state = 'root'
         } else {
@@ -227,7 +232,7 @@ function transformMarkdown(buf: Buffer) {
         }
         break
       case 'bash':
-        if (/^```$/.test(line)) {
+        if (line === sequence) {
           output.push('`')
           state = 'root'
         } else {
@@ -235,7 +240,7 @@ function transformMarkdown(buf: Buffer) {
         }
         break
       case 'other':
-        if (/^```$/.test(line)) {
+        if (line === sequence) {
           output.push('')
           state = 'root'
         } else {
