@@ -61,7 +61,7 @@
     "minimist": "^1.2.6",
     "node-fetch": "3.2.10",
     "ps-tree": "^1.2.0",
-    "which": "^2.0.2",
+    "which": "^3.0.0",
     "yaml": "^2.1.1"
   },
   "devDependencies": {
