@@ -24,6 +24,7 @@ import { $, chalk, fetch, ProcessOutput } from './index.js'
 import { startRepl } from './repl.js'
 import { randomId } from './util.js'
 import { installDeps, parseDeps } from './deps.js'
+import { MarkdownState } from './markdown/state.js'
 
 function printUsage() {
   // language=txt
@@ -186,58 +187,58 @@ async function importPath(filepath: string, origin = filepath) {
 function transformMarkdown(buf: Buffer) {
   const source = buf.toString()
   const output = []
-  let state = 'root'
+  let state = MarkdownState.Root
   let prevLineIsEmpty = true
   for (let line of source.split('\n')) {
     switch (state) {
-      case 'root':
+      case MarkdownState.Root:
         if (/^( {4}|\t)/.test(line) && prevLineIsEmpty) {
           output.push(line)
-          state = 'tab'
+          state = MarkdownState.Tab
         } else if (/^```(js|javascript)$/.test(line)) {
           output.push('')
-          state = 'js'
+          state = MarkdownState.Javascript
         } else if (/^```(sh|bash)$/.test(line)) {
           output.push('await $`')
-          state = 'bash'
+          state = MarkdownState.Bash
         } else if (/^```.*$/.test(line)) {
           output.push('')
-          state = 'other'
+          state = MarkdownState.Other
         } else {
           prevLineIsEmpty = line === ''
           output.push('// ' + line)
         }
         break
-      case 'tab':
+      case MarkdownState.Tab:
         if (/^( +|\t)/.test(line)) {
           output.push(line)
         } else if (line === '') {
           output.push('')
         } else {
           output.push('// ' + line)
-          state = 'root'
+          state = MarkdownState.Root
         }
         break
-      case 'js':
+      case MarkdownState.Javascript:
         if (/^```$/.test(line)) {
           output.push('')
-          state = 'root'
+          state = MarkdownState.Root
         } else {
           output.push(line)
         }
         break
-      case 'bash':
+      case MarkdownState.Bash:
         if (/^```$/.test(line)) {
           output.push('`')
-          state = 'root'
+          state = MarkdownState.Root
         } else {
           output.push(line)
         }
         break
-      case 'other':
+      case MarkdownState.Other:
         if (/^```$/.test(line)) {
           output.push('')
-          state = 'root'
+          state = MarkdownState.Root
         } else {
           output.push('// ' + line)
         }
