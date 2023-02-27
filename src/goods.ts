@@ -27,6 +27,7 @@ export { default as which } from 'which'
 export { default as YAML } from 'yaml'
 export { default as path } from 'node:path'
 export { default as os } from 'node:os'
+export { ssh } from 'webpod'
 
 export let argv = minimist(process.argv.slice(2))
 export function updateArgv(args: string[]) {

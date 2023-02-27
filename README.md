@@ -35,9 +35,12 @@ npm i -g zx
 
 ## Goods
 
-[$](#command-) · [cd()](#cd) · [fetch()](#fetch) · [question()](#question) · [sleep()](#sleep) · [echo()](#echo) · [stdin()](#stdin) · [within()](#within) ·
+[$](#command-) · [cd()](#cd) · [fetch()](#fetch) · [question()](#question) · [sleep()](#sleep) · [echo()](#echo) · [stdin()](#stdin) · [within()](#within) · [retry()](#retry) · [spinner()](#spinner) ·
 [chalk](#chalk-package) · [fs](#fs-package) · [os](#os-package) · [path](#path-package) · [glob](#globby-package) · [yaml](#yaml-package) · [minimist](#minimist-package) · [which](#which-package) ·
 [__filename](#__filename--__dirname) · [__dirname](#__filename--__dirname) · [require()](#require)
+
+For running commands on remote hosts,
+see [webpod](https://github.com/webpod/webpod).
 
 ## Documentation
 
@@ -46,11 +49,13 @@ use `await` at the top level. If you prefer the `.js` extension,
 wrap your scripts in something like `void async function () {...}()`.
 
 Add the following shebang to the beginning of your `zx` scripts:
+
 ```bash
 #!/usr/bin/env zx
 ```
 
 Now you will be able to run your script like so:
+
 ```bash
 chmod +x ./script.mjs
 ./script.mjs
@@ -117,9 +122,13 @@ class ProcessPromise extends Promise<ProcessOutput> {
   stdout: Readable
   stderr: Readable
   exitCode: Promise<number>
+
   pipe(dest): ProcessPromise
+
   kill(): Promise<void>
+
   nothrow(): this
+
   quiet(): this
 }
 ```
@@ -134,11 +143,13 @@ class ProcessOutput {
   readonly stderr: string
   readonly signal: string
   readonly exitCode: number
+
   toString(): string // Combined stdout & stderr.
 }
 ```
 
-The output of the process is captured as-is. Usually, programs print a new line `\n` at the end.
+The output of the process is captured as-is. Usually, programs print a new
+line `\n` at the end.
 If `ProcessOutput` is used as an argument to some other `$` process,
 **zx** will use stdout and trim the new line.
 
@@ -160,7 +171,8 @@ await $`pwd` // => /tmp
 
 ### `fetch()`
 
-A wrapper around the [node-fetch](https://www.npmjs.com/package/node-fetch) package.
+A wrapper around the [node-fetch](https://www.npmjs.com/package/node-fetch)
+package.
 
 ```js
 let resp = await fetch('https://medv.io')
@@ -312,7 +324,9 @@ The [minimist](https://www.npmjs.com/package/minimist) package available
 as global const `argv`.
 
 ```js
-if( argv.someFlag ){ echo('yes') }
+if (argv.someFlag) {
+  echo('yes')
+}
 ```
 
 ### `which` package
@@ -398,7 +412,8 @@ $.log = (entry: LogEntry) => {
 ### `__filename` & `__dirname`
 
 In [ESM](https://nodejs.org/api/esm.html) modules, Node.js does not provide
-`__filename` and `__dirname` globals. As such globals are really handy in scripts,
+`__filename` and `__dirname` globals. As such globals are really handy in
+scripts,
 `zx` provides these for use in `.mjs` files (when using the `zx` executable).
 
 ### `require()`
@@ -423,10 +438,12 @@ await $`echo $FOO`
 
 ### Passing array of values
 
-When passing an array of values as an argument to `$`, items of the array will be escaped
+When passing an array of values as an argument to `$`, items of the array will
+be escaped
 individually and concatenated via space.
 
 Example:
+
 ```js
 let files = [...]
 await $`tar cz ${files}`
@@ -438,14 +455,16 @@ It is possible to make use of `$` and other functions via explicit imports:
 
 ```js
 #!/usr/bin/env node
-import {$} from 'zx'
+import { $ } from 'zx'
+
 await $`date`
 ```
 
 ### Scripts without extensions
 
 If script does not have a file extension (like `.git/hooks/pre-commit`), zx
-assumes that it is an [ESM](https://nodejs.org/api/modules.html#modules_module_createrequire_filename)
+assumes that it is
+an [ESM](https://nodejs.org/api/modules.html#modules_module_createrequire_filename)
 module.
 
 ### Markdown scripts
@@ -459,7 +478,7 @@ zx docs/markdown.md
 ### TypeScript scripts
 
 ```ts
-import {$} from 'zx'
+import { $ } from 'zx'
 // Or
 import 'zx/globals'
 
@@ -469,7 +488,8 @@ void async function () {
 ```
 
 Set [`"type": "module"`](https://nodejs.org/api/packages.html#packages_type)
-in **package.json** and [`"module": "ESNext"`](https://www.typescriptlang.org/tsconfig/#module)
+in **package.json**
+and [`"module": "ESNext"`](https://www.typescriptlang.org/tsconfig/#module)
 in **tsconfig.json**.
 
 ### Executing remote scripts
@@ -486,7 +506,7 @@ zx https://medv.io/game-of-life.js
 The `zx` supports executing scripts from stdin.
 
 ```js
-zx <<'EOF'
+zx << 'EOF'
 await $`pwd`
 EOF
 ```
@@ -504,17 +524,18 @@ cat package.json | zx --eval 'let v = JSON.parse(await stdin()).version; echo(v)
 ```js
 // script.mjs:
 import sh from 'tinysh'
+
 sh.say('Hello, world!')
 ```
 
-Add `--install` flag to the `zx` command to install missing dependencies 
+Add `--install` flag to the `zx` command to install missing dependencies
 automatically.
 
 ```bash
 zx --install script.mjs
 ```
 
-You can also specify needed version by adding comment with `@` after 
+You can also specify needed version by adding comment with `@` after
 the import.
 
 ```js
@@ -524,7 +545,7 @@ import sh from 'tinysh' // @^1
 ### Attaching a profile
 
 By default `child_process` does not include aliases and bash functions.
-But you are still able to do it by hand. Just attach necessary directives 
+But you are still able to do it by hand. Just attach necessary directives
 to the `$.prefix`.
 
 ```js
@@ -541,21 +562,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Build
-      env:
-        FORCE_COLOR: 3
-      run: |
-        npx zx <<'EOF'
-        await $`...`
-        EOF
+      - name: Build
+        env:
+          FORCE_COLOR: 3
+        run: |
+          npx zx <<'EOF'
+          await $`...`
+          EOF
 ```
 
 ### Canary / Beta / RC builds
 
-Impatient early adopters can try the experimental zx versions. 
-But keep in mind: these builds are ⚠️️ __beta__ in every sense.
+Impatient early adopters can try the experimental zx versions.
+But keep in mind: these builds are ⚠️️__beta__ in every sense.
 
 ```bash
 npm i zx@dev
