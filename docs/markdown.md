@@ -14,21 +14,6 @@ await $`whoami`
 await $`echo ${__dirname}`
 ```
 
-~~~js
-await $`whoami`
-await $`echo ${__dirname}`
-~~~
-
-````js
-await $`whoami`
-await $`echo ${__dirname}`
-````
-
-~~~~js
-await $`whoami`
-await $`echo ${__dirname}`
-~~~~
-
 The `__filename` will be pointed to **markdown.md**:
 
 ```js
@@ -48,21 +33,6 @@ VAR=$(date)
 echo "$VAR" | wc -c
 ```
 
-~~~bash
-VAR=$(date)
-echo "$VAR" | wc -c
-~~~
-
-````bash
-VAR=$(date)
-echo "$VAR" | wc -c
-````
-
-~~~~bash
-VAR=$(date)
-echo "$VAR" | wc -c
-~~~~
-
 Other code blocks are ignored:
 
 ```css
@@ -70,22 +40,3 @@ body .hero {
     margin: 42px;
 }
 ```
-
-~~~css
-body .hero {
-    margin: 42px;
-}
-~~~
-
-````css
-body .hero {
-    margin: 42px;
-}
-````
-
-~~~~css
-body .hero {
-    margin: 42px;
-}
-~~~~
-
