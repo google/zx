@@ -14,34 +14,8 @@
 
 import { ProcessPromise } from './core.js'
 
-export {
-  $,
-  Shell,
-  Options,
-  ProcessPromise,
-  ProcessOutput,
-  within,
-  cd,
-  log,
-  LogEntry,
-} from './core.js'
-
-export {
-  argv,
-  chalk,
-  echo,
-  fetch,
-  fs,
-  glob,
-  globby,
-  os,
-  path,
-  question,
-  sleep,
-  stdin,
-  which,
-  YAML,
-} from './goods.js'
+export * from './core.js'
+export * from './goods.js'
 
 export { Duration, quote, quotePowerShell } from './util.js'
 

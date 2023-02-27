@@ -228,6 +228,32 @@ let version = await within(async () => {
 })
 ```
 
+### `retry()`
+
+Retries a callback for a few times. Will return after the first
+successful attempt, or will throw after specifies attempts count.
+
+```js
+let p = await retry(10, () => $`curl https://medv.io`)
+
+// With a specified delay between attempts.
+let p = await retry(20, '1s', () => $`curl https://medv.io`)
+
+// With an exponential backoff.
+let p = await retry(30, expBackoff(), () => $`curl https://medv.io`)
+```
+
+### `spinner()`
+
+Starts a simple CLI spinner.
+
+```js
+await spinner(() => $`long-running command`)
+
+// With a message.
+await spinner('working...', () => $`sleep 99`)
+```
+
 ## Packages
 
 The following packages are available without importing inside scripts.
@@ -386,42 +412,6 @@ files (when using `zx` executable).
 let {version} = require('./package.json')
 ```
 
-## Experimental
-
-The zx provides a few experimental functions. Please leave feedback about
-those features in [the discussion](https://github.com/google/zx/discussions/299).
-To enable new features via CLI pass `--experimental` flag.
-
-### `retry()`
-
-Retries a callback for a few times. Will return after the first
-successful attempt, or will throw after specifies attempts count.
-
-```js
-import { retry, expBackoff } from 'zx/experimental'
-
-let p = await retry(10, () => $`curl https://medv.io`)
-
-// With a specified delay between attempts.
-let p = await retry(20, '1s', () => $`curl https://medv.io`)
-
-// With an exponential backoff.
-let p = await retry(30, expBackoff(), () => $`curl https://medv.io`)
-```
-
-### `spinner()`
-
-Starts a simple CLI spinner.
-
-```js
-import { spinner } from 'zx/experimental'
-
-await spinner(() => $`long-running command`)
-
-// With a message.
-await spinner('working...', () => $`sleep 99`)
-```
-
 ## FAQ
 
 ### Passing env variables
@@ -563,7 +553,10 @@ jobs:
 ```
 
 ### Canary / Beta / RC builds
-Impatient early adopters can try the experimental zx versions. But keep in mind: these builds are ⚠️️ __unstable__ in every sense.
+
+Impatient early adopters can try the experimental zx versions. 
+But keep in mind: these builds are ⚠️️ __beta__ in every sense.
+
 ```bash
 npm i zx@dev
 npx zx@dev --install --quiet <<< 'import _ from "lodash" /* 4.17.15 */; console.log(_.VERSION)'

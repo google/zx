@@ -13,7 +13,3 @@
 // limitations under the License.
 
 import { expectType } from 'tsd'
-import { spinner } from '../src/experimental.js'
-
-expectType<string>(await spinner(() => 'foo'))
-expectType<string>(await spinner('title', () => 'bar'))

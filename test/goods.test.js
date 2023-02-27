@@ -21,6 +21,10 @@ const test = suite('goods')
 
 $.verbose = false
 
+function zx(script) {
+  return $`node build/cli.js --eval ${script}`.nothrow().timeout('5s')
+}
+
 test('question() works', async () => {
   let p = $`node build/cli.js --eval "
   let answer = await question('foo or bar? ', { choices: ['foo', 'bar'] })
@@ -79,6 +83,65 @@ test('sleep() works', async () => {
   const now = Date.now()
   await sleep(100)
   assert.ok(Date.now() >= now + 99)
+})
+
+test('retry() works', async () => {
+  const now = Date.now()
+  let p = await zx(`
+    try {
+      await retry(5, '50ms', () => $\`exit 123\`)
+    } catch (e) {
+      echo('exitCode:', e.exitCode)
+    }
+    await retry(5, () => $\`exit 0\`)
+    echo('success')
+`)
+  assert.match(p.toString(), 'exitCode: 123')
+  assert.match(p.toString(), 'success')
+  assert.ok(Date.now() >= now + 50 * (5 - 1))
+})
+
+test('retry() with expBackoff() works', async () => {
+  const now = Date.now()
+  let p = await zx(`
+    try {
+      await retry(5, expBackoff('60s', 0), () => $\`exit 123\`)
+    } catch (e) {
+      echo('exitCode:', e.exitCode)
+    }
+    echo('success')
+`)
+  assert.match(p.toString(), 'exitCode: 123')
+  assert.match(p.toString(), 'success')
+  assert.ok(Date.now() >= now + 2 + 4 + 8 + 16 + 32)
+})
+
+test('spinner() works', async () => {
+  let out = await zx(`
+    echo(await spinner(async () => {
+      await sleep(100)
+      await $\`echo hidden\`
+      return $\`echo result\`
+    }))
+  `)
+  assert.match(out.stdout, 'result')
+  assert.not.match(out.stderr, 'result')
+  assert.not.match(out.stderr, 'hidden')
+})
+
+test('spinner() with title works', async () => {
+  let out = await zx(`
+    await spinner('processing', () => sleep(100))
+  `)
+  assert.match(out.stderr, 'processing')
+})
+
+test('spinner() stops on throw', async () => {
+  let out = await zx(`
+    await spinner('processing', () => $\`wtf-cmd\`)
+  `)
+  assert.match(out.stderr, 'Error:')
+  assert.is.not(out.exitCode, 0)
 })
 
 test.run()
