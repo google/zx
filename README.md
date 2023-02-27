@@ -542,6 +542,19 @@ the import.
 import sh from 'tinysh' // @^1
 ```
 
+### Executing commands on remote hosts
+
+The `zx` uses [webpod](https://github.com/webpod/webpod) to execute commands on
+remote hosts.
+
+```js
+import { ssh } from 'zx'
+
+await ssh('user@host')`echo Hello, world!`
+```
+
+
+
 ### Attaching a profile
 
 By default `child_process` does not include aliases and bash functions.
