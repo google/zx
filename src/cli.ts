@@ -21,7 +21,6 @@ import { basename, dirname, extname, join, resolve } from 'node:path'
 import url from 'node:url'
 import { updateArgv } from './goods.js'
 import { $, chalk, fetch, ProcessOutput } from './index.js'
-import { startRepl } from './repl.js'
 import { randomId } from './util.js'
 import { installDeps, parseDeps } from './deps.js'
 
@@ -72,7 +71,7 @@ await (async function main() {
     return
   }
   if (argv.repl) {
-    startRepl()
+    (await import('./repl.js')).startRepl()
     return
   }
   if (argv.eval) {
