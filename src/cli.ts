@@ -71,7 +71,7 @@ await (async function main() {
     return
   }
   if (argv.repl) {
-    (await import('./repl.js')).startRepl()
+    await (await import('./repl.js')).startRepl()
     return
   }
   if (argv.eval) {
