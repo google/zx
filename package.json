@@ -61,7 +61,7 @@
     "minimist": "^1.2.8",
     "node-fetch": "3.2.10",
     "ps-tree": "^1.2.0",
-    "webpod": "^0.0.2",
+    "webpod": "^0",
     "which": "^3.0.0",
     "yaml": "^2.2.1"
   },
