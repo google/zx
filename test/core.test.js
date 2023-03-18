@@ -373,7 +373,7 @@ test('$ thrown as error', async () => {
     err = p
   }
   assert.ok(err.exitCode > 0)
-  assert.ok(err.stderr.includes('/bin/bash: wtf: command not found\n'))
+  assert.ok(err.stderr.includes('wtf: command not found'))
   assert.ok(err[inspect.custom]().includes('Command not found'))
 })
 

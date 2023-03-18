@@ -135,6 +135,10 @@ test('markdown scripts are working', async () => {
   await $`node build/cli.js docs/markdown.md`
 })
 
+test('markdown scripts are working', async () => {
+  await $`node build/cli.js docs/markdown.md`
+})
+
 test('exceptions are caught', async () => {
   let out1 = await $`node build/cli.js <<<${'await $`wtf`'}`.nothrow()
   assert.match(out1.stderr, 'Error:')

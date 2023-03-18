@@ -1,7 +1,7 @@
 # Markdown Scripts
 
 It's possible to write scripts using markdown. Only code blocks will be executed
-by zx. 
+by zx.
 
 > You can run this markdown file:
 >
