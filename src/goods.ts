@@ -17,7 +17,7 @@ import * as globbyModule from 'globby'
 import minimist from 'minimist'
 import nodeFetch, { RequestInfo, RequestInit } from 'node-fetch'
 import { createInterface } from 'node:readline'
-import { $, ProcessOutput, within } from './core.js'
+import { $, within, ProcessOutput } from './core.js'
 import { Duration, isString, MutedWritable, parseDuration } from './util.js'
 import chalk from 'chalk'
 
