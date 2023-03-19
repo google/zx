@@ -16,6 +16,8 @@ jobs:
           for test in test/*.test.js; do
             deno run -A $test
           done
+        env:
+          FORCE_COLOR: 3
 
   win32:
     runs-on: windows-latest
@@ -30,3 +32,5 @@ jobs:
           for test in test/*.test.js; do
             deno run -A $test
           done
+        env:
+          FORCE_COLOR: 3
