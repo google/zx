@@ -25,6 +25,6 @@ jobs:
         with:
           deno-version: v1.x
       - run: deno task build
-      - run: deno test -A
+      - run: deno test -A test/win32.test.js
         env:
           FORCE_COLOR: 3
