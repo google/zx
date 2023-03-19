@@ -12,13 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { suite } from 'uvu'
+import { suite, isDeno, runtime } from '../test-util.js'
 import * as assert from 'uvu/assert'
 import process from 'node:process'
 import '../build/globals.js'
 
-const isDeno = typeof Deno !== 'undefined'
-const runtime = isDeno ? ['deno', 'run', '-A'] : 'node'
 const test = suite('cli')
 
 $.verbose = false

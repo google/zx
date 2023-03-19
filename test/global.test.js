@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { suite } from 'uvu'
+import { suite } from '../test-util.js'
 import * as assert from 'uvu/assert'
 import '../build/globals.js'
 import * as index from '../build/index.js'

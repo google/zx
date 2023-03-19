@@ -12,11 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { suite } from 'uvu'
+import { suite, isDeno } from '../test-util.js'
 import * as assert from 'uvu/assert'
 import '../build/globals.js'
 
-const isDeno = typeof Deno !== 'undefined'
 const test = suite('package')
 
 test.before.each(async () => {

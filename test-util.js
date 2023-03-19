@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC
+// Copyright 2023 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,12 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { suite } from '../test-util.js'
-import * as assert from 'uvu/assert'
-import '../build/globals.js'
+import { suite as uvuSuite } from 'uvu'
 
-const test = suite('experimental')
+export const isDeno = typeof Deno !== 'undefined'
+export const runtime = isDeno ? ['deno', 'run', '-A'] : 'node'
 
-$.verbose = false
-
-test.run()
+export const suite = isDeno
+  ? () => {
+      const runner = (name, fn) =>
+        Deno.test({
+          name,
+          fn,
+          sanitizeResources: false,
+          sanitizeOps: false,
+        })
+      const noop = () => {}
+      runner.run = noop
+      runner.before = { each: noop }
+      return runner
+    }
+  : uvuSuite

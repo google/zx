@@ -13,12 +13,10 @@
 // limitations under the License.
 
 import chalk from 'chalk'
-import { suite } from 'uvu'
+import { suite, isDeno, runtime } from '../test-util.js'
 import * as assert from 'uvu/assert'
 import '../build/globals.js'
 
-const isDeno = typeof Deno !== 'undefined'
-const runtime = isDeno ? ['deno', 'run', '-A'] : 'node'
 const test = suite('goods')
 
 $.verbose = false

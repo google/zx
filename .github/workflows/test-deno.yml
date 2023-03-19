@@ -12,10 +12,7 @@ jobs:
         with:
           deno-version: v1.x
       - run: deno task build
-      - run: |
-          for test in test/*.test.js; do
-            deno run -A $test
-          done
+      - run: deno test -A test/*.test.js
         env:
           FORCE_COLOR: 3
 
@@ -28,9 +25,6 @@ jobs:
         with:
           deno-version: v1.x
       - run: deno task build
-      - run: |
-          for test in test/*.test.js; do
-            deno run -A $test
-          done
+      - run: deno test -A test/*.test.js
         env:
           FORCE_COLOR: 3

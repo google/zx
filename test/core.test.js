@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import chalk from 'chalk'
-import { suite } from 'uvu'
+import { suite, isDeno } from '../test-util.js'
 import * as assert from 'uvu/assert'
 import process from 'node:process'
 import { inspect } from 'node:util'
@@ -22,7 +22,6 @@ import { Socket } from 'node:net'
 import { ProcessPromise, ProcessOutput } from '../build/index.js'
 import '../build/globals.js'
 
-const isDeno = typeof Deno !== 'undefined'
 const test = suite('core')
 
 $.verbose = false
