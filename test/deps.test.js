@@ -17,11 +17,14 @@ import * as assert from 'uvu/assert'
 import { $ } from '../build/index.js'
 import { installDeps, parseDeps } from '../build/deps.js'
 
+const isDeno = typeof Deno !== 'undefined'
+const runtime = isDeno ? ['deno', 'run', '-A'] : 'node'
 const test = suite('deps')
 
 $.verbose = false
 
 test('installDeps() loader works via JS API', async () => {
+  if (isDeno) return
   await installDeps({
     cpy: '9.0.1',
     'lodash-es': '4.17.21',
@@ -31,8 +34,9 @@ test('installDeps() loader works via JS API', async () => {
 })
 
 test('installDeps() loader works via CLI', async () => {
+  if (isDeno) return
   let out =
-    await $`node build/cli.js --install <<< 'import _ from "lodash" /* @4.17.15 */; console.log(_.VERSION)'`
+    await $`${runtime} build/cli.js --install <<< 'import _ from "lodash" /* @4.17.15 */; console.log(_.VERSION)'`
   assert.match(out.stdout, '4.17.15')
 })
 
@@ -58,11 +62,11 @@ test('parseDeps(): multiline', () => {
   require('a') // @1.0.0
   const b =require('b') /* @2.0.0 */
   const c = {
-    c:require('c') /* @3.0.0 */, 
-    d: await import('d') /* @4.0.0 */, 
+    c:require('c') /* @3.0.0 */,
+    d: await import('d') /* @4.0.0 */,
     ...require('e') /* @5.0.0 */
   }
-  const f = [...require('f') /* @6.0.0 */] 
+  const f = [...require('f') /* @6.0.0 */]
   ;require('g'); // @7.0.0
   const h = 1 *require('h') // @8.0.0
   {require('i') /* @9.0.0 */}

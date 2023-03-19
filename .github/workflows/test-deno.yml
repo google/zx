@@ -1,0 +1,30 @@
+name: Test Deno
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - run: |
+          for test in test/*.test.js; do
+            deno run -A $test
+          done
+
+  win32:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - run: |
+          for test in test/*.test.js; do
+            deno run -A $test
+          done

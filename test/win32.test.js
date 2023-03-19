@@ -14,6 +14,7 @@
 
 import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
+import process from 'node:process'
 import '../build/globals.js'
 
 const test = suite('win32')

@@ -17,16 +17,19 @@ import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
 import '../build/globals.js'
 
+const isDeno = typeof Deno !== 'undefined'
+const runtime = isDeno ? ['deno', 'run', '-A'] : 'node'
 const test = suite('goods')
 
 $.verbose = false
 
 function zx(script) {
-  return $`node build/cli.js --eval ${script}`.nothrow().timeout('5s')
+  return $`${runtime} build/cli.js --eval ${script}`.nothrow().timeout('5s')
 }
 
 test('question() works', async () => {
-  let p = $`node build/cli.js --eval "
+  if (isDeno) return
+  let p = $`${runtime} build/cli.js --eval "
   let answer = await question('foo or bar? ', { choices: ['foo', 'bar'] })
   echo('Answer is', answer)
 "`
@@ -48,6 +51,7 @@ test('globby available', async () => {
 })
 
 test('fetch() works', async () => {
+  if (isDeno) return
   assert.match(
     await fetch('https://medv.io').then((res) => res.text()),
     /Anton Medvedev/
@@ -137,6 +141,7 @@ test('spinner() with title works', async () => {
 })
 
 test('spinner() stops on throw', async () => {
+  if (isDeno) return
   let out = await zx(`
     await spinner('processing', () => $\`wtf-cmd\`)
   `)

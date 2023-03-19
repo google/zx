@@ -13,6 +13,8 @@
 // limitations under the License.
 
 import assert from 'node:assert'
+import process from 'node:process'
+import { setImmediate } from 'node:timers'
 import { ChildProcess, spawn, StdioNull, StdioPipe } from 'node:child_process'
 import { AsyncLocalStorage, createHook } from 'node:async_hooks'
 import { Readable, Writable } from 'node:stream'

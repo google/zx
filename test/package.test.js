@@ -16,6 +16,7 @@ import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
 import '../build/globals.js'
 
+const isDeno = typeof Deno !== 'undefined'
 const test = suite('package')
 
 test.before.each(async () => {
@@ -26,6 +27,7 @@ test.before.each(async () => {
 })
 
 test('ts project', async () => {
+  if (isDeno) return
   const pack = path.resolve('package')
   const out = await within(async () => {
     cd('test/fixtures/ts-project')
@@ -43,6 +45,7 @@ test('ts project', async () => {
 })
 
 test('js project with zx', async () => {
+  if (isDeno) return
   const pack = path.resolve('package')
   const out = await within(async () => {
     cd('test/fixtures/js-project')
