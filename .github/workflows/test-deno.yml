@@ -11,6 +11,7 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
+      - run: deno task build
       - run: |
           for test in test/*.test.js; do
             deno run -A $test
@@ -24,6 +25,7 @@ jobs:
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
+      - run: deno task build
       - run: |
           for test in test/*.test.js; do
             deno run -A $test
