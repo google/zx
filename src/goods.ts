@@ -15,7 +15,7 @@
 import assert from 'node:assert'
 import * as globbyModule from 'globby'
 import minimist from 'minimist'
-import nodeFetch, { RequestInfo, RequestInit } from 'node-fetch'
+import nodeFetch from 'node-fetch-native'
 import { createInterface } from 'node:readline'
 import { $, within, ProcessOutput } from './core.js'
 import { Duration, isString, parseDuration } from './util.js'

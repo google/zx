@@ -59,7 +59,7 @@
     "fs-extra": "^11.1.0",
     "globby": "^13.1.3",
     "minimist": "^1.2.8",
-    "node-fetch": "3.2.10",
+    "node-fetch-native": "^1.0.2",
     "ps-tree": "^1.2.0",
     "webpod": "^0",
     "which": "^3.0.0",

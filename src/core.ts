@@ -17,7 +17,6 @@ import { ChildProcess, spawn, StdioNull, StdioPipe } from 'node:child_process'
 import { AsyncLocalStorage, createHook } from 'node:async_hooks'
 import { Readable, Writable } from 'node:stream'
 import { inspect } from 'node:util'
-import { RequestInfo, RequestInit } from 'node-fetch'
 import chalk, { ChalkInstance } from 'chalk'
 import which from 'which'
 import {
