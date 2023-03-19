@@ -199,7 +199,9 @@ test('argv works with zx and node', async () => {
     `global {"_":["bar"]}\nimported {"_":["bar"]}\n`
   )
   assert.is(
-    (await $`${runtime} build/cli.js --eval 'console.log(argv._)' baz`).toString(),
+    (
+      await $`${runtime} build/cli.js --eval 'console.log(argv._)' baz`
+    ).toString(),
     `[ 'baz' ]\n`
   )
 })
