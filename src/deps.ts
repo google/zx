@@ -94,7 +94,7 @@ const importRe = [
   /\brequire\(['"](?<path>[^'"]+)['"]\)/,
   /\bfrom\s+['"](?<path>[^'"]+)['"]/,
 ]
-const nameRe = /^(?<name>(@[a-z0-9-]+\/)?[a-z0-9-]+)\/?.*$/i
+const nameRe = /^(?<name>(@[a-z0-9-]+\/)?[a-z0-9-.]+)\/?.*$/i
 const versionRe = /(\/\/|\/\*)\s*@(?<version>[~^]?([\dvx*]+([-.][\dx*]+)*))/i
 
 export function parseDeps(content: Buffer): Record<string, string> {
