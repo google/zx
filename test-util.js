@@ -17,6 +17,7 @@ import { suite as uvuSuite } from 'uvu'
 export const isDeno = typeof Deno !== 'undefined'
 export const runtime = isDeno ? ['deno', 'run', '-A'] : 'node'
 
+const noop = () => {}
 export const suite = isDeno
   ? () => {
       const runner = (name, fn) =>
@@ -26,7 +27,6 @@ export const suite = isDeno
           sanitizeResources: false,
           sanitizeOps: false,
         })
-      const noop = () => {}
       runner.run = noop
       runner.before = { each: noop }
       return runner
