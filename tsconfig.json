@@ -2,7 +2,6 @@
   "compilerOptions": {
     "target": "ES2021",
     "lib": ["ES2021", "DOM"],
-    "moduleResolution": "NodeNext",
     "module": "NodeNext",
     "strict": true,
     "outDir": "./build",
