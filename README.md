@@ -33,7 +33,7 @@ npm i -g zx
 
 **Requirement**: Node version >= 16.0.0
 
-## Goods
+## Commands
 
 [$](#command-) · [cd()](#cd) · [fetch()](#fetch) · [question()](#question) · [sleep()](#sleep) · [echo()](#echo) · [stdin()](#stdin) · [within()](#within) · [retry()](#retry) · [spinner()](#spinner) ·
 [chalk](#chalk-package) · [fs](#fs-package) · [os](#os-package) · [path](#path-package) · [glob](#globby-package) · [yaml](#yaml-package) · [minimist](#minimist-package) · [which](#which-package) ·
