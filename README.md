@@ -492,6 +492,15 @@ in **package.json**
 and [`"module": "ESNext"`](https://www.typescriptlang.org/tsconfig/#module)
 in **tsconfig.json**.
 
+### Javascript embedded within other scripts
+
+The `zx` can execute code embedded in arbitrary text (i.e. shell scripts) using the special delimeters
+`~~~~~zx start~~~~~` and `~~~~~zx end~~~~~`. This can be used to create scripts that can auto install node or
+zx itself making script execution truely painless. See [example](examples/self-install)
+
+```bash
+zx examples/self-install
+```
 ### Executing remote scripts
 
 If the argument to the `zx` executable starts with `https://`, the file will be

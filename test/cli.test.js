@@ -123,6 +123,24 @@ test('require() is working from stdin', async () => {
   assert.match(out.stdout, 'zx')
 })
 
+test('script start/end markers working for stdin', async () => {
+  let out =
+    await $`node build/cli.js <<< 'not\na\nscript\n ~~~~~zx start~~~~~\nconsole.log(require("./package.json").name)\n~~~~~zx end~~~~~\nnot\na\nscript\n'`
+  assert.match(out.stdout, 'zx')
+})
+
+test('script start/end markers working for file', async () => {
+  let out =
+    await $`node build/cli.js test/fixtures/start-end-markers`
+  assert.match(out.stdout, 'Script execution a success!')
+})
+
+test('script start/end markers working for http', async () => {
+  $`cat ${path.resolve('test/fixtures/start-end-markers.http')} | nc -l 8082`
+  let out = await $`node build/cli.js http://127.0.0.1:8082/start-end-markers`
+  assert.match(out.stdout, 'Script execution a success!')
+})
+
 test('require() is working in ESM', async () => {
   await $`node build/cli.js test/fixtures/require.mjs`
 })
