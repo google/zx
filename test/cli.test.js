@@ -130,8 +130,7 @@ test('script start/end markers working for stdin', async () => {
 })
 
 test('script start/end markers working for file', async () => {
-  let out =
-    await $`node build/cli.js test/fixtures/start-end-markers`
+  let out = await $`node build/cli.js test/fixtures/start-end-markers`
   assert.match(out.stdout, 'Script execution a success!')
 })
 
