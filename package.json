@@ -47,7 +47,8 @@
     "test:types": "tsd",
     "coverage": "c8 --check-coverage npm test -- -i package",
     "mutation": "stryker run",
-    "circular": "madge --circular src/*"
+    "circular": "madge --circular src/*",
+    "version": "cat package.json | fx .version"
   },
   "dependencies": {
     "@types/fs-extra": "^11.0.1",
@@ -57,6 +58,7 @@
     "@types/which": "^3.0.0",
     "chalk": "^5.2.0",
     "fs-extra": "^11.1.1",
+    "fx": "*",
     "globby": "^13.1.4",
     "minimist": "^1.2.8",
     "node-fetch": "3.3.1",
