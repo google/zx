@@ -135,7 +135,7 @@ async function scriptFromHttp(remote: string) {
   const name = basename(pathname)
   const ext = extname(pathname) || '.mjs'
   const filepath = join(process.cwd(), `${name}-${randomId()}${ext}`)
-  await writeAndImport(script, filepath)
+  await importScriptFromFilePath(script, filepath)
 }
 
 async function writeAndImport(
