@@ -16,6 +16,7 @@ import chalk from 'chalk'
 import assert from 'node:assert'
 import { test, describe, beforeEach } from 'node:test'
 import '../build/globals.js'
+import { isNativeFetchExists } from '../build/util.js'
 
 describe('goods', () => {
   beforeEach(() => {
@@ -49,6 +50,9 @@ describe('goods', () => {
   })
 
   test('fetch() works', async () => {
+    if (!isNativeFetchExists) {
+      return true
+    }
     assert.match(
       await fetch('https://medv.io').then((res) => res.text()),
       /Anton Medvedev/

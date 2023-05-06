@@ -341,6 +341,9 @@ export function formatCmd(cmd?: string): string {
   return out + '\n'
 }
 
+export const isNodeEighteenOrGreaterThanEighteen =
+  process.versions && Number(process.versions.node.split('.')[0]) >= 18
+
 const reservedWords = [
   'if',
   'then',

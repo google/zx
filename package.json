@@ -61,7 +61,6 @@
     "fx": "*",
     "globby": "^13.1.4",
     "minimist": "^1.2.8",
-    "node-fetch": "3.3.1",
     "ps-tree": "^1.2.0",
     "webpod": "^0",
     "which": "^3.0.0",
@@ -73,7 +72,8 @@
     "madge": "^6.0.0",
     "prettier": "^2.8.8",
     "tsd": "^0.28.1",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "@types/node-fetch":"^2.6.3"
   },
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"

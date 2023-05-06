@@ -20,7 +20,7 @@ import { createRequire } from 'node:module'
 import { basename, dirname, extname, join, resolve } from 'node:path'
 import url from 'node:url'
 import { updateArgv } from './goods.js'
-import { $, chalk, fetch, ProcessOutput } from './index.js'
+import { $, chalk, globalFetch, ProcessOutput } from './index.js'
 import { startRepl } from './repl.js'
 import { randomId } from './util.js'
 import { installDeps, parseDeps } from './deps.js'
@@ -125,8 +125,8 @@ async function scriptFromStdin() {
 }
 
 async function scriptFromHttp(remote: string) {
-  const res = await fetch(remote)
-  if (!res.ok) {
+  const res = await globalFetch(remote)
+  if (!res?.ok) {
     console.error(`Error: Can't get ${remote}`)
     process.exit(1)
   }

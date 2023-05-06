@@ -13,8 +13,9 @@
 // limitations under the License.
 
 import assert from 'node:assert'
-import { test, describe, before, beforeEach } from 'node:test'
+import { test, describe, beforeEach } from 'node:test'
 import '../build/globals.js'
+import { isNativeFetchExists } from '../build/util.js'
 
 describe('cli', () => {
   // Helps detect unresolved ProcessPromise.
@@ -98,12 +99,18 @@ describe('cli', () => {
   })
 
   test('scripts from https', async () => {
+    if (!isNativeFetchExists) {
+      return true
+    }
     $`cat ${path.resolve('test/fixtures/echo.http')} | nc -l 8080`
     let out = await $`node build/cli.js http://127.0.0.1:8080/echo.mjs`
     assert.match(out.stderr, /test/)
   })
 
   test('scripts from https not ok', async () => {
+    if (!isNativeFetchExists) {
+      return true
+    }
     $`echo $'HTTP/1.1 500\n\n' | nc -l 8081`
     let out = await $`node build/cli.js http://127.0.0.1:8081`.nothrow()
     assert.match(out.stderr, /Error: Can't get/)

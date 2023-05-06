@@ -15,10 +15,15 @@
 import assert from 'node:assert'
 import * as globbyModule from 'globby'
 import minimist from 'minimist'
-import nodeFetch, { RequestInfo, RequestInit } from 'node-fetch'
+import { RequestInfo, RequestInit } from 'node-fetch'
 import { createInterface } from 'node:readline'
 import { $, within, ProcessOutput } from './core.js'
-import { Duration, isString, parseDuration } from './util.js'
+import {
+  Duration,
+  isNodeEighteenOrGreaterThanEighteen,
+  isString,
+  parseDuration,
+} from './util.js'
 import chalk from 'chalk'
 
 export { default as chalk } from 'chalk'
@@ -51,9 +56,13 @@ export function sleep(duration: Duration) {
   })
 }
 
-export async function fetch(url: RequestInfo, init?: RequestInit) {
-  $.log({ kind: 'fetch', url, init })
-  return nodeFetch(url, init)
+export async function globalFetch(url: RequestInfo, init?: RequestInit) {
+  if (isNodeEighteenOrGreaterThanEighteen) {
+    $.log({ kind: 'fetch', url, init })
+    return (globalThis as any).fetch(url, init)
+  }
+  console.error('Fetch is not supported')
+  return
 }
 
 export function echo(...args: any[]): void

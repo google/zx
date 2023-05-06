@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2021",
-    "lib": ["ES2021", "DOM"],
+    "lib": ["ES2021"],
     "moduleResolution": "NodeNext",
     "module": "NodeNext",
     "strict": true,
