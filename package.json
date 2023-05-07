@@ -62,6 +62,7 @@
     "globby": "^13.1.4",
     "minimist": "^1.2.8",
     "node-fetch": "3.3.1",
+    "node-ssh": "^13.1.0",
     "ps-tree": "^1.2.0",
     "webpod": "^0",
     "which": "^3.0.0",
