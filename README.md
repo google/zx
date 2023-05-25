@@ -242,11 +242,15 @@ await $`pwd` // => /home/path
 ```
 
 ```js
+await $`node --version` // => v20.2.0
+
 let version = await within(async () => {
-  $.prefix += 'export NVM_DIR=$HOME/.nvm; source $NVM_DIR/nvm.sh; '
-  await $`nvm use 16`
-  return $`node -v`
+  $.prefix += 'export NVM_DIR=$HOME/.nvm; source $NVM_DIR/nvm.sh; nvm use 16;'
+  
+  return $`node --version`
 })
+
+echo(version) // => v16.20.0
 ```
 
 ### `retry()`
