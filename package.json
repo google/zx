@@ -57,6 +57,7 @@
     "@types/ps-tree": "^1.1.2",
     "@types/which": "^3.0.0",
     "chalk": "^5.2.0",
+    "chalk-template": "^1.1.0",
     "fs-extra": "^11.1.1",
     "fx": "*",
     "globby": "^13.1.4",

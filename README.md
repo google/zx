@@ -206,6 +206,14 @@ echo`Current branch is ${branch}.`
 echo('Current branch is', branch)
 ```
 
+It also supports [chalk-template](https://github.com/chalk/chalk-template)
+
+```js
+let branch = await $`git branch --show-current`
+
+echo`Current branch is {bold.yellow ${branch}}.`
+```
+
 ### `stdin()`
 
 Returns the stdin as a string.
