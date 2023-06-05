@@ -20,11 +20,13 @@ import { inspect } from 'node:util'
 import { RequestInfo, RequestInit } from 'node-fetch'
 import chalk, { ChalkInstance } from 'chalk'
 import which from 'which'
+import dargs from 'dargs'
 import {
   Duration,
   errnoMessage,
   exitCodeInfo,
   formatCmd,
+  is$Object,
   noop,
   parseDuration,
   psTree,
@@ -103,6 +105,8 @@ export const $ = new Proxy<Shell & Options>(
       let s
       if (Array.isArray(args[i])) {
         s = args[i].map((x: any) => $.quote(substitute(x))).join(' ')
+      } else if (is$Object(args[i])) {
+        s = dargs(args[i]).map((x: any) => $.quote(substitute(x))).join(' ')
       } else {
         s = $.quote(substitute(args[i]))
       }

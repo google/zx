@@ -84,6 +84,17 @@ test('can use array as an argument', async () => {
   assert.is((await $`echo ${args}`).toString(), 'foo')
 })
 
+test('can use object as an argument', async () => {
+  let args = {
+    _: ['foo', 'bar'],
+    '--': ['g'],
+    n: true,
+    a: true,
+    b: 'value'
+  };
+  assert.is((await $`echo ${args}`).toString().length, '-a -b=value foo bar -- g'.length)
+})
+
 test('quiet() mode is working', async () => {
   let stdout = ''
   let log = console.log

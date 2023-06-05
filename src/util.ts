@@ -15,6 +15,7 @@
 import chalk from 'chalk'
 import { promisify } from 'node:util'
 import psTreeModule from 'ps-tree'
+import { ProcessOutput } from './core.js'
 
 export const psTree = promisify(psTreeModule)
 
@@ -221,6 +222,13 @@ export function errnoMessage(errno: number | undefined): string {
 }
 
 export type Duration = number | `${number}s` | `${number}ms`
+
+export type CommandObject = Record<string, string | string[] | boolean>;
+
+export function is$Object(val:CommandObject) {
+  const type = typeof val;
+  return val != null && type === 'object' && !(val instanceof ProcessOutput);
+}
 
 export function parseDuration(d: Duration) {
   if (typeof d == 'number') {
