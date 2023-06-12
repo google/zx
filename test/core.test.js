@@ -234,9 +234,11 @@ test('cd() fails on entering not existing dir', async () => {
 })
 
 test('cd() accepts ProcessOutput in addition to string', async () => {
-  const tmpDir = await $`mktemp -d`
-  cd(tmpDir)
-  assert.match(process.cwd(), tmpDir.toString().trimEnd())
+  within(async () => {
+    const tmpDir = await $`mktemp -d`
+    cd(tmpDir)
+    assert.match(process.cwd(), tmpDir.toString().trimEnd())
+  })
 })
 
 test('kill() method works', async () => {
