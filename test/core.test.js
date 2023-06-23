@@ -233,6 +233,14 @@ test('cd() fails on entering not existing dir', async () => {
   assert.throws(() => cd('/tmp/abra-kadabra'))
 })
 
+test('cd() accepts ProcessOutput in addition to string', async () => {
+  within(async () => {
+    const tmpDir = await $`mktemp -d`
+    cd(tmpDir)
+    assert.match(process.cwd(), tmpDir.toString().trimEnd())
+  })
+})
+
 test('kill() method works', async () => {
   let p = $`sleep 9999`.nothrow()
   setTimeout(() => {

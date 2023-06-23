@@ -169,6 +169,13 @@ cd('/tmp')
 await $`pwd` // => /tmp
 ```
 
+Like `echo`, in addition to `string` arguments, `cd` accepts and trims
+trailing newlines from `ProcessOutput` enabling common idioms like:
+
+```js
+cd(await $`mktemp -d`)
+```
+
 ### `fetch()`
 
 A wrapper around the [node-fetch](https://www.npmjs.com/package/node-fetch)

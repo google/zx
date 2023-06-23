@@ -441,7 +441,11 @@ function syncCwd() {
   if ($[processCwd] != process.cwd()) process.chdir($[processCwd])
 }
 
-export function cd(dir: string) {
+export function cd(dir: string | ProcessOutput) {
+  if (dir instanceof ProcessOutput) {
+    dir = dir.toString().replace(/\n+$/, '')
+  }
+
   $.log({ kind: 'cd', dir })
   process.chdir(dir)
   $[processCwd] = process.cwd()
