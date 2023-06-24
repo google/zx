@@ -20,7 +20,7 @@ import { createInterface } from 'node:readline'
 import { $, within, ProcessOutput } from './core.js'
 import {
   Duration,
-  isNodeEighteenOrGreaterThanEighteen,
+  isNativeFetchExists,
   isString,
   parseDuration,
 } from './util.js'
@@ -57,7 +57,7 @@ export function sleep(duration: Duration) {
 }
 
 export async function globalFetch(url: RequestInfo, init?: RequestInit) {
-  if (isNodeEighteenOrGreaterThanEighteen) {
+  if (isNativeFetchExists) {
     $.log({ kind: 'fetch', url, init })
     return (globalThis as any).fetch(url, init)
   }

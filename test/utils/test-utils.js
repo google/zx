@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const isNodeEighteenOrGreaterThanEighteen =
-  process.versions && Number(process.versions.node.split('.')[0]) >= 18
+const isNativeFetchExists = 'fetch' in globalThis
 
-export { isNodeEighteenOrGreaterThanEighteen }
+export { isNativeFetchExists }
