@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import assert from 'node:assert'
+import process from 'node:process'
 import * as globbyModule from 'globby'
 import minimist from 'minimist'
 import nodeFetch, { RequestInfo, RequestInit } from 'node-fetch'
@@ -32,7 +33,7 @@ export { ssh } from 'webpod'
 export let argv = minimist(process.argv.slice(2))
 export function updateArgv(args: string[]) {
   argv = minimist(args)
-  ;(global as any).argv = argv
+  ;(globalThis as any).argv = argv
 }
 
 export const globby = Object.assign(function globby(

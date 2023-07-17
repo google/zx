@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { suite } from 'uvu'
+import { suite, isDeno } from '../test-util.js'
 import * as assert from 'uvu/assert'
 import '../build/globals.js'
 
@@ -26,6 +26,7 @@ test.before.each(async () => {
 })
 
 test('ts project', async () => {
+  if (isDeno) return
   const pack = path.resolve('package')
   const out = await within(async () => {
     cd('test/fixtures/ts-project')
@@ -43,6 +44,7 @@ test('ts project', async () => {
 })
 
 test('js project with zx', async () => {
+  if (isDeno) return
   const pack = path.resolve('package')
   const out = await within(async () => {
     cd('test/fixtures/js-project')

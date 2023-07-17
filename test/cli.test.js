@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { suite } from 'uvu'
+import { suite, isDeno, runtime } from '../test-util.js'
 import * as assert from 'uvu/assert'
+import process from 'node:process'
 import '../build/globals.js'
 
 const test = suite('cli')
@@ -35,25 +36,26 @@ test('promise resolved', async () => {
 })
 
 test('prints version', async () => {
-  assert.match((await $`node build/cli.js -v`).toString(), /\d+.\d+.\d+/)
+  assert.match((await $`${runtime} build/cli.js -v`).toString(), /\d+.\d+.\d+/)
 })
 
 test('prints help', async () => {
-  let p = $`node build/cli.js -h`
+  let p = $`${runtime} build/cli.js -h`
   p.stdin.end()
   let help = await p
   assert.match(help.stdout, 'zx')
 })
 
 test('zx prints usage', async () => {
-  let p = $`node build/cli.js`
+  let p = $`${runtime} build/cli.js`
   p.stdin.end()
   let out = await p
   assert.match(out.stdout, 'A tool for writing better scripts')
 })
 
 test('starts repl with --repl', async () => {
-  let p = $`node build/cli.js --repl`
+  if (isDeno) return
+  let p = $`${runtime} build/cli.js --repl`
   p.stdin.write('await $`echo f"o"o`\n')
   p.stdin.write('"b"+"ar"\n')
   p.stdin.end()
@@ -63,7 +65,8 @@ test('starts repl with --repl', async () => {
 })
 
 test('starts repl with verbosity off', async () => {
-  let p = $`node build/cli.js --repl`
+  if (isDeno) return
+  let p = $`${runtime} build/cli.js --repl`
   p.stdin.write('"verbose" + " is " + $.verbose\n')
   p.stdin.end()
   let out = await p
@@ -76,7 +79,7 @@ test('supports `--experimental` flag', async () => {
 })
 
 test('supports `--quiet` flag', async () => {
-  let p = await $`node build/cli.js test/fixtures/markdown.md`
+  let p = await $`${runtime} build/cli.js test/fixtures/markdown.md`
   assert.ok(!p.stderr.includes('ignore'), 'ignore was printed')
   assert.ok(p.stderr.includes('hello'), 'no hello')
   assert.ok(p.stdout.includes('world'), 'no world')
@@ -85,31 +88,33 @@ test('supports `--quiet` flag', async () => {
 test('supports `--shell` flag ', async () => {
   let shell = $.shell
   let p =
-    await $`node build/cli.js --shell=${shell} <<< '$\`echo \${$.shell}\`'`
+    await $`${runtime} build/cli.js --shell=${shell} <<< '$\`echo \${$.shell}\`'`
   assert.ok(p.stderr.includes(shell))
 })
 
 test('supports `--prefix` flag ', async () => {
   let prefix = 'set -e;'
   let p =
-    await $`node build/cli.js --prefix=${prefix} <<< '$\`echo \${$.prefix}\`'`
+    await $`${runtime} build/cli.js --prefix=${prefix} <<< '$\`echo \${$.prefix}\`'`
   assert.ok(p.stderr.includes(prefix))
 })
 
 test('scripts from https', async () => {
+  if (isDeno) return
   $`cat ${path.resolve('test/fixtures/echo.http')} | nc -l 8080`
-  let out = await $`node build/cli.js http://127.0.0.1:8080/echo.mjs`
+  let out = await $`${runtime} build/cli.js http://127.0.0.1:8080/echo.mjs`
   assert.match(out.stderr, 'test')
 })
 
 test('scripts from https not ok', async () => {
+  if (isDeno) return
   $`echo $'HTTP/1.1 500\n\n' | nc -l 8081`
-  let out = await $`node build/cli.js http://127.0.0.1:8081`.nothrow()
+  let out = await $`${runtime} build/cli.js http://127.0.0.1:8081`.nothrow()
   assert.match(out.stderr, "Error: Can't get")
 })
 
 test('scripts with no extension', async () => {
-  await $`node build/cli.js test/fixtures/no-extension`
+  await $`${runtime} build/cli.js test/fixtures/no-extension`
   assert.ok(
     /Test file to verify no-extension didn't overwrite similarly name .mjs file./.test(
       (await fs.readFile('test/fixtures/no-extension.mjs')).toString()
@@ -119,36 +124,36 @@ test('scripts with no extension', async () => {
 
 test('require() is working from stdin', async () => {
   let out =
-    await $`node build/cli.js <<< 'console.log(require("./package.json").name)'`
+    await $`${runtime} build/cli.js <<< 'console.log(require("./package.json").name)'`
   assert.match(out.stdout, 'zx')
 })
 
 test('require() is working in ESM', async () => {
-  await $`node build/cli.js test/fixtures/require.mjs`
+  await $`${runtime} build/cli.js test/fixtures/require.mjs`
 })
 
 test('__filename & __dirname are defined', async () => {
-  await $`node build/cli.js test/fixtures/filename-dirname.mjs`
+  await $`${runtime} build/cli.js test/fixtures/filename-dirname.mjs`
 })
 
 test('markdown scripts are working', async () => {
-  await $`node build/cli.js docs/markdown.md`
+  await $`${runtime} build/cli.js docs/markdown.md`
 })
 
 test('markdown scripts are working', async () => {
-  await $`node build/cli.js docs/markdown.md`
+  await $`${runtime} build/cli.js docs/markdown.md`
 })
 
 test('exceptions are caught', async () => {
-  let out1 = await $`node build/cli.js <<<${'await $`wtf`'}`.nothrow()
+  let out1 = await $`${runtime} build/cli.js <<<${'await $`wtf`'}`.nothrow()
   assert.match(out1.stderr, 'Error:')
-  let out2 = await $`node build/cli.js <<<'throw 42'`.nothrow()
+  let out2 = await $`${runtime} build/cli.js <<<'throw 42'`.nothrow()
   assert.match(out2.stderr, '42')
 })
 
 test('eval works', async () => {
-  assert.is((await $`node build/cli.js --eval 'echo(42)'`).stdout, '42\n')
-  assert.is((await $`node build/cli.js -e='echo(69)'`).stdout, '69\n')
+  assert.is((await $`${runtime} build/cli.js --eval 'echo(42)'`).stdout, '42\n')
+  assert.is((await $`${runtime} build/cli.js -e='echo(69)'`).stdout, '69\n')
 })
 
 test('eval works with stdin', async () => {
@@ -182,22 +187,26 @@ test('executes a script from $PATH', async () => {
 })
 
 test('argv works with zx and node', async () => {
+  if (isDeno) return
   assert.is(
-    (await $`node build/cli.js test/fixtures/argv.mjs foo`).toString(),
+    (await $`${runtime} build/cli.js test/fixtures/argv.mjs foo`).toString(),
     `global {"_":["foo"]}\nimported {"_":["foo"]}\n`
   )
   assert.is(
-    (await $`node test/fixtures/argv.mjs bar`).toString(),
+    (await $`${runtime} test/fixtures/argv.mjs bar`).toString(),
     `global {"_":["bar"]}\nimported {"_":["bar"]}\n`
   )
   assert.is(
-    (await $`node build/cli.js --eval 'console.log(argv._)' baz`).toString(),
+    (
+      await $`${runtime} build/cli.js --eval 'console.log(argv._)' baz`
+    ).toString(),
     `[ 'baz' ]\n`
   )
 })
 
 test('exit code can be set', async () => {
-  let p = await $`node build/cli.js test/fixtures/exit-code.mjs`.nothrow()
+  if (isDeno) return
+  let p = await $`${runtime} build/cli.js test/fixtures/exit-code.mjs`.nothrow()
   assert.is(p.exitCode, 42)
 })
 

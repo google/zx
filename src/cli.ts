@@ -16,6 +16,7 @@
 
 import fs from 'fs-extra'
 import minimist from 'minimist'
+import process from 'node:process'
 import { createRequire } from 'node:module'
 import { basename, dirname, extname, join, resolve } from 'node:path'
 import url from 'node:url'
@@ -38,7 +39,7 @@ function printUsage() {
    --quiet              don't echo commands
    --shell=<path>       custom shell binary
    --prefix=<command>   prefix all commands
-   --eval=<js>, -e      evaluate script 
+   --eval=<js>, -e      evaluate script
    --install, -i        install dependencies
    --experimental       enable experimental features
    --version, -v        print current zx version
@@ -61,7 +62,7 @@ await (async function main() {
   if (argv.shell) $.shell = argv.shell
   if (argv.prefix) $.prefix = argv.prefix
   if (argv.experimental) {
-    Object.assign(global, await import('./experimental.js'))
+    Object.assign(globalThis, await import('./experimental.js'))
   }
   if (argv.version) {
     console.log(getVersion())
@@ -179,7 +180,7 @@ async function importPath(filepath: string, origin = filepath) {
   const __filename = resolve(origin)
   const __dirname = dirname(__filename)
   const require = createRequire(origin)
-  Object.assign(global, { __filename, __dirname, require })
+  Object.assign(globalThis, { __filename, __dirname, require })
   await import(url.pathToFileURL(filepath).toString())
 }
 

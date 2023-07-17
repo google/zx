@@ -14,7 +14,7 @@
 
 import * as _ from './index.js'
 
-Object.assign(global, _)
+Object.assign(globalThis, _)
 
 declare global {
   type ProcessPromise = _.ProcessPromise

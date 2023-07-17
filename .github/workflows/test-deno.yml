@@ -1,0 +1,30 @@
+name: Test Deno
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - run: deno task build
+      - run: deno test -A
+        env:
+          FORCE_COLOR: 3
+
+  win32:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - run: deno task build
+      - run: deno test -A test/win32.test.js
+        env:
+          FORCE_COLOR: 3
