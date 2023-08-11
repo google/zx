@@ -41,6 +41,8 @@ test('parseDeps(): import or require', async () => {
   assert.equal(parseDeps(`import * as bar from "foo"`), { foo: 'latest' })
   assert.equal(parseDeps(`import('foo')`), { foo: 'latest' })
   assert.equal(parseDeps(`require('foo')`), { foo: 'latest' })
+  assert.equal(parseDeps(`require('foo_abc')`), { foo_abc: 'latest' })
+  assert.equal(parseDeps(`require('foo-abc')`), { 'foo-abc': 'latest' })
   assert.equal(parseDeps(`require('foo.js')`), { 'foo.js': 'latest' })
 })
 

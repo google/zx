@@ -94,7 +94,8 @@ const importRe = [
   /\brequire\(['"](?<path>[^'"]+)['"]\)/,
   /\bfrom\s+['"](?<path>[^'"]+)['"]/,
 ]
-const nameRe = /^(?<name>(@[a-z0-9-]+\/)?[a-z0-9-.]+)\/?.*$/i
+const nameRe =
+  /^(?<name>[?\@|?\/|?\w.|?\_|?\-]+(@[a-z0-9-]+\/?)?[a-z0-9-.]?)\/?.*$/i
 const versionRe = /(\/\/|\/\*)\s*@(?<version>[~^]?([\dvx*]+([-.][\dx*]+)*))/i
 
 export function parseDeps(content: Buffer): Record<string, string> {
@@ -123,8 +124,16 @@ function parseImports(
 
 function parsePackageName(path?: string): string | undefined {
   if (!path) return
-  const name = nameRe.exec(path)?.groups?.name
-  if (name && !builtins.has(name)) {
+  let name = nameRe.exec(path)?.groups?.name
+
+  if (!name) return
+
+  if (name.startsWith('@') && name.includes('/')) {
+    name = name.substring(0, name.lastIndexOf('/'))
+    return name
+  }
+
+  if (!builtins.has(name)) {
     return name
   }
 }
