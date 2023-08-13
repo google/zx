@@ -37,11 +37,35 @@ test('installDeps() loader works via CLI', async () => {
 })
 
 test('parseDeps(): import or require', async () => {
-  assert.equal(parseDeps(`import "foo"`), { foo: 'latest' })
-  assert.equal(parseDeps(`import * as bar from "foo"`), { foo: 'latest' })
-  assert.equal(parseDeps(`import('foo')`), { foo: 'latest' })
-  assert.equal(parseDeps(`require('foo')`), { foo: 'latest' })
-  assert.equal(parseDeps(`require('foo.js')`), { 'foo.js': 'latest' })
+  ;[
+    [`import "foo"`, { foo: 'latest' }],
+    [`import "foo"`, { foo: 'latest' }],
+    [`import * as bar from "foo"`, { foo: 'latest' }],
+    [`import('foo')`, { foo: 'latest' }],
+    [`require('foo')`, { foo: 'latest' }],
+    [`require('foo/bar')`, { foo: 'latest' }],
+    [`require('foo/bar.js')`, { foo: 'latest' }],
+    [`require('foo-bar')`, { 'foo-bar': 'latest' }],
+    [`require('foo_bar')`, { foo_bar: 'latest' }],
+    [`require('@foo/bar')`, { '@foo/bar': 'latest' }],
+    [`require('@foo/bar/baz')`, { '@foo/bar': 'latest' }],
+    [`require('foo.js')`, { 'foo.js': 'latest' }],
+
+    // ignores local deps
+    [`import '.'`, {}],
+    [`require('.')`, {}],
+    [`require('..')`, {}],
+    [`require('../foo.js')`, {}],
+    [`require('./foo.js')`, {}],
+
+    // ignores invalid pkg names
+    [`require('_foo')`, {}],
+    [`require('@')`, {}],
+    [`require('@/_foo')`, {}],
+    [`require('@foo')`, {}],
+  ].forEach(([input, result]) => {
+    assert.equal(parseDeps(input), result)
+  })
 })
 
 test('parseDeps(): import with org and filename', async () => {
