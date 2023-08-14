@@ -31,6 +31,7 @@ declare global {
   var fs: typeof _.fs
   var glob: typeof _.glob
   var globby: typeof _.globby
+  var minimist: typeof _.minimist
   var nothrow: typeof _.nothrow
   var os: typeof _.os
   var path: typeof _.path
@@ -44,7 +45,6 @@ declare global {
   var ssh: typeof _.ssh
   var stdin: typeof _.stdin
   var which: typeof _.which
-  var minimist: typeof _.minimist
   var within: typeof _.within
   var YAML: typeof _.YAML
 }
