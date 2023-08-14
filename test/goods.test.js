@@ -86,7 +86,7 @@ test('minimist available', async () => {
 test('minimist works', async () => {
   assert.equal(
     minimist(
-      ['--foo', 'bar', '--force', '-a', '5', '-a', '42', './some.file'],
+      ['--foo', 'bar', '-a', '5', '-a', '42', '--force', './some.file'],
       { boolean: 'force' }
     ),
     {
