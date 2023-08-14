@@ -98,6 +98,7 @@ test('parseDeps(): multiline', () => {
   import foo from "foo"
   import bar from "bar" /* @1.0.0 */
   import baz from "baz" //    @^2.0
+  import qux from "@qux/pkg/entry" //    @^3.0
 
   const cpy = await import('cpy')
   const { pick } = require("lodash") //  @4.17.15
@@ -117,6 +118,7 @@ test('parseDeps(): multiline', () => {
     foo: 'latest',
     bar: '1.0.0',
     baz: '^2.0',
+    '@qux/pkg': '^3.0',
     cpy: 'latest',
     lodash: '4.17.15',
   })
