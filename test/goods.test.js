@@ -79,6 +79,25 @@ test('which() available', async () => {
   assert.is(which.sync('npm'), await which('npm'))
 })
 
+test('minimist available', async () => {
+  assert.is(typeof minimist, 'function')
+})
+
+test('minimist works', async () => {
+  assert.equal(
+    minimist(
+      ['--foo', 'bar', '-a', '5', '-a', '42', '--force', './some.file'],
+      { boolean: 'force' }
+    ),
+    {
+      a: [5, 42],
+      foo: 'bar',
+      force: true,
+      _: ['./some.file'],
+    }
+  )
+})
+
 test('sleep() works', async () => {
   const now = Date.now()
   await sleep(100)

@@ -333,8 +333,13 @@ console.log(YAML.parse('foo: bar').foo)
 
 ### `minimist` package
 
-The [minimist](https://www.npmjs.com/package/minimist) package available
-as global const `argv`.
+The [minimist](https://www.npmjs.com/package/minimist) package.
+
+```js
+let myCustomArgv = minimist(process.argv.slice(2), { boolean: ["force", "help"] })
+```
+
+A minimist-parsed version of the process args as `argv` (parsed without any config).
 
 ```js
 if (argv.someFlag) {
