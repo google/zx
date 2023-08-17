@@ -99,6 +99,7 @@ test('parseDeps(): multiline', () => {
   import bar from "bar" /* @1.0.0 */
   import baz from "baz" //    @^2.0
   import qux from "@qux/pkg/entry" //    @^3.0
+  import {api as alias} from "qux/entry/index.js" // @^4.0.0-beta.0
 
   const cpy = await import('cpy')
   const { pick } = require("lodash") //  @4.17.15
@@ -119,6 +120,7 @@ test('parseDeps(): multiline', () => {
     bar: '1.0.0',
     baz: '^2.0',
     '@qux/pkg': '^3.0',
+    qux: '^4.0.0-beta.0',
     cpy: 'latest',
     lodash: '4.17.15',
   })

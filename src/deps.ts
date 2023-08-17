@@ -94,10 +94,10 @@ const importRe = [
   /\brequire\(['"](?<path>[^'"]+)['"]\)/,
   /\bfrom\s+['"](?<path>[^'"]+)['"]/,
 ]
-// Adapted from https://github.com/dword-design/package-name-regex/blob/5d8bfe9b6e140e3e114833e68dc1fbf500991f2c/src/index.js#L1C22-L1C22
 const nameRe =
   /^(?<name>(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*)\/?.*$/i
-const versionRe = /(\/\/|\/\*)\s*@(?<version>[~^]?([\dvx*]+([-.][\dx*]+)*))/i
+const versionRe =
+  /(\/\/|\/\*)\s*@(?<version>[~^]?(v?[\dx*]+([-.][\d*a-z-]+)*))/i
 
 export function parseDeps(content: Buffer): Record<string, string> {
   const deps: Record<string, string> = {}
