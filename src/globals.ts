@@ -31,6 +31,7 @@ declare global {
   var fs: typeof _.fs
   var glob: typeof _.glob
   var globby: typeof _.globby
+  var minimist: typeof _.minimist
   var nothrow: typeof _.nothrow
   var os: typeof _.os
   var path: typeof _.path
