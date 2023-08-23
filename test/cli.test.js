@@ -96,6 +96,13 @@ test('supports `--prefix` flag ', async () => {
   assert.ok(p.stderr.includes(prefix))
 })
 
+test('supports `--postfix` flag ', async () => {
+  let postfix = '; exit 0'
+  let p =
+    await $`node build/cli.js --postfix=${postfix} <<< '$\`echo \${$.postfix}\`'`
+  assert.ok(p.stderr.includes(postfix))
+})
+
 test('scripts from https', async () => {
   $`cat ${path.resolve('test/fixtures/echo.http')} | nc -l 8080`
   let out = await $`node build/cli.js http://127.0.0.1:8080/echo.mjs`
