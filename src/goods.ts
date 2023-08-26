@@ -21,8 +21,10 @@ import { createInterface } from 'node:readline'
 import { $, within, ProcessOutput } from './core.js'
 import { Duration, isString, MutedWritable, parseDuration } from './util.js'
 import chalk from 'chalk'
+import chalkTemplate from 'chalk-template'
 
 export { default as chalk } from 'chalk'
+export { default as chalkTemplate } from 'chalk-template'
 export { default as fs } from 'fs-extra'
 export { default as which } from 'which'
 export { default as minimist } from 'minimist'
@@ -71,7 +73,9 @@ export function echo(pieces: TemplateStringsArray, ...args: any[]) {
   } else {
     msg = [pieces, ...args].map(stringify).join(' ')
   }
-  console.log(msg)
+  const tpl: any = [msg]
+  tpl.raw = [msg]
+  console.log(chalkTemplate(tpl as TemplateStringsArray))
 }
 
 function stringify(arg: ProcessOutput | any) {
