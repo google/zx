@@ -109,6 +109,17 @@ async function runScript(script: string) {
   await writeAndImport(script, filepath)
 }
 
+function extractScript(script: string | Buffer) {
+  const startMarker = '~~~~~zx start~~~~~'
+  const endMarker = '~~~~~zx end~~~~~'
+  const source = script.toString()
+  const sIdx = source.indexOf(startMarker)
+  if (sIdx == -1) return source
+  const eIdx = source.lastIndexOf(endMarker)
+  if (eIdx == -1) return source
+  return source.substring(sIdx + startMarker.length, eIdx)
+}
+
 async function scriptFromStdin() {
   let script = ''
   if (!process.stdin.isTTY) {
@@ -116,7 +127,7 @@ async function scriptFromStdin() {
     for await (const chunk of process.stdin) {
       script += chunk
     }
-
+    script = extractScript(script)
     if (script.length > 0) {
       await runScript(script)
       return true
@@ -131,7 +142,7 @@ async function scriptFromHttp(remote: string) {
     console.error(`Error: Can't get ${remote}`)
     process.exit(1)
   }
-  const script = await res.text()
+  const script = extractScript(await res.text())
   const pathname = new URL(remote).pathname
   const name = basename(pathname)
   const ext = extname(pathname) || '.mjs'
@@ -161,7 +172,7 @@ async function importPath(filepath: string, origin = filepath) {
       : `${basename(filepath)}.mjs`
 
     return writeAndImport(
-      await fs.readFile(filepath),
+      extractScript(await fs.readFile(filepath)),
       join(dirname(filepath), tmpFilename),
       origin
     )

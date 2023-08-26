@@ -1,0 +1,8 @@
+#!/bin/sh
+# The special zx start and zx end delimeters are necessary so the script can be executed either by bash
+# or by zx
+zx << 'EOF'
+~~~~~zx start~~~~~
+console.log("Script execution a success!")
+~~~~~zx end~~~~~
+EOF
