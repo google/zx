@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { suite } from 'uvu'
+import { suite } from '../test-util.js'
 import * as assert from 'uvu/assert'
 import '../build/globals.js'
 import * as index from '../build/index.js'
@@ -29,7 +29,7 @@ test('global cd()', async () => {
 
 test('injects zx index to global', () => {
   for (let [key, value] of Object.entries(index)) {
-    assert.is(global[key], value)
+    assert.is(globalThis[key], value)
   }
 })
 

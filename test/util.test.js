@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { suite } from 'uvu'
+import { suite } from '../test-util.js'
 import * as assert from 'uvu/assert'
 import {
   exitCodeInfo,
@@ -59,7 +59,7 @@ test('quote()', () => {
   assert.ok(quote(`'\f\n\r\t\v\0`) === `$'\\'\\f\\n\\r\\t\\v\\0'`)
 })
 
-test('quotePowerShgell()', () => {
+test('quotePowerShell()', () => {
   assert.is(quotePowerShell('string'), 'string')
   assert.is(quotePowerShell(`'`), `''''`)
 })

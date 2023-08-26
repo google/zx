@@ -13,8 +13,9 @@
 // limitations under the License.
 
 import chalk from 'chalk'
-import { suite } from 'uvu'
+import { suite, isDeno } from '../test-util.js'
 import * as assert from 'uvu/assert'
+import process from 'node:process'
 import { inspect } from 'node:util'
 import { Writable } from 'node:stream'
 import { Socket } from 'node:net'
@@ -125,6 +126,7 @@ test('pipes are working', async () => {
 })
 
 test('ProcessPromise', async () => {
+  if (isDeno) return
   let contents = ''
   let stream = new Writable({
     write: function (chunk, encoding, next) {
@@ -198,6 +200,7 @@ test('cd() works with relative paths', async () => {
 })
 
 test('cd() does affect parallel contexts', async () => {
+  if (isDeno) return
   const cwd = process.cwd()
   try {
     fs.mkdirpSync('/tmp/zx-cd-parallel/one/two')
@@ -233,6 +236,14 @@ test('cd() fails on entering not existing dir', async () => {
   assert.throws(() => cd('/tmp/abra-kadabra'))
 })
 
+test('cd() accepts ProcessOutput in addition to string', async () => {
+  within(async () => {
+    const tmpDir = await $`mktemp -d`
+    cd(tmpDir)
+    assert.match(process.cwd(), tmpDir.toString().trimEnd())
+  })
+})
+
 test('kill() method works', async () => {
   let p = $`sleep 9999`.nothrow()
   setTimeout(() => {
@@ -242,6 +253,7 @@ test('kill() method works', async () => {
 })
 
 test('a signal is passed with kill() method', async () => {
+  if (isDeno) return
   let p = $`while true; do :; done`
   setTimeout(() => p.kill('SIGKILL'), 100)
   let signal
@@ -254,6 +266,7 @@ test('a signal is passed with kill() method', async () => {
 })
 
 test('within() works', async () => {
+  if (isDeno) return
   let resolve, reject
   let promise = new Promise((...args) => ([resolve, reject] = args))
 
@@ -280,6 +293,7 @@ test('within() works', async () => {
 })
 
 test('within() restores previous cwd', async () => {
+  if (isDeno) return
   let resolve, reject
   let promise = new Promise((...args) => ([resolve, reject] = args))
 
@@ -299,6 +313,7 @@ test('within() restores previous cwd', async () => {
 })
 
 test(`within() isolates nested context and returns cb result`, async () => {
+  if (isDeno) return
   within(async () => {
     const res = await within(async () => {
       $.verbose = true
@@ -342,6 +357,7 @@ test('snapshots works', async () => {
 })
 
 test('timeout() works', async () => {
+  if (isDeno) return
   let exitCode, signal
   try {
     await $`sleep 9999`.timeout(10, 'SIGKILL')
