@@ -1,3 +1,5 @@
+<a href="https://webpod.dev/?from=zx"><img src="https://webpod.dev/img/banner.png" alt="Webpod - deploy JavaScript apps" width="190" align="right"></a>
+
 # 🐚 zx
 
 ```js
@@ -169,6 +171,13 @@ cd('/tmp')
 await $`pwd` // => /tmp
 ```
 
+Like `echo`, in addition to `string` arguments, `cd` accepts and trims
+trailing newlines from `ProcessOutput` enabling common idioms like:
+
+```js
+cd(await $`mktemp -d`)
+```
+
 ### `fetch()`
 
 A wrapper around the [node-fetch](https://www.npmjs.com/package/node-fetch)
@@ -184,6 +193,15 @@ A wrapper around the [readline](https://nodejs.org/api/readline.html) package.
 
 ```js
 let bear = await question('What kind of bear is best? ')
+
+// Use with auto complete choices
+let bear = await question('What kind of bear is best? ', { choices: ['one', 'two'] })
+
+// Use with muted input
+let bear = await question('What kind of bear is best? ', { muted: true })
+
+// Use with muted input replacing the content with another character
+let bear = await question('What kind of bear is best? ', { muted: true, mutedCharacter: '*' })
 ```
 
 ### `sleep()`
@@ -233,11 +251,15 @@ await $`pwd` // => /home/path
 ```
 
 ```js
+await $`node --version` // => v20.2.0
+
 let version = await within(async () => {
-  $.prefix += 'export NVM_DIR=$HOME/.nvm; source $NVM_DIR/nvm.sh; '
-  await $`nvm use 16`
-  return $`node -v`
+  $.prefix += 'export NVM_DIR=$HOME/.nvm; source $NVM_DIR/nvm.sh; nvm use 16;'
+  
+  return $`node --version`
 })
+
+echo(version) // => v16.20.0
 ```
 
 ### `retry()`
@@ -320,8 +342,13 @@ console.log(YAML.parse('foo: bar').foo)
 
 ### `minimist` package
 
-The [minimist](https://www.npmjs.com/package/minimist) package available
-as global const `argv`.
+The [minimist](https://www.npmjs.com/package/minimist) package.
+
+```js
+let myCustomArgv = minimist(process.argv.slice(2), { boolean: ["force", "help"] })
+```
+
+A minimist-parsed version of the process args as `argv` (parsed without any config).
 
 ```js
 if (argv.someFlag) {
@@ -357,9 +384,17 @@ Specifies a `spawn` api. Defaults to `require('child_process').spawn`.
 
 Specifies the command that will be prefixed to all commands run.
 
-Default is `set -euo pipefail;`.
+Default is `set -euo pipefail;` for bash, and `''` for powershell.
 
 Or use a CLI argument: `--prefix='set -e;'`
+
+### `$.postfix`
+
+Same as `$.prefix` but applied after the all commands. 
+
+Default is `''` for bash, and `; exit $LastExitCode` for powershell.
+
+Or use a CLI argument: `--postfix='; exit $LastExitCode'`
 
 ### `$.quote`
 

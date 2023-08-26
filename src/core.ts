@@ -48,6 +48,7 @@ export type Options = {
   env: NodeJS.ProcessEnv
   shell: string | boolean
   prefix: string
+  postfix: string
   quote: typeof quote
   spawn: typeof spawn
   log: typeof log
@@ -69,6 +70,7 @@ export const defaults: Options = {
   env: process.env,
   shell: true,
   prefix: '',
+  postfix: '',
   quote: () => {
     throw new Error('No quote function is defined: https://ï.at/no-quote-func')
   },
@@ -83,6 +85,7 @@ try {
 } catch (err) {
   if (process.platform == 'win32') {
     defaults.shell = which.sync('powershell.exe')
+    defaults.postfix = '; exit $LastExitCode'
     defaults.quote = quotePowerShell
   }
 }
@@ -179,7 +182,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       cmd: this._command,
       verbose: $.verbose && !this._quiet,
     })
-    this.child = $.spawn($.prefix + this._command, {
+    this.child = $.spawn($.prefix + this._command + $.postfix, {
       cwd: $.cwd ?? $[processCwd],
       shell: typeof $.shell === 'string' ? $.shell : true,
       stdio: this._stdio,
@@ -443,7 +446,11 @@ function syncCwd() {
   if ($[processCwd] != process.cwd()) process.chdir($[processCwd])
 }
 
-export function cd(dir: string) {
+export function cd(dir: string | ProcessOutput) {
+  if (dir instanceof ProcessOutput) {
+    dir = dir.toString().replace(/\n+$/, '')
+  }
+
   $.log({ kind: 'cd', dir })
   process.chdir(dir)
   $[processCwd] = process.cwd()

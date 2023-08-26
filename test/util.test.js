@@ -59,7 +59,7 @@ test('quote()', () => {
   assert.ok(quote(`'\f\n\r\t\v\0`) === `$'\\'\\f\\n\\r\\t\\v\\0'`)
 })
 
-test('quotePowerShgell()', () => {
+test('quotePowerShell()', () => {
   assert.is(quotePowerShell('string'), 'string')
   assert.is(quotePowerShell(`'`), `''''`)
 })
