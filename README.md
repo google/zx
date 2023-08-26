@@ -1,3 +1,5 @@
+<a href="https://webpod.dev/?from=zx"><img src="https://webpod.dev/img/banner.png" alt="Webpod - deploy JavaScript apps" width="190" align="right"></a>
+
 # 🐚 zx
 
 ```js
@@ -191,6 +193,15 @@ A wrapper around the [readline](https://nodejs.org/api/readline.html) package.
 
 ```js
 let bear = await question('What kind of bear is best? ')
+
+// Use with auto complete choices
+let bear = await question('What kind of bear is best? ', { choices: ['one', 'two'] })
+
+// Use with muted input
+let bear = await question('What kind of bear is best? ', { muted: true })
+
+// Use with muted input replacing the content with another character
+let bear = await question('What kind of bear is best? ', { muted: true, mutedCharacter: '*' })
 ```
 
 ### `sleep()`
@@ -331,8 +342,13 @@ console.log(YAML.parse('foo: bar').foo)
 
 ### `minimist` package
 
-The [minimist](https://www.npmjs.com/package/minimist) package available
-as global const `argv`.
+The [minimist](https://www.npmjs.com/package/minimist) package.
+
+```js
+let myCustomArgv = minimist(process.argv.slice(2), { boolean: ["force", "help"] })
+```
+
+A minimist-parsed version of the process args as `argv` (parsed without any config).
 
 ```js
 if (argv.someFlag) {

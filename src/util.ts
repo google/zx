@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import chalk from 'chalk'
+import { Writable } from 'node:stream'
 import { promisify } from 'node:util'
 import psTreeModule from 'ps-tree'
 
@@ -357,3 +358,28 @@ const reservedWords = [
   'done',
   'in',
 ]
+
+export class MutedWritable extends Writable {
+  muted = false
+  mutedCharacter = ''
+
+  constructor(mutedCharacter?: string) {
+    super({
+      write(this: MutedWritable, chunk, encoding, callback) {
+        if (!this.muted) process.stdout.write(chunk, encoding)
+        else {
+          const isEnter = ['\n', '\r\n'].includes(chunk.toString())
+          if (isEnter) process.stdout.write(chunk, encoding)
+          else if (this.mutedCharacter) {
+            if (isEnter) process.stdout.write(chunk, encoding)
+            else process.stdout.write(this.mutedCharacter)
+          }
+        }
+
+        callback()
+      },
+    })
+
+    if (mutedCharacter) this.mutedCharacter = mutedCharacter
+  }
+}
