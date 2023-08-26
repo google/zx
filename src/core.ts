@@ -26,6 +26,7 @@ import {
   errnoMessage,
   exitCodeInfo,
   formatCmd,
+  getCallerLocation,
   noop,
   parseDuration,
   psTree,
@@ -95,7 +96,7 @@ function getStore() {
 
 export const $ = new Proxy<Shell & Options>(
   function (pieces, ...args) {
-    const from = new Error().stack!.split(/^\s*at\s/m)[2].trim()
+    const from = getCallerLocation()
     if (pieces.some((p) => p == undefined)) {
       throw new Error(`Malformed command at ${from}`)
     }
