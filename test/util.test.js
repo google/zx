@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { suite } from 'uvu'
+import { suite } from '../test-util.js'
 import * as assert from 'uvu/assert'
 import {
   exitCodeInfo,
@@ -24,6 +24,7 @@ import {
   quote,
   quotePowerShell,
   randomId,
+  getCallerLocationFromString,
 } from '../build/util.js'
 
 const test = suite('util')
@@ -59,7 +60,7 @@ test('quote()', () => {
   assert.ok(quote(`'\f\n\r\t\v\0`) === `$'\\'\\f\\n\\r\\t\\v\\0'`)
 })
 
-test('quotePowerShgell()', () => {
+test('quotePowerShell()', () => {
   assert.is(quotePowerShell('string'), 'string')
   assert.is(quotePowerShell(`'`), `''''`)
 })
@@ -90,6 +91,53 @@ test('formatCwd works', () => {
     formatCmd(`$'\\''`),
     "$ \u001b[93m$\u001b[39m\u001b[93m'\u001b[39m\u001b[93m\\\u001b[39m\u001b[93m'\u001b[39m\u001b[93m'\u001b[39m\n"
   )
+})
+
+test('getCallerLocation: empty', () => {
+  assert.is(getCallerLocationFromString(), 'unknown')
+})
+
+test('getCallerLocation: no-match', () => {
+  assert.is(getCallerLocationFromString('stack\nstring'), 'stack\nstring')
+})
+
+test(`getCallerLocationFromString-v8`, () => {
+  const stack = `
+    Error
+      at getCallerLocation (/Users/user/test.js:22:17)
+      at e (/Users/user/test.js:34:13)
+      at d (/Users/user/test.js:11:5)
+      at c (/Users/user/test.js:8:5)
+      at b (/Users/user/test.js:5:5)
+      at a (/Users/user/test.js:2:5)
+      at Object.<anonymous> (/Users/user/test.js:37:1)
+      at Module._compile (node:internal/modules/cjs/loader:1254:14)
+      at Module._extensions..js (node:internal/modules/cjs/loader:1308:10)
+      at Module.load (node:internal/modules/cjs/loader:1117:32)
+      at Module._load (node:internal/modules/cjs/loader:958:12)
+    `
+  assert.match(getCallerLocationFromString(stack), /^.*:11:5.*$/)
+})
+
+test(`getCallerLocationFromString-JSC`, () => {
+  const stack = `
+    getCallerLocation@/Users/user/test.js:22:17
+    e@/Users/user/test.js:34:13
+    d@/Users/user/test.js:11:5
+    c@/Users/user/test.js:8:5
+    b@/Users/user/test.js:5:5
+    a@/Users/user/test.js:2:5
+    module code@/Users/user/test.js:37:1
+    evaluate@[native code]
+    moduleEvaluation@[native code]
+    moduleEvaluation@[native code]
+    @[native code]
+    asyncFunctionResume@[native code]
+    promiseReactionJobWithoutPromise@[native code]
+    promiseReactionJob@[native code]
+    d@/Users/user/test.js:11:5
+  `
+  assert.match(getCallerLocationFromString(stack), /^.*:11:5.*$/)
 })
 
 test.run()

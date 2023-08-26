@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import chalk from 'chalk'
-import { suite } from 'uvu'
+import { suite, isDeno, runtime } from '../test-util.js'
 import * as assert from 'uvu/assert'
 import '../build/globals.js'
 
@@ -22,17 +22,51 @@ const test = suite('goods')
 $.verbose = false
 
 function zx(script) {
-  return $`node build/cli.js --eval ${script}`.nothrow().timeout('5s')
+  return $`${runtime} build/cli.js --eval ${script}`.nothrow().timeout('5s')
 }
 
 test('question() works', async () => {
-  let p = $`node build/cli.js --eval "
+  if (isDeno) return
+  let p = $`${runtime} build/cli.js --eval "
   let answer = await question('foo or bar? ', { choices: ['foo', 'bar'] })
   echo('Answer is', answer)
 "`
   p.stdin.write('foo\n')
   p.stdin.end()
-  assert.match((await p).stdout, 'Answer is foo')
+  const out = await p
+  assert.not.match(out.stdout, '*')
+  assert.match(out.stdout, 'Answer is foo')
+})
+
+test('question() with muted option works', async () => {
+  let p = $`node build/cli.js --eval "
+  let answer = await question('how are you? ', { muted: true })
+  echo(answer)
+"`
+  const stringToWrite = 'this is simple muted text'
+  p.stdin.write(`${stringToWrite}\n`)
+  p.stdin.end()
+  const out = await p
+  assert.not.match(out.stdout.split('\n')[0], stringToWrite)
+  assert.match(out.stdout, stringToWrite)
+})
+
+test('question() with muted option and custom muted character works', async () => {
+  let p = $`node build/cli.js --eval "
+  let answer = await question('how are you? ', { muted: true, mutedCharacter: '*' })
+  echo(answer)
+"`
+  const stringToWrite = 'this is simple muted text'
+  p.stdin.write(`${stringToWrite}\n`)
+  p.stdin.end()
+  const out = await p
+  assert.match(
+    out.stdout,
+    Array.from({ length: stringToWrite.length })
+      .map(() => '*')
+      .join('')
+  )
+  assert.match(out.stdout, stringToWrite)
 })
 
 test('globby available', async () => {
@@ -48,6 +82,7 @@ test('globby available', async () => {
 })
 
 test('fetch() works', async () => {
+  if (isDeno) return
   assert.match(
     await fetch('https://medv.io').then((res) => res.text()),
     /Anton Medvedev/
@@ -156,6 +191,7 @@ test('spinner() with title works', async () => {
 })
 
 test('spinner() stops on throw', async () => {
+  if (isDeno) return
   let out = await zx(`
     await spinner('processing', () => $\`wtf-cmd\`)
   `)

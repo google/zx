@@ -16,6 +16,7 @@
 
 import fs from 'fs-extra'
 import minimist from 'minimist'
+import process from 'node:process'
 import { createRequire } from 'node:module'
 import { basename, dirname, extname, join, resolve } from 'node:path'
 import url from 'node:url'
@@ -38,7 +39,7 @@ function printUsage() {
    --quiet              don't echo commands
    --shell=<path>       custom shell binary
    --prefix=<command>   prefix all commands
-   --eval=<js>, -e      evaluate script 
+   --eval=<js>, -e      evaluate script
    --install, -i        install dependencies
    --experimental       enable experimental features
    --version, -v        print current zx version
@@ -61,7 +62,7 @@ await (async function main() {
   if (argv.shell) $.shell = argv.shell
   if (argv.prefix) $.prefix = argv.prefix
   if (argv.experimental) {
-    Object.assign(global, await import('./experimental.js'))
+    Object.assign(globalThis, await import('./experimental.js'))
   }
   if (argv.version) {
     console.log(getVersion())
@@ -108,6 +109,17 @@ async function runScript(script: string) {
   await writeAndImport(script, filepath)
 }
 
+function extractScript(script: string | Buffer) {
+  const startMarker = '~~~~~zx start~~~~~'
+  const endMarker = '~~~~~zx end~~~~~'
+  const source = script.toString()
+  const sIdx = source.indexOf(startMarker)
+  if (sIdx == -1) return source
+  const eIdx = source.lastIndexOf(endMarker)
+  if (eIdx == -1) return source
+  return source.substring(sIdx + startMarker.length, eIdx)
+}
+
 async function scriptFromStdin() {
   let script = ''
   if (!process.stdin.isTTY) {
@@ -115,7 +127,7 @@ async function scriptFromStdin() {
     for await (const chunk of process.stdin) {
       script += chunk
     }
-
+    script = extractScript(script)
     if (script.length > 0) {
       await runScript(script)
       return true
@@ -130,7 +142,7 @@ async function scriptFromHttp(remote: string) {
     console.error(`Error: Can't get ${remote}`)
     process.exit(1)
   }
-  const script = await res.text()
+  const script = extractScript(await res.text())
   const pathname = new URL(remote).pathname
   const name = basename(pathname)
   const ext = extname(pathname) || '.mjs'
@@ -160,7 +172,7 @@ async function importPath(filepath: string, origin = filepath) {
       : `${basename(filepath)}.mjs`
 
     return writeAndImport(
-      await fs.readFile(filepath),
+      extractScript(await fs.readFile(filepath)),
       join(dirname(filepath), tmpFilename),
       origin
     )
@@ -179,7 +191,7 @@ async function importPath(filepath: string, origin = filepath) {
   const __filename = resolve(origin)
   const __dirname = dirname(__filename)
   const require = createRequire(origin)
-  Object.assign(global, { __filename, __dirname, require })
+  Object.assign(globalThis, { __filename, __dirname, require })
   await import(url.pathToFileURL(filepath).toString())
 }
 

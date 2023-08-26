@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import fs from 'node:fs'
-import { suite } from 'uvu'
+import { suite } from '../test-util.js'
 import * as assert from 'uvu/assert'
 import { globby } from 'globby'
 

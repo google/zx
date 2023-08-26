@@ -13,11 +13,12 @@
 // limitations under the License.
 
 import assert from 'node:assert'
+import process from 'node:process'
+import { setImmediate } from 'node:timers'
 import { ChildProcess, spawn, StdioNull, StdioPipe } from 'node:child_process'
 import { AsyncLocalStorage, createHook } from 'node:async_hooks'
 import { Readable, Writable } from 'node:stream'
 import { inspect } from 'node:util'
-import { RequestInfo, RequestInit } from 'node-fetch'
 import chalk, { ChalkInstance } from 'chalk'
 import which from 'which'
 import {
@@ -25,6 +26,7 @@ import {
   errnoMessage,
   exitCodeInfo,
   formatCmd,
+  getCallerLocation,
   noop,
   parseDuration,
   psTree,
@@ -46,6 +48,7 @@ export type Options = {
   env: NodeJS.ProcessEnv
   shell: string | boolean
   prefix: string
+  postfix: string
   quote: typeof quote
   spawn: typeof spawn
   log: typeof log
@@ -67,6 +70,7 @@ export const defaults: Options = {
   env: process.env,
   shell: true,
   prefix: '',
+  postfix: '',
   quote: () => {
     throw new Error('No quote function is defined: https://ï.at/no-quote-func')
   },
@@ -81,6 +85,7 @@ try {
 } catch (err) {
   if (process.platform == 'win32') {
     defaults.shell = which.sync('powershell.exe')
+    defaults.postfix = '; exit $LastExitCode'
     defaults.quote = quotePowerShell
   }
 }
@@ -91,7 +96,7 @@ function getStore() {
 
 export const $ = new Proxy<Shell & Options>(
   function (pieces, ...args) {
-    const from = new Error().stack!.split(/^\s*at\s/m)[2].trim()
+    const from = getCallerLocation()
     if (pieces.some((p) => p == undefined)) {
       throw new Error(`Malformed command at ${from}`)
     }
@@ -177,7 +182,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       cmd: this._command,
       verbose: $.verbose && !this._quiet,
     })
-    this.child = $.spawn($.prefix + this._command, {
+    this.child = $.spawn($.prefix + this._command + $.postfix, {
       cwd: $.cwd ?? $[processCwd],
       shell: typeof $.shell === 'string' ? $.shell : true,
       stdio: this._stdio,

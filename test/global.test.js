@@ -12,12 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { suite } from 'uvu'
+import { suite } from '../test-util.js'
 import * as assert from 'uvu/assert'
 import '../build/globals.js'
 import * as index from '../build/index.js'
 
 const test = suite('global')
+
+function zx(script) {
+  return $`node build/cli.js --eval ${script}`.nothrow().timeout('5s')
+}
 
 test('global cd()', async () => {
   const cwd = (await $`pwd`).toString().trim()
@@ -29,8 +33,28 @@ test('global cd()', async () => {
 
 test('injects zx index to global', () => {
   for (let [key, value] of Object.entries(index)) {
-    assert.is(global[key], value)
+    assert.is(globalThis[key], value)
   }
+})
+
+test('chalk available with no import', async () => {
+  let p = await zx("console.log(`Hello ${chalk.bold('World')}`)")
+  assert.is(p.stdout, 'Hello \x1B[1mWorld\x1B[22m\n')
+})
+
+test('chalk-template available with no import', async () => {
+  let p = await zx('console.log(chalkTemplate`Hello {bold World}`)')
+  assert.is(p.stdout, 'Hello \x1B[1mWorld\x1B[22m\n')
+})
+
+test('echo supports chalk-template', async () => {
+  let p = await zx('echo`Hello {bold World}`')
+  assert.is(p.stdout, 'Hello \x1B[1mWorld\x1B[22m\n')
+})
+
+test('echo supports chalk-template and ProcessPromise', async () => {
+  let p = await zx('const e = $`echo World`; echo`Hello {bold ${await e}}`')
+  assert.is(p.stdout, 'Hello \x1B[1mWorld\x1B[22m\n')
 })
 
 test.run()

@@ -13,15 +13,18 @@
 // limitations under the License.
 
 import assert from 'node:assert'
+import process from 'node:process'
 import * as globbyModule from 'globby'
 import minimist from 'minimist'
-import nodeFetch, { RequestInfo, RequestInit } from 'node-fetch'
+import nodeFetch from 'node-fetch-native'
 import { createInterface } from 'node:readline'
 import { $, within, ProcessOutput } from './core.js'
-import { Duration, isString, parseDuration } from './util.js'
+import { Duration, isString, MutedWritable, parseDuration } from './util.js'
 import chalk from 'chalk'
+import chalkTemplate from 'chalk-template'
 
 export { default as chalk } from 'chalk'
+export { default as chalkTemplate } from 'chalk-template'
 export { default as fs } from 'fs-extra'
 export { default as which } from 'which'
 export { default as minimist } from 'minimist'
@@ -33,7 +36,7 @@ export { ssh } from 'webpod'
 export let argv = minimist(process.argv.slice(2))
 export function updateArgv(args: string[]) {
   argv = minimist(args)
-  ;(global as any).argv = argv
+  ;(globalThis as any).argv = argv
 }
 
 export const globby = Object.assign(function globby(
@@ -70,7 +73,9 @@ export function echo(pieces: TemplateStringsArray, ...args: any[]) {
   } else {
     msg = [pieces, ...args].map(stringify).join(' ')
   }
-  console.log(msg)
+  const tpl: any = [msg]
+  tpl.raw = [msg]
+  console.log(chalkTemplate(tpl as TemplateStringsArray))
 }
 
 function stringify(arg: ProcessOutput | any) {
@@ -82,30 +87,41 @@ function stringify(arg: ProcessOutput | any) {
 
 export async function question(
   query?: string,
-  options?: { choices: string[] }
+  options?: {
+    choices?: string[]
+    muted?: boolean
+    mutedCharacter?: string
+  }
 ): Promise<string> {
   let completer = undefined
   if (options && Array.isArray(options.choices)) {
     /* c8 ignore next 5 */
     completer = function completer(line: string) {
-      const completions = options.choices
+      const completions = options.choices as string[]
       const hits = completions.filter((c) => c.startsWith(line))
       return [hits.length ? hits : completions, line]
     }
   }
+
+  const output = new MutedWritable(options?.mutedCharacter)
+
   const rl = createInterface({
     input: process.stdin,
-    output: process.stdout,
+    output,
     terminal: true,
     completer,
   })
 
-  return new Promise((resolve) =>
+  return new Promise((resolve) => {
     rl.question(query ?? '', (answer) => {
       rl.close()
       resolve(answer)
     })
-  )
+
+    if (options && options.muted) {
+      output.muted = true
+    }
+  })
 }
 
 export async function stdin() {

@@ -193,6 +193,15 @@ A wrapper around the [readline](https://nodejs.org/api/readline.html) package.
 
 ```js
 let bear = await question('What kind of bear is best? ')
+
+// Use with auto complete choices
+let bear = await question('What kind of bear is best? ', { choices: ['one', 'two'] })
+
+// Use with muted input
+let bear = await question('What kind of bear is best? ', { muted: true })
+
+// Use with muted input replacing the content with another character
+let bear = await question('What kind of bear is best? ', { muted: true, mutedCharacter: '*' })
 ```
 
 ### `sleep()`
@@ -213,6 +222,14 @@ let branch = await $`git branch --show-current`
 echo`Current branch is ${branch}.`
 // or
 echo('Current branch is', branch)
+```
+
+It also supports [chalk-template](https://github.com/chalk/chalk-template)
+
+```js
+let branch = await $`git branch --show-current`
+
+echo`Current branch is {bold.yellow ${branch}}.`
 ```
 
 ### `stdin()`
@@ -375,9 +392,17 @@ Specifies a `spawn` api. Defaults to `require('child_process').spawn`.
 
 Specifies the command that will be prefixed to all commands run.
 
-Default is `set -euo pipefail;`.
+Default is `set -euo pipefail;` for bash, and `''` for powershell.
 
 Or use a CLI argument: `--prefix='set -e;'`
+
+### `$.postfix`
+
+Same as `$.prefix` but applied after the all commands. 
+
+Default is `''` for bash, and `; exit $LastExitCode` for powershell.
+
+Or use a CLI argument: `--postfix='; exit $LastExitCode'`
 
 ### `$.quote`
 
@@ -510,6 +535,15 @@ in **package.json**
 and [`"module": "ESNext"`](https://www.typescriptlang.org/tsconfig/#module)
 in **tsconfig.json**.
 
+### Javascript embedded within other scripts
+
+The `zx` can execute code embedded in arbitrary text (i.e. shell scripts) using the special delimeters
+`~~~~~zx start~~~~~` and `~~~~~zx end~~~~~`. This can be used to create scripts that can auto install node or
+zx itself making script execution truely painless. See [example](examples/self-install)
+
+```bash
+zx examples/self-install
+```
 ### Executing remote scripts
 
 If the argument to the `zx` executable starts with `https://`, the file will be
