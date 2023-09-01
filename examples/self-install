@@ -1,0 +1,45 @@
+#!/bin/bash
+if [ "bash" = "$0" ]; then
+    # Instructors for your users: 
+    # If self-install.sh is hosted on example.org, instruct your users to install the script via
+    # curl https://example.com/self-install | bash
+    # 
+    # Instructions for you: 
+    # Do some installation here... (yes, this downloads the script twice since its not possible to 
+    # access the script source in bash) 
+    #
+    # curl https://example.com/self-install -o /usr/local/bin/self-install
+    # chmod +x /usr/local/bin/self-install
+    echo "Installed!"
+    exit 0
+fi
+if ! command -v node &> /dev/null; then
+    echo "The javascript runtime 'node' is required but it is not installed."
+    printf "Should I install volta, a package manager, and node, a javascript runtime? (y/n)?"
+    read answer
+    if [ "$answer" != "${answer#[Yy]}" ] ;then 
+        curl -s https://get.volta.sh | bash
+        volta install node
+    else
+        echo 'Aborting - make sure you have node installed and try again'
+        exit 1
+    fi
+fi
+if ! command -v zx &> /dev/null; then
+    echo "This script ($0) requires zx but it is not installed"
+    printf "Should I zx globally via npm? (y/n)?"
+    read answer
+    if [ "$answer" != "${answer#[Yy]}" ] ;then 
+        npm --no-fund install -g zx
+    else
+        echo 'Aborting - zx is required'
+        exit 1
+    fi
+fi
+# The special zx start and zx end delimeters are necessary so the script can be executed either by bash
+# or by zx
+zx << 'EOF'
+~~~~~zx start~~~~~
+console.log("Script execution a success!")
+~~~~~zx end~~~~~
+EOF
