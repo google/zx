@@ -1,0 +1,1 @@
+import{_ as s,o as a,c as n,Q as o}from"./chunks/framework.54ce79f7.js";const g=JSON.parse('{"title":"Quotes","description":"","frontmatter":{},"headers":[],"relativePath":"quotes.md","filePath":"quotes.md"}'),l={name:"quotes.md"},p=o("",23),e=[p];function t(c,r,i,y,d,E){return a(),n("div",null,e)}const h=s(l,[["render",t]]);export{g as __pageData,h as default};
