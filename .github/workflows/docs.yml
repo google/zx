@@ -2,7 +2,7 @@ name: Deploy docs to Pages
 
 on:
   push:
-    branches: ["gh-pages"]
+    branches: ['gh-pages']
   workflow_dispatch:
 
 permissions:
@@ -11,7 +11,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: 'pages'
   cancel-in-progress: false
 
 jobs:
