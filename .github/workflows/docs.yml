@@ -30,7 +30,7 @@ jobs:
       - name: Install deps
         run: npm ci
       - name: Built docs
-        run: npm run
+        run: npm run docs:built
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
