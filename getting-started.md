@@ -1,16 +1,39 @@
 # Getting Started
 
+## Overview
+
+```js
+#!/usr/bin/env zx
+
+await $`cat package.json | grep name`
+
+let branch = await $`git branch --show-current`
+await $`dep deploy --branch=${branch}`
+
+await Promise.all([
+  $`sleep 1; echo 1`,
+  $`sleep 2; echo 2`,
+  $`sleep 3; echo 3`,
+])
+
+let name = 'foo bar'
+await $`mkdir /tmp/${name}`
+```
+
+Bash is great, but when it comes to writing more complex scripts,
+many people prefer a more convenient programming language.
+JavaScript is a perfect choice, but the Node.js standard library
+requires additional hassle before using. The `zx` package provides
+useful wrappers around `child_process`, escapes arguments and
+gives sensible defaults.
+
 ## Install
 
 ```bash
-npm i -g zx
+npm install zx
 ```
 
-**Requirement**: Node version >= 16.0.0
-
-## Documentation
-
-<a href="https://webpod.dev/?from=zx"><img src="https://webpod.dev/img/banner.png" alt="Webpod - deploy JavaScript apps" width="190" align="right"></a>
+## Usage
 
 Write your scripts in a file with an `.mjs` extension in order to
 use `await` at the top level. If you prefer the `.js` extension,
@@ -29,7 +52,7 @@ chmod +x ./script.mjs
 ./script.mjs
 ```
 
-Or via the `zx` executable:
+Or via the [CLI](cli.md):
 
 ```bash
 zx ./script.mjs
@@ -47,7 +70,7 @@ import 'zx/globals'
 ### ``$`command` ``
 
 Executes a given command using the `spawn` func
-and returns [`ProcessPromise`](#processpromise).
+and returns [`ProcessPromise`](process-promise.md).
 
 Everything passed through `${...}` will be automatically escaped and quoted.
 
@@ -82,27 +105,6 @@ try {
 }
 ```
 
-### `ProcessPromise`
-
-```ts
-class ProcessPromise extends Promise<ProcessOutput> {
-  stdin: Writable
-  stdout: Readable
-  stderr: Readable
-  exitCode: Promise<number>
-
-  pipe(dest): ProcessPromise
-
-  kill(): Promise<void>
-
-  nothrow(): this
-
-  quiet(): this
-}
-```
-
-Read more about the [ProcessPromise](process-promise.md).
-
 ### `ProcessOutput`
 
 ```ts
@@ -124,460 +126,6 @@ If `ProcessOutput` is used as an argument to some other `$` process,
 ```js
 let date = await $`date`
 await $`echo Current date is ${date}.`
-```
-
-## Functions
-
-### `cd()`
-
-Changes the current working directory.
-
-```js
-cd('/tmp')
-await $`pwd` // => /tmp
-```
-
-Like `echo`, in addition to `string` arguments, `cd` accepts and trims
-trailing newlines from `ProcessOutput` enabling common idioms like:
-
-```js
-cd(await $`mktemp -d`)
-```
-
-### `fetch()`
-
-A wrapper around the [node-fetch](https://www.npmjs.com/package/node-fetch)
-package.
-
-```js
-let resp = await fetch('https://medv.io')
-```
-
-### `question()`
-
-A wrapper around the [readline](https://nodejs.org/api/readline.html) package.
-
-```js
-let bear = await question('What kind of bear is best? ')
-```
-
-### `sleep()`
-
-A wrapper around the `setTimeout` function.
-
-```js
-await sleep(1000)
-```
-
-### `echo()`
-
-A `console.log()` alternative which can take [ProcessOutput](#processoutput).
-
-```js
-let branch = await $`git branch --show-current`
-
-echo`Current branch is ${branch}.`
-// or
-echo('Current branch is', branch)
-```
-
-### `stdin()`
-
-Returns the stdin as a string.
-
-```js
-let content = JSON.parse(await stdin())
-```
-
-### `within()`
-
-Creates a new async context.
-
-```js
-await $`pwd` // => /home/path
-
-within(async () => {
-  cd('/tmp')
-
-  setTimeout(async () => {
-    await $`pwd` // => /tmp
-  }, 1000)
-})
-
-await $`pwd` // => /home/path
-```
-
-```js
-await $`node --version` // => v20.2.0
-
-let version = await within(async () => {
-  $.prefix += 'export NVM_DIR=$HOME/.nvm; source $NVM_DIR/nvm.sh; nvm use 16;'
-  
-  return $`node --version`
-})
-
-echo(version) // => v16.20.0
-```
-
-### `retry()`
-
-Retries a callback for a few times. Will return after the first
-successful attempt, or will throw after specifies attempts count.
-
-```js
-let p = await retry(10, () => $`curl https://medv.io`)
-
-// With a specified delay between attempts.
-let p = await retry(20, '1s', () => $`curl https://medv.io`)
-
-// With an exponential backoff.
-let p = await retry(30, expBackoff(), () => $`curl https://medv.io`)
-```
-
-### `spinner()`
-
-Starts a simple CLI spinner.
-
-```js
-await spinner(() => $`long-running command`)
-
-// With a message.
-await spinner('working...', () => $`sleep 99`)
-```
-
-## Packages
-
-The following packages are available without importing inside scripts.
-
-### `chalk` package
-
-The [chalk](https://www.npmjs.com/package/chalk) package.
-
-```js
-console.log(chalk.blue('Hello world!'))
-```
-
-### `fs` package
-
-The [fs-extra](https://www.npmjs.com/package/fs-extra) package.
-
-```js
-let {version} = await fs.readJson('./package.json')
-```
-
-### `os` package
-
-The [os](https://nodejs.org/api/os.html) package.
-
-```js
-await $`cd ${os.homedir()} && mkdir example`
-```
-
-### `path` package
-
-The [path](https://nodejs.org/api/path.html) package.
-
-```js
-await $`mkdir ${path.join(basedir, 'output')}`
-```
-
-### `globby` package
-
-The [globby](https://github.com/sindresorhus/globby) package.
-
-```js
-let packages = await glob(['package.json', 'packages/*/package.json'])
-```
-
-### `yaml` package
-
-The [yaml](https://www.npmjs.com/package/yaml) package.
-
-```js
-console.log(YAML.parse('foo: bar').foo)
-```
-
-### `minimist` package
-
-The [minimist](https://www.npmjs.com/package/minimist) package.
-
-```js
-let myCustomArgv = minimist(process.argv.slice(2), { boolean: ["force", "help"] })
-```
-
-A minimist-parsed version of the process args as `argv` (parsed without any config).
-
-```js
-if (argv.someFlag) {
-  echo('yes')
-}
-```
-
-### `which` package
-
-The [which](https://github.com/npm/node-which) package.
-
-```js
-let node = await which('node')
-```
-
-## Configuration
-
-### `$.shell`
-
-Specifies what shell is used. Default is `which bash`.
-
-```js
-$.shell = '/usr/bin/bash'
-```
-
-Or use a CLI argument: `--shell=/bin/bash`
-
-### `$.spawn`
-
-Specifies a `spawn` api. Defaults to `require('child_process').spawn`.
-
-### `$.prefix`
-
-Specifies the command that will be prefixed to all commands run.
-
-Default is `set -euo pipefail;`.
-
-Or use a CLI argument: `--prefix='set -e;'`
-
-### `$.quote`
-
-Specifies a function for escaping special characters during
-command substitution.
-
-### `$.verbose`
-
-Specifies verbosity. Default is `true`.
-
-In verbose mode, `zx` prints all executed commands alongside with their
-outputs.
-
-Or use the CLI argument `--quiet` to set `$.verbose = false`.
-
-### `$.env`
-
-Specifies an environment variables map.
-
-Defaults to `process.env`.
-
-### `$.cwd`
-
-Specifies a current working directory of all processes created with the `$`.
-
-The [cd()](#cd) func changes only `process.cwd()` and if no `$.cwd` specified,
-all `$` processes use `process.cwd()` by default (same as `spawn` behavior).
-
-### `$.log`
-
-Specifies a [logging function](src/core.ts).
-
-```ts
-import { LogEntry, log } from 'zx/core'
-
-$.log = (entry: LogEntry) => {
-  switch (entry.kind) {
-    case 'cmd':
-      // for example, apply custom data masker for cmd printing
-      process.stderr.write(masker(entry.cmd))
-      break
-    default:
-      log(entry)
-  }
-}
-```
-
-## Polyfills
-
-### `__filename` & `__dirname`
-
-In [ESM](https://nodejs.org/api/esm.html) modules, Node.js does not provide
-`__filename` and `__dirname` globals. As such globals are really handy in
-scripts,
-`zx` provides these for use in `.mjs` files (when using the `zx` executable).
-
-### `require()`
-
-In [ESM](https://nodejs.org/api/modules.html#modules_module_createrequire_filename)
-modules, the `require()` function is not defined.
-The `zx` provides `require()` function, so it can be used with imports in `.mjs`
-files (when using `zx` executable).
-
-```js
-let {version} = require('./package.json')
-```
-
-## FAQ
-
-### Passing env variables
-
-```js
-process.env.FOO = 'bar'
-await $`echo $FOO`
-```
-
-### Passing array of values
-
-When passing an array of values as an argument to `$`, items of the array will
-be escaped
-individually and concatenated via space.
-
-Example:
-
-```js
-let files = [...]
-await $`tar cz ${files}`
-```
-
-### Importing into other scripts
-
-It is possible to make use of `$` and other functions via explicit imports:
-
-```js
-#!/usr/bin/env node
-import { $ } from 'zx'
-
-await $`date`
-```
-
-### Scripts without extensions
-
-If script does not have a file extension (like `.git/hooks/pre-commit`), zx
-assumes that it is
-an [ESM](https://nodejs.org/api/modules.html#modules_module_createrequire_filename)
-module.
-
-### Markdown scripts
-
-The `zx` can execute [scripts written as markdown](markdown-scripts.md):
-
-```bash
-zx docs/markdown.md
-```
-
-### TypeScript scripts
-
-```ts
-import { $ } from 'zx'
-// Or
-import 'zx/globals'
-
-void async function () {
-  await $`ls -la`
-}()
-```
-
-Set [`"type": "module"`](https://nodejs.org/api/packages.html#packages_type)
-in **package.json**
-and [`"module": "ESNext"`](https://www.typescriptlang.org/tsconfig/#module)
-in **tsconfig.json**.
-
-### Executing remote scripts
-
-If the argument to the `zx` executable starts with `https://`, the file will be
-downloaded and executed.
-
-```bash
-zx https://medv.io/game-of-life.js
-```
-
-### Executing scripts from stdin
-
-The `zx` supports executing scripts from stdin.
-
-```js
-zx << 'EOF'
-await $`pwd`
-EOF
-```
-
-### Executing scripts via --eval
-
-Evaluate the following argument as a script.
-
-```bash
-cat package.json | zx --eval 'let v = JSON.parse(await stdin()).version; echo(v)'
-```
-
-### Installing dependencies via --install
-
-```js
-// script.mjs:
-import sh from 'tinysh'
-
-sh.say('Hello, world!')
-```
-
-Add `--install` flag to the `zx` command to install missing dependencies
-automatically.
-
-```bash
-zx --install script.mjs
-```
-
-You can also specify needed version by adding comment with `@` after
-the import.
-
-```js
-import sh from 'tinysh' // @^1
-```
-
-### Executing commands on remote hosts
-
-The `zx` uses [webpod](https://github.com/webpod/webpod) to execute commands on
-remote hosts.
-
-```js
-import { ssh } from 'zx'
-
-await ssh('user@host')`echo Hello, world!`
-```
-
-
-
-### Attaching a profile
-
-By default `child_process` does not include aliases and bash functions.
-But you are still able to do it by hand. Just attach necessary directives
-to the `$.prefix`.
-
-```js
-$.prefix += 'export NVM_DIR=$HOME/.nvm; source $NVM_DIR/nvm.sh; '
-await $`nvm -v`
-```
-
-### Using GitHub Actions
-
-The default GitHub Action runner comes with `npx` installed.
-
-```yaml
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Build
-        env:
-          FORCE_COLOR: 3
-        run: |
-          npx zx <<'EOF'
-          await $`...`
-          EOF
-```
-
-### Canary / Beta / RC builds
-
-Impatient early adopters can try the experimental zx versions.
-But keep in mind: these builds are ⚠️️__beta__ in every sense.
-
-```bash
-npm i zx@dev
-npx zx@dev --install --quiet <<< 'import _ from "lodash" /* 4.17.15 */; console.log(_.VERSION)'
 ```
 
 ## License

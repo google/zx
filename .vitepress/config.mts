@@ -35,8 +35,19 @@ export default defineConfig({
         items: [
           {text: 'Getting Started', link: '/getting-started'},
           {text: 'Process Promise', link: '/process-promise'},
+          {text: 'API Reference', link: '/api'},
+          {text: 'Configuration', link: '/configuration'},
+          {text: 'CLI Usage', link: '/cli'},
+        ],
+      },
+      {
+        text: 'FAQ',
+        link: '/faq',
+        items: [
           {text: 'Quotes', link: '/quotes'},
+          {text: 'TypeScript', link: '/typescript'},
           {text: 'Markdown Scripts', link: '/markdown-scripts'},
+          {text: 'Known Issues', link: '/known-issues'},
         ],
       },
     ],
@@ -44,6 +55,10 @@ export default defineConfig({
     socialLinks: [
       {icon: 'github', link: 'https://github.com/google/zx'},
     ],
+
+    editLink: {
+      pattern: 'https://github.com/google/zx/blob/gh-pages/:path',
+    },
 
     footer: {
       message: 'Disclaimer: This is not an officially supported Google product.',

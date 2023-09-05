@@ -1,4 +1,4 @@
-# ProcessPromise
+# Process Promise
 
 The `$` returns a `ProcessPromise` instance.
 
@@ -40,7 +40,7 @@ Returns a promise which resolves to the exit code of the process.
 
 ```js
 if (await $`[[ -d path ]]`.exitCode == 0) {
-  ...
+...
 }
 ```
 
@@ -120,13 +120,13 @@ If only the `exitCode` is needed, you can use [`exitCode`](#exitcode) directly:
 
 ```js
 if (await $`[[ -d path ]]`.exitCode == 0) {
-  ...
+...
 }
 
 // Equivalent of:
 
 if ((await $`[[ -d path ]]`.nothrow()).exitCode == 0) {
-  ...
+...
 }
 ```
 
