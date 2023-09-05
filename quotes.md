@@ -85,8 +85,8 @@ cmd += ' ' + file
 await $`${cmd}`
 ```
 
-This will not work because zx will escape the whole string, and you will end up with
-`rm\ -f\ -r\ file`. Instead, you can pass an [array of arguments](#array-of-arguments):
+This will not work because zx will escape the whole string. 
+Instead, you can pass an [array of arguments](#array-of-arguments):
 
 ```js
 const args = []
@@ -96,5 +96,3 @@ args.push(file)
 
 await $`rm ${args}`
 ```
-
-
