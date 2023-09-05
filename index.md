@@ -6,6 +6,9 @@ titleTemplate: google/zx
 hero:
   name: "zx"
   text: "A tool for writing better scripts"
+  image:
+    src: /img/logo.svg
+    alt: Zx Logo
   actions:
     - theme: brand
       text: Documentation

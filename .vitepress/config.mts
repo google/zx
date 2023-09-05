@@ -8,7 +8,15 @@ export default defineConfig({
   title: 'google/zx',
   titleTemplate: ':title | google/zx',
   description: 'A tool for writing better scripts',
+  head: [
+    ['link', {rel: 'apple-touch-icon', sizes: '180x180', href: '/img/favicons/apple-touch-icon.png'}],
+    ['link', {rel: 'icon', type: 'image/png', sizes: '32x32', href: '/img/favicons/favicon-32x32.png'}],
+    ['link', {rel: 'icon', type: 'image/png', sizes: '16x16', href: '/img/favicons/favicon-16x16.png'}],
+    ['link', {rel: 'mask-icon', href: '/img/favicons/safari-pinned-tab.svg', color: '#3a0839'}],
+    ['link', {rel: 'shortcut icon', href: '/img/favicons/favicon.ico'}],
+  ],
   themeConfig: {
+    logo: '/img/logo.svg',
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       {text: 'Home', link: '/'},
