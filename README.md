@@ -1,6 +1,6 @@
 <a href="https://webpod.dev/?from=zx"><img src="https://webpod.dev/img/banner.png" alt="Webpod - deploy JavaScript apps" width="190" align="right"></a>
 
-# 🐚 zx
+<h1><img src="https://google.github.io/zx/img/logo.svg" alt="Zx logo" height="32" valign="middle"> zx</h1>
 
 ```js
 #!/usr/bin/env zx
