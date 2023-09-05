@@ -14,6 +14,7 @@ export default defineConfig({
     ['link', {rel: 'icon', type: 'image/png', sizes: '16x16', href: '/zx/img/favicons/favicon-16x16.png'}],
     ['link', {rel: 'mask-icon', href: '/zx/img/favicons/safari-pinned-tab.svg', color: '#3a0839'}],
     ['link', {rel: 'shortcut icon', href: '/zx/img/favicons/favicon.ico'}],
+    ['meta', {name: 'og:image', content: '/zx/img/og-image.png'}],
   ],
   themeConfig: {
     logo: '/img/logo.svg',
