@@ -22,7 +22,7 @@ A wrapper around the [node-fetch](https://www.npmjs.com/package/node-fetch)
 package.
 
 ```js
-let resp = await fetch('https://medv.io')
+const resp = await fetch('https://medv.io')
 ```
 
 ## question()
@@ -30,7 +30,7 @@ let resp = await fetch('https://medv.io')
 A wrapper around the [readline](https://nodejs.org/api/readline.html) package.
 
 ```js
-let bear = await question('What kind of bear is best? ')
+const bear = await question('What kind of bear is best? ')
 ```
 
 ## sleep()
@@ -46,7 +46,7 @@ await sleep(1000)
 A `console.log()` alternative which can take [ProcessOutput](#processoutput).
 
 ```js
-let branch = await $`git branch --show-current`
+const branch = await $`git branch --show-current`
 
 echo`Current branch is ${branch}.`
 // or
@@ -58,7 +58,7 @@ echo('Current branch is', branch)
 Returns the stdin as a string.
 
 ```js
-let content = JSON.parse(await stdin())
+const content = JSON.parse(await stdin())
 ```
 
 ## within()
@@ -82,7 +82,7 @@ await $`pwd` // => /home/path
 ```js
 await $`node --version` // => v20.2.0
 
-let version = await within(async () => {
+const version = await within(async () => {
   $.prefix += 'export NVM_DIR=$HOME/.nvm; source $NVM_DIR/nvm.sh; nvm use 16;'
 
   return $`node --version`
@@ -97,13 +97,13 @@ Retries a callback for a few times. Will return after the first
 successful attempt, or will throw after specifies attempts count.
 
 ```js
-let p = await retry(10, () => $`curl https://medv.io`)
+const p = await retry(10, () => $`curl https://medv.io`)
 
 // With a specified delay between attempts.
-let p = await retry(20, '1s', () => $`curl https://medv.io`)
+const p = await retry(20, '1s', () => $`curl https://medv.io`)
 
 // With an exponential backoff.
-let p = await retry(30, expBackoff(), () => $`curl https://medv.io`)
+const p = await retry(30, expBackoff(), () => $`curl https://medv.io`)
 ```
 
 ## spinner()
@@ -122,7 +122,7 @@ await spinner('working...', () => $`sleep 99`)
 The [globby](https://github.com/sindresorhus/globby) package.
 
 ```js
-let packages = await glob(['package.json', 'packages/*/package.json'])
+const packages = await glob(['package.json', 'packages/*/package.json'])
 ```
 
 ## which()
@@ -130,7 +130,7 @@ let packages = await glob(['package.json', 'packages/*/package.json'])
 The [which](https://github.com/npm/node-which) package.
 
 ```js
-let node = await which('node')
+const node = await which('node')
 ```
 
 ## argv
@@ -172,7 +172,7 @@ console.log(chalk.blue('Hello world!'))
 The [fs-extra](https://www.npmjs.com/package/fs-extra) package.
 
 ```js
-let {version} = await fs.readJson('./package.json')
+const {version} = await fs.readJson('./package.json')
 ```
 
 ## os

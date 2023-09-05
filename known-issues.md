@@ -10,8 +10,8 @@ process to exit itself. Or use something like [exit](https://www.npmjs.com/packa
 
 Workaround is to write to a temp file:
 ```js
-let tmp = await $`mktemp` // Creates a temp file.
-let {stdout} = await $`cmd > ${tmp}; cat ${tmp}`
+const tmp = await $`mktemp` // Creates a temp file.
+const {stdout} = await $`cmd > ${tmp}; cat ${tmp}`
 ```
 
 ## Colors in subprocess

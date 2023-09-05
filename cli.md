@@ -41,7 +41,7 @@ EOF
 Evaluate the following argument as a script.
 
 ```bash
-cat package.json | zx --eval 'let v = JSON.parse(await stdin()).version; echo(v)'
+cat package.json | zx --eval 'const v = JSON.parse(await stdin()).version; echo(v)'
 ```
 
 ## Installing dependencies via --install
@@ -92,5 +92,5 @@ The `zx` provides `require()` function, so it can be used with imports in `.mjs`
 files (when using `zx` executable).
 
 ```js
-let {version} = require('./package.json')
+const {version} = require('./package.json')
 ```

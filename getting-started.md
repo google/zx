@@ -7,7 +7,7 @@
 
 await $`cat package.json | grep name`
 
-let branch = await $`git branch --show-current`
+const branch = await $`git branch --show-current`
 await $`dep deploy --branch=${branch}`
 
 await Promise.all([
@@ -16,7 +16,7 @@ await Promise.all([
   $`sleep 3; echo 3`,
 ])
 
-let name = 'foo bar'
+const name = 'foo bar'
 await $`mkdir /tmp/${name}`
 ```
 
@@ -75,7 +75,7 @@ and returns [`ProcessPromise`](process-promise.md).
 Everything passed through `${...}` will be automatically escaped and quoted.
 
 ```js
-let name = 'foo & bar'
+const name = 'foo & bar'
 await $`mkdir ${name}`
 ```
 
@@ -85,7 +85,7 @@ await $`mkdir ${name}`
 You can pass an array of arguments if needed:
 
 ```js
-let flags = [
+const flags = [
   '--oneline',
   '--decorate',
   '--color',
@@ -124,7 +124,7 @@ If `ProcessOutput` is used as an argument to some other `$` process,
 **zx** will use stdout and trim the new line.
 
 ```js
-let date = await $`date`
+const date = await $`date`
 await $`echo Current date is ${date}.`
 ```
 

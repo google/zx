@@ -4,7 +4,7 @@ When passing arguments to `${...}` there is no need to add quotes. **Quotes will
 be added automatically if needed.**
 
 ```js
-let name = 'foo & bar'
+const name = 'foo & bar'
 await $`mkdir ${name}`
 ```
 
@@ -37,7 +37,7 @@ will be quoted separately and concatenated via a space.
 Do **not** add a `.join(' ')`.
 
 ```js
-let flags = [
+const flags = [
   '--oneline',
   '--decorate',
   '--color',
@@ -63,13 +63,13 @@ In order for this to work the zx provides
 For instead of this:
 
 ```js
-let files = '~/dev/**/*.md' // wrong
+const files = '~/dev/**/*.md' // wrong
 await $`ls ${files}`
 ```
 
 Use `glob` function and `os` package:
 
 ```js
-let files = await glob(os.homedir() + '/dev/**/*.md')
+const files = await glob(os.homedir() + '/dev/**/*.md')
 await $`ls ${files}`
 ```

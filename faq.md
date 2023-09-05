@@ -16,7 +16,7 @@ individually and concatenated via space.
 Example:
 
 ```js
-let files = [...]
+const files = [...]
 await $`tar cz ${files}`
 ```
 

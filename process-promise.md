@@ -3,7 +3,7 @@
 The `$` returns a `ProcessPromise` instance.
 
 ```js
-let p = $`command`
+const p = $`command`
 
 await p
 ```
@@ -16,7 +16,7 @@ this getter will trigger execution of a subprocess with [`stdio('pipe')`](#stdio
 Do not forget to end the stream.
 
 ```js
-let p = $`while read; do echo $REPLY; done`
+const p = $`while read; do echo $REPLY; done`
 p.stdin.write('Hello, World!\n')
 p.stdin.end()
 ```
@@ -65,7 +65,7 @@ await $`echo 1; sleep 1; echo 2; sleep 1; echo 3;`
 The `pipe()` method can combine `$` processes. Same as `|` in bash:
 
 ```js
-let greeting = await $`printf "hello"`
+const greeting = await $`printf "hello"`
   .pipe($`awk '{printf $1", world!"}'`)
   .pipe($`tr '[a-z]' '[A-Z]'`)
 
@@ -87,7 +87,7 @@ Kills the process and all children.
 By default, signal `SIGTERM` is sent. You can specify a signal via an argument.
 
 ```js
-let p = $`sleep 999`
+const p = $`sleep 999`
 setTimeout(() => p.kill('SIGINT'), 100)
 await p
 ```
@@ -99,7 +99,7 @@ Specifies a stdio for the process.
 Default is `.stdio('inherit', 'pipe', 'pipe')`.
 
 ```js
-let p = $`read`.stdio('pipe')
+const p = $`read`.stdio('pipe')
 ```
 
 ## `nothrow()`
