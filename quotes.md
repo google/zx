@@ -1,17 +1,16 @@
 # Quotes
 
-Bash has a few ways to quote arguments. Single quotes, double quotes and bash-only,
-C-style quotes `$'...'`. Zx uses the last one.
+Bash supports various ways to quote arguments: single quotes, double quotes, and a bash-specific method using C-style
+quotes `$'...'`. Zx prefers the latter approach.
 
 ```js
 const name = 'foo & bar'
 await $`mkdir ${name}`
 ```
 
-Everything inside `${...}` will be escaped and quoted properly.
-**No need to add extra quotes.**
+Zx automatically escapes and quotes anything within `${...}`, so there's no need for additional quotes.
 
-Next examples are equivalent:
+The following examples produce the same output:
 
 ```js
 await $`mkdir ${'path/to-dir/' + name}`
@@ -23,8 +22,8 @@ await $`mkdir path/to-dir/${name}`
 
 ## Array of arguments
 
-The `zx` can also take an array or arguments in the `${...}`. Items of the array
-will be quoted separately and concatenated via a space.
+Zx can also accept an array of arguments within `${...}`. Each array item will be quoted separately and then joined by a
+space.
 
 ```js
 const flags = [
@@ -35,19 +34,19 @@ const flags = [
 await $`git log ${flags}`
 ```
 
-## Globbing
+## Glob patterns
 
-As everything passed through `${...}` will be escaped, you can't use glob syntax.
-In order for this to work the zx provides [glob](api.md#glob) function.
+Because Zx escapes everything inside `${...}`, you can't use glob syntax directly. Instead, Zx provides 
+a [`glob`](api.md#glob) function.
 
-Next example will not work:
+The following example won't work:
 
 ```js
-const files = './**/*.md' // wrong
+const files = './**/*.md' // Incorrect
 await $`ls ${files}`
 ```
 
-Correct way:
+The correct approach:
 
 ```js
 const files = await glob('./**/*.md')
@@ -56,25 +55,25 @@ await $`ls ${files}`
 
 ## Home dir `~`
 
-Same with home dir `~`. It will not be expanded inside `${...}`. Use `os.homedir()` instead.
+Zx won't expand the home directory symbol `~` if it's within `${...}`. Use `os.homedir()` for that purpose.
 
 ```js
-await $`ls ~/Downloads` // correct. ~ is not inside ${...}
-```
-
-```js
-const dir = `~/Downloads` // wrong
+const dir = `~/Downloads` // Incorrect
 await $`ls ${dir}`
 ```
 
 ```js
-await $`ls ${os.homedir()}/Downloads` // correct
+await $`ls ${os.homedir()}/Downloads` // Correct
+```
+
+```js
+await $`ls ~/Downloads` // Correct, ~ is outside of ${...}
 ```
 
 ## Assembling commands
 
-You may find what zx is not suitable for assembling commands. For example, you can't
-do this:
+If you're trying to dynamically assemble commands in Zx, you might run into limitations. For instance, the following
+approach won't work:
 
 ```js
 const cmd = 'rm'
@@ -85,8 +84,8 @@ cmd += ' ' + file
 await $`${cmd}`
 ```
 
-This will not work because zx will escape the whole string. 
-Instead, you can pass an [array of arguments](#array-of-arguments):
+Zx will escape the entire string, making the command invalid. Instead, assemble an array of arguments and pass it to Zx
+like this:
 
 ```js
 const args = []
