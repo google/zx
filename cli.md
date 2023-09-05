@@ -6,7 +6,7 @@ Zx provides a CLI for running scripts. It is installed with the package and can 
 zx script.mjs
 ```
 
-## Scripts without extensions
+## No extensions
 
 If script does not have a file extension (like `.git/hooks/pre-commit`), zx
 assumes that it is
@@ -17,7 +17,7 @@ module.
 zx docs/markdown.md
 ```
 
-## Executing remote scripts
+## Remote scripts
 
 If the argument to the `zx` executable starts with `https://`, the file will be
 downloaded and executed.
@@ -26,7 +26,7 @@ downloaded and executed.
 zx https://medv.io/game-of-life.js
 ```
 
-## Executing scripts from stdin
+## Scripts from stdin
 
 The `zx` supports executing scripts from stdin.
 
@@ -36,7 +36,7 @@ await $`pwd`
 EOF
 ```
 
-## Executing scripts via --eval
+## --eval
 
 Evaluate the following argument as a script.
 
@@ -44,7 +44,7 @@ Evaluate the following argument as a script.
 cat package.json | zx --eval 'const v = JSON.parse(await stdin()).version; echo(v)'
 ```
 
-## Installing dependencies via --install
+## --install
 
 ```js
 // script.mjs:
@@ -67,18 +67,7 @@ the import.
 import sh from 'tinysh' // @^1
 ```
 
-## Executing commands on remote hosts
-
-The `zx` uses [webpod](https://github.com/webpod/webpod) to execute commands on
-remote hosts.
-
-```js
-import {ssh} from 'zx'
-
-await ssh('user@host')`echo Hello, world!`
-```
-
-## `__filename` and `__dirname`
+## __filename & __dirname
 
 In [ESM](https://nodejs.org/api/esm.html) modules, Node.js does not provide
 `__filename` and `__dirname` globals. As such globals are really handy in scripts,
