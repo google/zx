@@ -10,7 +10,7 @@ await $`mkdir ${name}`
 
 Zx automatically escapes and quotes anything within `${...}`, so there's no need for additional quotes.
 
-The following examples produce the same output:
+The following examples produce the same, correct result:
 
 ```js
 await $`mkdir ${'path/to-dir/' + name}`
@@ -42,7 +42,7 @@ a [`glob`](api.md#glob) function.
 The following example won't work:
 
 ```js
-const files = './**/*.md' // Incorrect
+const files = './**/*.md' // [!code error] // Incorrect
 await $`ls ${files}`
 ```
 
@@ -58,7 +58,7 @@ await $`ls ${files}`
 Zx won't expand the home directory symbol `~` if it's within `${...}`. Use `os.homedir()` for that purpose.
 
 ```js
-const dir = `~/Downloads` // Incorrect
+const dir = `~/Downloads` // [!code error] // Incorrect
 await $`ls ${dir}`
 ```
 
@@ -81,7 +81,7 @@ if (force) cmd += ' -f'
 if (recursive) cmd += ' -r'
 cmd += ' ' + file
 
-await $`${cmd}`
+await $`${cmd}` // [!code error] // Incorrect
 ```
 
 Zx will escape the entire string, making the command invalid. Instead, assemble an array of arguments and pass it to Zx
@@ -93,5 +93,5 @@ if (force) args.push('-f')
 if (recursive) args.push('-r')
 args.push(file)
 
-await $`rm ${args}`
+await $`rm ${args}` // [!code hl]
 ```
