@@ -132,11 +132,11 @@ test('__filename & __dirname are defined', async () => {
 })
 
 test('markdown scripts are working', async () => {
-  await $`node build/cli.js docs/markdown.md`
+  await $`node build/cli.js test/fixtures/markdown.md`
 })
 
 test('markdown scripts are working', async () => {
-  await $`node build/cli.js docs/markdown.md`
+  await $`node build/cli.js test/fixtures/markdown.md`
 })
 
 test('exceptions are caught', async () => {
