@@ -29,9 +29,21 @@ gives sensible defaults.
 
 ## Install
 
-```bash
+::: code-group
+
+```bash [node]
 npm install zx
 ```
+
+```bash [deno]
+deno install -A npm:zx
+```
+
+```bash [brew]
+brew install zx
+```
+
+:::
 
 ## Usage
 
