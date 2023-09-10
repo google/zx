@@ -357,3 +357,13 @@ const reservedWords = [
   'done',
   'in',
 ]
+
+export function getCallerLocation() {
+  return getCallerLocationFromString(new Error().stack)
+}
+
+export function getCallerLocationFromString(stackString = 'unknown') {
+  const from: string =
+    stackString.split(/\n/).filter((a) => /\d+:\d+/.test(a))[2] || stackString
+  return from.replace(/^\s*at\s*/, '')
+}
