@@ -224,15 +224,34 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     let stdout = '',
       stderr = '',
       combined = ''
+    const MAX_LENGTH = 1e6
+
     let onStdout = (data: any) => {
       $.log({ kind: 'stdout', data, verbose: $.verbose && !this._quiet })
       stdout += data
       combined += data
+
+      // Check and truncate stdout and combined if they exceed MAX_LENGTH
+      if (stdout.length > MAX_LENGTH) {
+        stdout = stdout.substring(stdout.length - MAX_LENGTH)
+      }
+      if (combined.length > MAX_LENGTH) {
+        combined = combined.substring(combined.length - MAX_LENGTH)
+      }
     }
+
     let onStderr = (data: any) => {
       $.log({ kind: 'stderr', data, verbose: $.verbose && !this._quiet })
       stderr += data
       combined += data
+
+      // Check and truncate stderr and combined if they exceed MAX_LENGTH
+      if (stderr.length > MAX_LENGTH) {
+        stderr = stderr.substring(stderr.length - MAX_LENGTH)
+      }
+      if (combined.length > MAX_LENGTH) {
+        combined = combined.substring(combined.length - MAX_LENGTH)
+      }
     }
     if (!this._piped) this.child.stdout?.on('data', onStdout) // If process is piped, don't collect or print output.
     this.child.stderr?.on('data', onStderr) // Stderr should be printed regardless of piping.
