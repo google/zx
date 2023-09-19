@@ -12,34 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { suite } from 'uvu'
-import * as assert from 'uvu/assert'
+import assert from 'node:assert'
+import { test, describe, before, beforeEach } from 'node:test'
 import '../build/globals.js'
 
-const test = suite('win32')
-
-$.verbose = false
-
-if (process.platform === 'win32') {
-  test('should work with windows-specific commands', async () => {
-    const p = await $`echo $0` // Bash is first by default.
-    assert.match(p.stdout, /bash/)
-    await within(async () => {
-      $.shell = which.sync('powershell.exe')
-      $.quote = quotePowerShell
-      const p = await $`get-host`
-      assert.match(p.stdout, /PowerShell/)
-    })
+describe('win32', () => {
+  beforeEach(() => {
+    $.verbose = false
   })
 
-  test('quotePowerShell works', async () => {
-    await within(async () => {
-      $.shell = which.sync('powershell.exe')
-      $.quote = quotePowerShell
-      const p = await $`echo ${`Windows 'rulez!'`}`
-      assert.match(p.stdout, /Windows 'rulez!'/)
+  if (process.platform === 'win32') {
+    test('should work with windows-specific commands', async () => {
+      const p = await $`echo $0` // Bash is first by default.
+      assert.match(p.stdout, /bash/)
+      await within(async () => {
+        $.shell = which.sync('powershell.exe')
+        $.quote = quotePowerShell
+        const p = await $`get-host`
+        assert.match(p.stdout, /PowerShell/)
+      })
     })
-  })
-}
 
-test.run()
+    test('quotePowerShell works', async () => {
+      await within(async () => {
+        $.shell = which.sync('powershell.exe')
+        $.quote = quotePowerShell
+        const p = await $`echo ${`Windows 'rulez!'`}`
+        assert.match(p.stdout, /Windows 'rulez!'/)
+      })
+    })
+  }
+})
