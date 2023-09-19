@@ -27,7 +27,7 @@ export async function installDeps(
     return
   }
   await spinner(`npm i ${packages.join(' ')}`, () =>
-    $`npm install --no-save --no-audit --no-fund ${flags} ${packages}`.nothrow()
+    await $`npm install --no-save --no-audit --no-fund ${flags} ${packages}`.nothrow()
   )
 }
 
