@@ -33,7 +33,7 @@ jobs:
           node-version: 16.x
       - run: npm i
       - run: npm run build
-      - run: npx uvu test win32
+      - run: node ./test/win32.test.js
         timeout-minutes: 1
         env:
           FORCE_COLOR: 3
