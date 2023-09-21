@@ -1,6 +1,6 @@
 {
   "name": "zx",
-  "version": "7.2.3",
+  "version": "7.2.4",
   "description": "A tool for writing better scripts",
   "type": "module",
   "main": "./build/index.js",
@@ -61,7 +61,6 @@
     "fx": "*",
     "globby": "^13.1.4",
     "minimist": "^1.2.8",
-    "node-fetch": "3.3.1",
     "ps-tree": "^1.2.0",
     "webpod": "^0",
     "which": "^3.0.0",

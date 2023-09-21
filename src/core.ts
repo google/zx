@@ -17,7 +17,6 @@ import { ChildProcess, spawn, StdioNull, StdioPipe } from 'node:child_process'
 import { AsyncLocalStorage, createHook } from 'node:async_hooks'
 import { Readable, Writable } from 'node:stream'
 import { inspect } from 'node:util'
-import { RequestInfo, RequestInit } from 'node-fetch'
 import chalk, { ChalkInstance } from 'chalk'
 import which from 'which'
 import {
@@ -467,11 +466,6 @@ export type LogEntry =
       dir: string
     }
   | {
-      kind: 'fetch'
-      url: RequestInfo
-      init?: RequestInit
-    }
-  | {
       kind: 'retry'
       error: string
     }
@@ -494,13 +488,6 @@ export function log(entry: LogEntry) {
     case 'cd':
       if (!$.verbose) return
       process.stderr.write('$ ' + chalk.greenBright('cd') + ` ${entry.dir}\n`)
-      break
-    case 'fetch':
-      if (!$.verbose) return
-      const init = entry.init ? ' ' + inspect(entry.init) : ''
-      process.stderr.write(
-        '$ ' + chalk.greenBright('fetch') + ` ${entry.url}${init}\n`
-      )
       break
     case 'retry':
       if (!$.verbose) return
