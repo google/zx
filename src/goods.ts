@@ -15,7 +15,7 @@
 import assert from 'node:assert'
 import * as globbyModule from 'globby'
 import minimist from 'minimist'
-import { RequestInfo, RequestInit } from 'node-fetch'
+import { RequestInfo, RequestInit, Response } from 'node-fetch'
 import { createInterface } from 'node:readline'
 import { $, within, ProcessOutput } from './core.js'
 import {
@@ -59,7 +59,7 @@ export function sleep(duration: Duration) {
 export async function globalFetch(url: RequestInfo, init?: RequestInit) {
   if (isNativeFetchExists) {
     $.log({ kind: 'fetch', url, init })
-    return (globalThis as any).fetch(url, init)
+    return (globalThis as any).fetch(url, init) as Promise<Response>
   }
   console.error('Fetch is not supported')
   return
