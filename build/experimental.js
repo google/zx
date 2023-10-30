@@ -12,4 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // TODO(antonmedv): Remove this export in next v8 release.
-export { spinner, retry, expBackoff, echo, select } from './goods.js';
+export { spinner, retry, expBackoff, echo, select, question } from './goods.js';

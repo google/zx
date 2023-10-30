@@ -83,23 +83,34 @@ function stringify(arg: ProcessOutput | any) {
 
 export async function question(
   query?: string,
-  options?: { choices: string[] }
+  options?: {
+    choices?: string[],
+    hideInput?: boolean,
+  }
 ): Promise<string> {
   let completer = undefined
   if (options && Array.isArray(options.choices)) {
     /* c8 ignore next 5 */
     completer = function completer(line: string) {
-      const completions = options.choices
+      const completions = options.choices ?? [];
       const hits = completions.filter((c) => c.startsWith(line))
       return [hits.length ? hits : completions, line]
     }
   }
+
   const rl = createInterface({
     input: process.stdin,
     output: process.stdout,
     terminal: true,
     completer,
-  })
+  });
+
+  if (options?.hideInput) {
+    process.stdin.on('keypress', function (c, k) {
+      readline.moveCursor(process.stdout, -1, 0);
+      readline.clearLine(process.stdout, 1);
+    });
+  }
 
   return new Promise((resolve) =>
     rl.question(query ?? '', (answer) => {

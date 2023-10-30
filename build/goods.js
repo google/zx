@@ -71,7 +71,7 @@ export async function question(query, options) {
     if (options && Array.isArray(options.choices)) {
         /* c8 ignore next 5 */
         completer = function completer(line) {
-            const completions = options.choices;
+            const completions = options.choices ?? [];
             const hits = completions.filter((c) => c.startsWith(line));
             return [hits.length ? hits : completions, line];
         };
@@ -81,6 +81,13 @@ export async function question(query, options) {
         output: process.stdout,
         terminal: true,
         completer,
+    });
+    process.stdin.on('keypress', function (c, k) {
+        if (!options?.hideInput)
+            return;
+        readline.moveCursor(process.stdout, -1, 0);
+        readline.clearLine(process.stdout, 1);
+        // process.stdout.write('*'.repeat(rl.line.length));
     });
     return new Promise((resolve) => rl.question(query ?? '', (answer) => {
         rl.close();

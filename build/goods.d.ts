@@ -18,7 +18,8 @@ export declare function sleep(duration: Duration): Promise<unknown>;
 export declare function fetch(url: RequestInfo, init?: RequestInit): Promise<import("node-fetch").Response>;
 export declare function echo(...args: any[]): void;
 export declare function question(query?: string, options?: {
-    choices: string[];
+    choices?: string[];
+    hideInput?: boolean;
 }): Promise<string>;
 export declare function select(query: string, options: string[], selector?: string): Promise<string>;
 export declare function stdin(): Promise<string>;
