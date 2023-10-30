@@ -17,6 +17,7 @@ import * as globbyModule from 'globby'
 import minimist from 'minimist'
 import nodeFetch, { RequestInfo, RequestInit } from 'node-fetch'
 import { createInterface } from 'node:readline'
+import * as readline from "readline";
 import { $, within, ProcessOutput } from './core.js'
 import { Duration, isString, parseDuration } from './util.js'
 import chalk from 'chalk'
@@ -106,6 +107,107 @@ export async function question(
       resolve(answer)
     })
   )
+}
+
+export async function select(
+  query: string,
+  options: string[],
+  selector: string = '> ',
+): Promise<string> {
+  const input = process.stdin
+  const output = process.stdout
+
+  const ansiEraseLines = (count: number) => {
+    //adapted from sindresorhus ansi-escape module
+    const ESC = '\u001B['
+    const eraseLine = ESC + '2K';
+    const cursorUp = (count = 1) => ESC + count + 'A'
+    const cursorLeft = ESC + 'G'
+
+    let clear = '';
+
+    for (let i = 0; i < count; i++) {
+      clear += eraseLine + (i < count - 1 ? cursorUp() : '');
+    }
+
+    if (count) {
+      clear += cursorLeft;
+    }
+
+    return clear;
+
+  }
+  const keyPressedHandler = (_: any, key: { name: string; ctrl: any }) => {
+    if (!key) {
+      return;
+    }
+
+    const optionLength = options.length - 1;
+    if ( key.name === 'down') {
+      selectOption.selectIndex === optionLength ? selectOption.selectIndex = 0 : selectOption.selectIndex += 1;
+      selectOption.createOptionMenu();
+      return;
+    }
+
+    if (key.name === 'up') {
+      selectOption.selectIndex === 0 ? selectOption.selectIndex = optionLength : selectOption.selectIndex -= 1;
+      selectOption.createOptionMenu();
+      return;
+    }
+
+    if (key.name === 'escape' || (key.name === 'c' && key.ctrl)) {
+      selectOption.close();
+    }
+  }
+
+  const selectOption = {
+    selectIndex: 0,
+    initialShow: true,
+    createOptionMenu: () => {
+      if (selectOption.initialShow) {
+        selectOption.initialShow = false
+      } else {
+        output.write(ansiEraseLines(options.length + 1));
+      }
+
+      for (let i= 0; i < options.length; i++) {
+        output.write(`  [${chalk.green(i)}] ${options[i]}\n`);
+      }
+
+      output.write(` ${selector}${chalk.bgWhite(chalk.black(options[selectOption.selectIndex]))}`);
+    },
+    init: () => {
+      echo(chalk.bgCyan(query));
+
+      readline.emitKeypressEvents(input);
+      selectOption.start();
+    },
+    start: () => {
+      input.setRawMode(true);
+      input.resume();
+      input.on('keypress', keyPressedHandler);
+
+      if (selectOption.selectIndex >= 0) {
+        selectOption.createOptionMenu();
+      }
+    },
+    close: () => {
+      output.write('\n');
+      input.setRawMode(false);
+      input.pause();
+    },
+  }
+
+  return new Promise((resolve) => {
+    selectOption.init();
+
+    input.on('keypress', (_: any, key: { name: string; ctrl: any }) => {
+      if (key && key.name === 'return') {
+        selectOption.close();
+        resolve(options[selectOption.selectIndex]);
+      }
+    })
+  });
 }
 
 export async function stdin() {

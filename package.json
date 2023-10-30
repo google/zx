@@ -1,7 +1,7 @@
 {
   "name": "zx",
-  "version": "7.2.3",
-  "description": "A tool for writing better scripts",
+  "version": "0.0.1",
+  "description": "A tool for writing better scripts (with a select option)",
   "type": "module",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",

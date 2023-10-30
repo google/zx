@@ -1,0 +1,12 @@
+import psTreeModule from 'ps-tree';
+export declare const psTree: (arg1: number) => Promise<readonly psTreeModule.PS[]>;
+export declare function noop(): void;
+export declare function randomId(): string;
+export declare function isString(obj: any): boolean;
+export declare function quote(arg: string): string;
+export declare function quotePowerShell(arg: string): string;
+export declare function exitCodeInfo(exitCode: number | null): string | undefined;
+export declare function errnoMessage(errno: number | undefined): string;
+export type Duration = number | `${number}s` | `${number}ms`;
+export declare function parseDuration(d: Duration): number;
+export declare function formatCmd(cmd?: string): string;
