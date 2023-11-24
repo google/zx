@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { FileSink } from 'bun'
 import chalk from 'chalk'
 import { promisify } from 'node:util'
 import psTreeModule from 'ps-tree'
@@ -357,3 +358,19 @@ const reservedWords = [
   'done',
   'in',
 ]
+
+export async function pipeReadableStreamToFileSink(
+  source: ReadableStream<Uint8Array>,
+  sink: FileSink
+): Promise<void> {
+  for await (const chunk of source) sink.write(chunk)
+  await sink.flush()
+  sink.end()
+}
+
+export async function onData(
+  stream: ReadableStream<Uint8Array>,
+  onData: (chunk: any) => void
+) {
+  for await (const chunk of stream) onData(chunk)
+}

@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
 // Copyright 2021 Google LLC
 //
@@ -16,9 +16,7 @@
 
 import fs from 'fs-extra'
 import minimist from 'minimist'
-import { createRequire } from 'node:module'
 import { basename, dirname, extname, join, resolve } from 'node:path'
-import url from 'node:url'
 import { updateArgv } from './goods.js'
 import { $, chalk, fetch, ProcessOutput } from './index.js'
 import { startRepl } from './repl.js'
@@ -72,8 +70,9 @@ await (async function main() {
     return
   }
   if (argv.repl) {
-    startRepl()
-    return
+    throw new Error("The 'repl' option is not implemented yet.")
+    // startRepl()
+    // return
   }
   if (argv.eval) {
     await runScript(argv.eval)
@@ -91,7 +90,7 @@ await (async function main() {
     return
   }
   const filepath = firstArg.startsWith('file:///')
-    ? url.fileURLToPath(firstArg)
+    ? Bun.fileURLToPath(new URL(firstArg))
     : resolve(firstArg)
   await importPath(filepath)
 })().catch((err) => {
@@ -178,9 +177,8 @@ async function importPath(filepath: string, origin = filepath) {
   }
   const __filename = resolve(origin)
   const __dirname = dirname(__filename)
-  const require = createRequire(origin)
   Object.assign(global, { __filename, __dirname, require })
-  await import(url.pathToFileURL(filepath).toString())
+  await import(Bun.pathToFileURL(filepath).toString())
 }
 
 function transformMarkdown(buf: Buffer) {
@@ -255,5 +253,5 @@ function transformMarkdown(buf: Buffer) {
 }
 
 function getVersion(): string {
-  return createRequire(import.meta.url)('../package.json').version
+  return require('../package.json').version
 }

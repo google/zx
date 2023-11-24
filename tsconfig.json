@@ -6,7 +6,11 @@
     "module": "NodeNext",
     "strict": true,
     "outDir": "./build",
-    "declaration": true
+    "declaration": true,
+    "skipLibCheck": true,
+    "types": [
+      "bun-types" // add Bun global
+    ]
   },
   "include": ["./src/**/*"],
   "exclude": ["./src/globals.ts"]
