@@ -226,6 +226,8 @@ export function parseDuration(d: Duration) {
     return +d.slice(0, -1) * 1000
   } else if (/\d+ms/.test(d)) {
     return +d.slice(0, -2)
+  } else if (/\d+m/.test(d)) {
+    return +d.slice(0, -1) * 1000 * 60
   }
   throw new Error(`Unknown duration: "${d}".`)
 }
