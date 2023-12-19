@@ -12,74 +12,77 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { suite } from 'uvu'
-import * as assert from 'uvu/assert'
+import assert from 'node:assert'
+import { test, describe, before, beforeEach } from 'node:test'
 import { $ } from '../build/index.js'
 import { installDeps, parseDeps } from '../build/deps.js'
 
-const test = suite('deps')
-
-$.verbose = false
-
-test('installDeps() loader works via JS API', async () => {
-  await installDeps({
-    cpy: '9.0.1',
-    'lodash-es': '4.17.21',
+describe('deps', () => {
+  beforeEach(() => {
+    $.verbose = false
   })
-  assert.instance((await import('cpy')).default, Function)
-  assert.instance((await import('lodash-es')).pick, Function)
-})
 
-test('installDeps() loader works via CLI', async () => {
-  let out =
-    await $`node build/cli.js --install <<< 'import _ from "lodash" /* @4.17.15 */; console.log(_.VERSION)'`
-  assert.match(out.stdout, '4.17.15')
-})
-
-test('parseDeps(): import or require', async () => {
-  ;[
-    [`import "foo"`, { foo: 'latest' }],
-    [`import "foo"`, { foo: 'latest' }],
-    [`import * as bar from "foo"`, { foo: 'latest' }],
-    [`import('foo')`, { foo: 'latest' }],
-    [`require('foo')`, { foo: 'latest' }],
-    [`require('foo/bar')`, { foo: 'latest' }],
-    [`require('foo/bar.js')`, { foo: 'latest' }],
-    [`require('foo-bar')`, { 'foo-bar': 'latest' }],
-    [`require('foo_bar')`, { foo_bar: 'latest' }],
-    [`require('@foo/bar')`, { '@foo/bar': 'latest' }],
-    [`require('@foo/bar/baz')`, { '@foo/bar': 'latest' }],
-    [`require('foo.js')`, { 'foo.js': 'latest' }],
-
-    // ignores local deps
-    [`import '.'`, {}],
-    [`require('.')`, {}],
-    [`require('..')`, {}],
-    [`require('../foo.js')`, {}],
-    [`require('./foo.js')`, {}],
-
-    // ignores invalid pkg names
-    [`require('_foo')`, {}],
-    [`require('@')`, {}],
-    [`require('@/_foo')`, {}],
-    [`require('@foo')`, {}],
-  ].forEach(([input, result]) => {
-    assert.equal(parseDeps(input), result)
+  test('installDeps() loader works via JS API', async () => {
+    await installDeps({
+      cpy: '9.0.1',
+      'lodash-es': '4.17.21',
+    })
+    assert((await import('cpy')).default instanceof Function)
+    assert((await import('lodash-es')).pick instanceof Function)
   })
-})
 
-test('parseDeps(): import with org and filename', async () => {
-  assert.equal(parseDeps(`import "@foo/bar/file"`), { '@foo/bar': 'latest' })
-})
+  test('installDeps() loader works via CLI', async () => {
+    let out =
+      await $`node build/cli.js --install <<< 'import _ from "lodash" /* @4.17.15 */; console.log(_.VERSION)'`
+    assert.match(out.stdout, /4.17.15/)
+  })
 
-test('parseDeps(): import with version', async () => {
-  assert.equal(parseDeps(`import "foo" // @2.x`), { foo: '2.x' })
-  assert.equal(parseDeps(`import "foo" // @^7`), { foo: '^7' })
-  assert.equal(parseDeps(`import "foo" /* @1.2.x */`), { foo: '1.2.x' })
-})
+  test('parseDeps(): import or require', async () => {
+    ;[
+      [`import "foo"`, { foo: 'latest' }],
+      [`import "foo"`, { foo: 'latest' }],
+      [`import * as bar from "foo"`, { foo: 'latest' }],
+      [`import('foo')`, { foo: 'latest' }],
+      [`require('foo')`, { foo: 'latest' }],
+      [`require('foo/bar')`, { foo: 'latest' }],
+      [`require('foo/bar.js')`, { foo: 'latest' }],
+      [`require('foo-bar')`, { 'foo-bar': 'latest' }],
+      [`require('foo_bar')`, { foo_bar: 'latest' }],
+      [`require('@foo/bar')`, { '@foo/bar': 'latest' }],
+      [`require('@foo/bar/baz')`, { '@foo/bar': 'latest' }],
+      [`require('foo.js')`, { 'foo.js': 'latest' }],
 
-test('parseDeps(): multiline', () => {
-  const contents = `
+      // ignores local deps
+      [`import '.'`, {}],
+      [`require('.')`, {}],
+      [`require('..')`, {}],
+      [`require('../foo.js')`, {}],
+      [`require('./foo.js')`, {}],
+
+      // ignores invalid pkg names
+      [`require('_foo')`, {}],
+      [`require('@')`, {}],
+      [`require('@/_foo')`, {}],
+      [`require('@foo')`, {}],
+    ].forEach(([input, result]) => {
+      assert.deepEqual(parseDeps(input), result)
+    })
+  })
+
+  test('parseDeps(): import with org and filename', async () => {
+    assert.deepEqual(parseDeps(`import "@foo/bar/file"`), {
+      '@foo/bar': 'latest',
+    })
+  })
+
+  test('parseDeps(): import with version', async () => {
+    assert.deepEqual(parseDeps(`import "foo" // @2.x`), { foo: '2.x' })
+    assert.deepEqual(parseDeps(`import "foo" // @^7`), { foo: '^7' })
+    assert.deepEqual(parseDeps(`import "foo" /* @1.2.x */`), { foo: '1.2.x' })
+  })
+
+  test('parseDeps(): multiline', () => {
+    const contents = `
   require('a') // @1.0.0
   const b =require('b') /* @2.0.0 */
   const c = {
@@ -105,25 +108,24 @@ test('parseDeps(): multiline', () => {
   const { pick } = require("lodash") //  @4.17.15
   `
 
-  assert.equal(parseDeps(contents), {
-    a: '1.0.0',
-    b: '2.0.0',
-    c: '3.0.0',
-    d: '4.0.0',
-    e: '5.0.0',
-    f: '6.0.0',
-    g: '7.0.0',
-    h: '8.0.0',
-    i: '9.0.0',
-    j: '10.0.0',
-    foo: 'latest',
-    bar: '1.0.0',
-    baz: '^2.0',
-    '@qux/pkg': '^3.0',
-    qux: '^4.0.0-beta.0',
-    cpy: 'latest',
-    lodash: '4.17.15',
+    assert.deepEqual(parseDeps(contents), {
+      a: '1.0.0',
+      b: '2.0.0',
+      c: '3.0.0',
+      d: '4.0.0',
+      e: '5.0.0',
+      f: '6.0.0',
+      g: '7.0.0',
+      h: '8.0.0',
+      i: '9.0.0',
+      j: '10.0.0',
+      foo: 'latest',
+      bar: '1.0.0',
+      baz: '^2.0',
+      '@qux/pkg': '^3.0',
+      qux: '^4.0.0-beta.0',
+      cpy: 'latest',
+      lodash: '4.17.15',
+    })
   })
 })
-
-test.run()

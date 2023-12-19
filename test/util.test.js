@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { suite } from 'uvu'
-import * as assert from 'uvu/assert'
+import assert from 'node:assert'
+import { test, describe } from 'node:test'
 import {
   exitCodeInfo,
   errnoMessage,
@@ -26,70 +26,68 @@ import {
   randomId,
 } from '../build/util.js'
 
-const test = suite('util')
+describe('util', () => {
+  test('exitCodeInfo()', () => {
+    assert.equal(exitCodeInfo(2), 'Misuse of shell builtins')
+  })
 
-test('exitCodeInfo()', () => {
-  assert.is(exitCodeInfo(2), 'Misuse of shell builtins')
+  test('errnoMessage()', () => {
+    assert.equal(errnoMessage(-2), 'No such file or directory')
+    assert.equal(errnoMessage(1e9), 'Unknown error')
+    assert.equal(errnoMessage(undefined), 'Unknown error')
+  })
+
+  test('randomId()', () => {
+    assert.ok(/^[a-z0-9]+$/.test(randomId()))
+    assert.ok(
+      new Set(Array.from({ length: 1000 }).map(() => randomId())).size === 1000
+    )
+  })
+
+  test('noop()', () => {
+    assert.ok(noop() === undefined)
+  })
+
+  test('isString()', () => {
+    assert.ok(isString('string'))
+    assert.ok(!isString(1))
+  })
+
+  test('quote()', () => {
+    assert.ok(quote('string') === 'string')
+    assert.ok(quote(`'\f\n\r\t\v\0`) === `$'\\'\\f\\n\\r\\t\\v\\0'`)
+  })
+
+  test('quotePowerShgell()', () => {
+    assert.equal(quotePowerShell('string'), 'string')
+    assert.equal(quotePowerShell(`'`), `''''`)
+  })
+
+  test('duration parsing works', () => {
+    assert.equal(parseDuration(1000), 1000)
+    assert.equal(parseDuration('2s'), 2000)
+    assert.equal(parseDuration('500ms'), 500)
+    assert.throws(() => parseDuration('100'))
+    assert.throws(() => parseDuration(NaN))
+    assert.throws(() => parseDuration(-1))
+  })
+
+  test('formatCwd works', () => {
+    assert.equal(
+      formatCmd(`echo $'hi'`),
+      "$ \u001b[92mecho\u001b[39m \u001b[93m$\u001b[39m\u001b[93m'hi\u001b[39m\u001b[93m'\u001b[39m\n"
+    )
+    assert.equal(
+      formatCmd(`while true; do "$" done`),
+      '$ \u001b[96mwhile\u001b[39m \u001b[92mtrue\u001b[39m\u001b[96m;\u001b[39m \u001b[96mdo\u001b[39m \u001b[93m"$\u001b[39m\u001b[93m"\u001b[39m \u001b[96mdone\u001b[39m\n'
+    )
+    assert.equal(
+      formatCmd(`echo '\n str\n'`),
+      "$ \u001b[92mecho\u001b[39m \u001b[93m'\u001b[39m\n> \u001b[93m str\u001b[39m\n> \u001b[93m'\u001b[39m\n"
+    )
+    assert.equal(
+      formatCmd(`$'\\''`),
+      "$ \u001b[93m$\u001b[39m\u001b[93m'\u001b[39m\u001b[93m\\\u001b[39m\u001b[93m'\u001b[39m\u001b[93m'\u001b[39m\n"
+    )
+  })
 })
-
-test('errnoMessage()', () => {
-  assert.is(errnoMessage(-2), 'No such file or directory')
-  assert.is(errnoMessage(1e9), 'Unknown error')
-  assert.is(errnoMessage(undefined), 'Unknown error')
-})
-
-test('randomId()', () => {
-  assert.ok(/^[a-z0-9]+$/.test(randomId()))
-  assert.ok(
-    new Set(Array.from({ length: 1000 }).map(() => randomId())).size === 1000
-  )
-})
-
-test('noop()', () => {
-  assert.ok(noop() === undefined)
-})
-
-test('isString()', () => {
-  assert.ok(isString('string'))
-  assert.not.ok(isString(1))
-})
-
-test('quote()', () => {
-  assert.ok(quote('string') === 'string')
-  assert.ok(quote(`'\f\n\r\t\v\0`) === `$'\\'\\f\\n\\r\\t\\v\\0'`)
-})
-
-test('quotePowerShgell()', () => {
-  assert.is(quotePowerShell('string'), 'string')
-  assert.is(quotePowerShell(`'`), `''''`)
-})
-
-test('duration parsing works', () => {
-  assert.is(parseDuration(1000), 1000)
-  assert.is(parseDuration('2s'), 2000)
-  assert.is(parseDuration('500ms'), 500)
-  assert.throws(() => parseDuration('100'))
-  assert.throws(() => parseDuration(NaN))
-  assert.throws(() => parseDuration(-1))
-})
-
-test('formatCwd works', () => {
-  assert.is(
-    formatCmd(`echo $'hi'`),
-    "$ \u001b[92mecho\u001b[39m \u001b[93m$\u001b[39m\u001b[93m'hi\u001b[39m\u001b[93m'\u001b[39m\n"
-  )
-  assert.is(
-    formatCmd(`while true; do "$" done`),
-    '$ \u001b[96mwhile\u001b[39m \u001b[92mtrue\u001b[39m\u001b[96m;\u001b[39m \u001b[96mdo\u001b[39m \u001b[93m"$\u001b[39m\u001b[93m"\u001b[39m \u001b[96mdone\u001b[39m\n'
-  )
-  assert.is(
-    formatCmd(`echo '\n str\n'`),
-    "$ \u001b[92mecho\u001b[39m \u001b[93m'\u001b[39m\n> \u001b[93m str\u001b[39m\n> \u001b[93m'\u001b[39m\n"
-  )
-  assert.is(
-    formatCmd(`$'\\''`),
-    "$ \u001b[93m$\u001b[39m\u001b[93m'\u001b[39m\u001b[93m\\\u001b[39m\u001b[93m'\u001b[39m\u001b[93m'\u001b[39m\n"
-  )
-})
-
-test.run()

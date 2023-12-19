@@ -12,46 +12,44 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { suite } from 'uvu'
-import * as assert from 'uvu/assert'
+import assert from 'node:assert'
+import { test, describe, beforeEach } from 'node:test'
 import '../build/globals.js'
 
-const test = suite('package')
-
-test.before.each(async () => {
-  $.verbose = false
-  const pack = await $`npm pack`
-  await $`tar xf ${pack}`
-  await $`rm ${pack}`.nothrow()
-})
-
-test('ts project', async () => {
-  const pack = path.resolve('package')
-  const out = await within(async () => {
-    cd('test/fixtures/ts-project')
-    await $`npm i`
-    await $`rm -rf node_modules/zx`
-    await $`mv ${pack} node_modules/zx`
-    try {
-      await $`npx tsc`
-    } catch (err) {
-      throw new Error(err.stdout)
-    }
-    return $`node build/script.js`
+describe('package', () => {
+  beforeEach(async () => {
+    $.verbose = false
+    const pack = await $`npm pack`
+    await $`tar xf ${pack}`
+    await $`rm ${pack}`.nothrow()
   })
-  assert.match(out.stderr, 'ts-script')
-})
 
-test('js project with zx', async () => {
-  const pack = path.resolve('package')
-  const out = await within(async () => {
-    cd('test/fixtures/js-project')
-    await $`rm -rf node_modules`
-    await $`mkdir node_modules`
-    await $`mv ${pack} node_modules/zx`
-    return $`node node_modules/zx/build/cli.js script.js`
+  test('ts project', async () => {
+    const pack = path.resolve('package')
+    const out = await within(async () => {
+      cd('test/fixtures/ts-project')
+      await $`npm i`
+      await $`rm -rf node_modules/zx`
+      await $`mv ${pack} node_modules/zx`
+      try {
+        await $`npx tsc`
+      } catch (err) {
+        throw new Error(err.stdout)
+      }
+      return $`node build/script.js`
+    })
+    assert.match(out.stderr, /ts-script/)
   })
-  assert.match(out.stderr, 'js-script')
-})
 
-test.run()
+  test('js project with zx', async () => {
+    const pack = path.resolve('package')
+    const out = await within(async () => {
+      cd('test/fixtures/js-project')
+      await $`rm -rf node_modules`
+      await $`mkdir node_modules`
+      await $`mv ${pack} node_modules/zx`
+      return $`node node_modules/zx/build/cli.js script.js`
+    })
+    assert.match(out.stderr, /js-script/)
+  })
+})

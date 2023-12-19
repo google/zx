@@ -12,25 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { suite } from 'uvu'
-import * as assert from 'uvu/assert'
+import assert from 'node:assert'
+import { test, describe } from 'node:test'
 import '../build/globals.js'
 import * as index from '../build/index.js'
 
-const test = suite('global')
+describe('global', () => {
+  test('global cd()', async () => {
+    const cwd = (await $`pwd`).toString().trim()
+    cd('/')
+    assert.equal((await $`pwd`).toString().trim(), path.resolve('/'))
+    cd(cwd)
+    assert.equal((await $`pwd`).toString().trim(), cwd)
+  })
 
-test('global cd()', async () => {
-  const cwd = (await $`pwd`).toString().trim()
-  cd('/')
-  assert.is((await $`pwd`).toString().trim(), path.resolve('/'))
-  cd(cwd)
-  assert.is((await $`pwd`).toString().trim(), cwd)
+  test('injects zx index to global', () => {
+    for (let [key, value] of Object.entries(index)) {
+      assert.equal(global[key], value)
+    }
+  })
 })
-
-test('injects zx index to global', () => {
-  for (let [key, value] of Object.entries(index)) {
-    assert.is(global[key], value)
-  }
-})
-
-test.run()

@@ -43,9 +43,9 @@
     "fmt:check": "prettier --check .",
     "build": "tsc --project tsconfig.prod.json",
     "build:check": "tsc",
-    "test": "npm run build && uvu test -i fixtures",
+    "test": "npm run build && node ./test/all.test.js",
     "test:types": "tsd",
-    "coverage": "c8 --check-coverage npm test -- -i package",
+    "coverage": "c8 --check-coverage npm test",
     "mutation": "stryker run",
     "circular": "madge --circular src/*",
     "version": "cat package.json | fx .version"
@@ -73,8 +73,7 @@
     "madge": "^6.0.0",
     "prettier": "^2.8.8",
     "tsd": "^0.28.1",
-    "typescript": "^5.0.4",
-    "uvu": "^0.5.6"
+    "typescript": "^5.0.4"
   },
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"
