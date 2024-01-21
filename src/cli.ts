@@ -179,7 +179,20 @@ async function importPath(filepath: string, origin = filepath) {
   const __filename = resolve(origin)
   const __dirname = dirname(__filename)
   const require = createRequire(origin)
+  const shebangRegex = /^#!(.*)*\n/
+  const file = await fs.readFile(filepath)
+
   Object.assign(global, { __filename, __dirname, require })
+
+  if (shebangRegex.test(file.toString())) {
+    return writeAndImport(
+      await file.toString().replace(shebangRegex, ''),
+      join(dirname(filepath), basename(filepath) + '.mjs'),
+      origin
+    )
+  }
+
+
   await import(url.pathToFileURL(filepath).toString())
 }
 
