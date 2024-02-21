@@ -1,5 +1,3 @@
-#!/usr/bin/env zx
-
 // Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,12 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const serve = $`npx serve`
+import assert from 'node:assert'
+import { test, describe } from 'node:test'
+import '../build/globals.js'
+import * as index from '../build/index.js'
 
-for await (const chunk of serve.stdout) {
-  if (chunk.includes('Accepting connections')) break
-}
+describe('global', () => {
+  test('global cd()', async () => {
+    const cwd = (await $`pwd`).toString().trim()
+    cd('/')
+    assert.equal((await $`pwd`).toString().trim(), path.resolve('/'))
+    cd(cwd)
+    assert.equal((await $`pwd`).toString().trim(), cwd)
+  })
 
-await $`curl http://localhost:3000`
-
-serve.kill('SIGINT')
+  test('injects zx index to global', () => {
+    for (let [key, value] of Object.entries(index)) {
+      assert.equal(global[key], value)
+    }
+  })
+})

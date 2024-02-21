@@ -12,4 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Test file to verify no-extension didn't overwrite similarly name .mjs file.
+import { strict } from 'assert'
+
+strict.equal(path.basename(__filename), 'filename-dirname.mjs')
+strict.equal(path.basename(__dirname), 'fixtures')

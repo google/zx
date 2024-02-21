@@ -12,6 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import './zx.test.mjs'
-import './index.test.mjs'
-import './experimental.test.mjs'
+import { ProcessPromise } from './core.js'
+
+export * from './core.js'
+export * from './goods.js'
+
+export { Duration, quote, quotePowerShell } from './util.js'
+
+/**
+ *  @deprecated Use $.nothrow() instead.
+ */
+export function nothrow(promise: ProcessPromise) {
+  return promise.nothrow()
+}
+
+/**
+ * @deprecated Use $.quiet() instead.
+ */
+export function quiet(promise: ProcessPromise) {
+  return promise.quiet()
+}

@@ -12,4 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Test file to verify no-extension didn't overwrite similarly name .mjs file.
+import assert from 'node:assert'
+import { expectType } from 'tsd'
+import '../src/globals.js'
+
+let p = $`cmd`
+assert(p instanceof ProcessPromise)
+expectType<ProcessPromise>(p)
+
+let o = await p
+assert(o instanceof ProcessOutput)
+expectType<ProcessOutput>(o)
+
+expectType<string>(quote('foo'))
+expectType<string>(quotePowerShell('foo'))

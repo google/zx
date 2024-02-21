@@ -4,5 +4,6 @@ coverage/
 package/
 reports/
 .stryker-tmp/
+package-lock.json
 yarn.lock
-test/fixtures/ts-project/package-lock.json
+*.md

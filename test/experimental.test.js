@@ -12,4 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Test file to verify no-extension didn't overwrite similarly name .mjs file.
+import { describe, before } from 'node:test'
+import '../build/globals.js'
+
+describe('experimental', () => {
+  before(() => {
+    $.verbose = false
+  })
+})

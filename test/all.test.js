@@ -12,4 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Test file to verify no-extension didn't overwrite similarly name .mjs file.
+import './cli.test.js'
+import './core.test.js'
+import './deps.test.js'
+import './experimental.test.js'
+import './extra.test.js'
+import './global.test.js'
+import './goods.test.js'
+import './package.test.js'
+import './win32.test.js'
+import './util.test.js'

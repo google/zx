@@ -1,61 +1,92 @@
 {
   "name": "zx",
-  "version": "6.1.0",
-  "description": "A tool for writing better scripts.",
-  "main": "src/index.mjs",
-  "types": "src/index.d.ts",
+  "version": "7.2.3",
+  "description": "A tool for writing better scripts",
+  "type": "module",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "typesVersions": {
+    "*": {
+      ".": [
+        "./build/index.d.ts"
+      ],
+      "globals": [
+        "./build/globals.d.ts"
+      ],
+      "experimental": [
+        "./build/experimental.d.ts"
+      ],
+      "cli": [
+        "./build/cli.d.ts"
+      ],
+      "core": [
+        "./build/core.d.ts"
+      ]
+    }
+  },
   "exports": {
-    ".": {
-      "import": "./src/index.mjs",
-      "types": "./src/index.d.ts"
-    },
-    "./globals": {
-      "import": "./src/globals.mjs",
-      "types": "./src/globals.d.ts"
-    },
-    "./experimental": {
-      "import": "./src/experimental.mjs",
-      "types": "./src/experimental.d.ts"
-    },
+    ".": "./build/index.js",
+    "./globals": "./build/globals.js",
+    "./experimental": "./build/experimental.js",
+    "./cli": "./build/cli.js",
+    "./core": "./build/core.js",
     "./package.json": "./package.json"
   },
   "bin": {
-    "zx": "zx.mjs"
+    "zx": "./build/cli.js"
   },
   "engines": {
     "node": ">= 16.0.0"
   },
   "scripts": {
-    "test:cov": "c8 --reporter=html npm run test",
-    "test": "node zx.mjs test/full.test.mjs",
-    "test:zx": "npm run test zx",
-    "test:index": "npm run test index"
+    "fmt": "prettier --write .",
+    "fmt:check": "prettier --check .",
+    "build": "tsc --project tsconfig.prod.json",
+    "build:check": "tsc",
+    "test": "npm run build && node ./test/all.test.js",
+    "test:types": "tsd",
+    "coverage": "c8 --check-coverage npm test",
+    "mutation": "stryker run",
+    "circular": "madge --circular src/*",
+    "version": "cat package.json | fx .version"
   },
   "dependencies": {
-    "@types/fs-extra": "^9.0.13",
+    "@types/fs-extra": "^11.0.1",
     "@types/minimist": "^1.2.2",
-    "@types/node": "^17.0",
-    "@types/which": "^2.0.1",
-    "chalk": "^5.0.1",
-    "fs-extra": "^10.0.1",
-    "globby": "^13.1.1",
-    "minimist": "^1.2.6",
-    "node-fetch": "^3.2.3",
+    "@types/node": "^18.16.3",
+    "@types/ps-tree": "^1.1.2",
+    "@types/which": "^3.0.0",
+    "chalk": "^5.2.0",
+    "fs-extra": "^11.1.1",
+    "fx": "*",
+    "globby": "^13.1.4",
+    "minimist": "^1.2.8",
+    "node-fetch": "3.3.1",
     "ps-tree": "^1.2.0",
-    "which": "^2.0.2",
-    "yaml": "^2.0.0"
+    "webpod": "^0",
+    "which": "^3.0.0",
+    "yaml": "^2.2.2"
   },
   "devDependencies": {
-    "c8": "^7.11.0"
+    "@stryker-mutator/core": "^6.4.2",
+    "c8": "^7.13.0",
+    "madge": "^6.0.0",
+    "prettier": "^2.8.8",
+    "tsd": "^0.28.1",
+    "typescript": "^5.0.4"
   },
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"
   },
   "files": [
-    "src",
-    "*.mjs",
-    "*.d.ts"
+    "build",
+    "zx.js"
   ],
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "endOfLine": "lf"
+  },
   "repository": "google/zx",
   "author": "Anton Medvedev <anton@medv.io>",
   "license": "Apache-2.0"

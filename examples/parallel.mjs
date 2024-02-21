@@ -1,4 +1,6 @@
-// Copyright 2022 Google LLC
+#!/usr/bin/env zx
+
+// Copyright 2021 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,4 +14,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Test file to verify no-extension didn't overwrite similarly name .mjs file.
+import { spinner } from 'zx/experimental'
+
+const tests = await glob('test/*.test.js')
+await spinner('running tests', async () => {
+  try {
+    const res = await Promise.all(tests.map((file) => $`npx uvu . ${file}`))
+    res.forEach((r) => console.log(r.toString()))
+    console.log(chalk.bgGreen.black(' SUCCESS '))
+  } catch (e) {
+    console.log(e.toString())
+    process.exitCode = 1
+  }
+})
