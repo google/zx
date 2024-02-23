@@ -1,0 +1,75 @@
+#!/usr/bin/env node
+
+// Copyright 2024 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+import fs from 'fs/promises'
+import { generateDtsBundle } from 'dts-bundle-generator'
+
+const entry = {
+  filePath: './src/vendor.ts',
+  outFile: './build/vendor.d.ts',
+  libraries: {
+    allowedTypesLibraries: ['node'], // args['external-types'],
+    inlinedLibraries: [
+      '@nodelib/fs.stat',
+      '@nodelib/fs.scandir',
+      '@nodelib/fs.walk',
+      'fast-glob',
+      '@types/jsonfile',
+      'node-fetch',
+      'chalk',
+      'globby',
+      'webpod',
+      '@types/fs-extra',
+      '@types/minimist',
+      '@types/ps-tree',
+      '@types/which',
+    ], // args['external-inlines'],
+  },
+  output: {
+    inlineDeclareExternals: true,
+    inlineDeclareGlobals: true,
+    sortNodes: false,
+    exportReferencedTypes: false, //args['export-referenced-types'],
+  },
+}
+
+const compilationOptions = {
+  preferredConfigPath: './tsconfig.prod.json', // args.project,
+  followSymlinks: true,
+}
+
+let [result] = generateDtsBundle([entry], compilationOptions)
+
+// generateDtsBundle cannot handle the circular refs on types inlining, so we need to help it manually:
+/*
+build/vendor.d.ts(163,7): error TS2456: Type alias 'Options' circularly references itself.
+build/vendor.d.ts(164,7): error TS2456: Type alias 'Entry' circularly references itself.
+build/vendor.d.ts(165,7): error TS2456: Type alias 'Task' circularly references itself.
+build/vendor.d.ts(166,7): error TS2456: Type alias 'Pattern' circularly references itself.
+build/vendor.d.ts(167,7): error TS2456: Type alias 'FileSystemAdapter' circularly references itself.
+build/vendor.d.ts(197,48): error TS2694: Namespace 'FastGlob' has no exported member 'FastGlobOptions
+ */
+
+result = result
+  .replace('type Options = Options;', 'export {Options};')
+  .replace('type Task = Task;', 'export {Task};')
+  .replace('type Pattern = Pattern;', 'export {Pattern};')
+  .replace('FastGlob.FastGlobOptions', 'FastGlob.Options')
+  .replace('type Entry =', 'export type Entry =')
+
+await fs.writeFile(entry.outFile, result, 'utf8')
+
+process.exit(0)
