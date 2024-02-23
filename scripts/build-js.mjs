@@ -48,9 +48,13 @@ const {
 
 const plugins = []
 const cwd = Array.isArray(_cwd) ? _cwd[_cwd.length - 1] : _cwd
+const entries = entry.split(/,\s?/)
 const entryPoints = entry.includes('*')
-  ? await glob(entry.split(/,\s?/), { absolute: false, onlyFiles: true, cwd })
-  : entry.split(/,\s?/).map((e) => path.resolve(cwd, e))
+  ? await glob(entries, { absolute: false, onlyFiles: true, cwd, root: cwd })
+  : entries.map((p) => path.relative(cwd, path.resolve(cwd, p)))
+
+console.log('cwd=', cwd)
+console.log('entryPoints=', entryPoints)
 
 const _bundle = bundle !== 'none' && !process.argv.includes('--no-bundle')
 const _external = _bundle ? external.split(',') : undefined // https://github.com/evanw/esbuild/issues/1466
