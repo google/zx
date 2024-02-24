@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import chalk from 'chalk'
 import { promisify } from 'node:util'
-import psTreeModule from 'ps-tree'
+import { chalk, psTreeModule } from './vendor.js'
 
 export const psTree = promisify(psTreeModule)
 
