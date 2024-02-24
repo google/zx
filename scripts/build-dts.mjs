@@ -16,6 +16,7 @@
 
 import fs from 'fs/promises'
 import { generateDtsBundle } from 'dts-bundle-generator'
+import glob from 'fast-glob'
 
 const entry = {
   filePath: './src/vendor.ts',
@@ -71,5 +72,15 @@ result = result
   .replace('type Entry =', 'export type Entry =')
 
 await fs.writeFile(entry.outFile, result, 'utf8')
+
+// Replaces redundant triple-slash directives
+for (const dts of await glob(['build/**/*.d.ts', '!build/vendor.d.ts'])) {
+  const contents = (await fs.readFile(dts, 'utf8'))
+    .split('\n')
+    .filter((line) => !line.startsWith('/// <reference types'))
+    .join('\n')
+
+  await fs.writeFile(dts, contents, 'utf8')
+}
 
 process.exit(0)
