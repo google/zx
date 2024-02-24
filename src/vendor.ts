@@ -12,12 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-declare module 'fast-glob' {
-  namespace FastGlob {
-    export type Entry = any
-  }
-}
-
 import {
   globby,
   globbySync,
@@ -36,6 +30,7 @@ export {
   type RequestInfo,
   type RequestInit,
 } from 'node-fetch'
+
 export const globbyModule = {
   globby,
   globbySync,
@@ -58,6 +53,5 @@ export { type Options as GlobbyOptions } from 'globby'
 export { default as chalk, type ChalkInstance } from 'chalk'
 export { default as which } from 'which'
 export { default as minimist } from 'minimist'
-
-export { ssh } from 'webpod'
 export { default as psTreeModule } from 'ps-tree'
+export { ssh } from 'webpod'
