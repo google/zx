@@ -43,7 +43,7 @@ export type Shell = (
 
 const processCwd = Symbol('processCwd')
 
-export type Options = {
+export interface Options {
   [processCwd]: string
   cwd?: string
   verbose: boolean
