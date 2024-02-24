@@ -44,7 +44,7 @@
     "build": "npm run build:js && npm run build:dts",
     "build:check": "tsc",
     "build:js": "node scripts/build-js.mjs --format=esm --entry=src/*.ts && npm run build:vendor",
-    "build:vendor": "node scripts/build-js.mjs --format=esm --entry=src/vendor.ts --bundle=all --banner --minify",
+    "build:vendor": "node scripts/build-js.mjs --format=esm --entry=src/vendor.ts --bundle=all --banner",
     "build:dts": "tsc --project tsconfig.prod.json && node scripts/build-dts.mjs",
     "test": "npm run build && node ./test/all.test.js",
     "test:types": "tsd",
