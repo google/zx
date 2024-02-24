@@ -44,7 +44,7 @@
     "build": "npm run build:js && npm run build:dts",
     "build:check": "tsc",
     "build:js": "node scripts/build-js.mjs --format=esm --entry=src/*.ts && npm run build:vendor",
-    "build:vendor": "node scripts/build-js.mjs --format=esm --entry=src/vendor.ts --bundle=all --banner",
+    "build:vendor": "node scripts/build-js.mjs --format=esm --entry=src/vendor.ts --bundle=all --banner --minify",
     "build:dts": "tsc --project tsconfig.prod.json && node scripts/build-dts.mjs",
     "test": "npm run build && node ./test/all.test.js",
     "test:types": "tsd",
@@ -53,11 +53,13 @@
     "circular": "madge --circular src/*",
     "version": "cat package.json | fx .version"
   },
-  "dependencies": {
+  "optionalDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/node": ">=20.11.19"
   },
   "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": ">=20.11.19",
     "@types/ps-tree": "^1.1.6",
     "@types/minimist": "^1.2.5",
     "@types/which": "^3.0.3",
