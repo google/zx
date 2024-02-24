@@ -24,12 +24,11 @@ import {
 } from 'globby'
 import * as yaml from 'yaml'
 import * as _fs from 'fs-extra'
+import type { fetch } from 'node-fetch-native'
 
-export {
-  default as nodeFetch,
-  type RequestInfo,
-  type RequestInit,
-} from 'node-fetch'
+export { fetch as nodeFetch } from 'node-fetch-native'
+export type RequestInfo = Parameters<typeof fetch>[0]
+export type RequestInit = Parameters<typeof fetch>[1]
 
 export const globbyModule = {
   globby,

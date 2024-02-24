@@ -29,7 +29,7 @@ const entry = {
       '@nodelib/fs.walk',
       'fast-glob',
       '@types/jsonfile',
-      'node-fetch',
+      'node-fetch-native',
       'chalk',
       'globby',
       'webpod',
