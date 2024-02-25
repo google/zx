@@ -18,6 +18,7 @@ jobs:
       - run: echo "//wombat-dressing-room.appspot.com/:_authToken=$AUTH_TOKEN" >> .npmrc
         env:
           AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
+          FORCE_COLOR: 3
       - run: |
           npm version $(node --eval="process.stdout.write(require('./package.json').version)")-dev.$(git rev-parse --short HEAD) --no-git-tag-version
           npm publish --no-git-tag-version --tag dev
