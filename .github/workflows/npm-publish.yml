@@ -19,5 +19,4 @@ jobs:
       - run: echo "//wombat-dressing-room.appspot.com/:_authToken=$AUTH_TOKEN" >> .npmrc
         env:
           AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
-          FORCE_COLOR: 3
       - run: npm publish
