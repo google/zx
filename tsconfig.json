@@ -6,7 +6,8 @@
     "module": "NodeNext",
     "strict": true,
     "outDir": "./build",
-    "declaration": true
+    "declaration": true,
+    "emitDeclarationOnly": true
   },
   "include": ["./src/**/*"],
   "exclude": ["./src/globals.ts"]
