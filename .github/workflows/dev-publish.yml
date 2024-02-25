@@ -13,6 +13,8 @@ jobs:
           node-version: 18
       - run: npm i
       - run: npm test
+        env:
+          FORCE_COLOR: 3
       - run: echo "//wombat-dressing-room.appspot.com/:_authToken=$AUTH_TOKEN" >> .npmrc
         env:
           AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
