@@ -16,30 +16,30 @@ import assert from 'node:assert'
 import { test, describe, beforeEach } from 'node:test'
 import '../build/globals.js'
 
-describe('win32', () => {
+const _describe = process.platform === 'win32' ? describe : describe.skip
+
+_describe('win32', () => {
   beforeEach(() => {
     $.verbose = false
   })
 
-  if (process.platform === 'win32') {
-    test('should work with windows-specific commands', async () => {
-      const p = await $`echo $0` // Bash is first by default.
-      assert.match(p.stdout, /bash/)
-      await within(async () => {
-        $.shell = which.sync('powershell.exe')
-        $.quote = quotePowerShell
-        const p = await $`get-host`
-        assert.match(p.stdout, /PowerShell/)
-      })
+  test('should work with windows-specific commands', async () => {
+    const p = await $`echo $0` // Bash is first by default.
+    assert.match(p.stdout, /bash/)
+    await within(async () => {
+      $.shell = which.sync('powershell.exe')
+      $.quote = quotePowerShell
+      const p = await $`get-host`
+      assert.match(p.stdout, /PowerShell/)
     })
+  })
 
-    test('quotePowerShell works', async () => {
-      await within(async () => {
-        $.shell = which.sync('powershell.exe')
-        $.quote = quotePowerShell
-        const p = await $`echo ${`Windows 'rulez!'`}`
-        assert.match(p.stdout, /Windows 'rulez!'/)
-      })
+  test('quotePowerShell works', async () => {
+    await within(async () => {
+      $.shell = which.sync('powershell.exe')
+      $.quote = quotePowerShell
+      const p = await $`echo ${`Windows 'rulez!'`}`
+      assert.match(p.stdout, /Windows 'rulez!'/)
     })
-  }
+  })
 })
