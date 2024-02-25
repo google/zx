@@ -14,13 +14,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import fs from 'fs-extra'
-import minimist from 'minimist'
 import { createRequire } from 'node:module'
 import { basename, dirname, extname, join, resolve } from 'node:path'
 import url from 'node:url'
-import { updateArgv } from './goods.js'
-import { $, chalk, fetch, ProcessOutput } from './index.js'
+import {
+  $,
+  ProcessOutput,
+  updateArgv,
+  fetch,
+  chalk,
+  minimist,
+  fs,
+} from './index.js'
 import { randomId } from './util.js'
 import { installDeps, parseDeps } from './deps.js'
 

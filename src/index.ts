@@ -16,8 +16,9 @@ import { ProcessPromise } from './core.js'
 
 export * from './core.js'
 export * from './goods.js'
+export { minimist, chalk, fs, which, YAML, ssh } from './vendor.js'
 
-export { Duration, quote, quotePowerShell } from './util.js'
+export { type Duration, quote, quotePowerShell } from './util.js'
 
 /**
  *  @deprecated Use $.nothrow() instead.

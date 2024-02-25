@@ -13,21 +13,21 @@
 // limitations under the License.
 
 import assert from 'node:assert'
-import * as globbyModule from 'globby'
-import minimist from 'minimist'
-import nodeFetch, { RequestInfo, RequestInit } from 'node-fetch'
 import { createInterface } from 'node:readline'
 import { $, within, ProcessOutput } from './core.js'
-import { Duration, isString, parseDuration } from './util.js'
-import chalk from 'chalk'
+import { type Duration, isString, parseDuration } from './util.js'
+import {
+  chalk,
+  minimist,
+  globbyModule,
+  GlobbyOptions,
+  nodeFetch,
+  RequestInfo,
+  RequestInit,
+} from './vendor.js'
 
-export { default as chalk } from 'chalk'
-export { default as fs } from 'fs-extra'
-export { default as which } from 'which'
-export { default as YAML } from 'yaml'
 export { default as path } from 'node:path'
-export { default as os } from 'node:os'
-export { ssh } from 'webpod'
+export * as os from 'node:os'
 
 export let argv = minimist(process.argv.slice(2))
 export function updateArgv(args: string[]) {
@@ -37,11 +37,11 @@ export function updateArgv(args: string[]) {
 
 export const globby = Object.assign(function globby(
   patterns: string | readonly string[],
-  options?: globbyModule.Options
+  options?: GlobbyOptions
 ) {
   return globbyModule.globby(patterns, options)
 },
-globbyModule)
+globbyModule) as (typeof globbyModule)['globby'] & typeof globbyModule
 export const glob = globby
 
 export function sleep(duration: Duration) {
@@ -197,7 +197,7 @@ export async function spinner<T>(
     try {
       result = await callback!()
     } finally {
-      clearInterval(id)
+      clearInterval(id as NodeJS.Timeout)
       process.stderr.write(' '.repeat(process.stdout.columns - 1) + '\r')
     }
     return result

@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import chalk from 'chalk'
 import os from 'node:os'
 import path from 'node:path'
 import { inspect } from 'node:util'
 import { ProcessOutput, defaults } from './core.js'
+import { chalk } from './vendor.js'
 
 export async function startRepl() {
   defaults.verbose = false
