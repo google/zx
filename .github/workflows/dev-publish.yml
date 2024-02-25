@@ -1,9 +1,7 @@
 name: Dev Publish
 
 on:
-  push:
-    branches:
-      - dev
+  workflow_dispatch:
 
 jobs:
   publish:
