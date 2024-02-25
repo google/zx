@@ -84,8 +84,12 @@ try {
   defaults.quote = quote
 } catch (err) {
   if (process.platform == 'win32') {
-    defaults.shell = which.sync('powershell.exe')
-    defaults.quote = quotePowerShell
+    try {
+      defaults.shell = which.sync('powershell.exe')
+      defaults.quote = quotePowerShell
+    } catch (err) {
+      // no powershell?
+    }
   }
 }
 

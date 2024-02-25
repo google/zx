@@ -26,7 +26,6 @@ import {
   minimist,
   fs,
 } from './index.js'
-import { startRepl } from './repl.js'
 import { randomId } from './util.js'
 import { installDeps, parseDeps } from './deps.js'
 
@@ -77,7 +76,7 @@ await (async function main() {
     return
   }
   if (argv.repl) {
-    startRepl()
+    await (await import('./repl.js')).startRepl()
     return
   }
   if (argv.eval) {
