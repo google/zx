@@ -98,5 +98,8 @@
   },
   "repository": "google/zx",
   "author": "Anton Medvedev <anton@medv.io>",
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "dependencies": {
+    "zurk": "^0.0.3"
+  }
 }

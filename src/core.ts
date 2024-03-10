@@ -18,6 +18,10 @@ import { AsyncLocalStorage, createHook } from 'node:async_hooks'
 import { Readable, Writable } from 'node:stream'
 import { inspect } from 'node:util'
 import {
+  $ as zurk$,
+  TShellResponse as TZurkShellResponse
+} from 'zurk'
+import {
   chalk,
   which,
   type ChalkInstance,
@@ -159,6 +163,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _resolved = false
   private _halted = false
   private _piped = false
+  private _zurk: TZurkShellResponse | null = null
   _prerun = noop
   _postrun = noop
 
@@ -180,29 +185,41 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     const $ = this._snapshot
     if (this.child) return this // The _run() can be called from a few places.
     this._prerun() // In case $1.pipe($2), the $2 returned, and on $2._run() invoke $1._run().
+
     $.log({
       kind: 'cmd',
       cmd: this._command,
       verbose: $.verbose && !this._quiet,
     })
-    this.child = $.spawn($.prefix + this._command, {
-      cwd: $.cwd ?? $[processCwd],
-      shell: typeof $.shell === 'string' ? $.shell : true,
-      stdio: this._stdio,
-      windowsHide: true,
-      env: $.env,
-    })
+
+    this._zurk = zurk$({
+      get cwd() { return $.cwd ?? $[processCwd] },
+      cmd: $.prefix + this._command,
+      get shell() { return typeof $.shell === 'string' ? $.shell : true },
+      get env() { return $.env },
+      stdio: this._stdio as any,
+      get spawn() { return $.spawn },
+      run: cb => cb(),
+      sync: false,
+      nothrow: true
+    })() as TZurkShellResponse
+
+    this.child = this._zurk._ctx.child as ChildProcess
+
+    // this._zurk.then(({}) => {
+    //
+    // })
+
+    // this.child = $.spawn($.prefix + this._command, {
+    //   cwd: $.cwd ?? $[processCwd],
+    //   shell: typeof $.shell === 'string' ? $.shell : true,
+    //   stdio: this._stdio,
+    //   windowsHide: true,
+    //   env: $.env,
+    // })
+
     this.child.on('close', (code, signal) => {
-      let message = `exit code: ${code}`
-      if (code != 0 || signal != null) {
-        message = `${stderr || '\n'}    at ${this._from}`
-        message += `\n    exit code: ${code}${
-          exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : ''
-        }`
-        if (signal != null) {
-          message += `\n    signal: ${signal}`
-        }
-      }
+      let message = ProcessOutput.getMessage(code, signal, stderr, this._from)
       let output = new ProcessOutput(
         code,
         signal,
@@ -423,6 +440,21 @@ export class ProcessOutput extends Error {
 
   get signal() {
     return this._signal
+  }
+
+  static getMessage(code: number | null, signal: NodeJS.Signals | null, stderr: string, from: string) {
+    let message = `exit code: ${code}`
+    if (code != 0 || signal != null) {
+      message = `${stderr || '\n'}    at ${from}`
+      message += `\n    exit code: ${code}${
+        exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : ''
+      }`
+      if (signal != null) {
+        message += `\n    signal: ${signal}`
+      }
+    }
+
+    return message
   }
 
   [inspect.custom]() {
