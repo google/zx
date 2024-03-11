@@ -378,7 +378,7 @@ describe('core', () => {
       signal = p.signal
     }
     assert.equal(exitCode, undefined)
-    assert.equal(signal, undefined)
+    assert.equal(signal, 'SIGTERM')
   })
 
   test('$ thrown as error', async () => {

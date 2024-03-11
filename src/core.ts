@@ -183,6 +183,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   run(): ProcessPromise {
     const $ = this._snapshot
+    const self = this
     if (this.child) return this // The _run() can be called from a few places.
     this._prerun() // In case $1.pipe($2), the $2 returned, and on $2._run() invoke $1._run().
 
@@ -193,22 +194,38 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     })
 
     this._zurk = zurk$({
-      get cwd() { return $.cwd ?? $[processCwd] },
       cmd: $.prefix + this._command,
+      get cwd() { return $.cwd ?? $[processCwd] },
       get shell() { return typeof $.shell === 'string' ? $.shell : true },
       get env() { return $.env },
-      stdio: this._stdio as any,
       get spawn() { return $.spawn },
-      run: cb => cb(),
+      stdio: this._stdio as any,
       sync: false,
-      nothrow: true
+      nothrow: true,
+      onStdout(data: any) { $.log({ kind: 'stdout', data, verbose: $.verbose && !self._quiet }) },
+      onStderr(data: any) { $.log({ kind: 'stderr', data, verbose: $.verbose && !self._quiet }) },
+      run: cb => cb(),
+      timeout: self._timeout,
+      timeoutSignal: self._timeoutSignal as NodeJS.Signals,
     })() as TZurkShellResponse
 
     this.child = this._zurk._ctx.child as ChildProcess
 
-    // this._zurk.then(({}) => {
-    //
-    // })
+    this._zurk.finally(() => self._resolved = true)
+    this._zurk.then(({
+      error,
+      stdout,
+      stderr,
+      status: code,
+      signal
+    }) => {
+      if (error) {
+
+      } else {
+
+      }
+
+    })
 
     // this.child = $.spawn($.prefix + this._command, {
     //   cwd: $.cwd ?? $[processCwd],
@@ -233,39 +250,35 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       } else {
         this._reject(output)
       }
-      this._resolved = true
+      // this._resolved = true
     })
     this.child.on('error', (err: NodeJS.ErrnoException) => {
-      const message =
-        `${err.message}\n` +
-        `    errno: ${err.errno} (${errnoMessage(err.errno)})\n` +
-        `    code: ${err.code}\n` +
-        `    at ${this._from}`
+      const message = ProcessOutput.getErrorMessage(err, this._from)
       this._reject(
         new ProcessOutput(null, null, stdout, stderr, combined, message)
       )
-      this._resolved = true
+      // this._resolved = true
     })
     let stdout = '',
       stderr = '',
       combined = ''
     let onStdout = (data: any) => {
-      $.log({ kind: 'stdout', data, verbose: $.verbose && !this._quiet })
+      // $.log({ kind: 'stdout', data, verbose: $.verbose && !this._quiet })
       stdout += data
       combined += data
     }
     let onStderr = (data: any) => {
-      $.log({ kind: 'stderr', data, verbose: $.verbose && !this._quiet })
+      // $.log({ kind: 'stderr', data, verbose: $.verbose && !this._quiet })
       stderr += data
       combined += data
     }
     if (!this._piped) this.child.stdout?.on('data', onStdout) // If process is piped, don't collect or print output.
     this.child.stderr?.on('data', onStderr) // Stderr should be printed regardless of piping.
     this._postrun() // In case $1.pipe($2), after both subprocesses are running, we can pipe $1.stdout to $2.stdin.
-    if (this._timeout && this._timeoutSignal) {
-      const t = setTimeout(() => this.kill(this._timeoutSignal), this._timeout)
-      this.finally(() => clearTimeout(t)).catch(noop)
-    }
+    // if (this._timeout && this._timeoutSignal) {
+    //   const t = setTimeout(() => this.kill(this._timeoutSignal), this._timeout)
+    //   this.finally(() => clearTimeout(t)).catch(noop)
+    // }
     return this
   }
 
@@ -455,6 +468,14 @@ export class ProcessOutput extends Error {
     }
 
     return message
+  }
+
+  static getErrorMessage(err: NodeJS.ErrnoException, from: string) {
+    return ``+
+      `${err.message}\n` +
+      `    errno: ${err.errno} (${errnoMessage(err.errno)})\n` +
+      `    code: ${err.code}\n` +
+      `    at ${from}`
   }
 
   [inspect.custom]() {
