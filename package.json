@@ -82,7 +82,8 @@
     "typescript": "^5.0.4",
     "webpod": "^0",
     "which": "^3.0.0",
-    "yaml": "^2.3.4"
+    "yaml": "^2.3.4",
+    "zurk": "^0.0.11"
   },
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"
@@ -98,8 +99,5 @@
   },
   "repository": "google/zx",
   "author": "Anton Medvedev <anton@medv.io>",
-  "license": "Apache-2.0",
-  "dependencies": {
-    "zurk": "^0.0.11"
-  }
+  "license": "Apache-2.0"
 }

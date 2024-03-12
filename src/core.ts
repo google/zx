@@ -18,11 +18,9 @@ import { AsyncLocalStorage, createHook } from 'node:async_hooks'
 import { Readable, Writable } from 'node:stream'
 import { inspect } from 'node:util'
 import {
-  $ as zurk$,
+  TZurkShellResponse,
+  zurk$,
   buildCmd,
-  TShellResponse as TZurkShellResponse,
-} from 'zurk'
-import {
   chalk,
   which,
   type ChalkInstance,
