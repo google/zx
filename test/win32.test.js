@@ -27,6 +27,7 @@ _describe('win32', () => {
     const p = await $`echo $0` // Bash is first by default.
     assert.match(p.stdout, /bash/)
     await within(async () => {
+      $.prefix = ''
       $.shell = which.sync('powershell.exe')
       $.quote = quotePowerShell
       const p = await $`get-host`
@@ -36,6 +37,7 @@ _describe('win32', () => {
 
   test('quotePowerShell works', async () => {
     await within(async () => {
+      $.prefix = ''
       $.shell = which.sync('powershell.exe')
       $.quote = quotePowerShell
       const p = await $`echo ${`Windows 'rulez!'`}`

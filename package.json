@@ -100,6 +100,6 @@
   "author": "Anton Medvedev <anton@medv.io>",
   "license": "Apache-2.0",
   "dependencies": {
-    "zurk": "^0.0.6"
+    "zurk": "^0.0.9"
   }
 }

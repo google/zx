@@ -81,7 +81,7 @@ export const defaults: Options = {
   spawn,
   log,
 }
-
+const isWin = process.platform == 'win32'
 try {
   defaults.shell = which.sync('bash')
   defaults.prefix = 'set -euo pipefail;'
@@ -120,6 +120,7 @@ export const $ = new Proxy<Shell & Options>(
       }
       cmd += s + pieces[++i]
     }
+    isWin && console.log('cmd=', cmd)
     promise._bind(cmd, from, resolve!, reject!, getStore())
     // Postpone run to allow promise configuration.
     setImmediate(() => promise.isHalted || promise.run())
@@ -197,7 +198,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       cmd: $.prefix + this._command,
       get cwd() { return $.cwd ?? $[processCwd] },
       get shell() {
-        console.log('!!!shell=', $.shell)
+        isWin && console.log('$.shell=', $.shell)
         return typeof $.shell === 'string' ? $.shell : true
       },
       get env() { return $.env },
@@ -206,6 +207,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       stdio: this._stdio as any,
       sync: false,
       nothrow: true,
+      nohandle: true,
+      detached: !isWin,
       onStdout(data: any) { $.log({ kind: 'stdout', data, verbose: $.verbose && !self._quiet }) },
       onStderr(data: any) { $.log({ kind: 'stderr', data, verbose: $.verbose && !self._quiet }) },
       run: cb => cb(),
@@ -220,13 +223,31 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       error,
       stdout,
       stderr,
-      status: code,
+      stdall,
+      status,
       signal
     }) => {
+      isWin && console.log('ctx=', this._zurk?._ctx)
       if (error) {
-
+        const message = ProcessOutput.getErrorMessage(error, self._from)
+        self._reject(
+          new ProcessOutput(null, null, stdout, stderr, stdall, message)
+        )
       } else {
-
+        const message = ProcessOutput.getMessage(status, signal, stderr, self._from)
+        const output = new ProcessOutput(
+          status,
+          signal,
+          stdout,
+          stderr,
+          stdall,
+          message,
+        )
+        if (status === 0 || self._nothrow) {
+          self._resolve(output)
+        } else {
+          self._reject(output)
+        }
       }
 
     })
@@ -239,45 +260,45 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     //   env: $.env,
     // })
 
-    this.child.on('close', (code, signal) => {
-      let message = ProcessOutput.getMessage(code, signal, stderr, this._from)
-      let output = new ProcessOutput(
-        code,
-        signal,
-        stdout,
-        stderr,
-        combined,
-        message
-      )
-      if (code === 0 || this._nothrow) {
-        this._resolve(output)
-      } else {
-        this._reject(output)
-      }
-      // this._resolved = true
-    })
-    this.child.on('error', (err: NodeJS.ErrnoException) => {
-      const message = ProcessOutput.getErrorMessage(err, this._from)
-      this._reject(
-        new ProcessOutput(null, null, stdout, stderr, combined, message)
-      )
-      // this._resolved = true
-    })
-    let stdout = '',
-      stderr = '',
-      combined = ''
-    let onStdout = (data: any) => {
-      // $.log({ kind: 'stdout', data, verbose: $.verbose && !this._quiet })
-      stdout += data
-      combined += data
-    }
-    let onStderr = (data: any) => {
-      // $.log({ kind: 'stderr', data, verbose: $.verbose && !this._quiet })
-      stderr += data
-      combined += data
-    }
-    if (!this._piped) this.child.stdout?.on('data', onStdout) // If process is piped, don't collect or print output.
-    this.child.stderr?.on('data', onStderr) // Stderr should be printed regardless of piping.
+    // this.child.on('close', (code, signal) => {
+    //   // let message = ProcessOutput.getMessage(code, signal, stderr, this._from)
+    //   // let output = new ProcessOutput(
+    //   //   code,
+    //   //   signal,
+    //   //   stdout,
+    //   //   stderr,
+    //   //   combined,
+    //   //   message
+    //   // )
+    //   // if (code === 0 || this._nothrow) {
+    //   //   this._resolve(output)
+    //   // } else {
+    //   //   this._reject(output)
+    //   // }
+    //   // this._resolved = true
+    // })
+    // this.child.on('error', (err: NodeJS.ErrnoException) => {
+    //   // const message = ProcessOutput.getErrorMessage(err, this._from)
+    //   // this._reject(
+    //   //   new ProcessOutput(null, null, stdout, stderr, combined, message)
+    //   // )
+    //   // this._resolved = true
+    // })
+    // let stdout = '',
+    //   stderr = '',
+    //   combined = ''
+    // let onStdout = (data: any) => {
+    //   // $.log({ kind: 'stdout', data, verbose: $.verbose && !this._quiet })
+    //   stdout += data
+    //   combined += data
+    // }
+    // let onStderr = (data: any) => {
+    //   // $.log({ kind: 'stderr', data, verbose: $.verbose && !this._quiet })
+    //   stderr += data
+    //   combined += data
+    // }
+    // if (!this._piped) this.child.stdout?.on('data', onStdout) // If process is piped, don't collect or print output.
+    // this.child.stderr?.on('data', onStderr) // Stderr should be printed regardless of piping.
     this._postrun() // In case $1.pipe($2), after both subprocesses are running, we can pipe $1.stdout to $2.stdin.
     // if (this._timeout && this._timeoutSignal) {
     //   const t = setTimeout(() => this.kill(this._timeoutSignal), this._timeout)
@@ -374,15 +395,17 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     if (!this.child)
       throw new Error('Trying to kill a process without creating one.')
     if (!this.child.pid) throw new Error('The process pid is undefined.')
-    let children = await psTree(this.child.pid)
-    for (const p of children) {
-      try {
-        process.kill(+p.PID, signal)
-      } catch (e) {}
-    }
-    try {
-      process.kill(this.child.pid, signal)
-    } catch (e) {}
+
+    await this._zurk?.kill(signal as NodeJS.Signals)
+    // let children = await psTree(this.child.pid)
+    // for (const p of children) {
+    //   try {
+    //     process.kill(+p.PID, signal)
+    //   } catch (e) {}
+    // }
+    // try {
+    //   process.kill(this.child.pid, signal)
+    // } catch (e) {}
   }
 
   stdio(stdin: IO, stdout: IO = 'pipe', stderr: IO = 'pipe'): ProcessPromise {
