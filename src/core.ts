@@ -228,6 +228,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     this._zurk.then(({ error, stdout, stderr, stdall, status, signal }) => {
       if (error) {
         const message = ProcessOutput.getErrorMessage(error, self._from)
+        // Should we enable this?
         // (nothrow ? self._resolve : self._reject)(
         self._reject(
           new ProcessOutput(null, null, stdout, stderr, stdall, message)
