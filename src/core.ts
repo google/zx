@@ -196,9 +196,13 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     this._zurk = zurk$({
       cmd: $.prefix + this._command,
       get cwd() { return $.cwd ?? $[processCwd] },
-      get shell() { return typeof $.shell === 'string' ? $.shell : true },
+      get shell() {
+        console.log('!!!shell=', $.shell)
+        return typeof $.shell === 'string' ? $.shell : true
+      },
       get env() { return $.env },
       get spawn() { return $.spawn },
+      quote: <T>(v: T): T => v, // let zx handle quoting
       stdio: this._stdio as any,
       sync: false,
       nothrow: true,
