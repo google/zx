@@ -17,7 +17,11 @@ import { ChildProcess, spawn, StdioNull, StdioPipe } from 'node:child_process'
 import { AsyncLocalStorage, createHook } from 'node:async_hooks'
 import { Readable, Writable } from 'node:stream'
 import { inspect } from 'node:util'
-import { $ as zurk$, TShellResponse as TZurkShellResponse } from 'zurk'
+import {
+  $ as zurk$,
+  buildCmd,
+  TShellResponse as TZurkShellResponse,
+} from 'zurk'
 import {
   chalk,
   which,
@@ -106,17 +110,8 @@ export const $ = new Proxy<Shell & Options>(
     }
     let resolve: Resolve, reject: Resolve
     const promise = new ProcessPromise((...args) => ([resolve, reject] = args))
-    let cmd = pieces[0],
-      i = 0
-    while (i < args.length) {
-      let s
-      if (Array.isArray(args[i])) {
-        s = args[i].map((x: any) => $.quote(substitute(x))).join(' ')
-      } else {
-        s = $.quote(substitute(args[i]))
-      }
-      cmd += s + pieces[++i]
-    }
+    const cmd = buildCmd($.quote, pieces, args) as string
+
     promise._bind(cmd, from, resolve!, reject!, getStore())
     // Postpone run to allow promise configuration.
     setImmediate(() => promise.isHalted || promise.run())
