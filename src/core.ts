@@ -17,10 +17,7 @@ import { ChildProcess, spawn, StdioNull, StdioPipe } from 'node:child_process'
 import { AsyncLocalStorage, createHook } from 'node:async_hooks'
 import { Readable, Writable } from 'node:stream'
 import { inspect } from 'node:util'
-import {
-  $ as zurk$,
-  TShellResponse as TZurkShellResponse
-} from 'zurk'
+import { $ as zurk$, TShellResponse as TZurkShellResponse } from 'zurk'
 import {
   chalk,
   which,
@@ -87,7 +84,7 @@ try {
   defaults.prefix = 'set -euo pipefail;'
   defaults.quote = quote
 } catch (err) {
-  if (process.platform == 'win32') {
+  if (isWin) {
     try {
       defaults.shell = which.sync('powershell.exe')
       defaults.quote = quotePowerShell
@@ -120,7 +117,6 @@ export const $ = new Proxy<Shell & Options>(
       }
       cmd += s + pieces[++i]
     }
-    isWin && console.log('cmd=', cmd)
     promise._bind(cmd, from, resolve!, reject!, getStore())
     // Postpone run to allow promise configuration.
     setImmediate(() => promise.isHalted || promise.run())
@@ -196,52 +192,58 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
     this._zurk = zurk$({
       cmd: $.prefix + this._command,
-      get cwd() { return $.cwd ?? $[processCwd] },
+      get cwd() {
+        return $.cwd ?? $[processCwd]
+      },
       get shell() {
-        isWin && console.log('$.shell=', $.shell)
         return typeof $.shell === 'string' ? $.shell : true
       },
-      get env() { return $.env },
-      get spawn() { return $.spawn },
+      get env() {
+        return $.env
+      },
+      get spawn() {
+        return $.spawn
+      },
       quote: <T>(v: T): T => v, // let zx handle quoting
       stdio: this._stdio as any,
       sync: false,
       nothrow: true,
       nohandle: true,
       detached: !isWin,
-      onStdout(data: any) { $.log({ kind: 'stdout', data, verbose: $.verbose && !self._quiet }) },
-      onStderr(data: any) { $.log({ kind: 'stderr', data, verbose: $.verbose && !self._quiet }) },
-      run: cb => cb(),
+      onStdout(data: any) {
+        $.log({ kind: 'stdout', data, verbose: $.verbose && !self._quiet })
+      },
+      onStderr(data: any) {
+        $.log({ kind: 'stderr', data, verbose: $.verbose && !self._quiet })
+      },
+      run: (cb) => cb(),
       timeout: self._timeout,
       timeoutSignal: self._timeoutSignal as NodeJS.Signals,
     })() as TZurkShellResponse
 
     this.child = this._zurk._ctx.child as ChildProcess
 
-    this._zurk.finally(() => self._resolved = true)
-    this._zurk.then(({
-      error,
-      stdout,
-      stderr,
-      stdall,
-      status,
-      signal
-    }) => {
-      isWin && console.log('ctx=', this._zurk?._ctx)
+    this._zurk.finally(() => (self._resolved = true))
+    this._zurk.then(({ error, stdout, stderr, stdall, status, signal }) => {
       if (error) {
         const message = ProcessOutput.getErrorMessage(error, self._from)
         self._reject(
           new ProcessOutput(null, null, stdout, stderr, stdall, message)
         )
       } else {
-        const message = ProcessOutput.getMessage(status, signal, stderr, self._from)
+        const message = ProcessOutput.getMessage(
+          status,
+          signal,
+          stderr,
+          self._from
+        )
         const output = new ProcessOutput(
           status,
           signal,
           stdout,
           stderr,
           stdall,
-          message,
+          message
         )
         if (status === 0 || self._nothrow) {
           self._resolve(output)
@@ -249,61 +251,12 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           self._reject(output)
         }
       }
-
     })
 
-    // this.child = $.spawn($.prefix + this._command, {
-    //   cwd: $.cwd ?? $[processCwd],
-    //   shell: typeof $.shell === 'string' ? $.shell : true,
-    //   stdio: this._stdio,
-    //   windowsHide: true,
-    //   env: $.env,
-    // })
-
-    // this.child.on('close', (code, signal) => {
-    //   // let message = ProcessOutput.getMessage(code, signal, stderr, this._from)
-    //   // let output = new ProcessOutput(
-    //   //   code,
-    //   //   signal,
-    //   //   stdout,
-    //   //   stderr,
-    //   //   combined,
-    //   //   message
-    //   // )
-    //   // if (code === 0 || this._nothrow) {
-    //   //   this._resolve(output)
-    //   // } else {
-    //   //   this._reject(output)
-    //   // }
-    //   // this._resolved = true
-    // })
-    // this.child.on('error', (err: NodeJS.ErrnoException) => {
-    //   // const message = ProcessOutput.getErrorMessage(err, this._from)
-    //   // this._reject(
-    //   //   new ProcessOutput(null, null, stdout, stderr, combined, message)
-    //   // )
-    //   // this._resolved = true
-    // })
-    // let stdout = '',
-    //   stderr = '',
-    //   combined = ''
-    // let onStdout = (data: any) => {
-    //   // $.log({ kind: 'stdout', data, verbose: $.verbose && !this._quiet })
-    //   stdout += data
-    //   combined += data
-    // }
-    // let onStderr = (data: any) => {
-    //   // $.log({ kind: 'stderr', data, verbose: $.verbose && !this._quiet })
-    //   stderr += data
-    //   combined += data
-    // }
     // if (!this._piped) this.child.stdout?.on('data', onStdout) // If process is piped, don't collect or print output.
     // this.child.stderr?.on('data', onStderr) // Stderr should be printed regardless of piping.
     this._postrun() // In case $1.pipe($2), after both subprocesses are running, we can pipe $1.stdout to $2.stdin.
-    // if (this._timeout && this._timeoutSignal) {
-    //   const t = setTimeout(() => this.kill(this._timeoutSignal), this._timeout)
-    //   this.finally(() => clearTimeout(t)).catch(noop)
-    // }
+
     return this
   }
 
@@ -482,7 +435,12 @@ export class ProcessOutput extends Error {
     return this._signal
   }
 
-  static getMessage(code: number | null, signal: NodeJS.Signals | null, stderr: string, from: string) {
+  static getMessage(
+    code: number | null,
+    signal: NodeJS.Signals | null,
+    stderr: string,
+    from: string
+  ) {
     let message = `exit code: ${code}`
     if (code != 0 || signal != null) {
       message = `${stderr || '\n'}    at ${from}`
@@ -498,11 +456,12 @@ export class ProcessOutput extends Error {
   }
 
   static getErrorMessage(err: NodeJS.ErrnoException, from: string) {
-    return ``+
+    return (
       `${err.message}\n` +
       `    errno: ${err.errno} (${errnoMessage(err.errno)})\n` +
       `    code: ${err.code}\n` +
       `    at ${from}`
+    )
   }
 
   [inspect.custom]() {
