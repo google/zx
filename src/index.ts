@@ -21,14 +21,14 @@ export { minimist, chalk, fs, which, YAML, ssh } from './vendor.js'
 export { type Duration, quote, quotePowerShell } from './util.js'
 
 /**
- *  @deprecated Use $.nothrow() instead.
+ *  @deprecated Use $`cmd`.nothrow() instead.
  */
 export function nothrow(promise: ProcessPromise) {
   return promise.nothrow()
 }
 
 /**
- * @deprecated Use $.quiet() instead.
+ * @deprecated Use $`cmd`.quiet() instead.
  */
 export function quiet(promise: ProcessPromise) {
   return promise.quiet()

@@ -124,6 +124,11 @@ describe('core', () => {
     }
   })
 
+  test('provides presets', async () => {
+    const $$ = $({ nothrow: true })
+    assert.equal((await $$`exit 1`).exitCode, 1)
+  })
+
   test('ProcessPromise', async () => {
     let contents = ''
     let stream = new Writable({

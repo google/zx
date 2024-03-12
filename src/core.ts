@@ -41,10 +41,10 @@ import {
   quotePowerShell,
 } from './util.js'
 
-export type Shell = (
-  pieces: TemplateStringsArray,
-  ...args: any[]
-) => ProcessPromise
+export interface Shell {
+  (pieces: TemplateStringsArray, ...args: any[]): ProcessPromise
+  (opts: Partial<Options>): Shell
+}
 
 const processCwd = Symbol('processCwd')
 
@@ -54,6 +54,7 @@ export interface Options {
   verbose: boolean
   env: NodeJS.ProcessEnv
   shell: string | boolean
+  nothrow: boolean
   prefix: string
   quote: typeof quote
   spawn: typeof spawn
@@ -75,6 +76,7 @@ export const defaults: Options = {
   verbose: true,
   env: process.env,
   shell: true,
+  nothrow: false,
   prefix: '',
   quote: () => {
     throw new Error('No quote function is defined: https://ï.at/no-quote-func')
@@ -102,15 +104,27 @@ function getStore() {
   return storage.getStore() || defaults
 }
 
-export const $ = new Proxy<Shell & Options>(
+export const $: Shell & Options = new Proxy<Shell & Options>(
   function (pieces, ...args) {
+    if (!Array.isArray(pieces)) {
+      return function (this: any, ...args: any) {
+        const self = this
+        return within(() => {
+          return Object.assign($, pieces).apply(self, args)
+        })
+      }
+    }
     const from = new Error().stack!.split(/^\s*at\s/m)[2].trim()
     if (pieces.some((p) => p == undefined)) {
       throw new Error(`Malformed command at ${from}`)
     }
     let resolve: Resolve, reject: Resolve
     const promise = new ProcessPromise((...args) => ([resolve, reject] = args))
-    const cmd = buildCmd($.quote, pieces, args) as string
+    const cmd = buildCmd(
+      $.quote,
+      pieces as TemplateStringsArray,
+      args
+    ) as string
 
     promise._bind(cmd, from, resolve!, reject!, getStore())
     // Postpone run to allow promise configuration.
@@ -148,7 +162,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _reject: Resolve = noop
   private _snapshot = getStore()
   private _stdio: [IO, IO, IO] = ['inherit', 'pipe', 'pipe']
-  private _nothrow = false
+  private _nothrow?: boolean
   private _quiet = false
   private _timeout?: number
   private _timeoutSignal?: string
@@ -187,18 +201,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
     this._zurk = zurk$({
       cmd: $.prefix + this._command,
-      get cwd() {
-        return $.cwd ?? $[processCwd]
-      },
-      get shell() {
-        return typeof $.shell === 'string' ? $.shell : true
-      },
-      get env() {
-        return $.env
-      },
-      get spawn() {
-        return $.spawn
-      },
+      cwd: $.cwd ?? $[processCwd],
+      shell: typeof $.shell === 'string' ? $.shell : true,
+      env: $.env,
+      spawn: $.spawn,
       quote: <T>(v: T): T => v, // let zx handle quoting
       stdio: this._stdio as any,
       sync: false,
@@ -222,6 +228,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     this._zurk.then(({ error, stdout, stderr, stdall, status, signal }) => {
       if (error) {
         const message = ProcessOutput.getErrorMessage(error, self._from)
+        // (nothrow ? self._resolve : self._reject)(
         self._reject(
           new ProcessOutput(null, null, stdout, stderr, stdall, message)
         )
@@ -240,7 +247,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           stdall,
           message
         )
-        if (status === 0 || self._nothrow) {
+
+        if (status === 0 || (self._nothrow ?? $.nothrow)) {
           self._resolve(output)
         } else {
           self._reject(output)
