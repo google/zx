@@ -55,6 +55,7 @@ export interface Options {
   nothrow: boolean
   prefix: string
   quote: typeof quote
+  quiet: boolean
   spawn: typeof spawn
   log: typeof log
 }
@@ -75,6 +76,7 @@ export const defaults: Options = {
   env: process.env,
   shell: true,
   nothrow: false,
+  quiet: false,
   prefix: '',
   quote: () => {
     throw new Error('No quote function is defined: https://ï.at/no-quote-func')
@@ -161,7 +163,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _snapshot = getStore()
   private _stdio: [IO, IO, IO] = ['inherit', 'pipe', 'pipe']
   private _nothrow?: boolean
-  private _quiet = false
+  private _quiet?: boolean
   private _timeout?: number
   private _timeoutSignal?: string
   private _resolved = false
@@ -194,7 +196,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     $.log({
       kind: 'cmd',
       cmd: this._command,
-      verbose: $.verbose && !this._quiet,
+      verbose: self.isVerbose(),
     })
 
     this._zurk = zurk$({
@@ -210,10 +212,13 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       nohandle: true,
       detached: !isWin,
       onStdout(data: any) {
-        $.log({ kind: 'stdout', data, verbose: $.verbose && !self._quiet })
+        // If process is piped, don't print output.
+        if (self._piped) return
+        $.log({ kind: 'stdout', data, verbose: self.isVerbose() })
       },
       onStderr(data: any) {
-        $.log({ kind: 'stderr', data, verbose: $.verbose && !self._quiet })
+        // Stderr should be printed regardless of piping.
+        $.log({ kind: 'stderr', data, verbose: self.isVerbose() })
       },
       run: (cb) => cb(),
       timeout: self._timeout,
@@ -232,7 +237,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           new ProcessOutput(null, null, stdout, stderr, stdall, message)
         )
       } else {
-        const message = ProcessOutput.getMessage(
+        const message = ProcessOutput.getExitMessage(
           status,
           signal,
           stderr,
@@ -255,8 +260,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       }
     })
 
-    // if (!this._piped) this.child.stdout?.on('data', onStdout) // If process is piped, don't collect or print output.
-    // this.child.stderr?.on('data', onStderr) // Stderr should be printed regardless of piping.
     this._postrun() // In case $1.pipe($2), after both subprocesses are running, we can pipe $1.stdout to $2.stdin.
 
     return this
@@ -352,6 +355,9 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     if (!this.child.pid) throw new Error('The process pid is undefined.')
 
     await this._zurk?.kill(signal as NodeJS.Signals)
+    // zurk uses detached + process.kill(-p.pid)
+    // Do we still need this?
+
     // let children = await psTree(this.child.pid)
     // for (const p of children) {
     //   try {
@@ -376,6 +382,11 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   quiet(): ProcessPromise {
     this._quiet = true
     return this
+  }
+
+  isVerbose(): boolean {
+    const { verbose, quiet } = this._snapshot
+    return verbose && !(this._quiet ?? quiet)
   }
 
   timeout(d: Duration, signal = 'SIGTERM'): ProcessPromise {
@@ -437,7 +448,7 @@ export class ProcessOutput extends Error {
     return this._signal
   }
 
-  static getMessage(
+  static getExitMessage(
     code: number | null,
     signal: NodeJS.Signals | null,
     stderr: string,
