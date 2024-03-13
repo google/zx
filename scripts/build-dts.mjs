@@ -37,6 +37,7 @@ const entry = {
       '@types/minimist',
       '@types/ps-tree',
       '@types/which',
+      'zurk',
     ], // args['external-inlines'],
   },
   output: {
