@@ -26,10 +26,7 @@ import * as yaml from 'yaml'
 import * as _fs from 'fs-extra'
 import type { fetch } from 'node-fetch-native'
 
-export {
-  exec,
-  buildCmd,
-} from 'zurk/spawn'
+export { exec, buildCmd } from 'zurk/spawn'
 
 export { fetch as nodeFetch } from 'node-fetch-native'
 export type RequestInfo = Parameters<typeof fetch>[0]

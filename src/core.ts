@@ -210,7 +210,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       on: {
         start: () => {
           if (self._timeout) {
-            const t = setTimeout(() => self.kill(self._timeoutSignal), self._timeout)
+            const t = setTimeout(
+              () => self.kill(self._timeoutSignal),
+              self._timeout
+            )
             self.finally(() => clearTimeout(t)).catch(noop)
           }
         },
