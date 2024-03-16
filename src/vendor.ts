@@ -27,10 +27,9 @@ import * as _fs from 'fs-extra'
 import type { fetch } from 'node-fetch-native'
 
 export {
-  $ as zurk$,
+  exec,
   buildCmd,
-  TShellResponse as TZurkShellResponse,
-} from 'zurk'
+} from 'zurk/spawn'
 
 export { fetch as nodeFetch } from 'node-fetch-native'
 export type RequestInfo = Parameters<typeof fetch>[0]

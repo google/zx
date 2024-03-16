@@ -13,13 +13,12 @@
 // limitations under the License.
 
 import assert from 'node:assert'
-import { ChildProcess, spawn, StdioNull, StdioPipe } from 'node:child_process'
+import { spawn, StdioNull, StdioPipe } from 'node:child_process'
 import { AsyncLocalStorage, createHook } from 'node:async_hooks'
 import { Readable, Writable } from 'node:stream'
 import { inspect } from 'node:util'
 import {
-  TZurkShellResponse,
-  zurk$,
+  exec,
   buildCmd,
   chalk,
   which,
@@ -155,7 +154,6 @@ type Resolve = (out: ProcessOutput) => void
 type IO = StdioPipe | StdioNull
 
 export class ProcessPromise extends Promise<ProcessOutput> {
-  child?: ChildProcess
   private _command = ''
   private _from = ''
   private _resolve: Resolve = noop
@@ -165,11 +163,11 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _nothrow?: boolean
   private _quiet?: boolean
   private _timeout?: number
-  private _timeoutSignal?: string
+  private _timeoutSignal = 'SIGTERM'
   private _resolved = false
   private _halted = false
   private _piped = false
-  private _zurk: TZurkShellResponse | null = null
+  private zurk: ReturnType<typeof exec> | null = null
   _prerun = noop
   _postrun = noop
 
@@ -199,70 +197,74 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       verbose: self.isVerbose(),
     })
 
-    this._zurk = zurk$({
+    this.zurk = exec({
       cmd: $.prefix + this._command,
       cwd: $.cwd ?? $[processCwd],
       shell: typeof $.shell === 'string' ? $.shell : true,
       env: $.env,
       spawn: $.spawn,
-      quote: <T>(v: T): T => v, // let zx handle quoting
       stdio: this._stdio as any,
       sync: false,
-      nothrow: true,
-      nohandle: true,
       detached: !isWin,
-      onStdout(data: any) {
-        // If process is piped, don't print output.
-        if (self._piped) return
-        $.log({ kind: 'stdout', data, verbose: self.isVerbose() })
-      },
-      onStderr(data: any) {
-        // Stderr should be printed regardless of piping.
-        $.log({ kind: 'stderr', data, verbose: self.isVerbose() })
-      },
       run: (cb) => cb(),
-      timeout: self._timeout,
-      timeoutSignal: self._timeoutSignal as NodeJS.Signals,
-    })() as TZurkShellResponse
+      on: {
+        start: () => {
+          if (self._timeout) {
+            const t = setTimeout(() => self.kill(self._timeoutSignal), self._timeout)
+            self.finally(() => clearTimeout(t)).catch(noop)
+          }
+        },
+        stdout: (data) => {
+          // If process is piped, don't print output.
+          if (self._piped) return
+          $.log({ kind: 'stdout', data, verbose: self.isVerbose() })
+        },
+        stderr: (data) => {
+          // Stderr should be printed regardless of piping.
+          $.log({ kind: 'stderr', data, verbose: self.isVerbose() })
+        },
+        end: ({ error, stdout, stderr, stdall, status, signal }) => {
+          self._resolved = true
 
-    this.child = this._zurk._ctx.child as ChildProcess
-
-    this._zurk.finally(() => (self._resolved = true))
-    this._zurk.then(({ error, stdout, stderr, stdall, status, signal }) => {
-      if (error) {
-        const message = ProcessOutput.getErrorMessage(error, self._from)
-        // Should we enable this?
-        // (nothrow ? self._resolve : self._reject)(
-        self._reject(
-          new ProcessOutput(null, null, stdout, stderr, stdall, message)
-        )
-      } else {
-        const message = ProcessOutput.getExitMessage(
-          status,
-          signal,
-          stderr,
-          self._from
-        )
-        const output = new ProcessOutput(
-          status,
-          signal,
-          stdout,
-          stderr,
-          stdall,
-          message
-        )
-
-        if (status === 0 || (self._nothrow ?? $.nothrow)) {
-          self._resolve(output)
-        } else {
-          self._reject(output)
-        }
-      }
+          if (error) {
+            const message = ProcessOutput.getErrorMessage(error, self._from)
+            // Should we enable this?
+            // (nothrow ? self._resolve : self._reject)(
+            self._reject(
+              new ProcessOutput(null, null, stdout, stderr, stdall, message)
+            )
+          } else {
+            const message = ProcessOutput.getExitMessage(
+              status,
+              signal,
+              stderr,
+              self._from
+            )
+            const output = new ProcessOutput(
+              status,
+              signal,
+              stdout,
+              stderr,
+              stdall,
+              message
+            )
+            if (status === 0 || (self._nothrow ?? $.nothrow)) {
+              self._resolve(output)
+            } else {
+              self._reject(output)
+            }
+          }
+        },
+      },
     })
 
     this._postrun() // In case $1.pipe($2), after both subprocesses are running, we can pipe $1.stdout to $2.stdin.
 
     return this
+  }
+
+  get child() {
+    return this.zurk?.child
   }
 
   get stdin(): Writable {
@@ -354,19 +356,15 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       throw new Error('Trying to kill a process without creating one.')
     if (!this.child.pid) throw new Error('The process pid is undefined.')
 
-    await this._zurk?.kill(signal as NodeJS.Signals)
-    // zurk uses detached + process.kill(-p.pid)
-    // Do we still need this?
-
-    // let children = await psTree(this.child.pid)
-    // for (const p of children) {
-    //   try {
-    //     process.kill(+p.PID, signal)
-    //   } catch (e) {}
-    // }
-    // try {
-    //   process.kill(this.child.pid, signal)
-    // } catch (e) {}
+    let children = await psTree(this.child.pid)
+    for (const p of children) {
+      try {
+        process.kill(+p.PID, signal)
+      } catch (e) {}
+    }
+    try {
+      process.kill(-this.child.pid, signal)
+    } catch (e) {}
   }
 
   stdio(stdin: IO, stdout: IO = 'pipe', stderr: IO = 'pipe'): ProcessPromise {
