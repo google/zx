@@ -55,7 +55,7 @@
   },
   "optionalDependencies": {
     "@types/fs-extra": "^11.0.4",
-    "@types/node": ">=20.11.19"
+    "@types/node": ">=20.11.28"
   },
   "devDependencies": {
     "@stryker-mutator/core": "^6.4.2",
@@ -67,9 +67,9 @@
     "c8": "^7.13.0",
     "chalk": "^5.3.0",
     "dts-bundle-generator": "^9.3.1",
-    "esbuild": "^0.20.1",
+    "esbuild": "^0.20.2",
     "esbuild-node-externals": "^1.13.0",
-    "esbuild-plugin-entry-chunks": "^0.1.8",
+    "esbuild-plugin-entry-chunks": "^0.1.11",
     "fs-extra": "^11.2.0",
     "fx": "*",
     "globby": "^14.0.1",
@@ -83,7 +83,7 @@
     "webpod": "^0",
     "which": "^3.0.0",
     "yaml": "^2.3.4",
-    "zurk": "^0.0.26"
+    "zurk": "^0.0.27"
   },
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"
