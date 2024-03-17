@@ -83,7 +83,7 @@
     "webpod": "^0",
     "which": "^3.0.0",
     "yaml": "^2.3.4",
-    "zurk": "^0.0.27"
+    "zurk": "^0.0.31"
   },
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"

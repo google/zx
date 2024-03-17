@@ -49,6 +49,7 @@ export interface Options {
   [processCwd]: string
   cwd?: string
   verbose: boolean
+  ac?: AbortController
   env: NodeJS.ProcessEnv
   shell: string | boolean
   nothrow: boolean
@@ -200,6 +201,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     this.zurk = exec({
       cmd: $.prefix + this._command,
       cwd: $.cwd ?? $[processCwd],
+      ac: $.ac,
       shell: typeof $.shell === 'string' ? $.shell : true,
       env: $.env,
       spawn: $.spawn,
@@ -352,6 +354,13 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       this._postrun = () => this.stdout.pipe(dest)
       return this
     }
+  }
+
+  abort(reason?: string) {
+    if (!this.child)
+      throw new Error('Trying to abort a process without creating one.')
+
+    this.zurk?.ac.abort(reason)
   }
 
   async kill(signal = 'SIGTERM'): Promise<void> {
