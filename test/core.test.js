@@ -261,7 +261,7 @@ describe('core', () => {
     try {
       await p
       assert.unreachable('should have thrown')
-    } catch ({message}) {
+    } catch ({ message }) {
       assert.match(message, /The operation was aborted/)
     }
   })
@@ -274,7 +274,7 @@ describe('core', () => {
     try {
       await p
       assert.unreachable('should have thrown')
-    } catch ({message}) {
+    } catch ({ message }) {
       assert.match(message, /The operation was aborted/)
     }
   })
