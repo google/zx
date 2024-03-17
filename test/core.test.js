@@ -254,6 +254,31 @@ describe('core', () => {
     })
   })
 
+  test('abort() method works', async () => {
+    const p = $`sleep 9999`
+    setTimeout(() => p.abort(), 100)
+
+    try {
+      await p
+      assert.unreachable('should have thrown')
+    } catch ({message}) {
+      assert.match(message, /The operation was aborted/)
+    }
+  })
+
+  test('accepts optional AbortController', async () => {
+    const ac = new AbortController()
+    const p = $({ ac })`sleep 9999`
+    setTimeout(() => ac.abort(), 100)
+
+    try {
+      await p
+      assert.unreachable('should have thrown')
+    } catch ({message}) {
+      assert.match(message, /The operation was aborted/)
+    }
+  })
+
   test('kill() method works', async () => {
     let p = $`sleep 9999`.nothrow()
     setTimeout(() => {
