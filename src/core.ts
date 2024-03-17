@@ -48,8 +48,9 @@ const processCwd = Symbol('processCwd')
 export interface Options {
   [processCwd]: string
   cwd?: string
-  verbose: boolean
   ac?: AbortController
+  input?: string | Buffer | Readable | ProcessOutput | ProcessPromise
+  verbose: boolean
   env: NodeJS.ProcessEnv
   shell: string | boolean
   nothrow: boolean
@@ -187,10 +188,14 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   run(): ProcessPromise {
-    const $ = this._snapshot
-    const self = this
     if (this.child) return this // The _run() can be called from a few places.
     this._prerun() // In case $1.pipe($2), the $2 returned, and on $2._run() invoke $1._run().
+
+    const $ = this._snapshot
+    const self = this
+    const input = ($.input as ProcessPromise | ProcessOutput)?.stdout ?? $.input
+
+    if (input) this.stdio('pipe')
 
     $.log({
       kind: 'cmd',
@@ -199,6 +204,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     })
 
     this.zurk = exec({
+      input,
       cmd: $.prefix + this._command,
       cwd: $.cwd ?? $[processCwd],
       ac: $.ac,
