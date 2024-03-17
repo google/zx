@@ -15,7 +15,7 @@
 import assert from 'node:assert'
 import { test, describe, beforeEach } from 'node:test'
 import { inspect } from 'node:util'
-import { Writable } from 'node:stream'
+import { Readable, Writable } from 'node:stream'
 import { Socket } from 'node:net'
 import { ProcessPromise, ProcessOutput } from '../build/index.js'
 import '../build/globals.js'
@@ -104,6 +104,20 @@ describe('core', () => {
       console.log = log
       assert.equal(stdout, '')
     }
+  })
+
+  test('handles `input` option', async () => {
+    const p1 = $({ input: 'foo' })`cat`
+    const p2 = $({ input: Readable.from('bar') })`cat`
+    const p3 = $({ input: Buffer.from('baz') })`cat`
+    const p4 = $({ input: p3 })`cat`
+    const p5 = $({ input: await p3 })`cat`
+
+    assert.equal((await p1).stdout, 'foo')
+    assert.equal((await p2).stdout, 'bar')
+    assert.equal((await p3).stdout, 'baz')
+    assert.equal((await p4).stdout, 'baz')
+    assert.equal((await p5).stdout, 'baz')
   })
 
   test('pipes are working', async () => {
