@@ -78,11 +78,11 @@
     "node-fetch-native": "^1.6.2",
     "prettier": "^2.8.8",
     "ps-tree": "^1.2.0",
-    "tsd": "^0.28.1",
+    "tsd": "^0.30.7",
     "typescript": "^5.0.4",
     "webpod": "^0",
     "which": "^3.0.0",
-    "yaml": "^2.3.4",
+    "yaml": "^2.4.1",
     "zurk": "^0.0.31"
   },
   "publishConfig": {
