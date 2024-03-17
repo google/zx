@@ -13,11 +13,13 @@
 // limitations under the License.
 
 import assert from 'node:assert'
-import { ChildProcess, spawn, StdioNull, StdioPipe } from 'node:child_process'
+import { spawn, StdioNull, StdioPipe } from 'node:child_process'
 import { AsyncLocalStorage, createHook } from 'node:async_hooks'
 import { Readable, Writable } from 'node:stream'
 import { inspect } from 'node:util'
 import {
+  exec,
+  buildCmd,
   chalk,
   which,
   type ChalkInstance,
@@ -36,10 +38,10 @@ import {
   quotePowerShell,
 } from './util.js'
 
-export type Shell = (
-  pieces: TemplateStringsArray,
-  ...args: any[]
-) => ProcessPromise
+export interface Shell {
+  (pieces: TemplateStringsArray, ...args: any[]): ProcessPromise
+  (opts: Partial<Options>): Shell
+}
 
 const processCwd = Symbol('processCwd')
 
@@ -49,8 +51,10 @@ export interface Options {
   verbose: boolean
   env: NodeJS.ProcessEnv
   shell: string | boolean
+  nothrow: boolean
   prefix: string
   quote: typeof quote
+  quiet: boolean
   spawn: typeof spawn
   log: typeof log
 }
@@ -70,6 +74,8 @@ export const defaults: Options = {
   verbose: true,
   env: process.env,
   shell: true,
+  nothrow: false,
+  quiet: false,
   prefix: '',
   quote: () => {
     throw new Error('No quote function is defined: https://ï.at/no-quote-func')
@@ -77,13 +83,13 @@ export const defaults: Options = {
   spawn,
   log,
 }
-
+const isWin = process.platform == 'win32'
 try {
   defaults.shell = which.sync('bash')
   defaults.prefix = 'set -euo pipefail;'
   defaults.quote = quote
 } catch (err) {
-  if (process.platform == 'win32') {
+  if (isWin) {
     try {
       defaults.shell = which.sync('powershell.exe')
       defaults.quote = quotePowerShell
@@ -97,25 +103,28 @@ function getStore() {
   return storage.getStore() || defaults
 }
 
-export const $ = new Proxy<Shell & Options>(
+export const $: Shell & Options = new Proxy<Shell & Options>(
   function (pieces, ...args) {
+    if (!Array.isArray(pieces)) {
+      return function (this: any, ...args: any) {
+        const self = this
+        return within(() => {
+          return Object.assign($, pieces).apply(self, args)
+        })
+      }
+    }
     const from = new Error().stack!.split(/^\s*at\s/m)[2].trim()
     if (pieces.some((p) => p == undefined)) {
       throw new Error(`Malformed command at ${from}`)
     }
     let resolve: Resolve, reject: Resolve
     const promise = new ProcessPromise((...args) => ([resolve, reject] = args))
-    let cmd = pieces[0],
-      i = 0
-    while (i < args.length) {
-      let s
-      if (Array.isArray(args[i])) {
-        s = args[i].map((x: any) => $.quote(substitute(x))).join(' ')
-      } else {
-        s = $.quote(substitute(args[i]))
-      }
-      cmd += s + pieces[++i]
-    }
+    const cmd = buildCmd(
+      $.quote,
+      pieces as TemplateStringsArray,
+      args
+    ) as string
+
     promise._bind(cmd, from, resolve!, reject!, getStore())
     // Postpone run to allow promise configuration.
     setImmediate(() => promise.isHalted || promise.run())
@@ -145,20 +154,20 @@ type Resolve = (out: ProcessOutput) => void
 type IO = StdioPipe | StdioNull
 
 export class ProcessPromise extends Promise<ProcessOutput> {
-  child?: ChildProcess
   private _command = ''
   private _from = ''
   private _resolve: Resolve = noop
   private _reject: Resolve = noop
   private _snapshot = getStore()
   private _stdio: [IO, IO, IO] = ['inherit', 'pipe', 'pipe']
-  private _nothrow = false
-  private _quiet = false
+  private _nothrow?: boolean
+  private _quiet?: boolean
   private _timeout?: number
-  private _timeoutSignal?: string
+  private _timeoutSignal = 'SIGTERM'
   private _resolved = false
   private _halted = false
   private _piped = false
+  private zurk: ReturnType<typeof exec> | null = null
   _prerun = noop
   _postrun = noop
 
@@ -178,78 +187,87 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   run(): ProcessPromise {
     const $ = this._snapshot
+    const self = this
     if (this.child) return this // The _run() can be called from a few places.
     this._prerun() // In case $1.pipe($2), the $2 returned, and on $2._run() invoke $1._run().
+
     $.log({
       kind: 'cmd',
       cmd: this._command,
-      verbose: $.verbose && !this._quiet,
+      verbose: self.isVerbose(),
     })
-    this.child = $.spawn($.prefix + this._command, {
+
+    this.zurk = exec({
+      cmd: $.prefix + this._command,
       cwd: $.cwd ?? $[processCwd],
       shell: typeof $.shell === 'string' ? $.shell : true,
-      stdio: this._stdio,
-      windowsHide: true,
       env: $.env,
+      spawn: $.spawn,
+      stdio: this._stdio as any,
+      sync: false,
+      detached: !isWin,
+      run: (cb) => cb(),
+      on: {
+        start: () => {
+          if (self._timeout) {
+            const t = setTimeout(
+              () => self.kill(self._timeoutSignal),
+              self._timeout
+            )
+            self.finally(() => clearTimeout(t)).catch(noop)
+          }
+        },
+        stdout: (data) => {
+          // If process is piped, don't print output.
+          if (self._piped) return
+          $.log({ kind: 'stdout', data, verbose: self.isVerbose() })
+        },
+        stderr: (data) => {
+          // Stderr should be printed regardless of piping.
+          $.log({ kind: 'stderr', data, verbose: self.isVerbose() })
+        },
+        end: ({ error, stdout, stderr, stdall, status, signal }) => {
+          self._resolved = true
+
+          if (error) {
+            const message = ProcessOutput.getErrorMessage(error, self._from)
+            // Should we enable this?
+            // (nothrow ? self._resolve : self._reject)(
+            self._reject(
+              new ProcessOutput(null, null, stdout, stderr, stdall, message)
+            )
+          } else {
+            const message = ProcessOutput.getExitMessage(
+              status,
+              signal,
+              stderr,
+              self._from
+            )
+            const output = new ProcessOutput(
+              status,
+              signal,
+              stdout,
+              stderr,
+              stdall,
+              message
+            )
+            if (status === 0 || (self._nothrow ?? $.nothrow)) {
+              self._resolve(output)
+            } else {
+              self._reject(output)
+            }
+          }
+        },
+      },
     })
-    this.child.on('close', (code, signal) => {
-      let message = `exit code: ${code}`
-      if (code != 0 || signal != null) {
-        message = `${stderr || '\n'}    at ${this._from}`
-        message += `\n    exit code: ${code}${
-          exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : ''
-        }`
-        if (signal != null) {
-          message += `\n    signal: ${signal}`
-        }
-      }
-      let output = new ProcessOutput(
-        code,
-        signal,
-        stdout,
-        stderr,
-        combined,
-        message
-      )
-      if (code === 0 || this._nothrow) {
-        this._resolve(output)
-      } else {
-        this._reject(output)
-      }
-      this._resolved = true
-    })
-    this.child.on('error', (err: NodeJS.ErrnoException) => {
-      const message =
-        `${err.message}\n` +
-        `    errno: ${err.errno} (${errnoMessage(err.errno)})\n` +
-        `    code: ${err.code}\n` +
-        `    at ${this._from}`
-      this._reject(
-        new ProcessOutput(null, null, stdout, stderr, combined, message)
-      )
-      this._resolved = true
-    })
-    let stdout = '',
-      stderr = '',
-      combined = ''
-    let onStdout = (data: any) => {
-      $.log({ kind: 'stdout', data, verbose: $.verbose && !this._quiet })
-      stdout += data
-      combined += data
-    }
-    let onStderr = (data: any) => {
-      $.log({ kind: 'stderr', data, verbose: $.verbose && !this._quiet })
-      stderr += data
-      combined += data
-    }
-    if (!this._piped) this.child.stdout?.on('data', onStdout) // If process is piped, don't collect or print output.
-    this.child.stderr?.on('data', onStderr) // Stderr should be printed regardless of piping.
+
     this._postrun() // In case $1.pipe($2), after both subprocesses are running, we can pipe $1.stdout to $2.stdin.
-    if (this._timeout && this._timeoutSignal) {
-      const t = setTimeout(() => this.kill(this._timeoutSignal), this._timeout)
-      this.finally(() => clearTimeout(t)).catch(noop)
-    }
+
     return this
+  }
+
+  get child() {
+    return this.zurk?.child
   }
 
   get stdin(): Writable {
@@ -340,6 +358,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     if (!this.child)
       throw new Error('Trying to kill a process without creating one.')
     if (!this.child.pid) throw new Error('The process pid is undefined.')
+
     let children = await psTree(this.child.pid)
     for (const p of children) {
       try {
@@ -347,7 +366,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       } catch (e) {}
     }
     try {
-      process.kill(this.child.pid, signal)
+      process.kill(-this.child.pid, signal)
     } catch (e) {}
   }
 
@@ -364,6 +383,11 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   quiet(): ProcessPromise {
     this._quiet = true
     return this
+  }
+
+  isVerbose(): boolean {
+    const { verbose, quiet } = this._snapshot
+    return verbose && !(this._quiet ?? quiet)
   }
 
   timeout(d: Duration, signal = 'SIGTERM'): ProcessPromise {
@@ -423,6 +447,35 @@ export class ProcessOutput extends Error {
 
   get signal() {
     return this._signal
+  }
+
+  static getExitMessage(
+    code: number | null,
+    signal: NodeJS.Signals | null,
+    stderr: string,
+    from: string
+  ) {
+    let message = `exit code: ${code}`
+    if (code != 0 || signal != null) {
+      message = `${stderr || '\n'}    at ${from}`
+      message += `\n    exit code: ${code}${
+        exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : ''
+      }`
+      if (signal != null) {
+        message += `\n    signal: ${signal}`
+      }
+    }
+
+    return message
+  }
+
+  static getErrorMessage(err: NodeJS.ErrnoException, from: string) {
+    return (
+      `${err.message}\n` +
+      `    errno: ${err.errno} (${errnoMessage(err.errno)})\n` +
+      `    code: ${err.code}\n` +
+      `    at ${from}`
+    )
   }
 
   [inspect.custom]() {
