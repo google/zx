@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import assert from 'node:assert'
-import { spawn, StdioNull, StdioPipe } from 'node:child_process'
+import { spawn, spawnSync, StdioNull, StdioPipe } from 'node:child_process'
 import { AsyncLocalStorage, createHook } from 'node:async_hooks'
 import { Readable, Writable } from 'node:stream'
 import { inspect } from 'node:util'
@@ -65,6 +65,7 @@ export interface Options {
   quote: typeof quote
   quiet: boolean
   spawn: typeof spawn
+  spawnSync: typeof spawnSync
   log: typeof log
 }
 
@@ -92,6 +93,7 @@ export const defaults: Options = {
     throw new Error('No quote function is defined: https://ï.at/no-quote-func')
   },
   spawn,
+  spawnSync,
   log,
 }
 const isWin = process.platform == 'win32'
@@ -238,6 +240,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       shell: typeof $.shell === 'string' ? $.shell : true,
       env: $.env,
       spawn: $.spawn,
+      spawnSync: $.spawnSync,
       stdio: this._stdio as any,
       sync: $[syncExec],
       detached: !isWin,
