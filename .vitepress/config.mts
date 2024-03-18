@@ -24,35 +24,60 @@ export default defineConfig({
       {text: 'Home', link: '/'},
       {text: 'Docs', link: '/getting-started'},
       {
-        text: '7.x',
+        text: 'v8',
         items: [
-          {text: 'Releases', link: 'https://github.com/google/zx/releases'},
+          {text: 'v7', link: '/v7/api'},
         ],
       },
     ],
 
-    sidebar: [
-      {
-        text: 'Docs',
-        items: [
-          {text: 'Getting Started', link: '/getting-started'},
-          {text: 'Process Promise', link: '/process-promise'},
-          {text: 'API Reference', link: '/api'},
-          {text: 'Configuration', link: '/configuration'},
-          {text: 'CLI Usage', link: '/cli'},
-        ],
-      },
-      {
-        text: 'FAQ',
-        link: '/faq',
-        items: [
-          {text: 'Quotes', link: '/quotes'},
-          {text: 'TypeScript', link: '/typescript'},
-          {text: 'Markdown Scripts', link: '/markdown-scripts'},
-          {text: 'Known Issues', link: '/known-issues'},
-        ],
-      },
-    ],
+    sidebar: {
+      '/': [
+        {
+          text: 'Docs',
+          items: [
+            {text: 'Getting Started', link: '/getting-started'},
+            {text: 'Process Promise', link: '/process-promise'},
+            {text: 'API Reference', link: '/api'},
+            {text: 'Configuration', link: '/configuration'},
+            {text: 'CLI Usage', link: '/cli'},
+          ],
+        },
+        {
+          text: 'FAQ',
+          link: '/faq',
+          items: [
+            {text: 'Quotes', link: '/quotes'},
+            {text: 'TypeScript', link: '/typescript'},
+            {text: 'Markdown Scripts', link: '/markdown-scripts'},
+            {text: 'Known Issues', link: '/known-issues'},
+          ],
+        },
+      ],
+
+      '/v7/': [
+        {
+          text: 'Docs (v7)',
+          items: [
+            {text: 'Getting Started', link: '/v7/getting-started'},
+            {text: 'Process Promise', link: '/v7/process-promise'},
+            {text: 'API Reference', link: '/v7/api'},
+            {text: 'Configuration', link: '/v7/configuration'},
+            {text: 'CLI Usage', link: '/v7/cli'},
+          ],
+        },
+        {
+          text: 'FAQ',
+          link: '/v7/faq',
+          items: [
+            {text: 'Quotes', link: '/v7/quotes'},
+            {text: 'TypeScript', link: '/v7/typescript'},
+            {text: 'Markdown Scripts', link: '/v7/markdown-scripts'},
+            {text: 'Known Issues', link: '/v7/known-issues'},
+          ],
+        },
+      ],
+    },
 
     socialLinks: [
       {icon: 'github', link: 'https://github.com/google/zx'},
