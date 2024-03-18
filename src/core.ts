@@ -448,6 +448,10 @@ export class ProcessOutput extends Error {
     return this._combined
   }
 
+  valueOf() {
+    return this._combined.trim()
+  }
+
   get stdout() {
     return this._stdout
   }
