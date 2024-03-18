@@ -120,6 +120,13 @@ describe('core', () => {
     assert.equal((await p5).stdout, 'baz')
   })
 
+  test('`$.sync()` provides synchronous API', () => {
+    const o1 = $.sync`echo foo`
+    const o2 = $({ sync: true })`echo foo`
+    assert.equal(o1.stdout, 'foo\n')
+    assert.equal(o2.stdout, 'foo\n')
+  })
+
   test('pipes are working', async () => {
     let { stdout } = await $`echo "hello"`
       .pipe($`awk '{print $1" world"}'`)
