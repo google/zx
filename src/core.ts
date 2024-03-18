@@ -41,16 +41,23 @@ import {
 export interface Shell {
   (pieces: TemplateStringsArray, ...args: any[]): ProcessPromise
   (opts: Partial<Options>): Shell
+  sync: {
+    (pieces: TemplateStringsArray, ...args: any[]): ProcessOutput
+    (opts: Partial<Options>): Shell
+  }
 }
 
 const processCwd = Symbol('processCwd')
+const syncExec = Symbol('syncExec')
 
 export interface Options {
   [processCwd]: string
+  [syncExec]: boolean
   cwd?: string
   ac?: AbortController
   input?: string | Buffer | Readable | ProcessOutput | ProcessPromise
   verbose: boolean
+  sync: boolean
   env: NodeJS.ProcessEnv
   shell: string | boolean
   nothrow: boolean
@@ -73,8 +80,10 @@ hook.enable()
 
 export const defaults: Options = {
   [processCwd]: process.cwd(),
+  [syncExec]: false,
   verbose: true,
   env: process.env,
+  sync: false,
   shell: true,
   nothrow: false,
   quiet: false,
@@ -127,18 +136,35 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
       args
     ) as string
 
-    promise._bind(cmd, from, resolve!, reject!, getStore())
+    const snapshot = getStore()
+    const sync = snapshot[syncExec]
+    const callback = () => promise.isHalted || promise.run()
+
+    promise._bind(
+      cmd,
+      from,
+      resolve!,
+      (v: ProcessOutput) => {
+        reject!(v)
+        if (sync) throw v
+      },
+      snapshot
+    )
     // Postpone run to allow promise configuration.
-    setImmediate(() => promise.isHalted || promise.run())
-    return promise
+    sync ? callback() : setImmediate(callback)
+
+    return sync ? promise.output : promise
   } as Shell & Options,
   {
     set(_, key, value) {
       const target = key in Function.prototype ? _ : getStore()
-      Reflect.set(target, key, value)
+      Reflect.set(target, key === 'sync' ? syncExec : key, value)
+
       return true
     },
     get(_, key) {
+      if (key === 'sync') return $({ sync: true })
+
       const target = key in Function.prototype ? _ : getStore()
       return Reflect.get(target, key)
     },
@@ -169,7 +195,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _resolved = false
   private _halted = false
   private _piped = false
-  private zurk: ReturnType<typeof exec> | null = null
+  private _zurk: ReturnType<typeof exec> | null = null
+  private _output: ProcessOutput | null = null
   _prerun = noop
   _postrun = noop
 
@@ -203,7 +230,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       verbose: self.isVerbose(),
     })
 
-    this.zurk = exec({
+    this._zurk = exec({
       input,
       cmd: $.prefix + this._command,
       cwd: $.cwd ?? $[processCwd],
@@ -212,7 +239,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       env: $.env,
       spawn: $.spawn,
       stdio: this._stdio as any,
-      sync: false,
+      sync: $[syncExec],
       detached: !isWin,
       run: (cb) => cb(),
       on: {
@@ -241,9 +268,16 @@ export class ProcessPromise extends Promise<ProcessOutput> {
             const message = ProcessOutput.getErrorMessage(error, self._from)
             // Should we enable this?
             // (nothrow ? self._resolve : self._reject)(
-            self._reject(
-              new ProcessOutput(null, null, stdout, stderr, stdall, message)
+            const output = new ProcessOutput(
+              null,
+              null,
+              stdout,
+              stderr,
+              stdall,
+              message
             )
+            self._output = output
+            self._reject(output)
           } else {
             const message = ProcessOutput.getExitMessage(
               status,
@@ -259,6 +293,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
               stdall,
               message
             )
+            self._output = output
             if (status === 0 || (self._nothrow ?? $.nothrow)) {
               self._resolve(output)
             } else {
@@ -275,7 +310,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   get child() {
-    return this.zurk?.child
+    return this._zurk?.child
   }
 
   get stdin(): Writable {
@@ -366,7 +401,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     if (!this.child)
       throw new Error('Trying to abort a process without creating one.')
 
-    this.zurk?.ac.abort(reason)
+    this._zurk?.ac.abort(reason)
   }
 
   async kill(signal = 'SIGTERM'): Promise<void> {
@@ -418,6 +453,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   get isHalted(): boolean {
     return this._halted
+  }
+
+  get output() {
+    return this._output
   }
 }
 
