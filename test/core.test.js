@@ -188,6 +188,17 @@ describe('core', () => {
     assert.ok(p5 !== p1)
   })
 
+  test('ProcessPromise: implements toString()', async () => {
+    const p = $`echo foo`
+    assert.equal((await p).toString(), 'foo\n')
+  })
+
+  test('ProcessPromise: implements valueOf()', async () => {
+    const p = $`echo foo`
+    assert.equal((await p).valueOf(), 'foo')
+    assert.ok((await p) == 'foo')
+  })
+
   test('cd() works with relative paths', async () => {
     let cwd = process.cwd()
     try {
