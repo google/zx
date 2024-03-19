@@ -16,7 +16,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm i
+      - run: npm ci
       - run: npm test
         timeout-minutes: 1
         env:
@@ -31,7 +31,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16.x
-      - run: npm i
+      - run: npm ci
       - run: npm run build
       - run: node ./test/win32.test.js
         timeout-minutes: 1
