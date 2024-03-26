@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { promisify } from 'node:util'
 import { chalk } from './vendor.js'
 
 export function noop() {}

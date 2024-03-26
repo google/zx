@@ -67,6 +67,7 @@ export interface Options {
   spawn: typeof spawn
   spawnSync: typeof spawnSync
   log: typeof log
+  kill: typeof kill
 }
 
 const storage = new AsyncLocalStorage<Options>()
@@ -95,6 +96,7 @@ export const defaults: Options = {
   spawn,
   spawnSync,
   log,
+  kill,
 }
 const isWin = process.platform == 'win32'
 try {
@@ -412,15 +414,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       throw new Error('Trying to kill a process without creating one.')
     if (!this.child.pid) throw new Error('The process pid is undefined.')
 
-    let children = await ps.tree({ pid: this.child.pid, recursive: true })
-    for (const p of children) {
-      try {
-        process.kill(+p.pid, signal)
-      } catch (e) {}
-    }
-    try {
-      process.kill(-this.child.pid, signal)
-    } catch (e) {}
+    return $.kill(this.child.pid, signal)
   }
 
   stdio(stdin: IO, stdout: IO = 'pipe', stderr: IO = 'pipe'): ProcessPromise {
@@ -571,6 +565,18 @@ export function cd(dir: string | ProcessOutput) {
   $.log({ kind: 'cd', dir })
   process.chdir(dir)
   $[processCwd] = process.cwd()
+}
+
+export async function kill(pid: number, signal?: string) {
+  let children = await ps.tree({ pid, recursive: true })
+  for (const p of children) {
+    try {
+      process.kill(+p.pid, signal)
+    } catch (e) {}
+  }
+  try {
+    process.kill(-pid, signal)
+  } catch (e) {}
 }
 
 export type LogEntry =
