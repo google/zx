@@ -2,8 +2,8 @@
   "compilerOptions": {
     "outDir": "./build",
     "target": "es2021",
-    "module": "esnext",
-    "moduleResolution": "node16",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "allowSyntheticDefaultImports": true,
     "strict": true
   },
