@@ -412,7 +412,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       throw new Error('Trying to kill a process without creating one.')
     if (!this.child.pid) throw new Error('The process pid is undefined.')
 
-    let children = await ps.tree({pid: this.child.pid, recursive: true})
+    let children = await ps.tree({ pid: this.child.pid, recursive: true })
     for (const p of children) {
       try {
         process.kill(+p.pid, signal)
