@@ -22,6 +22,7 @@ import {
   buildCmd,
   chalk,
   which,
+  ps,
   type ChalkInstance,
   RequestInfo,
   RequestInit,
@@ -33,7 +34,6 @@ import {
   formatCmd,
   noop,
   parseDuration,
-  psTree,
   quote,
   quotePowerShell,
 } from './util.js'
@@ -412,10 +412,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       throw new Error('Trying to kill a process without creating one.')
     if (!this.child.pid) throw new Error('The process pid is undefined.')
 
-    let children = await psTree(this.child.pid)
+    let children = await ps.tree({ pid: this.child.pid, recursive: true })
     for (const p of children) {
       try {
-        process.kill(+p.PID, signal)
+        process.kill(+p.pid, signal)
       } catch (e) {}
     }
     try {

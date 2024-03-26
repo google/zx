@@ -13,9 +13,7 @@
 // limitations under the License.
 
 import { promisify } from 'node:util'
-import { chalk, psTreeModule } from './vendor.js'
-
-export const psTree = promisify(psTreeModule)
+import { chalk } from './vendor.js'
 
 export function noop() {}
 
