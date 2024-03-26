@@ -33,11 +33,10 @@ const entry = {
       'chalk',
       'globby',
       'webpod',
-      '@types/fs-extra',
       '@types/minimist',
-      '@types/ps-tree',
       '@types/which',
       'zurk',
+      '@webpod/ps',
     ], // args['external-inlines'],
   },
   output: {
