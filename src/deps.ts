@@ -92,20 +92,22 @@ const builtins = new Set([
 
 const nameRe =
   /^(?<name>(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*)\/?.*$/i
-const versionRe =
-  /^@(?<version>[~^]?(v?[\dx*]+([-.][\d*a-z-]+)*))/i
+const versionRe = /^@(?<version>[~^]?(v?[\dx*]+([-.][\d*a-z-]+)*))/i
 
 export function parseDeps(content: Buffer): Record<string, string> {
-  return depseek(content.toString() + '\n', {comments: true})
-    .reduce<Record<string, string>>((m, {type, value}, i, list) => {
-      if (type === 'dep') {
-        const meta = list[i + 1]
-        const name = parsePackageName(value)
-        const version = meta?.type === 'comment' && parseVersion(meta?.value.trim()) || 'latest'
-        if (name) m[name] = version
-      }
-      return m
-    }, {})
+  return depseek(content.toString() + '\n', { comments: true }).reduce<
+    Record<string, string>
+  >((m, { type, value }, i, list) => {
+    if (type === 'dep') {
+      const meta = list[i + 1]
+      const name = parsePackageName(value)
+      const version =
+        (meta?.type === 'comment' && parseVersion(meta?.value.trim())) ||
+        'latest'
+      if (name) m[name] = version
+    }
+    return m
+  }, {})
 }
 
 function parsePackageName(path?: string): string | undefined {
