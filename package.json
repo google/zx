@@ -13,9 +13,6 @@
       "globals": [
         "./build/globals.d.ts"
       ],
-      "experimental": [
-        "./build/experimental.d.ts"
-      ],
       "cli": [
         "./build/cli.d.ts"
       ],
