@@ -95,6 +95,8 @@ describe('deps', () => {
   import fs from 'fs'
   import path from 'path'
   import foo from "foo"
+  // import aaa from 'a'
+  /* import bbb from 'b' */ 
   import bar from "bar" /* @1.0.0 */
   import baz from "baz" //    @^2.0
   import qux from "@qux/pkg/entry" //    @^3.0
