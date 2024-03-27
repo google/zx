@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import assert from 'node:assert'
-import { test, describe, beforeEach, after } from 'node:test'
+import { test, describe, beforeEach } from 'node:test'
 import '../build/globals.js'
 
 describe('package', () => {
