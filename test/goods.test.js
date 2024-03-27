@@ -18,10 +18,6 @@ import { test, describe, beforeEach } from 'node:test'
 import '../build/globals.js'
 
 describe('goods', () => {
-  beforeEach(() => {
-    $.verbose = false
-  })
-
   function zx(script) {
     return $`node build/cli.js --eval ${script}`.nothrow().timeout('5s')
   }

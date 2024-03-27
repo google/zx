@@ -18,10 +18,6 @@ import { $ } from '../build/index.js'
 import { installDeps, parseDeps } from '../build/deps.js'
 
 describe('deps', () => {
-  beforeEach(() => {
-    $.verbose = false
-  })
-
   test('installDeps() loader works via JS API', async () => {
     await installDeps({
       cpy: '9.0.1',

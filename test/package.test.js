@@ -18,7 +18,6 @@ import '../build/globals.js'
 
 describe('package', () => {
   beforeEach(async () => {
-    $.verbose = false
     const pack = await $`npm pack`
     await $`tar xf ${pack}`
     await $`rm ${pack}`.nothrow()
@@ -29,8 +28,6 @@ describe('package', () => {
     const out = await within(async () => {
       cd('test/fixtures/ts-project')
       await $`npm i`
-      await $`rm -rf node_modules/zx`
-      await $`mv ${pack} node_modules/zx`
       try {
         await $`npx tsc`
       } catch (err) {
@@ -45,10 +42,8 @@ describe('package', () => {
     const pack = path.resolve('package')
     const out = await within(async () => {
       cd('test/fixtures/js-project')
-      await $`rm -rf node_modules`
-      await $`mkdir node_modules`
-      await $`mv ${pack} node_modules/zx`
-      return $`node node_modules/zx/build/cli.js script.js`
+      await $`npm i`
+      return $`node node_modules/zx/build/cli.js --verbose script.js`
     })
     assert.match(out.stderr, /js-script/)
   })

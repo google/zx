@@ -21,10 +21,6 @@ import { ProcessPromise, ProcessOutput } from '../build/index.js'
 import '../build/globals.js'
 
 describe('core', () => {
-  beforeEach(() => {
-    $.verbose = false
-  })
-
   test('only stdout is used during command substitution', async () => {
     let hello = await $`echo Error >&2; echo Hello`
     let len = +(await $`echo ${hello} | wc -c`)
@@ -340,7 +336,6 @@ describe('core', () => {
       resolve()
     }
 
-    $.verbose = false
     assert.equal($.verbose, false)
 
     within(() => {
@@ -364,7 +359,6 @@ describe('core', () => {
     let pwd = await $`pwd`
 
     within(async () => {
-      $.verbose = false
       cd('/tmp')
       setTimeout(async () => {
         assert.ok((await $`pwd`).stdout.trim().endsWith('/tmp'))

@@ -14,5 +14,5 @@
 
 import { $, ProcessPromise } from 'zx'
 
-let p: ProcessPromise = $`echo ts-script`
+let p: ProcessPromise = $({ verbose: true })`echo ts-script`
 await p

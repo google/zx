@@ -13,15 +13,20 @@
 // limitations under the License.
 
 import assert from 'node:assert'
-import fs from 'node:fs'
+import fs from 'node:fs/promises'
 import { test, describe } from 'node:test'
 import { globby } from 'globby'
 
 describe('extra', () => {
   test('every file should have a license', async () => {
-    const files = await globby(['**/*.{ts,js,mjs}'], { gitignore: true })
+    const files = await globby(['**/*.{js,mjs,ts}'], {
+      gitignore: true,
+      onlyFiles: true,
+      cwd: process.cwd(),
+      followSymbolicLinks: false,
+    })
     for (const file of files) {
-      const content = fs.readFileSync(file).toString()
+      const content = await fs.readFile(file, 'utf8')
       assert(
         content
           .replace(/\d{4}/g, 'YEAR')

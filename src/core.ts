@@ -83,7 +83,7 @@ hook.enable()
 export const defaults: Options = {
   [processCwd]: process.cwd(),
   [syncExec]: false,
-  verbose: true,
+  verbose: false,
   env: process.env,
   sync: false,
   shell: true,
@@ -257,7 +257,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
         },
         stderr: (data) => {
           // Stderr should be printed regardless of piping.
-          $.log({ kind: 'stderr', data, verbose: self.isVerbose() })
+          $.log({ kind: 'stderr', data, verbose: !self.isQuiet() })
         },
         end: ({ error, stdout, stderr, stdall, status, signal }) => {
           self._resolved = true
@@ -425,9 +425,12 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this
   }
 
+  isQuiet(): boolean {
+    return this._quiet ?? this._snapshot.quiet
+  }
+
   isVerbose(): boolean {
-    const { verbose, quiet } = this._snapshot
-    return verbose && !(this._quiet ?? quiet)
+    return this._snapshot.verbose && !this.isQuiet()
   }
 
   timeout(d: Duration, signal = 'SIGTERM'): ProcessPromise {

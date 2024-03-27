@@ -21,7 +21,6 @@ describe('cli', () => {
   let promiseResolved = false
 
   beforeEach(() => {
-    $.verbose = false
     process.on('exit', () => {
       if (!promiseResolved) {
         console.error('Error: ProcessPromise never resolved.')
@@ -77,29 +76,30 @@ describe('cli', () => {
   })
 
   test('supports `--quiet` flag', async () => {
-    let p = await $`node build/cli.js test/fixtures/markdown.md`
+    let p = await $`node build/cli.js --quiet test/fixtures/markdown.md`
     assert.ok(!p.stderr.includes('ignore'), 'ignore was printed')
-    assert.ok(p.stderr.includes('hello'), 'no hello')
+    assert.ok(!p.stderr.includes('hello'), 'no hello')
     assert.ok(p.stdout.includes('world'), 'no world')
   })
 
   test('supports `--shell` flag ', async () => {
     let shell = $.shell
     let p =
-      await $`node build/cli.js --shell=${shell} <<< '$\`echo \${$.shell}\`'`
+      await $`node build/cli.js --verbose --shell=${shell} <<< '$\`echo \${$.shell}\`'`
     assert.ok(p.stderr.includes(shell))
   })
 
   test('supports `--prefix` flag ', async () => {
     let prefix = 'set -e;'
     let p =
-      await $`node build/cli.js --prefix=${prefix} <<< '$\`echo \${$.prefix}\`'`
+      await $`node build/cli.js --verbose --prefix=${prefix} <<< '$\`echo \${$.prefix}\`'`
     assert.ok(p.stderr.includes(prefix))
   })
 
   test('scripts from https', async () => {
     $`cat ${path.resolve('test/fixtures/echo.http')} | nc -l 8080`
-    let out = await $`node build/cli.js http://127.0.0.1:8080/echo.mjs`
+    let out =
+      await $`node build/cli.js --verbose http://127.0.0.1:8080/echo.mjs`
     assert.match(out.stderr, /test/)
   })
 

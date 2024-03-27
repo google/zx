@@ -53,7 +53,15 @@ function printUsage() {
 
 const argv = minimist(process.argv.slice(2), {
   string: ['shell', 'prefix', 'eval'],
-  boolean: ['version', 'help', 'quiet', 'install', 'repl', 'experimental'],
+  boolean: [
+    'version',
+    'help',
+    'quiet',
+    'verbose',
+    'install',
+    'repl',
+    'experimental',
+  ],
   alias: { e: 'eval', i: 'install', v: 'version', h: 'help' },
   stopEarly: true,
 })
@@ -61,6 +69,7 @@ const argv = minimist(process.argv.slice(2), {
 await (async function main() {
   const globals = './globals.js'
   await import(globals)
+  if (argv.verbose) $.verbose = true
   if (argv.quiet) $.verbose = false
   if (argv.shell) $.shell = argv.shell
   if (argv.prefix) $.prefix = argv.prefix
