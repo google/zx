@@ -27,7 +27,6 @@
   "exports": {
     ".": "./build/index.js",
     "./globals": "./build/globals.js",
-    "./experimental": "./build/experimental.js",
     "./cli": "./build/cli.js",
     "./core": "./build/core.js",
     "./package.json": "./package.json"
