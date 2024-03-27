@@ -19,10 +19,6 @@ import '../build/globals.js'
 const _describe = process.platform === 'win32' ? describe : describe.skip
 
 _describe('win32', () => {
-  beforeEach(() => {
-    $.verbose = false
-  })
-
   test('should work with windows-specific commands', async () => {
     const p = await $`echo $0` // Bash is first by default.
     assert.match(p.stdout, /bash/)

@@ -15,8 +15,4 @@
 import { describe, before } from 'node:test'
 import '../build/globals.js'
 
-describe('experimental', () => {
-  before(() => {
-    $.verbose = false
-  })
-})
+describe('experimental', () => {})
