@@ -23,7 +23,7 @@ describe('extra', () => {
       gitignore: true,
       onlyFiles: true,
       cwd: process.cwd(),
-      followSymbolicLinks: false
+      followSymbolicLinks: false,
     })
     for (const file of files) {
       const content = await fs.readFile(file, 'utf8')
