@@ -50,6 +50,7 @@ export const YAML: {
 
 export const fs: typeof import('fs-extra') = _fs
 
+export { depseekSync as depseek } from 'depseek'
 export { type Options as GlobbyOptions } from 'globby'
 export { default as chalk, type ChalkInstance } from 'chalk'
 export { default as which } from 'which'

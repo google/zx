@@ -13,7 +13,8 @@
 // limitations under the License.
 
 import { $ } from './core.js'
-import { spinner } from './experimental.js'
+import { spinner } from './goods.js'
+import { depseek } from './vendor.js'
 
 export async function installDeps(
   dependencies: Record<string, string>,
@@ -88,39 +89,25 @@ const builtins = new Set([
   'worker_threads',
   'zlib',
 ])
-const importRe = [
-  /\bimport\s+['"](?<path>[^'"]+)['"]/,
-  /\bimport\(['"](?<path>[^'"]+)['"]\)/,
-  /\brequire\(['"](?<path>[^'"]+)['"]\)/,
-  /\bfrom\s+['"](?<path>[^'"]+)['"]/,
-]
+
 const nameRe =
   /^(?<name>(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*)\/?.*$/i
-const versionRe =
-  /(\/\/|\/\*)\s*@(?<version>[~^]?(v?[\dx*]+([-.][\d*a-z-]+)*))/i
+const versionRe = /^@(?<version>[~^]?(v?[\dx*]+([-.][\d*a-z-]+)*))/i
 
 export function parseDeps(content: Buffer): Record<string, string> {
-  const deps: Record<string, string> = {}
-  const lines = content.toString().split('\n')
-  for (let line of lines) {
-    const tuple = parseImports(line)
-    if (tuple) {
-      deps[tuple.name] = tuple.version
+  return depseek(content.toString() + '\n', { comments: true }).reduce<
+    Record<string, string>
+  >((m, { type, value }, i, list) => {
+    if (type === 'dep') {
+      const meta = list[i + 1]
+      const name = parsePackageName(value)
+      const version =
+        (meta?.type === 'comment' && parseVersion(meta?.value.trim())) ||
+        'latest'
+      if (name) m[name] = version
     }
-  }
-  return deps
-}
-
-function parseImports(
-  line: string
-): { name: string; version: string } | undefined {
-  for (let re of importRe) {
-    const name = parsePackageName(re.exec(line)?.groups?.path)
-    const version = parseVersion(line)
-    if (name) {
-      return { name, version }
-    }
-  }
+    return m
+  }, {})
 }
 
 function parsePackageName(path?: string): string | undefined {

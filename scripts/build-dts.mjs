@@ -37,6 +37,7 @@ const entry = {
       '@types/which',
       'zurk',
       '@webpod/ps',
+      'depseek',
     ], // args['external-inlines'],
   },
   output: {
