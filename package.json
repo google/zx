@@ -46,7 +46,6 @@
     "test:unit": "node ./test/all.test.js",
     "test:types": "tsd",
     "coverage": "c8 -x build/vendor.js -x 'test/**' -x scripts --check-coverage npm test",
-    "mutation": "stryker run",
     "circular": "madge --circular src/*",
     "version": "cat package.json | fx .version"
   },
@@ -55,7 +54,6 @@
     "@types/node": ">=20.11.30"
   },
   "devDependencies": {
-    "@stryker-mutator/core": "^6.4.2",
     "@types/fs-extra": "^11.0.4",
     "@types/minimist": "^1.2.5",
     "@types/node": ">=20.11.30",
