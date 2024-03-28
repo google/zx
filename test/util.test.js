@@ -67,6 +67,7 @@ describe('util', () => {
     assert.equal(parseDuration(1000), 1000)
     assert.equal(parseDuration('2s'), 2000)
     assert.equal(parseDuration('500ms'), 500)
+    assert.equal(parseDuration('2m'), 120000)
     assert.throws(() => parseDuration('100'))
     assert.throws(() => parseDuration(NaN))
     assert.throws(() => parseDuration(-1))
