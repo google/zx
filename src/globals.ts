@@ -42,7 +42,6 @@ declare global {
   var retry: typeof _.retry
   var sleep: typeof _.sleep
   var spinner: typeof _.spinner
-  var ssh: typeof _.ssh
   var stdin: typeof _.stdin
   var which: typeof _.which
   var within: typeof _.within
