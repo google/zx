@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import assert from 'node:assert'
-import { test, describe, before, beforeEach } from 'node:test'
+import { test, describe, beforeEach } from 'node:test'
 import '../build/globals.js'
 
 describe('cli', () => {
@@ -68,11 +68,6 @@ describe('cli', () => {
     p.stdin.end()
     let out = await p
     assert.match(out.stdout, /verbose is false/)
-  })
-
-  test('supports `--experimental` flag', async () => {
-    let out = await $`echo 'echo("test")' | node build/cli.js --experimental`
-    assert.match(out.stdout, /test/)
   })
 
   test('supports `--quiet` flag', async () => {

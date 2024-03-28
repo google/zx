@@ -37,3 +37,22 @@ jobs:
         timeout-minutes: 1
         env:
           FORCE_COLOR: 3
+
+  bun:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+      - name: Setup Bun
+        uses: antongolub/action-setup-bun@v1
+
+      - run: npm ci
+      - run: npm run build
+      - run: bun test ./test/bun.test.js
+        timeout-minutes: 1
+        env:
+          FORCE_COLOR: 3

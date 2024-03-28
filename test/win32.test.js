@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import assert from 'node:assert'
-import { test, describe, beforeEach } from 'node:test'
+import { test, describe } from 'node:test'
 import '../build/globals.js'
 
 const _describe = process.platform === 'win32' ? describe : describe.skip

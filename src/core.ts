@@ -32,6 +32,7 @@ import {
   errnoMessage,
   exitCodeInfo,
   formatCmd,
+  getCallerLocation,
   noop,
   parseDuration,
   quote,
@@ -128,7 +129,7 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
         })
       }
     }
-    const from = new Error().stack!.split(/^\s*at\s/m)[2].trim()
+    const from = getCallerLocation()
     if (pieces.some((p) => p == undefined)) {
       throw new Error(`Malformed command at ${from}`)
     }

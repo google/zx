@@ -355,3 +355,16 @@ const reservedWords = [
   'done',
   'in',
 ]
+
+export function getCallerLocation(err = new Error()) {
+  return getCallerLocationFromString(err.stack)
+}
+
+export function getCallerLocationFromString(stackString = 'unknown') {
+  return (
+    stackString
+      .split(/^\s*(at\s)?/m)
+      .filter((s) => s?.includes(':'))[2]
+      ?.trim() || stackString
+  )
+}
