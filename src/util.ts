@@ -361,5 +361,10 @@ export function getCallerLocation(err = new Error()) {
 }
 
 export function getCallerLocationFromString(stackString = 'unknown') {
-  return stackString.split(/^\s*(at\s)?/m).filter(s => s?.includes(':'))[2]?.trim() || stackString
+  return (
+    stackString
+      .split(/^\s*(at\s)?/m)
+      .filter((s) => s?.includes(':'))[2]
+      ?.trim() || stackString
+  )
 }
