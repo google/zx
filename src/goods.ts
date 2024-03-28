@@ -29,7 +29,7 @@ import {
 export { default as path } from 'node:path'
 export * as os from 'node:os'
 
-export let argv = minimist(process.argv.slice(2))
+export let argv = minimist(process.argv.slice(3))
 export function updateArgv(args: string[]) {
   argv = minimist(args)
   ;(global as any).argv = argv
