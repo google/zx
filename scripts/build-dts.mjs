@@ -32,7 +32,6 @@ const entry = {
       'node-fetch-native',
       'chalk',
       'globby',
-      'webpod',
       '@types/minimist',
       '@types/which',
       'zurk',

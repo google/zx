@@ -29,7 +29,6 @@ import {
   fs,
   which,
   YAML,
-  ssh,
   ps,
   quote,
   quotePowerShell,
@@ -88,7 +87,6 @@ describe('index', () => {
     assert(fs)
     assert(which)
     assert(YAML)
-    assert(ssh)
     assert(ps)
 
     // utils
