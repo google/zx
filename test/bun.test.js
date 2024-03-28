@@ -23,7 +23,7 @@ describe('bun', () => {
   })
 
   test('captures err stack', async () => {
-    const p = await $({nothrow: true})`echo foo; exit 3`
+    const p = await $({ nothrow: true })`echo foo; exit 3`
     assert.match(p.message, /exit code: 3/)
   })
 })
