@@ -44,7 +44,6 @@ function printUsage() {
    --prefix=<command>   prefix all commands
    --eval=<js>, -e      evaluate script 
    --install, -i        install dependencies
-   --experimental       enable experimental features
    --version, -v        print current zx version
    --help, -h           print help
    --repl               start repl
@@ -53,15 +52,7 @@ function printUsage() {
 
 const argv = minimist(process.argv.slice(2), {
   string: ['shell', 'prefix', 'eval'],
-  boolean: [
-    'version',
-    'help',
-    'quiet',
-    'verbose',
-    'install',
-    'repl',
-    'experimental',
-  ],
+  boolean: ['version', 'help', 'quiet', 'verbose', 'install', 'repl'],
   alias: { e: 'eval', i: 'install', v: 'version', h: 'help' },
   stopEarly: true,
 })
@@ -73,9 +64,6 @@ await (async function main() {
   if (argv.quiet) $.verbose = false
   if (argv.shell) $.shell = argv.shell
   if (argv.prefix) $.prefix = argv.prefix
-  if (argv.experimental) {
-    Object.assign(global, await import('./experimental.js'))
-  }
   if (argv.version) {
     console.log(getVersion())
     return

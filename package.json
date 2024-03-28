@@ -13,9 +13,6 @@
       "globals": [
         "./build/globals.d.ts"
       ],
-      "experimental": [
-        "./build/experimental.d.ts"
-      ],
       "cli": [
         "./build/cli.d.ts"
       ],
@@ -27,7 +24,6 @@
   "exports": {
     ".": "./build/index.js",
     "./globals": "./build/globals.js",
-    "./experimental": "./build/experimental.js",
     "./cli": "./build/cli.js",
     "./core": "./build/core.js",
     "./package.json": "./package.json"
@@ -81,7 +77,6 @@
     "prettier": "^3.2.5",
     "tsd": "^0.30.7",
     "typescript": "^5.4.3",
-    "webpod": "^1",
     "which": "^4.0.0",
     "yaml": "^2.4.1",
     "zurk": "^0.0.32"
