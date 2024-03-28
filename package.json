@@ -13,9 +13,6 @@
       "globals": [
         "./build/globals.d.ts"
       ],
-      "experimental": [
-        "./build/experimental.d.ts"
-      ],
       "cli": [
         "./build/cli.d.ts"
       ],
@@ -27,7 +24,6 @@
   "exports": {
     ".": "./build/index.js",
     "./globals": "./build/globals.js",
-    "./experimental": "./build/experimental.js",
     "./cli": "./build/cli.js",
     "./core": "./build/core.js",
     "./package.json": "./package.json"
