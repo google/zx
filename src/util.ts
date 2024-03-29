@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { chalk } from './vendor.js'
+import { chalk, parseLine } from './vendor.js'
 
 export function noop() {}
 
@@ -22,6 +22,24 @@ export function randomId() {
 
 export function isString(obj: any) {
   return typeof obj === 'string'
+}
+
+export function normalizeMultilinePieces(
+  pieces: TemplateStringsArray
+): TemplateStringsArray {
+  return Object.assign(
+    pieces.map((p, i) =>
+      p.trim()
+        ? parseLine(p)
+            .words.map(({ w, e, s }) => {
+              if (w === '\\') return ''
+              return w.trim() + (p[e + 1] === ' ' ? ' ' : '')
+            })
+            .join(' ')
+        : pieces[i]
+    ),
+    { raw: pieces }
+  )
 }
 
 export function quote(arg: string) {
