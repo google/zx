@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { spinner } from 'zx/experimental'
+import { spinner } from 'zx'
 
 const tests = await glob('test/*.test.js')
 await spinner('running tests', async () => {

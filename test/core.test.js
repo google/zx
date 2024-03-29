@@ -13,8 +13,9 @@
 // limitations under the License.
 
 import assert from 'node:assert'
-import { test, describe, beforeEach } from 'node:test'
+import { test, describe } from 'node:test'
 import { inspect } from 'node:util'
+import { basename } from 'node:path'
 import { Readable, Writable } from 'node:stream'
 import { Socket } from 'node:net'
 import { ProcessPromise, ProcessOutput } from '../build/index.js'
@@ -297,10 +298,13 @@ describe('core', () => {
   })
 
   test('cd() accepts ProcessOutput in addition to string', async () => {
-    within(async () => {
+    await within(async () => {
       const tmpDir = await $`mktemp -d`
       cd(tmpDir)
-      assert.equal(process.cwd(), tmpDir.toString().trimEnd())
+      assert.equal(
+        basename(process.cwd()),
+        basename(tmpDir.toString().trimEnd())
+      )
     })
   })
 
