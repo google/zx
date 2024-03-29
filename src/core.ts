@@ -556,7 +556,7 @@ function syncCwd() {
 
 export function cd(dir: string | ProcessOutput) {
   if (dir instanceof ProcessOutput) {
-    dir = dir.toString().replace(/\n+$/, '')
+    dir = dir.toString().trim()
   }
 
   $.log({ kind: 'cd', dir })
