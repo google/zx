@@ -197,7 +197,7 @@ export async function spinner<T>(
       result = await callback!()
     } finally {
       clearInterval(id as NodeJS.Timeout)
-      process.stderr.write(' '.repeat(process.stdout.columns - 1) + '\r')
+      process.stderr.write(' '.repeat((process.stdout.columns || 1) - 1) + '\r')
     }
     return result
   })
