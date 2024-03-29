@@ -34,6 +34,7 @@ import {
   formatCmd,
   getCallerLocation,
   noop,
+  normalizeMultilinePieces,
   parseDuration,
   quote,
   quotePowerShell,
@@ -137,10 +138,9 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
     const promise = new ProcessPromise((...args) => ([resolve, reject] = args))
     const cmd = buildCmd(
       $.quote,
-      pieces as TemplateStringsArray,
+      normalizeMultilinePieces(pieces as TemplateStringsArray),
       args
     ) as string
-
     const snapshot = getStore()
     const sync = snapshot[syncExec]
     const callback = () => promise.isHalted || promise.run()

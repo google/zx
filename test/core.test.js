@@ -48,6 +48,28 @@ describe('core', () => {
     assert.equal((await $`echo -n ${''}`).toString(), '')
   })
 
+  test('handles multiline literals', async () => {
+    assert.equal(
+      (
+        await $`echo foo
+     bar
+     "baz
+      qux"
+`
+      ).toString(),
+      'foo bar baz\n      qux\n'
+    )
+    assert.equal(
+      (
+        await $`echo foo \
+                     bar \
+                     baz \
+`
+      ).toString(),
+      'foo bar baz\n'
+    )
+  })
+
   test('can create a dir with a space in the name', async () => {
     let name = 'foo bar'
     try {
