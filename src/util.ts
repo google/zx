@@ -31,7 +31,7 @@ export function normalizeMultilinePieces(
     pieces.map((p, i) =>
       p.trim()
         ? parseLine(p)
-            .words.map(({ w, e, s }) => {
+            .words.map(({ w, e }) => {
               if (w === '\\') return ''
               return w.trim() + (p[e + 1] === ' ' ? ' ' : '')
             })
