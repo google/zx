@@ -38,7 +38,7 @@ export function normalizeMultilinePieces(
             .join(' ')
         : pieces[i]
     ),
-    { raw: pieces }
+    { raw: pieces.raw }
   )
 }
 
