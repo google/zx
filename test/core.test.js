@@ -139,6 +139,13 @@ describe('core', () => {
     assert.equal((await p5).stdout, 'baz')
   })
 
+  test('requires $.shell to be specified', async () => {
+    await within(() => {
+      $.shell = undefined
+      assert.throws(() => $`echo foo`, /shell/)
+    })
+  })
+
   test('`$.sync()` provides synchronous API', () => {
     const o1 = $.sync`echo foo`
     const o2 = $({ sync: true })`echo foo`

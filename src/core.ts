@@ -103,19 +103,23 @@ export const defaults: Options = {
   kill,
 }
 const isWin = process.platform == 'win32'
-try {
-  defaults.shell = which.sync('bash')
-  defaults.prefix = 'set -euo pipefail;'
-  defaults.quote = quote
-} catch (err) {
-  if (isWin) {
-    try {
-      defaults.shell = which.sync('powershell.exe')
-      defaults.postfix = '; exit $LastExitCode'
-      defaults.quote = quotePowerShell
-    } catch (err) {
-      // no powershell?
-    }
+
+export function setupPowerShell() {
+  $.shell = which.sync('powershell.exe')
+  $.prefix = ''
+  $.postfix = '; exit $LastExitCode'
+  $.quote = quotePowerShell
+}
+
+export function setupBash() {
+  $.shell = which.sync('bash')
+  $.prefix = 'set -euo pipefail;'
+  $.quote = quote
+}
+
+function checkShell() {
+  if (!$.shell) {
+    throw new Error(`shell is not available: setup guide goes here`)
   }
 }
 
@@ -125,6 +129,8 @@ function getStore() {
 
 export const $: Shell & Options = new Proxy<Shell & Options>(
   function (pieces, ...args) {
+    checkShell()
+
     if (!Array.isArray(pieces)) {
       return function (this: any, ...args: any) {
         const self = this
@@ -178,6 +184,10 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
     },
   }
 )
+
+try {
+  setupBash()
+} catch (err) {}
 
 type Resolve = (out: ProcessOutput) => void
 type IO = StdioPipe | StdioNull

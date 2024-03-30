@@ -22,9 +22,10 @@ _describe('win32', () => {
   test('should work with windows-specific commands', async () => {
     const p = await $`echo $0` // Bash is first by default.
     assert.match(p.stdout, /bash/)
+
     await within(async () => {
-      $.shell = which.sync('powershell.exe')
-      $.quote = quotePowerShell
+      setupPowerShell()
+      assert.match($.shell, /powershell/i)
       const p = await $`get-host`
       assert.match(p.stdout, /PowerShell/)
     })
@@ -32,8 +33,7 @@ _describe('win32', () => {
 
   test('quotePowerShell works', async () => {
     await within(async () => {
-      $.shell = which.sync('powershell.exe')
-      $.quote = quotePowerShell
+      setupPowerShell()
       const p = await $`echo ${`Windows 'rulez!'`}`
       assert.match(p.stdout, /Windows 'rulez!'/)
     })

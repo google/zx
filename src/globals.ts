@@ -31,6 +31,7 @@ declare global {
   var fs: typeof _.fs
   var glob: typeof _.glob
   var globby: typeof _.globby
+  var kill: typeof _.kill
   var minimist: typeof _.minimist
   var nothrow: typeof _.nothrow
   var os: typeof _.os
@@ -40,6 +41,7 @@ declare global {
   var quote: typeof _.quote
   var quotePowerShell: typeof _.quotePowerShell
   var retry: typeof _.retry
+  var setupPowerShell: typeof _.setupPowerShell
   var sleep: typeof _.sleep
   var spinner: typeof _.spinner
   var stdin: typeof _.stdin
