@@ -104,18 +104,27 @@ export const defaults: Options = {
 }
 const isWin = process.platform == 'win32'
 try {
+  setupBash()
+} catch (err) {}
+
+export function setupPowerShell() {
+  if (!isWin) throw new Error('PowerShell is only available on Windows')
+
+  defaults.shell = which.sync('powershell.exe')
+  defaults.prefix = ''
+  defaults.postfix = '; exit $LastExitCode'
+  defaults.quote = quotePowerShell
+}
+
+export function setupBash() {
   defaults.shell = which.sync('bash')
   defaults.prefix = 'set -euo pipefail;'
   defaults.quote = quote
-} catch (err) {
-  if (isWin) {
-    try {
-      defaults.shell = which.sync('powershell.exe')
-      defaults.postfix = '; exit $LastExitCode'
-      defaults.quote = quotePowerShell
-    } catch (err) {
-      // no powershell?
-    }
+}
+
+function checkShell() {
+  if (!$.shell) {
+    throw new Error(`shell is not available: setup guide goes here`)
   }
 }
 
@@ -125,6 +134,8 @@ function getStore() {
 
 export const $: Shell & Options = new Proxy<Shell & Options>(
   function (pieces, ...args) {
+    checkShell()
+
     if (!Array.isArray(pieces)) {
       return function (this: any, ...args: any) {
         const self = this
