@@ -22,8 +22,10 @@ _describe('win32', () => {
   test('should work with windows-specific commands', async () => {
     const p = await $`echo $0` // Bash is first by default.
     assert.match(p.stdout, /bash/)
+
     await within(async () => {
       setupPowerShell()
+      assert.match($.shell, /powershell/i)
       const p = await $`get-host`
       assert.match(p.stdout, /PowerShell/)
     })

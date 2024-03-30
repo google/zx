@@ -103,23 +103,18 @@ export const defaults: Options = {
   kill,
 }
 const isWin = process.platform == 'win32'
-try {
-  setupBash()
-} catch (err) {}
 
 export function setupPowerShell() {
-  if (!isWin) throw new Error('PowerShell is only available on Windows')
-
-  defaults.shell = which.sync('powershell.exe')
-  defaults.prefix = ''
-  defaults.postfix = '; exit $LastExitCode'
-  defaults.quote = quotePowerShell
+  $.shell = which.sync('powershell.exe')
+  $.prefix = ''
+  $.postfix = '; exit $LastExitCode'
+  $.quote = quotePowerShell
 }
 
 export function setupBash() {
-  defaults.shell = which.sync('bash')
-  defaults.prefix = 'set -euo pipefail;'
-  defaults.quote = quote
+  $.shell = which.sync('bash')
+  $.prefix = 'set -euo pipefail;'
+  $.quote = quote
 }
 
 function checkShell() {
@@ -189,6 +184,10 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
     },
   }
 )
+
+try {
+  setupBash()
+} catch (err) {}
 
 type Resolve = (out: ProcessOutput) => void
 type IO = StdioPipe | StdioNull

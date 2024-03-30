@@ -139,16 +139,10 @@ describe('core', () => {
     assert.equal((await p5).stdout, 'baz')
   })
 
-  describe('shell', () => {
-    test('requires $.shell to be specified', async () => {
-      await within(() => {
-        $.shell = undefined
-        assert.throws(() => $`echo foo`, /shell/)
-      })
-    })
-
-    test('setupPowerShell() requires windows', () => {
-      assert.throws(() => setupPowerShell(), /on Windows/)
+  test('requires $.shell to be specified', async () => {
+    await within(() => {
+      $.shell = undefined
+      assert.throws(() => $`echo foo`, /shell/)
     })
   })
 
