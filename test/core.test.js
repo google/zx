@@ -516,13 +516,35 @@ describe('core', () => {
     assert.equal(await $`[[ -f README.md ]]`.exitCode, 0)
   })
 
-  test('nothrow() do not throw', async () => {
+  test('nothrow() does not throw', async () => {
     let { exitCode } = await $`exit 42`.nothrow()
     assert.equal(exitCode, 42)
     {
       // Deprecated.
       let { exitCode } = await nothrow($`exit 42`)
       assert.equal(exitCode, 42)
+    }
+  })
+
+  test('nothrow() accepts a filter', async () => {
+    assert.equal((await $`exit 42`.nothrow(42)).exitCode, 42)
+    assert.equal((await $({ nothrow: [42] })`exit 42`).exitCode, 42)
+    assert.equal(
+      (
+        await $({
+          nothrow(code) {
+            return code === 42
+          },
+        })`exit 42`
+      ).exitCode,
+      42
+    )
+
+    try {
+      await $`exit 42`.nothrow(1)
+      assert.unreachable('should throw')
+    } catch (p) {
+      assert.equal(p.exitCode, 42)
     }
   })
 

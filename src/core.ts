@@ -62,7 +62,7 @@ export interface Options {
   sync: boolean
   env: NodeJS.ProcessEnv
   shell: string | boolean
-  nothrow: boolean
+  nothrow: boolean | number[] | ((status: number | null) => boolean)
   prefix: string
   postfix: string
   quote: typeof quote
@@ -121,6 +121,15 @@ function checkShell() {
   if (!$.shell) {
     throw new Error(`shell is not available: setup guide goes here`)
   }
+}
+
+function checkStatus(status: number | null, nothrow: Options['nothrow']) {
+  return (
+    status === 0 ||
+    (typeof nothrow === 'function'
+      ? nothrow(status)
+      : (nothrow as number[])?.includes?.(status as number) ?? nothrow)
+  )
 }
 
 function getStore() {
@@ -199,7 +208,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _reject: Resolve = noop
   private _snapshot = getStore()
   private _stdio: [IO, IO, IO] = ['inherit', 'pipe', 'pipe']
-  private _nothrow?: boolean
+  private _nothrow?: Options['nothrow']
   private _quiet?: boolean
   private _timeout?: number
   private _timeoutSignal = 'SIGTERM'
@@ -306,7 +315,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
               message
             )
             self._output = output
-            if (status === 0 || (self._nothrow ?? $.nothrow)) {
+            if (checkStatus(status, self._nothrow ?? $.nothrow)) {
               self._resolve(output)
             } else {
               self._reject(output)
@@ -429,8 +438,17 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this
   }
 
-  nothrow(): ProcessPromise {
-    this._nothrow = true
+  nothrow(
+    ...codes: number[] | [(status: number | null) => boolean]
+  ): ProcessPromise {
+    if (codes.length === 0) {
+      this._nothrow = true
+    } else if (typeof codes[0] === 'function') {
+      this._nothrow = codes[0]
+    } else {
+      this._nothrow = codes as number[]
+    }
+
     return this
   }
 
