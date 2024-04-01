@@ -35,7 +35,7 @@ jobs:
         with:
           name: build
       - run: npm ci
-      - run: npm test:unit
+      - run: npm run test:unit
         timeout-minutes: 1
         env:
           FORCE_COLOR: 3
