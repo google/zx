@@ -14,7 +14,6 @@
 
 import assert from 'assert'
 import '../../build/globals.js'
-
 ;(async () => {
   // smoke test
   {
