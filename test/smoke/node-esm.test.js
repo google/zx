@@ -28,3 +28,5 @@ import '../../build/globals.js'
     assert.match(p.message, /exit code: 3/)
   }
 })()
+
+console.log('smoke: ok')

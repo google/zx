@@ -46,7 +46,7 @@
     "test:unit": "node ./test/all.test.js",
     "test:types": "tsd",
     "test:smoke:bun": "bun test ./test/smoke/bun.test.js",
-    "test:smoke:node-14": "node --experimental-modules ./test/smoke/node-esm.test.js",
+    "test:smoke:node14": "node --experimental-modules ./test/smoke/node-esm.test.js",
     "test:smoke:win32": "node ./test/smoke/win32.test.js",
     "coverage": "c8 -x build/vendor.js -x 'test/**' -x scripts --check-coverage npm test",
     "circular": "madge --circular src/*",

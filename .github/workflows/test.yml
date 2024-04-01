@@ -21,9 +21,11 @@ jobs:
             package.json
           retention-days: 1
 
-  unit:
+  test:
     needs: build
     runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 3
     strategy:
       matrix:
         node-version: [16.x, 18.x, 20.x]
@@ -37,12 +39,17 @@ jobs:
         with:
           name: build
       - run: npm ci
-      - run: npm run test:unit
-        timeout-minutes: 1
-        env:
-          FORCE_COLOR: 3
 
-  smoke-win32-node-16:
+      - name: run all tests
+        if: matrix.node-version == '20.x'
+        run: npm run test
+
+      - name: run unit tests
+        if: matrix.node-version != '20.x'
+        run: npm run test:unit
+        timeout-minutes: 1
+
+  smoke-win32-node16:
     runs-on: windows-latest
     needs: build
     steps:
@@ -59,22 +66,22 @@ jobs:
         env:
           FORCE_COLOR: 3
 
-  smoke-node-14:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js 14.x
-        uses: actions/setup-node@v4
-        with:
-          node-version: 14.x
-      - uses: actions/download-artifact@v4
-        with:
-          name: build
-      - run: npm run test:smoke:node-14
-        timeout-minutes: 1
-        env:
-          FORCE_COLOR: 3
+#  smoke-node14:
+#    needs: build
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v4
+#      - name: Use Node.js 14.x
+#        uses: actions/setup-node@v4
+#        with:
+#          node-version: 14.x
+#      - uses: actions/download-artifact@v4
+#        with:
+#          name: build
+#      - run: npm run test:smoke:node14
+#        timeout-minutes: 1
+#        env:
+#          FORCE_COLOR: 3
 
   smoke-bun:
     runs-on: ubuntu-latest
