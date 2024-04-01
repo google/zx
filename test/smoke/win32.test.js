@@ -14,7 +14,7 @@
 
 import assert from 'node:assert'
 import { test, describe } from 'node:test'
-import '../build/globals.js'
+import '../../build/globals.js'
 
 const _describe = process.platform === 'win32' ? describe : describe.skip
 

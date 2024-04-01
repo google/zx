@@ -30,6 +30,7 @@ const argv = minimist(process.argv.slice(2), {
     minify: false,
     sourcemap: false,
     format: 'cjs,esm',
+    target: 'node12',
     cwd: process.cwd(),
   },
   boolean: ['minify', 'sourcemap', 'banner'],

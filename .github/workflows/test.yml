@@ -3,56 +3,95 @@ name: Test
 on: [push, pull_request]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [16.x, 18.x, 20.x]
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-      - run: npm ci
-      - run: npm test
-        timeout-minutes: 1
-        env:
-          FORCE_COLOR: 3
-
-  win32:
-    runs-on: windows-latest
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js 16.x
-        uses: actions/setup-node@v4
-        with:
-          node-version: 16.x
-      - run: npm ci
-      - run: npm run build
-      - run: node ./test/win32.test.js
-        timeout-minutes: 1
-        env:
-          FORCE_COLOR: 3
-
-  bun:
-    runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js 20.x
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
-      - name: Setup Bun
-        uses: antongolub/action-setup-bun@v1
-
       - run: npm ci
       - run: npm run build
-      - run: bun test ./test/bun.test.js
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: |
+            build
+            package.json
+          retention-days: 1
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 3
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x, 20.x]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: build
+      - run: npm ci
+      - name: run all tests
+        if: matrix.node-version == '20.x'
+        run: npm run test
+      - name: run unit tests
+        if: matrix.node-version != '20.x'
+        run: npm run test:unit
+        timeout-minutes: 1
+
+  smoke-win32-node16:
+    runs-on: windows-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 16.x
+      - uses: actions/download-artifact@v4
+        with:
+          name: build
+      - run: npm run test:smoke:win32
+        timeout-minutes: 1
+        env:
+          FORCE_COLOR: 3
+
+  #  smoke-node14:
+  #    needs: build
+  #    runs-on: ubuntu-latest
+  #    steps:
+  #      - uses: actions/checkout@v4
+  #      - name: Use Node.js 14.x
+  #        uses: actions/setup-node@v4
+  #        with:
+  #          node-version: 14.x
+  #      - uses: actions/download-artifact@v4
+  #        with:
+  #          name: build
+  #      - run: npm run test:smoke:node14
+  #        timeout-minutes: 1
+  #        env:
+  #          FORCE_COLOR: 3
+
+  smoke-bun:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Bun
+        uses: antongolub/action-setup-bun@v1
+      - uses: actions/download-artifact@v4
+        with:
+          name: build
+      - run: bun test ./test/smoke/bun.test.js
         timeout-minutes: 1
         env:
           FORCE_COLOR: 3
