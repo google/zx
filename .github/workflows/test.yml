@@ -16,7 +16,9 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: build
-          path: build
+          path: |
+            build
+            package.json
           retention-days: 1
 
   unit:
