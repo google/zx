@@ -64,23 +64,6 @@ jobs:
         env:
           FORCE_COLOR: 3
 
-  #  smoke-node14:
-  #    needs: build
-  #    runs-on: ubuntu-latest
-  #    steps:
-  #      - uses: actions/checkout@v4
-  #      - name: Use Node.js 14.x
-  #        uses: actions/setup-node@v4
-  #        with:
-  #          node-version: 14.x
-  #      - uses: actions/download-artifact@v4
-  #        with:
-  #          name: build
-  #      - run: npm run test:smoke:node14
-  #        timeout-minutes: 1
-  #        env:
-  #          FORCE_COLOR: 3
-
   smoke-bun:
     runs-on: ubuntu-latest
     needs: build
