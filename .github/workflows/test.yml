@@ -3,44 +3,79 @@ name: Test
 on: [push, pull_request]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: build
+          retention-days: 1
 
+  unit:
+    needs: build
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [16.x, 18.x, 20.x]
-
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: build
       - run: npm ci
-      - run: npm test
+      - run: npm test:unit
         timeout-minutes: 1
         env:
           FORCE_COLOR: 3
 
-  win32:
+  smoke-win32-node-16:
     runs-on: windows-latest
-
+    needs: build
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js 16.x
         uses: actions/setup-node@v4
         with:
           node-version: 16.x
-      - run: npm ci
-      - run: npm run build
-      - run: node ./test/win32.test.js
+      - uses: actions/download-artifact@v4
+        with:
+          name: build
+      - run: npm run test:smoke:win32
         timeout-minutes: 1
         env:
           FORCE_COLOR: 3
 
-  bun:
+  smoke-node-14:
+    needs: build
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 14.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 14.x
+      - uses: actions/download-artifact@v4
+        with:
+          name: build
+      - run: npm run test:smoke:node-14
+        timeout-minutes: 1
+        env:
+          FORCE_COLOR: 3
 
+  smoke-bun:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js 20.x
@@ -52,7 +87,7 @@ jobs:
 
       - run: npm ci
       - run: npm run build
-      - run: bun test ./test/bun.test.js
+      - run: npm run test:smoke:bun
         timeout-minutes: 1
         env:
           FORCE_COLOR: 3

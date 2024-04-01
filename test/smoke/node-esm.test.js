@@ -12,18 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import assert from 'node:assert'
-import { test, describe } from 'bun:test'
-import '../build/globals.js'
+import assert from 'assert'
+import '../../build/globals.js'
 
-describe('bun', () => {
-  test('smoke test', async () => {
-    const p = await $`echo foo`
-    assert.match(p.stdout, /foo/)
-  })
+(async () => {
 
-  test('captures err stack', async () => {
-    const p = await $({ nothrow: true })`echo foo; exit 3`
-    assert.match(p.message, /exit code: 3/)
-  })
-})
+// smoke test
+{
+  const p = await $`echo foo`
+  assert.match(p.stdout, /foo/)
+}
+
+// captures err stack
+{
+  const p = await $({ nothrow: true })`echo foo; exit 3`
+  assert.match(p.message, /exit code: 3/)
+}
+
+})()
