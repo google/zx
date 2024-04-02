@@ -233,10 +233,11 @@ describe('core', () => {
   })
 
   test('$.cwdHook is configurable', () => {
-    $.cwdHook = false
-    assert.equal($.cwdHook, false)
     $.cwdHook = true
     assert.equal($.cwdHook, true)
+
+    $.cwdHook = false
+    assert.equal($.cwdHook, false)
   })
 
   test('cd() works with relative paths', async () => {
@@ -270,7 +271,8 @@ describe('core', () => {
     }
   })
 
-  test('cd() does not affect parallel contexts', async () => {
+  test('cd() does not affect parallel contexts ($.cwdHook enabled)', async () => {
+    $.cwdHook = true
     const cwd = process.cwd()
     try {
       fs.mkdirpSync('/tmp/zx-cd-parallel/one/two')
@@ -304,6 +306,7 @@ describe('core', () => {
     } finally {
       fs.rmSync('/tmp/zx-cd-parallel', { recursive: true })
       cd(cwd)
+      $.cwdHook = false
     }
   })
 

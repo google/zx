@@ -191,7 +191,7 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
     },
   }
 )
-$.cwdHook = true
+$.cwdHook = false
 try {
   setupBash()
 } catch (err) {}
