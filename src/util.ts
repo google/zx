@@ -24,18 +24,19 @@ export function isString(obj: any) {
   return typeof obj === 'string'
 }
 
+const pad = (v: string) => (v === ' ' ? ' ' : '')
+
 export function normalizeMultilinePieces(
   pieces: TemplateStringsArray
 ): TemplateStringsArray {
   return Object.assign(
     pieces.map((p, i) =>
       p.trim()
-        ? parseLine(p)
-            .words.map(({ w, e }) => {
-              if (w === '\\') return ''
-              return w.trim() + (p[e + 1] === ' ' ? ' ' : '')
-            })
-            .join(' ')
+        ? pad(p[0]) +
+          parseLine(p)
+            .words.map(({ w }) => (w === '\\' ? '' : w.trim()))
+            .join(' ') +
+          pad(p[p.length - 1])
         : pieces[i]
     ),
     { raw: pieces.raw }
