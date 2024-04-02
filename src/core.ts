@@ -38,6 +38,7 @@ import {
   parseDuration,
   quote,
   quotePowerShell,
+  noquote,
 } from './util.js'
 
 export interface Shell {
@@ -56,6 +57,7 @@ export interface Options {
   [processCwd]: string
   [syncExec]: boolean
   cwd?: string
+  cwdHook?: boolean
   ac?: AbortController
   input?: string | Buffer | Readable | ProcessOutput | ProcessPromise
   verbose: boolean
@@ -74,14 +76,14 @@ export interface Options {
 }
 
 const storage = new AsyncLocalStorage<Options>()
-const hook = createHook({
+const cwdHook = createHook({
   init: syncCwd,
   before: syncCwd,
   promiseResolve: syncCwd,
   after: syncCwd,
   destroy: syncCwd,
 })
-hook.enable()
+cwdHook.enable()
 
 export const defaults: Options = {
   [processCwd]: process.cwd(),
@@ -94,9 +96,7 @@ export const defaults: Options = {
   quiet: false,
   prefix: '',
   postfix: '',
-  quote: () => {
-    throw new Error('No quote function is defined: https://ï.at/no-quote-func')
-  },
+  quote: noquote,
   spawn,
   spawnSync,
   log,
@@ -171,6 +171,12 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
   } as Shell & Options,
   {
     set(_, key, value) {
+      if (key === 'cwdHook') {
+        if (value) cwdHook.enable()
+        else cwdHook.disable()
+        return true
+      }
+
       const target = key in Function.prototype ? _ : getStore()
       Reflect.set(target, key === 'sync' ? syncExec : key, value)
 
