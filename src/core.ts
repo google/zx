@@ -14,7 +14,7 @@
 
 import assert from 'node:assert'
 import { spawn, spawnSync, StdioNull, StdioPipe } from 'node:child_process'
-import { AsyncLocalStorage, createHook } from 'node:async_hooks'
+import { AsyncHook, AsyncLocalStorage, createHook } from 'node:async_hooks'
 import { Readable, Writable } from 'node:stream'
 import { inspect } from 'node:util'
 import {
@@ -76,14 +76,13 @@ export interface Options {
 }
 
 const storage = new AsyncLocalStorage<Options>()
-const cwdHook = createHook({
+const cwdHook: AsyncHook & { enabled?: boolean } = createHook({
   init: syncCwd,
   before: syncCwd,
   promiseResolve: syncCwd,
   after: syncCwd,
   destroy: syncCwd,
 })
-cwdHook.enable()
 
 export const defaults: Options = {
   [processCwd]: process.cwd(),
@@ -172,6 +171,7 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
   {
     set(_, key, value) {
       if (key === 'cwdHook') {
+        cwdHook.enabled = !!value
         if (value) cwdHook.enable()
         else cwdHook.disable()
         return true
@@ -184,13 +184,14 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
     },
     get(_, key) {
       if (key === 'sync') return $({ sync: true })
+      if (key === 'cwdHook') return cwdHook.enabled
 
       const target = key in Function.prototype ? _ : getStore()
       return Reflect.get(target, key)
     },
   }
 )
-
+$.cwdHook = true
 try {
   setupBash()
 } catch (err) {}

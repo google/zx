@@ -232,6 +232,13 @@ describe('core', () => {
     assert.ok((await p) == 'foo')
   })
 
+  test('$.cwdHook is configurable', () => {
+    $.cwdHook = false
+    assert.equal($.cwdHook, false)
+    $.cwdHook = true
+    assert.equal($.cwdHook, true)
+  })
+
   test('cd() works with relative paths', async () => {
     let cwd = process.cwd()
     try {
