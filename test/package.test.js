@@ -13,10 +13,12 @@
 // limitations under the License.
 
 import assert from 'node:assert'
-import { test, describe, beforeEach } from 'node:test'
+import { test, describe, beforeEach, before, after } from 'node:test'
 import '../build/globals.js'
 
 describe('package', () => {
+  before(() => syncProcessCwd())
+  after(() => syncProcessCwd(false))
   beforeEach(async () => {
     const pack = await $`npm pack`
     await $`tar xf ${pack}`

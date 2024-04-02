@@ -14,7 +14,7 @@
 
 import assert from 'node:assert'
 import { spawn, spawnSync, StdioNull, StdioPipe } from 'node:child_process'
-import { AsyncLocalStorage, createHook } from 'node:async_hooks'
+import { AsyncHook, AsyncLocalStorage, createHook } from 'node:async_hooks'
 import { Readable, Writable } from 'node:stream'
 import { inspect } from 'node:util'
 import {
@@ -38,6 +38,7 @@ import {
   parseDuration,
   quote,
   quotePowerShell,
+  noquote,
 } from './util.js'
 
 export interface Shell {
@@ -74,14 +75,18 @@ export interface Options {
 }
 
 const storage = new AsyncLocalStorage<Options>()
-const hook = createHook({
+const cwdSyncHook: AsyncHook & { enabled?: boolean } = createHook({
   init: syncCwd,
   before: syncCwd,
   promiseResolve: syncCwd,
   after: syncCwd,
   destroy: syncCwd,
 })
-hook.enable()
+
+export function syncProcessCwd(flag: boolean = true) {
+  if (flag) cwdSyncHook.enable()
+  else cwdSyncHook.disable()
+}
 
 export const defaults: Options = {
   [processCwd]: process.cwd(),
@@ -94,9 +99,7 @@ export const defaults: Options = {
   quiet: false,
   prefix: '',
   postfix: '',
-  quote: () => {
-    throw new Error('No quote function is defined: https://ï.at/no-quote-func')
-  },
+  quote: noquote,
   spawn,
   spawnSync,
   log,
@@ -104,14 +107,14 @@ export const defaults: Options = {
 }
 const isWin = process.platform == 'win32'
 
-export function setupPowerShell() {
+export function usePowerShell() {
   $.shell = which.sync('powershell.exe')
   $.prefix = ''
   $.postfix = '; exit $LastExitCode'
   $.quote = quotePowerShell
 }
 
-export function setupBash() {
+export function useBash() {
   $.shell = which.sync('bash')
   $.prefix = 'set -euo pipefail;'
   $.quote = quote
@@ -184,9 +187,8 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
     },
   }
 )
-
 try {
-  setupBash()
+  useBash()
 } catch (err) {}
 
 type Resolve = (out: ProcessOutput) => void

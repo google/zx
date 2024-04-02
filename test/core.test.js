@@ -263,25 +263,26 @@ describe('core', () => {
     }
   })
 
-  test('cd() does affect parallel contexts', async () => {
+  test('cd() does not affect parallel contexts ($.cwdSyncHook enabled)', async () => {
+    syncProcessCwd()
     const cwd = process.cwd()
     try {
       fs.mkdirpSync('/tmp/zx-cd-parallel/one/two')
       await Promise.all([
         within(async () => {
           assert.equal(process.cwd(), cwd)
-          await sleep(1)
           cd('/tmp/zx-cd-parallel/one')
+          await sleep(Math.random() * 15)
           assert.ok(process.cwd().endsWith('/tmp/zx-cd-parallel/one'))
         }),
         within(async () => {
           assert.equal(process.cwd(), cwd)
-          await sleep(2)
+          await sleep(Math.random() * 15)
           assert.equal(process.cwd(), cwd)
         }),
         within(async () => {
           assert.equal(process.cwd(), cwd)
-          await sleep(3)
+          await sleep(Math.random() * 15)
           $.cwd = '/tmp/zx-cd-parallel/one/two'
           assert.equal(process.cwd(), cwd)
           assert.ok(
@@ -297,6 +298,7 @@ describe('core', () => {
     } finally {
       fs.rmSync('/tmp/zx-cd-parallel', { recursive: true })
       cd(cwd)
+      syncProcessCwd(false)
     }
   })
 
