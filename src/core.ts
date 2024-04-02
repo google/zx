@@ -57,7 +57,6 @@ export interface Options {
   [processCwd]: string
   [syncExec]: boolean
   cwd?: string
-  cwdHook?: boolean
   ac?: AbortController
   input?: string | Buffer | Readable | ProcessOutput | ProcessPromise
   verbose: boolean
@@ -76,13 +75,18 @@ export interface Options {
 }
 
 const storage = new AsyncLocalStorage<Options>()
-const cwdHook: AsyncHook & { enabled?: boolean } = createHook({
+const cwdSyncHook: AsyncHook & { enabled?: boolean } = createHook({
   init: syncCwd,
   before: syncCwd,
   promiseResolve: syncCwd,
   after: syncCwd,
   destroy: syncCwd,
 })
+
+export function syncProcessCwd(flag: boolean = true) {
+  if (flag) cwdSyncHook.enable()
+  else cwdSyncHook.disable()
+}
 
 export const defaults: Options = {
   [processCwd]: process.cwd(),
@@ -103,14 +107,14 @@ export const defaults: Options = {
 }
 const isWin = process.platform == 'win32'
 
-export function setupPowerShell() {
+export function usePowerShell() {
   $.shell = which.sync('powershell.exe')
   $.prefix = ''
   $.postfix = '; exit $LastExitCode'
   $.quote = quotePowerShell
 }
 
-export function setupBash() {
+export function useBash() {
   $.shell = which.sync('bash')
   $.prefix = 'set -euo pipefail;'
   $.quote = quote
@@ -170,13 +174,6 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
   } as Shell & Options,
   {
     set(_, key, value) {
-      if (key === 'cwdHook') {
-        cwdHook.enabled = !!value
-        if (value) cwdHook.enable()
-        else cwdHook.disable()
-        return true
-      }
-
       const target = key in Function.prototype ? _ : getStore()
       Reflect.set(target, key === 'sync' ? syncExec : key, value)
 
@@ -184,16 +181,14 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
     },
     get(_, key) {
       if (key === 'sync') return $({ sync: true })
-      if (key === 'cwdHook') return cwdHook.enabled
 
       const target = key in Function.prototype ? _ : getStore()
       return Reflect.get(target, key)
     },
   }
 )
-$.cwdHook = false
 try {
-  setupBash()
+  useBash()
 } catch (err) {}
 
 type Resolve = (out: ProcessOutput) => void

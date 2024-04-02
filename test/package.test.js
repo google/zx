@@ -17,8 +17,8 @@ import { test, describe, beforeEach, before, after } from 'node:test'
 import '../build/globals.js'
 
 describe('package', () => {
-  before(() => $.cwdHook = true)
-  after(() => $.cwdHook = false)
+  before(() => syncProcessCwd())
+  after(() => syncProcessCwd(false))
   beforeEach(async () => {
     const pack = await $`npm pack`
     await $`tar xf ${pack}`

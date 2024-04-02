@@ -20,6 +20,9 @@ import {
   $,
   log,
   cd,
+  syncProcessCwd,
+  usePowerShell,
+  useBash,
   kill,
   ProcessOutput,
   ProcessPromise,
@@ -60,10 +63,13 @@ describe('index', () => {
     assert(ProcessOutput)
     assert(ProcessPromise)
     assert(cd)
+    assert(syncProcessCwd)
     assert(log)
     assert(kill)
     assert(defaults)
     assert(within)
+    assert(usePowerShell)
+    assert(useBash)
 
     // goods
     assert(argv)
