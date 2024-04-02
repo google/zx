@@ -24,6 +24,7 @@ import {
   quote,
   quotePowerShell,
   randomId,
+  normalizeMultilinePieces,
   getCallerLocationFromString,
 } from '../build/util.js'
 
@@ -90,6 +91,13 @@ describe('util', () => {
     assert.equal(
       formatCmd(`$'\\''`),
       "$ \u001b[93m$\u001b[39m\u001b[93m'\u001b[39m\u001b[93m\\\u001b[39m\u001b[93m'\u001b[39m\u001b[93m'\u001b[39m\n"
+    )
+  })
+
+  test('normalizeMultilinePieces()', () => {
+    assert.equal(
+      normalizeMultilinePieces([' a ', 'b    c    d', ' e']).join(','),
+      ' a ,b c d, e'
     )
   })
 })
