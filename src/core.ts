@@ -149,7 +149,7 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
     const promise = new ProcessPromise((...args) => ([resolve, reject] = args))
     const cmd = buildCmd(
       $.quote,
-      (pieces as TemplateStringsArray),
+      pieces as TemplateStringsArray,
       args
     ) as string
     const snapshot = getStore()
