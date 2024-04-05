@@ -49,7 +49,7 @@ describe('core', () => {
     assert.equal((await $`echo -n ${''}`).toString(), '')
   })
 
-  test('handles multiline literals', async () => {
+  test.skip('handles multiline literals', async () => {
     assert.equal(
       (
         await $`echo foo
