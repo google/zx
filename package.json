@@ -80,7 +80,7 @@
     "typescript": "^5.4.4",
     "which": "^4.0.0",
     "yaml": "^2.4.1",
-    "zurk": "^0.0.32"
+    "zurk": "^0.1.0"
   },
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"
