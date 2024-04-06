@@ -589,7 +589,11 @@ export async function kill(pid: number, signal?: string) {
   }
   try {
     process.kill(-pid, signal)
-  } catch (e) {}
+  } catch (e) {
+    try {
+      process.kill(+pid, signal)
+    } catch (e) {}
+  }
 }
 
 export type LogEntry =
