@@ -342,6 +342,20 @@ describe('core', () => {
     }
   })
 
+  test('accepts AbortController `signal` separately', async () => {
+    const ac = new AbortController()
+    const signal = ac.signal
+    const p = $({ signal })`sleep 9999`
+    setTimeout(() => ac.abort(), 100)
+
+    try {
+      await p
+      assert.unreachable('should have thrown')
+    } catch ({ message }) {
+      assert.match(message, /The operation was aborted/)
+    }
+  })
+
   test('kill() method works', async () => {
     let p = $`sleep 9999`.nothrow()
     setTimeout(() => {

@@ -57,6 +57,7 @@ export interface Options {
   [syncExec]: boolean
   cwd?: string
   ac?: AbortController
+  signal?: AbortSignal
   input?: string | Buffer | Readable | ProcessOutput | ProcessPromise
   verbose: boolean
   sync: boolean
@@ -247,6 +248,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       cmd: $.prefix + this._command + $.postfix,
       cwd: $.cwd ?? $[processCwd],
       ac: $.ac,
+      signal: $.signal,
       shell: typeof $.shell === 'string' ? $.shell : true,
       env: $.env,
       spawn: $.spawn,
