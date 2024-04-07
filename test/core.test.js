@@ -451,6 +451,12 @@ describe('core', () => {
     assert.equal((await b).stdout, 'bar')
   })
 
+  test('stdio as option', async () => {
+    let p = $({ stdio: 'ignore' })`echo foo`
+
+    assert.equal((await p).stdout, '')
+  })
+
   test('snapshots works', async () => {
     await within(async () => {
       $.prefix += 'echo success;'
