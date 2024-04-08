@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import assert from 'node:assert'
-import { spawn, spawnSync, StdioNull, StdioPipe } from 'node:child_process'
+import { spawn, spawnSync, StdioOptions, IOType } from 'node:child_process'
 import { AsyncHook, AsyncLocalStorage, createHook } from 'node:async_hooks'
 import { Readable, Writable } from 'node:stream'
 import { inspect } from 'node:util'
@@ -59,6 +59,7 @@ export interface Options {
   ac?: AbortController
   signal?: AbortSignal
   input?: string | Buffer | Readable | ProcessOutput | ProcessPromise
+  stdio: StdioOptions
   verbose: boolean
   sync: boolean
   env: NodeJS.ProcessEnv
@@ -95,6 +96,7 @@ export const defaults: Options = {
   env: process.env,
   sync: false,
   shell: true,
+  stdio: ['inherit', 'pipe', 'pipe'],
   nothrow: false,
   quiet: false,
   prefix: '',
@@ -192,7 +194,6 @@ try {
 } catch (err) {}
 
 type Resolve = (out: ProcessOutput) => void
-type IO = StdioPipe | StdioNull
 
 export class ProcessPromise extends Promise<ProcessOutput> {
   private _command = ''
@@ -200,7 +201,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _resolve: Resolve = noop
   private _reject: Resolve = noop
   private _snapshot = getStore()
-  private _stdio: [IO, IO, IO] = ['inherit', 'pipe', 'pipe']
+  private _stdio?: StdioOptions
   private _nothrow?: boolean
   private _quiet?: boolean
   private _timeout?: number
@@ -245,7 +246,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
     this._zurk = exec({
       input,
-      cmd: $.prefix + this._command + $.postfix,
+      cmd: $.prefix + self._command + $.postfix,
       cwd: $.cwd ?? $[processCwd],
       ac: $.ac,
       signal: $.signal,
@@ -253,7 +254,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       env: $.env,
       spawn: $.spawn,
       spawnSync: $.spawnSync,
-      stdio: this._stdio as any,
+      stdio: self._stdio ?? $.stdio,
       sync: $[syncExec],
       detached: !isWin,
       run: (cb) => cb(),
@@ -427,7 +428,11 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return $.kill(this.child.pid, signal)
   }
 
-  stdio(stdin: IO, stdout: IO = 'pipe', stderr: IO = 'pipe'): ProcessPromise {
+  stdio(
+    stdin: IOType,
+    stdout: IOType = 'pipe',
+    stderr: IOType = 'pipe'
+  ): ProcessPromise {
     this._stdio = [stdin, stdout, stderr]
     return this
   }
