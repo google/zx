@@ -90,9 +90,8 @@ const builtins = new Set([
   'zlib',
 ])
 
-const nameRe =
-  /^(?<name>(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*)\/?.*$/i
-const versionRe = /^@(?<version>[~^]?(v?[\dx*]+([-.][\d*a-z-]+)*))/i
+const nameRe = /^((@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*)/i
+const versionRe = /^@([~^]?[\dx*.\-a-z])+$/i
 
 export function parseDeps(content: Buffer): Record<string, string> {
   return depseek(content.toString() + '\n', { comments: true }).reduce<
@@ -112,12 +111,12 @@ export function parseDeps(content: Buffer): Record<string, string> {
 
 function parsePackageName(path?: string): string | undefined {
   if (!path) return
-  const name = nameRe.exec(path)?.groups?.name
+  const name = nameRe.exec(path)?.[1]
   if (name && !builtins.has(name)) {
     return name
   }
 }
 
 function parseVersion(line: string) {
-  return versionRe.exec(line)?.groups?.version || 'latest'
+  return versionRe.exec(line)?.[1] || 'latest'
 }

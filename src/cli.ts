@@ -192,9 +192,9 @@ function transformMarkdown(buf: Buffer) {
   let state = 'root'
   let codeBlockEnd = ''
   let prevLineIsEmpty = true
-  const jsCodeBlock = /^(```+|~~~+)(js|javascript)$/
-  const shCodeBlock = /^(```+|~~~+)(sh|bash)$/
-  const otherCodeBlock = /^(```+|~~~+)(.*)$/
+  const jsCodeBlock = /^(```+|~~~+)(?:js|javascript)$/
+  const shCodeBlock = /^(```+|~~~+)(?:sh|bash)$/
+  const otherCodeBlock = /^(```+|~~~+)/
   for (let line of source.split('\n')) {
     switch (state) {
       case 'root':
