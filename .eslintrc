@@ -1,0 +1,8 @@
+{
+  "plugins": ["redos-detector"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": { "ecmaVersion": "latest" },
+  "rules": {
+    "redos-detector/no-unsafe-regex": ["error"],
+  },
+}

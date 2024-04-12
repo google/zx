@@ -27,6 +27,13 @@ jobs:
       - run: npm ci
       - run: npm run fmt:check
 
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - run: npm run lint
+
   types:
     runs-on: ubuntu-latest
     steps:
