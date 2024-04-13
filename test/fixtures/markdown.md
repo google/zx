@@ -37,3 +37,7 @@ Other code blocks are ignored:
 ```css
 .ignore {}
 ```
+
+```
+echo ignore
+```
