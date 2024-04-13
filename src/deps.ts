@@ -91,7 +91,7 @@ const builtins = new Set([
 ])
 
 const nameRe = /^((@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*)/i
-const versionRe = /^@([~^]?[\dx*.\-a-z])+$/i
+const versionRe = /^@([~^]?[\dx*.\-a-z]+)$/i
 
 export function parseDeps(content: Buffer): Record<string, string> {
   return depseek(content.toString() + '\n', { comments: true }).reduce<
