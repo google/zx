@@ -44,6 +44,12 @@ describe('core', () => {
     assert.equal((await $`echo ${bar}`).stdout.trim(), bar)
   })
 
+  test('arguments can have spaces and will be quoted', async () => {
+    const message = 'hello: John Smith';
+    const cmd = `echo ${message}`
+    assert.equal((await $`${cmd}`).stdout.trim(), message);
+  })
+
   test('undefined and empty string correctly quoted', async () => {
     assert.equal((await $`echo -n ${undefined}`).toString(), 'undefined')
     assert.equal((await $`echo -n ${''}`).toString(), '')

@@ -5,7 +5,7 @@
 
 await $`cat package.json | grep name`
 
-let branch = await $`git branch --show-current`
+let { stdout: branch } = await $`git branch --show-current`
 await $`dep deploy --branch=${branch}`
 
 await Promise.all([

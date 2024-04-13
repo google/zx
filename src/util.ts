@@ -48,7 +48,7 @@ export function noquote(): string {
 }
 
 export function quote(arg: string) {
-  if (/^[a-z0-9/_.\-@:=]+$/i.test(arg) || arg === '') {
+  if (/^[a-z0-9/_.\-@:= ]+$/i.test(arg) || arg === '') {
     return arg
   }
   return (

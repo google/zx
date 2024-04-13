@@ -57,6 +57,7 @@ describe('util', () => {
 
   test('quote()', () => {
     assert.ok(quote('string') === 'string')
+    assert.ok(quote('this that') === 'this that')
     assert.ok(quote(`'\f\n\r\t\v\0`) === `$'\\'\\f\\n\\r\\t\\v\\0'`)
   })
 
