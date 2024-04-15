@@ -15,7 +15,7 @@
 import assert from 'node:assert'
 import { Readable, Writable } from 'node:stream'
 import { expectType } from 'tsd'
-import { $, ProcessPromise, ProcessOutput, within } from '../src/core.js'
+import { $, ProcessPromise, ProcessOutput, within } from 'zx'
 
 let p = $`cmd`
 assert(p instanceof ProcessPromise)

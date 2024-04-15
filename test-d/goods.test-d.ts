@@ -13,8 +13,7 @@
 // limitations under the License.
 
 import { expectType } from 'tsd'
-import { $ } from '../src/core.js'
-import { echo, sleep, spinner, retry, expBackoff } from '../src/goods.js'
+import { $, echo, sleep, spinner, retry, expBackoff } from 'zx'
 
 echo`Date is ${await $`date`}`
 echo('Hello, world!')
