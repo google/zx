@@ -16,7 +16,16 @@ import { ProcessPromise } from './core.js'
 
 export * from './core.js'
 export * from './goods.js'
-export { minimist, chalk, fs, which, YAML, ps } from './vendor.js'
+export {
+  minimist,
+  chalk,
+  fs,
+  which,
+  YAML,
+  ps,
+  glob,
+  glob as globby,
+} from './vendor.js'
 
 export { type Duration, quote, quotePowerShell } from './util.js'
 
