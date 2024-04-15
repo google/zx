@@ -16,8 +16,6 @@ import assert from 'node:assert'
 import { expectType } from 'tsd'
 import 'zx/globals'
 
-glob
-
 let p = $`cmd`
 assert(p instanceof ProcessPromise)
 expectType<ProcessPromise>(p)
