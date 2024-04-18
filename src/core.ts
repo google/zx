@@ -69,6 +69,7 @@ export interface Options {
   postfix: string
   quote: typeof quote
   quiet: boolean
+  detached: boolean
   spawn: typeof spawn
   spawnSync: typeof spawnSync
   log: typeof log
@@ -102,12 +103,12 @@ export const defaults: Options = {
   prefix: '',
   postfix: '',
   quote: noquote,
+  detached: false,
   spawn,
   spawnSync,
   log,
   kill,
 }
-const isWin = process.platform == 'win32'
 
 export function usePowerShell() {
   $.shell = which.sync('powershell.exe')
@@ -256,7 +257,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       spawnSync: $.spawnSync,
       stdio: self._stdio ?? $.stdio,
       sync: $[syncExec],
-      detached: !isWin,
+      detached: $.detached,
       run: (cb) => cb(),
       on: {
         start: () => {
