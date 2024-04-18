@@ -90,8 +90,6 @@ export function syncProcessCwd(flag: boolean = true) {
   else cwdSyncHook.disable()
 }
 
-const isWin = process.platform == 'win32'
-
 export const defaults: Options = {
   [processCwd]: process.cwd(),
   [syncExec]: false,
@@ -105,7 +103,7 @@ export const defaults: Options = {
   prefix: '',
   postfix: '',
   quote: noquote,
-  detached: !isWin,
+  detached: false,
   spawn,
   spawnSync,
   log,

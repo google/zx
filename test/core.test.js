@@ -318,7 +318,7 @@ describe('core', () => {
   })
 
   test('abort() method works', async () => {
-    const p = $`sleep 9999`
+    const p = $({ detached: true })`sleep 999`
     setTimeout(() => p.abort(), 100)
 
     try {
@@ -331,7 +331,7 @@ describe('core', () => {
 
   test('accepts optional AbortController', async () => {
     const ac = new AbortController()
-    const p = $({ ac })`sleep 9999`
+    const p = $({ ac, detached: true })`sleep 999`
     setTimeout(() => ac.abort(), 100)
 
     try {
@@ -345,7 +345,7 @@ describe('core', () => {
   test('accepts AbortController `signal` separately', async () => {
     const ac = new AbortController()
     const signal = ac.signal
-    const p = $({ signal })`sleep 9999`
+    const p = $({ signal, detached: true })`sleep 999`
     setTimeout(() => ac.abort(), 100)
 
     try {
@@ -357,7 +357,7 @@ describe('core', () => {
   })
 
   test('kill() method works', async () => {
-    let p = $`sleep 9999`.nothrow()
+    let p = $`sleep 999`.nothrow()
     setTimeout(() => {
       p.kill()
     }, 100)
@@ -471,7 +471,7 @@ describe('core', () => {
   test('timeout() works', async () => {
     let exitCode, signal
     try {
-      await $`sleep 9999`.timeout(10, 'SIGKILL')
+      await $`sleep 999`.timeout(10, 'SIGKILL')
     } catch (p) {
       exitCode = p.exitCode
       signal = p.signal
