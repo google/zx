@@ -142,6 +142,11 @@ describe('cli', () => {
     await $`node build/cli.js test/fixtures/markdown.md`
   })
 
+  test('markdown scripts are working for CRLF', async () => {
+    let p = await $`node build/cli.js test/fixtures/markdown-crlf.md`
+    assert.ok(p.stdout.includes('Hello, world!'))
+  })
+
   test('exceptions are caught', async () => {
     let out1 = await $`node build/cli.js <<<${'await $`wtf`'}`.nothrow()
     assert.match(out1.stderr, /Error:/)
