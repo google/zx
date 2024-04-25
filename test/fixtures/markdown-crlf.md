@@ -1,0 +1,3 @@
+```js
+echo`Hello, world!`
+```
