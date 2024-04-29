@@ -42,6 +42,7 @@ declare global {
   var quotePowerShell: typeof _.quotePowerShell
   var retry: typeof _.retry
   var usePowerShell: typeof _.usePowerShell
+  var usePwsh: typeof _.usePwsh
   var useBash: typeof _.useBash
   var sleep: typeof _.sleep
   var spinner: typeof _.spinner
