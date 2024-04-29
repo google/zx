@@ -18,7 +18,7 @@ import { inspect } from 'node:util'
 import { basename } from 'node:path'
 import { Readable, Writable } from 'node:stream'
 import { Socket } from 'node:net'
-import { ProcessPromise, ProcessOutput } from '../build/index.js'
+import { ProcessPromise, ProcessOutput, quotePowerShell } from '../build/index.js'
 import '../build/globals.js'
 
 describe('core', () => {
@@ -582,5 +582,16 @@ describe('core', () => {
       assert.equal(err.message, 'The process is halted!')
     }
     assert.ok(ok, 'Expected failure!')
+  })
+
+  test('usePwsh() sets proper defaults', () => {
+    const originalWhichSync = which.sync
+    which.sync = bin => bin === 'pwsh' ? 'pwsh' : originalWhichSync(bin)
+    usePwsh()
+    assert.equal($.shell, 'pwsh')
+    assert.equal($.prefix, '')
+    assert.equal($.postfix, '; exit $LastExitCode')
+    assert.equal($.quote, quotePowerShell)
+    which.sync = originalWhichSync
   })
 })
