@@ -14,9 +14,12 @@
 
 import assert from 'node:assert'
 import { test, describe } from 'node:test'
+import which from 'which'
 import '../../build/globals.js'
 
 const _describe = process.platform === 'win32' ? describe : describe.skip
+
+const _testPwsh = which.sync('pwsh', { nothrow: true }) ? test : test.skip
 
 _describe('win32', () => {
   test('should work with windows-specific commands', async () => {
@@ -36,6 +39,15 @@ _describe('win32', () => {
       usePowerShell()
       const p = await $`echo ${`Windows 'rulez!'`}`
       assert.match(p.stdout, /Windows 'rulez!'/)
+    })
+  })
+
+  _testPwsh('should work with pwsh when it is available', async () => {
+    await within(async () => {
+      usePwsh()
+      assert.match($.shell, /pwsh/i)
+      const p = await $`echo 'Hello,' && echo ${`new 'PowerShell'!`}`
+      assert.match(p.stdout, /Hello,\s+new 'PowerShell'!/)
     })
   })
 })
