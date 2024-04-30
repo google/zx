@@ -127,6 +127,7 @@ export function usePwsh() {
 export function useBash() {
   $.shell = which.sync('bash')
   $.prefix = 'set -euo pipefail;'
+  $.postfix = ''
   $.quote = quote
 }
 

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import assert from 'node:assert'
-import { test, describe } from 'node:test'
+import { test, describe, before, after } from 'node:test'
 import { inspect } from 'node:util'
 import { basename } from 'node:path'
 import { Readable, Writable } from 'node:stream'
@@ -584,15 +584,38 @@ describe('core', () => {
     assert.ok(ok, 'Expected failure!')
   })
 
-  test('usePwsh() sets proper defaults', () => {
+  describe('presets', () => {
     const originalWhichSync = which.sync
-    which.sync = (bin) => (bin === 'pwsh' ? 'pwsh' : originalWhichSync(bin))
-    usePwsh()
-    assert.equal($.shell, 'pwsh')
-    assert.equal($.prefix, '')
-    assert.equal($.postfix, '; exit $LastExitCode')
-    assert.equal($.quote, quotePowerShell)
-    which.sync = originalWhichSync
-    useBash()
+    before(() => {
+      which.sync = (bin) => bin
+    })
+    after(() => {
+      which.sync = originalWhichSync
+      useBash()
+    })
+
+    test('usePwsh()', () => {
+      usePwsh()
+      assert.equal($.shell, 'pwsh')
+      assert.equal($.prefix, '')
+      assert.equal($.postfix, '; exit $LastExitCode')
+      assert.equal($.quote, quotePowerShell)
+    })
+
+    test('usePowerShell()', () => {
+      usePowerShell()
+      assert.equal($.shell, 'powershell.exe')
+      assert.equal($.prefix, '')
+      assert.equal($.postfix, '; exit $LastExitCode')
+      assert.equal($.quote, quotePowerShell)
+    })
+
+    test('useBash()', () => {
+      useBash()
+      assert.equal($.shell, 'bash')
+      assert.equal($.prefix, 'set -euo pipefail;')
+      assert.equal($.postfix, '')
+      assert.equal($.quote, quote)
+    })
   })
 })
