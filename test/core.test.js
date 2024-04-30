@@ -586,7 +586,7 @@ describe('core', () => {
 
   test('usePwsh() sets proper defaults', () => {
     const originalWhichSync = which.sync
-    which.sync = bin => bin === 'pwsh' ? 'pwsh' : originalWhichSync(bin)
+    which.sync = (bin) => (bin === 'pwsh' ? 'pwsh' : originalWhichSync(bin))
     usePwsh()
     assert.equal($.shell, 'pwsh')
     assert.equal($.prefix, '')
