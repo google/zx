@@ -22,6 +22,7 @@ import {
   cd,
   syncProcessCwd,
   usePowerShell,
+  usePwsh,
   useBash,
   kill,
   ProcessOutput,
@@ -69,6 +70,7 @@ describe('index', () => {
     assert(defaults)
     assert(within)
     assert(usePowerShell)
+    assert(usePwsh)
     assert(useBash)
 
     // goods

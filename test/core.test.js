@@ -583,4 +583,16 @@ describe('core', () => {
     }
     assert.ok(ok, 'Expected failure!')
   })
+
+  test('usePwsh() sets proper defaults', () => {
+    const originalWhichSync = which.sync
+    which.sync = (bin) => (bin === 'pwsh' ? 'pwsh' : originalWhichSync(bin))
+    usePwsh()
+    assert.equal($.shell, 'pwsh')
+    assert.equal($.prefix, '')
+    assert.equal($.postfix, '; exit $LastExitCode')
+    assert.equal($.quote, quotePowerShell)
+    which.sync = originalWhichSync
+    useBash()
+  })
 })
