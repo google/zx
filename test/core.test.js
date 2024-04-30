@@ -18,7 +18,7 @@ import { inspect } from 'node:util'
 import { basename } from 'node:path'
 import { Readable, Writable } from 'node:stream'
 import { Socket } from 'node:net'
-import { ProcessPromise, ProcessOutput, quotePowerShell } from '../build/index.js'
+import { ProcessPromise, ProcessOutput } from '../build/index.js'
 import '../build/globals.js'
 
 describe('core', () => {
@@ -593,5 +593,6 @@ describe('core', () => {
     assert.equal($.postfix, '; exit $LastExitCode')
     assert.equal($.quote, quotePowerShell)
     which.sync = originalWhichSync
+    useBash()
   })
 })
