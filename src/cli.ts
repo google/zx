@@ -14,7 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { createRequire } from 'node:module'
 import { basename, dirname, extname, join, resolve } from 'node:path'
 import url from 'node:url'
 import {
@@ -26,8 +25,9 @@ import {
   minimist,
   fs,
 } from './index.js'
-import { randomId } from './util.js'
 import { installDeps, parseDeps } from './deps.js'
+import { randomId } from './util.js'
+import { createRequire } from './vendor.js'
 
 function printUsage() {
   // language=txt
@@ -56,9 +56,9 @@ const argv = minimist(process.argv.slice(2), {
   boolean: ['version', 'help', 'quiet', 'verbose', 'install', 'repl'],
   alias: { e: 'eval', i: 'install', v: 'version', h: 'help' },
   stopEarly: true,
-})
+});
 
-await (async function main() {
+(async function main() {
   const globals = './globals.js'
   await import(globals)
   if (argv.verbose) $.verbose = true

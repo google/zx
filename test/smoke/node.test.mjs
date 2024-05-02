@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import assert from 'assert'
-import '../../build/globals.js'
+import 'zx/globals'
 ;(async () => {
   // smoke test
   {
@@ -28,4 +28,4 @@ import '../../build/globals.js'
   }
 })()
 
-console.log('smoke: ok')
+console.log('smoke mjs: ok')

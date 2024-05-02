@@ -78,3 +78,24 @@ jobs:
         timeout-minutes: 1
         env:
           FORCE_COLOR: 3
+
+  smoke-node:
+    runs-on: ubuntu-latest
+    needs: build
+    strategy:
+      matrix:
+        node-version: [ 12, 14, 16, 18, 20 ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: build
+      - name: cjs smoke test
+        run: npm run test:smoke:cjs
+      - name: mjs smoke test
+        if: matrix.node-version != '12'
+        run: npm run test:smoke:mjs

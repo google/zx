@@ -15,11 +15,14 @@
 import assert from 'node:assert'
 import fs from 'node:fs/promises'
 import { test, describe } from 'node:test'
-import { globby } from 'globby'
+import { globby } from '../build/index.js'
 
 describe('extra', () => {
   test('every file should have a license', async () => {
-    const files = await globby(['**/*.{js,mjs,ts}'], {
+    const files = await globby([
+      '**/*.{js,mjs,ts}',
+      '!**/*-polyfill.js'
+    ], {
       gitignore: true,
       onlyFiles: true,
       cwd: process.cwd(),

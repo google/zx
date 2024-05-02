@@ -22,31 +22,53 @@
     }
   },
   "exports": {
-    ".": "./build/index.js",
-    "./globals": "./build/globals.js",
-    "./cli": "./build/cli.js",
-    "./core": "./build/core.js",
+    ".": {
+      "import": "./build/index.js",
+      "require": "./build/index.cjs",
+      "types": "./build/index.d.ts",
+      "default": "./build/index.js"
+    },
+    "./globals": {
+      "import": "./build/globals.js",
+      "require": "./build/globals.cjs",
+      "types": "./build/globals.d.ts",
+      "default": "./build/globals.js"
+    },
+    "./cli": {
+      "import": "./build/cli.js",
+      "require": "./build/cli.cjs",
+      "types": "./build/cli.d.ts",
+      "default": "./build/cli.js"
+    },
+    "./core": {
+      "import": "./build/core.js",
+      "require": "./build/core.cjs",
+      "types": "./build/core.d.ts",
+      "default": "./build/core.js"
+    },
     "./package.json": "./package.json"
   },
   "bin": {
     "zx": "./build/cli.js"
   },
   "engines": {
-    "node": ">= 16.0.0"
+    "node": ">= 12.0.0"
   },
   "scripts": {
     "fmt": "prettier --write .",
     "fmt:check": "prettier --check .",
     "build": "npm run build:js && npm run build:dts",
     "build:check": "tsc",
-    "build:js": "node scripts/build-js.mjs --format=esm --entry=src/*.ts && npm run build:vendor",
-    "build:vendor": "node scripts/build-js.mjs --format=esm --entry=src/vendor.ts --bundle=all --banner",
+    "build:js": "node scripts/build-js.mjs --format=cjs --hybrid --entry=src/*.ts && npm run build:vendor",
+    "build:vendor": "node scripts/build-js.mjs --format=cjs --entry=src/vendor.ts --bundle=all",
     "build:dts": "tsc --project tsconfig.prod.json && node scripts/build-dts.mjs",
     "test": "npm run build && npm run test:unit && npm run test:types",
     "test:unit": "node ./test/all.test.js",
     "test:types": "tsd",
     "test:smoke:bun": "bun test ./test/smoke/bun.test.js",
     "test:smoke:win32": "node ./test/smoke/win32.test.js",
+    "test:smoke:cjs": "node ./test/smoke/node.test.cjs",
+    "test:smoke:mjs": "node ./test/smoke/node.test.mjs",
     "coverage": "c8 -x build/vendor.js -x 'test/**' -x scripts --check-coverage npm test",
     "circular": "madge --circular src/*",
     "version": "cat package.json | fx .version"
@@ -60,27 +82,31 @@
     "@types/minimist": "^1.2.5",
     "@types/node": ">=20.11.30",
     "@types/which": "^3.0.3",
-    "@webpod/ps": "^0.0.0-beta.3",
     "@webpod/ingrid": "^0.0.0-beta.3",
+    "@webpod/ps": "^0.0.0-beta.3",
     "c8": "^9.1.0",
     "chalk": "^5.3.0",
+    "create-require": "^1.1.1",
     "depseek": "^0.4.1",
     "dts-bundle-generator": "^9.3.1",
     "esbuild": "^0.20.2",
     "esbuild-node-externals": "^1.13.0",
     "esbuild-plugin-entry-chunks": "^0.1.12",
+    "esbuild-plugin-hybrid-export": "^0.2.0",
+    "esbuild-plugin-transform-hook": "^0.0.0",
     "fs-extra": "^11.2.0",
     "fx": "*",
     "globby": "^14.0.1",
     "madge": "^6.1.0",
     "minimist": "^1.2.8",
+    "node-abort-controller": "^3.1.1",
     "node-fetch-native": "^1.6.4",
     "prettier": "^3.2.5",
     "tsd": "^0.31.0",
     "typescript": "^5.4.4",
     "which": "^4.0.0",
     "yaml": "^2.4.1",
-    "zurk": "^0.1.2"
+    "zurk": "^0.1.4"
   },
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"
