@@ -56,9 +56,9 @@ const argv = minimist(process.argv.slice(2), {
   boolean: ['version', 'help', 'quiet', 'verbose', 'install', 'repl'],
   alias: { e: 'eval', i: 'install', v: 'version', h: 'help' },
   stopEarly: true,
-});
+})
 
-(async function main() {
+;(async function main() {
   const globals = './globals.js'
   await import(globals)
   if (argv.verbose) $.verbose = true

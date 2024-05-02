@@ -50,19 +50,30 @@ const {
   cwd: _cwd,
 } = argv
 
-const plugins = [transformHookPlugin({
-  hooks: [{
-    on: 'end',
-    pattern: /\.cjs/,
-    transform(contents) {
-      return contents
-        .replaceAll('"node:', '"')
-        .replaceAll('require("stream/promises")', 'require("stream").promises')
-        .replaceAll('require("fs/promises")', 'require("fs").promises')
-        .replaceAll('}).prototype', '}).prototype || {}')
-    }
-  }]
-})]
+const plugins = [
+  transformHookPlugin({
+    hooks: [
+      {
+        on: 'end',
+        pattern: /\.cjs/,
+        transform(contents) {
+          const annotationIdx = contents.indexOf(
+            '// Annotate the CommonJS export names for ESM import in node:'
+          )
+          return contents
+            .slice(0, annotationIdx > 0 ? annotationIdx : contents.length)
+            .replaceAll('"node:', '"')
+            .replaceAll(
+              'require("stream/promises")',
+              'require("stream").promises'
+            )
+            .replaceAll('require("fs/promises")', 'require("fs").promises')
+            .replaceAll('}).prototype', '}).prototype || {}')
+        },
+      },
+    ],
+  }),
+]
 const cwd = Array.isArray(_cwd) ? _cwd[_cwd.length - 1] : _cwd
 const entries = entry.split(/,\s?/)
 const entryPoints = entry.includes('*')
@@ -83,11 +94,13 @@ if (bundle === 'src') {
 }
 
 if (hybrid) {
-  plugins.push(hybridExportPlugin({
-    loader: 'import',
-    to: 'build',
-    toExt: '.js'
-  }))
+  plugins.push(
+    hybridExportPlugin({
+      loader: 'import',
+      to: 'build',
+      toExt: '.js',
+    })
+  )
 }
 
 const formats = format.split(',')
@@ -115,7 +128,7 @@ const esmConfig = {
   target: 'esnext',
   format: 'esm',
   outExtension: {
-    '.js': '.mjs'
+    '.js': '.mjs',
   },
   plugins,
   legalComments: license,
@@ -131,13 +144,13 @@ const cjsConfig = {
   format: 'cjs',
   banner: {},
   outExtension: {
-    '.js': '.cjs'
+    '.js': '.cjs',
   },
   // https://github.com/evanw/esbuild/issues/1633
   define: {
-    'import.meta.url': 'import_meta_url'
+    'import.meta.url': 'import_meta_url',
   },
-  inject: ['./scripts/import.meta.url-polyfill.js']
+  inject: ['./scripts/import.meta.url-polyfill.js'],
 }
 
 for (const format of formats) {

@@ -84,7 +84,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        node-version: [ 12, 14, 16, 18, 20 ]
+        node-version: [12, 14, 16, 18, 20]
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}

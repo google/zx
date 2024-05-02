@@ -19,10 +19,7 @@ import { globby } from '../build/index.js'
 
 describe('extra', () => {
   test('every file should have a license', async () => {
-    const files = await globby([
-      '**/*.{js,mjs,ts}',
-      '!**/*-polyfill.js'
-    ], {
+    const files = await globby(['**/*.{js,mjs,ts}', '!**/*-polyfill.js'], {
       gitignore: true,
       onlyFiles: true,
       cwd: process.cwd(),
