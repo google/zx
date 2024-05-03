@@ -70,7 +70,7 @@
     "test:smoke:win32": "node ./test/smoke/win32.test.js",
     "test:smoke:cjs": "node ./test/smoke/node.test.cjs",
     "test:smoke:mjs": "node ./test/smoke/node.test.mjs",
-    "coverage": "c8 -x build/vendor.cjs -x 'test/**' -x scripts --check-coverage npm test",
+    "coverage": "c8 -x build/vendor.cjs -x build/esblib.cjs -x 'test/**' -x scripts --check-coverage npm test",
     "circular": "madge --circular src/*",
     "version": "cat package.json | fx .version"
   },
