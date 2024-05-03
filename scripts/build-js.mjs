@@ -20,6 +20,7 @@ import { nodeExternalsPlugin } from 'esbuild-node-externals'
 import { entryChunksPlugin } from 'esbuild-plugin-entry-chunks'
 import { hybridExportPlugin } from 'esbuild-plugin-hybrid-export'
 import { transformHookPlugin } from 'esbuild-plugin-transform-hook'
+import { extractHelpersPlugin } from 'esbuild-plugin-extract-helpers'
 import minimist from 'minimist'
 import glob from 'fast-glob'
 
@@ -50,30 +51,7 @@ const {
   cwd: _cwd,
 } = argv
 
-const plugins = [
-  transformHookPlugin({
-    hooks: [
-      {
-        on: 'end',
-        pattern: /\.cjs/,
-        transform(contents) {
-          const annotationIdx = contents.indexOf(
-            '// Annotate the CommonJS export names for ESM import in node:'
-          )
-          return contents
-            .slice(0, annotationIdx > 0 ? annotationIdx : contents.length)
-            .replaceAll('"node:', '"')
-            .replaceAll(
-              'require("stream/promises")',
-              'require("stream").promises'
-            )
-            .replaceAll('require("fs/promises")', 'require("fs").promises')
-            .replaceAll('}).prototype', '}).prototype || {}')
-        },
-      },
-    ],
-  }),
-]
+const plugins = []
 const cwd = Array.isArray(_cwd) ? _cwd[_cwd.length - 1] : _cwd
 const entries = entry.split(/,\s?/)
 const entryPoints = entry.includes('*')
@@ -102,6 +80,32 @@ if (hybrid) {
     })
   )
 }
+
+plugins.push(
+  transformHookPlugin({
+    hooks: [
+      {
+        on: 'end',
+        pattern: /\.cjs/,
+        transform(contents) {
+          return contents
+            .toString()
+            .replaceAll('"node:', '"')
+            .replaceAll(
+              'require("stream/promises")',
+              'require("stream").promises'
+            )
+            .replaceAll('require("fs/promises")', 'require("fs").promises')
+            .replaceAll('}).prototype', '}).prototype || {}')
+        },
+      },
+    ],
+  }),
+  extractHelpersPlugin({
+    cwd: 'build',
+    include: /\.cjs/,
+  })
+)
 
 const formats = format.split(',')
 const banner =
