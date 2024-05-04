@@ -28,8 +28,18 @@ import {
 import * as yaml from 'yaml'
 import * as _fs from 'fs-extra'
 import type { fetch } from 'node-fetch-native'
+import { AbortController } from 'node-abort-controller'
 
 export { exec, buildCmd } from 'zurk/spawn'
+
+import _createRequire from 'create-require'
+import { URL } from 'url'
+
+export const createRequire = _createRequire as unknown as (
+  filename: string | URL
+) => NodeRequire
+
+global.AbortController = global.AbortController || AbortController
 
 export { fetch as nodeFetch } from 'node-fetch-native'
 export type RequestInfo = Parameters<typeof fetch>[0]

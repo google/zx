@@ -18,6 +18,9 @@ import path from 'node:path'
 import esbuild from 'esbuild'
 import { nodeExternalsPlugin } from 'esbuild-node-externals'
 import { entryChunksPlugin } from 'esbuild-plugin-entry-chunks'
+import { hybridExportPlugin } from 'esbuild-plugin-hybrid-export'
+import { transformHookPlugin } from 'esbuild-plugin-transform-hook'
+import { extractHelpersPlugin } from 'esbuild-plugin-extract-helpers'
 import minimist from 'minimist'
 import glob from 'fast-glob'
 
@@ -33,7 +36,7 @@ const argv = minimist(process.argv.slice(2), {
     target: 'node12',
     cwd: process.cwd(),
   },
-  boolean: ['minify', 'sourcemap', 'banner'],
+  boolean: ['minify', 'sourcemap', 'banner', 'hybrid'],
   string: ['entry', 'external', 'bundle', 'license', 'format', 'map', 'cwd'],
 })
 const {
@@ -44,6 +47,7 @@ const {
   sourcemap,
   license,
   format,
+  hybrid,
   cwd: _cwd,
 } = argv
 
@@ -53,9 +57,6 @@ const entries = entry.split(/,\s?/)
 const entryPoints = entry.includes('*')
   ? await glob(entries, { absolute: false, onlyFiles: true, cwd, root: cwd })
   : entries.map((p) => path.relative(cwd, path.resolve(cwd, p)))
-
-console.log('cwd=', cwd)
-console.log('entryPoints=', entryPoints)
 
 const _bundle = bundle !== 'none' && !process.argv.includes('--no-bundle')
 const _external = _bundle ? external.split(',') : undefined // https://github.com/evanw/esbuild/issues/1466
@@ -69,6 +70,50 @@ if (bundle === 'src') {
   // https://github.com/pradel/esbuild-node-externals/pull/52
   plugins.push(nodeExternalsPlugin())
 }
+
+if (hybrid) {
+  plugins.push(
+    hybridExportPlugin({
+      loader: 'import',
+      to: 'build',
+      toExt: '.js',
+    })
+  )
+}
+
+plugins.push(
+  transformHookPlugin({
+    hooks: [
+      {
+        on: 'end',
+        pattern: new RegExp(
+          '(' +
+            entryPoints.map((e) => path.parse(e).name).join('|') +
+            ')\\.cjs$'
+        ),
+        transform(contents) {
+          return contents
+            .toString()
+            .replaceAll('"node:', '"')
+            .replaceAll(
+              'require("stream/promises")',
+              'require("stream").promises'
+            )
+            .replaceAll('require("fs/promises")', 'require("fs").promises')
+            .replaceAll('}).prototype', '}).prototype || {}')
+            .replace(
+              /\/\/ Annotate the CommonJS export names for ESM import in node:/,
+              ($0) => `/* c8 ignore next 100 */\n${$0}`
+            )
+        },
+      },
+    ],
+  }),
+  extractHelpersPlugin({
+    cwd: 'build',
+    include: /\.cjs/,
+  })
+)
 
 const formats = format.split(',')
 const banner =
@@ -95,7 +140,7 @@ const esmConfig = {
   target: 'esnext',
   format: 'esm',
   outExtension: {
-    // '.js': '.mjs'
+    '.js': '.mjs',
   },
   plugins,
   legalComments: license,
@@ -111,12 +156,18 @@ const cjsConfig = {
   format: 'cjs',
   banner: {},
   outExtension: {
-    // '.js': '.cjs'
+    '.js': '.cjs',
   },
+  // https://github.com/evanw/esbuild/issues/1633
+  define: {
+    'import.meta.url': 'import_meta_url',
+  },
+  inject: ['./scripts/import.meta.url-polyfill.js'],
 }
 
 for (const format of formats) {
   const config = format === 'cjs' ? cjsConfig : esmConfig
+  console.log('config=', config)
 
   await esbuild.build(config).catch(() => process.exit(1))
 }
