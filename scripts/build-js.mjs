@@ -86,7 +86,7 @@ plugins.push(
     hooks: [
       {
         on: 'end',
-        pattern: /\.cjs/,
+        pattern: new RegExp('(' + entryPoints.map(e => path.parse(e).name).join('|') + ')\\.cjs$'),
         transform(contents) {
           return contents
             .toString()
@@ -97,6 +97,7 @@ plugins.push(
             )
             .replaceAll('require("fs/promises")', 'require("fs").promises')
             .replaceAll('}).prototype', '}).prototype || {}')
+            .replace(/\/\/ Annotate the CommonJS export names for ESM import in node:/, ($0) => `/* c8 ignore next 100 */\n${$0}`)
         },
       },
     ],
