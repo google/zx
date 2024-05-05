@@ -76,7 +76,7 @@
   },
   "optionalDependencies": {
     "@types/fs-extra": "^11.0.4",
-    "@types/node": ">=20.12.5"
+    "@types/node": ">=20.12.8"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
@@ -92,10 +92,10 @@
     "dts-bundle-generator": "^9.5.1",
     "esbuild": "^0.20.2",
     "esbuild-node-externals": "^1.13.0",
-    "esbuild-plugin-entry-chunks": "^0.1.12",
-    "esbuild-plugin-hybrid-export": "^0.2.1",
-    "esbuild-plugin-transform-hook": "^0.0.1",
-    "esbuild-plugin-extract-helpers": "^0.0.3",
+    "esbuild-plugin-entry-chunks": "^0.1.13",
+    "esbuild-plugin-hybrid-export": "^0.2.2",
+    "esbuild-plugin-transform-hook": "^0.0.2",
+    "esbuild-plugin-extract-helpers": "^0.0.4",
     "fs-extra": "^11.2.0",
     "fx": "*",
     "globby": "^14.0.1",
@@ -105,9 +105,9 @@
     "node-fetch-native": "^1.6.4",
     "prettier": "^3.2.5",
     "tsd": "^0.31.0",
-    "typescript": "^5.4.4",
+    "typescript": "^5.4.5",
     "which": "^4.0.0",
-    "yaml": "^2.4.1",
+    "yaml": "^2.4.2",
     "zurk": "^0.1.4"
   },
   "publishConfig": {
