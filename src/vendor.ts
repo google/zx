@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { URL } from 'node:url'
 import {
   convertPathToPattern,
   globby,
@@ -24,7 +25,6 @@ import {
   isDynamicPattern,
   type Options as GlobbyOptions,
 } from 'globby'
-
 import * as yaml from 'yaml'
 import * as _fs from 'fs-extra'
 import type { fetch } from 'node-fetch-native'
@@ -33,7 +33,6 @@ import { AbortController } from 'node-abort-controller'
 export { exec, buildCmd } from 'zurk/spawn'
 
 import _createRequire from 'create-require'
-import { URL } from 'url'
 
 export const createRequire = _createRequire as unknown as (
   filename: string | URL
