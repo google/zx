@@ -15,7 +15,9 @@
 // limitations under the License.
 
 import path from 'node:path'
+import fs from 'node:fs'
 import esbuild from 'esbuild'
+import { parseContentsLayout } from 'esbuild-plugin-utils'
 import { nodeExternalsPlugin } from 'esbuild-node-externals'
 import { entryChunksPlugin } from 'esbuild-plugin-entry-chunks'
 import { hybridExportPlugin } from 'esbuild-plugin-hybrid-export'
@@ -36,7 +38,7 @@ const argv = minimist(process.argv.slice(2), {
     target: 'node12',
     cwd: process.cwd(),
   },
-  boolean: ['minify', 'sourcemap', 'banner', 'hybrid'],
+  boolean: ['minify', 'sourcemap', 'hybrid'],
   string: ['entry', 'external', 'bundle', 'license', 'format', 'map', 'cwd'],
 })
 const {
@@ -51,6 +53,7 @@ const {
   cwd: _cwd,
 } = argv
 
+const formats = format.split(',')
 const plugins = []
 const cwd = Array.isArray(_cwd) ? _cwd[_cwd.length - 1] : _cwd
 const entries = entry.split(/,\s?/)
@@ -86,14 +89,33 @@ plugins.push(
     hooks: [
       {
         on: 'end',
-        pattern: new RegExp(
-          '(' +
-            entryPoints.map((e) => path.parse(e).name).join('|') +
-            ')\\.cjs$'
-        ),
+        pattern: entryPointsToRegexp(entryPoints),
+        transform(contents, p) {
+          const { header, body } = parseContentsLayout(contents)
+          return [
+            header,
+            // https://github.com/evanw/esbuild/issues/1633
+            body.includes('import_meta')
+              ? inject('./scripts/import-meta-url.polyfill.js')
+              : '',
+
+            //https://github.com/evanw/esbuild/issues/1921
+            // p.includes('vendor') ? inject('./scripts/require.polyfill.js') : '',
+
+            body,
+          ]
+            .filter(Boolean)
+            .join('\n')
+        },
+      },
+      {
+        on: 'end',
+        pattern: entryPointsToRegexp(entryPoints),
         transform(contents) {
           return contents
             .toString()
+            .replaceAll('import.meta.url', 'import_meta_url')
+            .replaceAll('import_meta.url', 'import_meta_url')
             .replaceAll('"node:', '"')
             .replaceAll(
               'require("stream/promises")',
@@ -115,17 +137,18 @@ plugins.push(
   })
 )
 
-const formats = format.split(',')
-const banner =
-  argv.banner && bundle === 'all'
-    ? {
-        js: `
-const require = (await import("node:module")).createRequire(import.meta.url);
-const __filename = (await import("node:url")).fileURLToPath(import.meta.url);
-const __dirname = (await import("node:path")).dirname(__filename);
-`,
-      }
-    : {}
+function inject(file) {
+  const extra = fs.readFileSync(file, 'utf8')
+  return `// ${file}
+${extra}
+`
+}
+
+function entryPointsToRegexp(entryPoints) {
+  return new RegExp(
+    '(' + entryPoints.map((e) => path.parse(e).name).join('|') + ')\\.cjs$'
+  )
+}
 
 const esmConfig = {
   absWorkingDir: cwd,
@@ -145,8 +168,6 @@ const esmConfig = {
   plugins,
   legalComments: license,
   tsconfig: './tsconfig.json',
-  //https://github.com/evanw/esbuild/issues/1921
-  banner,
 }
 
 const cjsConfig = {
@@ -154,20 +175,14 @@ const cjsConfig = {
   outdir: './build',
   target: 'es6',
   format: 'cjs',
-  banner: {},
   outExtension: {
     '.js': '.cjs',
   },
-  // https://github.com/evanw/esbuild/issues/1633
-  define: {
-    'import.meta.url': 'import_meta_url',
-  },
-  inject: ['./scripts/import.meta.url-polyfill.js'],
 }
 
 for (const format of formats) {
   const config = format === 'cjs' ? cjsConfig : esmConfig
-  console.log('config=', config)
+  console.log('esbuild config:', config)
 
   await esbuild.build(config).catch(() => process.exit(1))
 }
