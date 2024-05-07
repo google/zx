@@ -40,4 +40,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm ci
-      - run: npm run circular
+      - run: npm run test:circular
