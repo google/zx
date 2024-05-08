@@ -59,6 +59,8 @@ export interface Options {
   ac?: AbortController
   signal?: AbortSignal
   input?: string | Buffer | Readable | ProcessOutput | ProcessPromise
+  timeout?: Duration
+  timeoutSignal?: string
   stdio: StdioOptions
   verbose: boolean
   sync: boolean
@@ -246,6 +248,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     const input = ($.input as ProcessPromise | ProcessOutput)?.stdout ?? $.input
 
     if (input) this.stdio('pipe')
+    if ($.timeout) this.timeout($.timeout, $.timeoutSignal)
 
     $.log({
       kind: 'cmd',

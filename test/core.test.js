@@ -480,6 +480,21 @@ describe('core', () => {
     assert.equal(signal, 'SIGKILL')
   })
 
+  test('timeout is configurable via opts', async () => {
+    let exitCode, signal
+    try {
+      await $({
+        timeout: 10,
+        timeoutSignal: 'SIGKILL',
+      })`sleep 999`
+    } catch (p) {
+      exitCode = p.exitCode
+      signal = p.signal
+    }
+    assert.equal(exitCode, null)
+    assert.equal(signal, 'SIGKILL')
+  })
+
   test('timeout() expiration works', async () => {
     let exitCode, signal
     try {
