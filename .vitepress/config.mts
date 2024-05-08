@@ -41,6 +41,7 @@ export default defineConfig({
             {text: 'API Reference', link: '/api'},
             {text: 'Configuration', link: '/configuration'},
             {text: 'CLI Usage', link: '/cli'},
+            {text: 'Package', link: '/package'},
             {text: 'Migration from v7', link: '/migration-from-v7'},
           ],
         },
