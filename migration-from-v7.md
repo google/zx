@@ -2,7 +2,7 @@
 
 [v8.0.0 release](https://github.com/google/zx/releases/tag/8.0.0) brought many features, improvements and fixes, but also has introduced a few breaking changes.
 
-1. `$.verbose` is set to `false` by default, but errors are still printed to stderr. Set `$.quiet = true` to suppress any output.
+1. `$.verbose` is set to `false` by default, but errors are still printed to `stderr. Set `$.quiet = true` to suppress any output.
 ```js
 $.verbose = true // everything works like in v7
 
