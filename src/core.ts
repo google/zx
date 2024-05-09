@@ -17,6 +17,7 @@ import { spawn, spawnSync, StdioOptions, IOType } from 'node:child_process'
 import { AsyncHook, AsyncLocalStorage, createHook } from 'node:async_hooks'
 import { Readable, Writable } from 'node:stream'
 import { inspect } from 'node:util'
+import path from 'node:path'
 import {
   exec,
   buildCmd,
@@ -591,14 +592,22 @@ function syncCwd() {
 }
 
 function injectNmBin(env: NodeJS.ProcessEnv, ...dirs: (string | undefined)[]) {
-  const extra = dirs
+  const pathKey =
+    process.platform === 'win32'
+      ? Object.keys(env)
+          .reverse()
+          .find((key) => key.toUpperCase() === 'PATH') || 'Path'
+      : 'PATH'
+  const pathValue = dirs
+    .map((c) => c && path.resolve(c as string, 'node_modules', '.bin'))
+    .concat(env[pathKey])
     .filter(Boolean)
-    .map((c) => `${c}/node_modules/.bin`)
-    .join(':')
+    .join(path.delimiter)
 
-  return extra
-    ? { ...env, PATH: env.PATH ? `${extra}:${env.PATH}` : extra }
-    : env
+  return {
+    ...env,
+    [pathKey]: pathValue,
+  }
 }
 
 export function cd(dir: string | ProcessOutput) {
