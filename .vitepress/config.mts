@@ -37,11 +37,11 @@ export default defineConfig({
           text: 'Docs',
           items: [
             {text: 'Getting Started', link: '/getting-started'},
+            {text: 'Setup', link: '/setup'},
             {text: 'Process Promise', link: '/process-promise'},
             {text: 'API Reference', link: '/api'},
             {text: 'Configuration', link: '/configuration'},
             {text: 'CLI Usage', link: '/cli'},
-            {text: 'Package', link: '/package'},
             {text: 'Migration from v7', link: '/migration-from-v7'},
           ],
         },

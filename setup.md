@@ -1,6 +1,49 @@
-# Package
+# Setup
 
-## Hybrid
+## Requirements
+* JavaScript Runtime:
+  * Node.js 12.20.0 or later
+  * Bun 1.0.0 or later
+* Some kind of bash or PowerShell
+
+## Install
+
+::: code-group
+
+```bash [node]
+npm install zx
+```
+
+```bash [bun]
+bun install zx
+```
+
+```bash [deno]
+deno install -A npm:zx
+```
+
+```bash [brew]
+brew install zx
+```
+
+:::
+
+## Bash
+
+zx mostly relies on bash, so make sure it's available in your environment. If you're on Windows, consider using [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install) or [Git Bash](https://git-scm.com/downloads).
+By default, zx looks for bash binary, but you can switch to PowerShell by invoking `usePowerShell()` or `usePwsh()`.
+
+```js
+import { useBash, usePowerShell, usePwsh } from 'zx'
+
+usePowerShell() // Use PowerShell.exe
+usePwsh()       // Rely on pwsh binary (PowerShell v7+)
+useBash()       // Switch back to bash
+```
+
+## Package
+
+### Hybrid
 zx is distributed as a [hybrid package](https://2ality.com/2019/10/hybrid-npm-packages.html): it provides both CJS an ESM entry points.
 
 ```js
@@ -20,7 +63,7 @@ const opts: Options = {
 }
 ```
 
-## Bundled
+### Bundled
 
 We use [esbuild](https://dev.to/antongolub/how-and-why-do-we-bundle-zx-1ca6) to produce a static build that allows us to solve several issues at once:
 * Reduce the pkg size and install time.
@@ -28,7 +71,7 @@ We use [esbuild](https://dev.to/antongolub/how-and-why-do-we-bundle-zx-1ca6) to 
 * Provide support for wide range of Node.js versions: from 12 to 22.
 * Make auditing easier: complete code in one place.
 
-## Composite
+### Composite
 
 zx exports several entry points adapted for different use cases:
 * `zx` – the main entry point, provides all the features.
