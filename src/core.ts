@@ -72,6 +72,7 @@ export interface Options {
   quote: typeof quote
   quiet: boolean
   detached: boolean
+  preferLocal: boolean
   spawn: typeof spawn
   spawnSync: typeof spawnSync
   log: typeof log
@@ -106,6 +107,7 @@ export const defaults: Options = {
   postfix: '',
   quote: noquote,
   detached: false,
+  preferLocal: false,
   spawn,
   spawnSync,
   log,
@@ -249,6 +251,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
     if (input) this.stdio('pipe')
     if ($.timeout) this.timeout($.timeout, $.timeoutSignal)
+    if ($.preferLocal) $.env = injectNmBin($.env, $.cwd, $[processCwd])
 
     $.log({
       kind: 'cmd',
@@ -585,6 +588,17 @@ export function within<R>(callback: () => R): R {
 
 function syncCwd() {
   if ($[processCwd] != process.cwd()) process.chdir($[processCwd])
+}
+
+function injectNmBin(env: NodeJS.ProcessEnv, ...dirs: (string | undefined)[]) {
+  const extra = dirs
+    .filter(Boolean)
+    .map((c) => `${c}/node_modules/.bin`)
+    .join(':')
+
+  return extra
+    ? { ...env, PATH: env.PATH ? `${extra}:${env.PATH}` : extra }
+    : env
 }
 
 export function cd(dir: string | ProcessOutput) {

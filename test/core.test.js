@@ -30,13 +30,28 @@ describe('core', () => {
 
   test('env vars works', async () => {
     process.env.ZX_TEST_FOO = 'foo'
-    let foo = await $`echo $ZX_TEST_FOO`
+    const foo = await $`echo $ZX_TEST_FOO`
     assert.equal(foo.stdout, 'foo\n')
   })
 
   test('env vars is safe to pass', async () => {
     process.env.ZX_TEST_BAR = 'hi; exit 1'
-    await $`echo $ZX_TEST_BAR`
+    const bar = await $`echo $ZX_TEST_BAR`
+    assert.equal(bar.stdout, 'hi; exit 1\n')
+  })
+
+  test('env configurable via opts', async () => {
+    const baz = await $({
+      env: { ZX_TEST_BAZ: 'baz' },
+    })`echo $ZX_TEST_BAZ`
+    assert.equal(baz.stdout, 'baz\n')
+  })
+
+  test('$.preferLocal preserves env', async () => {
+    const path = await $({
+      preferLocal: true,
+    })`echo $PATH`
+    assert(path.stdout.startsWith(`${process.cwd()}/node_modules/.bin:`))
   })
 
   test('arguments are quoted', async () => {
