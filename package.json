@@ -52,7 +52,7 @@
     "zx": "./build/cli.js"
   },
   "engines": {
-    "node": ">= 12.0.0"
+    "node": ">= 12.17.0"
   },
   "scripts": {
     "fmt": "prettier --write .",
@@ -72,12 +72,13 @@
     "test:smoke:win32": "node ./test/smoke/win32.test.js",
     "test:smoke:cjs": "node ./test/smoke/node.test.cjs",
     "test:smoke:mjs": "node ./test/smoke/node.test.mjs",
+    "test:smoke:deno": "deno test ./test/smoke/deno.test.js --allow-read --allow-sys --allow-env --allow-run",
     "coverage": "c8 -x build/vendor.cjs -x build/esblib.cjs -x 'test/**' -x scripts --check-coverage npm test",
     "version": "cat package.json | fx .version"
   },
   "optionalDependencies": {
     "@types/fs-extra": "^11.0.4",
-    "@types/node": ">=20.12.10"
+    "@types/node": ">=20.12.11"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
@@ -91,7 +92,7 @@
     "create-require": "^1.1.1",
     "depseek": "^0.4.1",
     "dts-bundle-generator": "^9.5.1",
-    "esbuild": "^0.21.0",
+    "esbuild": "^0.21.1",
     "esbuild-node-externals": "^1.13.1",
     "esbuild-plugin-utils": "^0.0.1",
     "esbuild-plugin-entry-chunks": "^0.1.14",
