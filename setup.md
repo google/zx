@@ -2,8 +2,9 @@
 
 ## Requirements
 * JavaScript Runtime:
-  * Node.js 12.20.0 or later
+  * Node.js 12.17.0 or later
   * Bun 1.0.0 or later
+  * Deno 1.x
 * Some kind of bash or PowerShell
 
 ## Install
@@ -20,6 +21,8 @@ bun install zx
 
 ```bash [deno]
 deno install -A npm:zx
+
+# zx requires additional permissions: --allow-read --allow-sys --allow-env --allow-run
 ```
 
 ```bash [brew]
