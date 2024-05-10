@@ -85,8 +85,26 @@ if (hybrid) {
 }
 
 plugins.push(
+  {
+    name: 'deno',
+    setup(build) {
+      build.onEnd(() =>
+        fs.copyFileSync('./scripts/deno.polyfill.js', './build/deno.js')
+      )
+    },
+  },
   transformHookPlugin({
     hooks: [
+      {
+        on: 'end',
+        pattern: /\.js$/,
+        transform(contents, p) {
+          if (!hybrid) return contents
+
+          const { header, body } = parseContentsLayout(contents)
+          return [header, `import './deno.js'`, body].join('\n')
+        },
+      },
       {
         on: 'end',
         pattern: entryPointsToRegexp(entryPoints),

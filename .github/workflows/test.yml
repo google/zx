@@ -79,6 +79,23 @@ jobs:
         env:
           FORCE_COLOR: 3
 
+  smoke-deno:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - uses: actions/download-artifact@v4
+        with:
+          name: build
+      - run: deno test ./test/smoke/deno.test.js --allow-read --allow-sys --allow-env --allow-run
+        timeout-minutes: 1
+        env:
+          FORCE_COLOR: 3
+
   smoke-node:
     runs-on: ubuntu-latest
     needs: build
