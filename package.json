@@ -77,7 +77,7 @@
   },
   "optionalDependencies": {
     "@types/fs-extra": "^11.0.4",
-    "@types/node": ">=20.12.10"
+    "@types/node": ">=20.12.11"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
@@ -91,7 +91,7 @@
     "create-require": "^1.1.1",
     "depseek": "^0.4.1",
     "dts-bundle-generator": "^9.5.1",
-    "esbuild": "^0.21.0",
+    "esbuild": "^0.21.1",
     "esbuild-node-externals": "^1.13.1",
     "esbuild-plugin-utils": "^0.0.1",
     "esbuild-plugin-entry-chunks": "^0.1.14",
