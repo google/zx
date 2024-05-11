@@ -134,7 +134,9 @@ jobs:
       - name: Install deps
         run: npm ci
       - name: Install TypeScript ${{ matrix.ts }}
-        run: npm i typescript@${{ matrix.ts }}
+        run: |
+          npm i typescript@${{ matrix.ts }}
+          tsc -v
       - uses: actions/download-artifact@v4
         with:
           name: build
