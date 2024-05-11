@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import * as assert from 'node:assert'
-import '../../build/globals.js'
+import 'zx/globals'
 ;(async () => {
   // smoke test
   {

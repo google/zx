@@ -93,9 +93,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: build
-      - run: |
-          deno test --allow-read --allow-sys --allow-env --allow-run ./test/smoke/deno.test.js
-          deno run --allow-read --allow-sys --allow-env --allow-run ./test/smoke/ts.test.ts
+      - run: deno test --allow-read --allow-sys --allow-env --allow-run ./test/smoke/deno.test.js
         timeout-minutes: 1
         env:
           FORCE_COLOR: 3
@@ -140,7 +138,6 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: build
-      - run: npm i --no-package-lock --prefix ./test/fixtures/ts-project
       - name: tsc
         run: npm run test:smoke:tsc
       - name: tsx

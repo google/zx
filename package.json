@@ -69,7 +69,7 @@
     "test:types": "tsd",
     "test:license": "node ./test/extra.test.js",
     "test:smoke:tsx": "tsx test/smoke/ts.test.ts",
-    "test:smoke:tsc": "tsc --esModuleInterop --outdir ./temp/tsc --module node16 test/fixtures/ts-project/script.ts && node ./temp/tsc/script.js",
+    "test:smoke:tsc": "cd test/smoke && mkdir -p node_modules && ln -s ../../../  ./node_modules/zx; tsc --esModuleInterop --module node16 --rootDir . --outdir ./temp ts.test.ts && node ./temp/ts.test.js",
     "test:smoke:ts-node": "node --loader ts-node/esm test/smoke/ts.test.ts",
     "test:smoke:bun": "bun test ./test/smoke/bun.test.js",
     "test:smoke:win32": "node ./test/smoke/win32.test.js",
