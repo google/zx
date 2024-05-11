@@ -28,7 +28,7 @@ jobs:
       FORCE_COLOR: 3
     strategy:
       matrix:
-        node-version: [16.x, 18.x, 20.x]
+        node-version: [16.x, 20.x, 22.x]
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
@@ -74,7 +74,9 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: build
-      - run: bun test ./test/smoke/bun.test.js
+      - run: |
+          bun test ./test/smoke/bun.test.js
+          bun ./test/smoke/ts.test.ts
         timeout-minutes: 1
         env:
           FORCE_COLOR: 3
@@ -91,7 +93,9 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: build
-      - run: deno test ./test/smoke/deno.test.js --allow-read --allow-sys --allow-env --allow-run
+      - run: |
+          deno test --allow-read --allow-sys --allow-env --allow-run ./test/smoke/deno.test.js
+          deno run --allow-read --allow-sys --allow-env --allow-run ./test/smoke/ts.test.ts
         timeout-minutes: 1
         env:
           FORCE_COLOR: 3
@@ -116,3 +120,30 @@ jobs:
       - name: mjs smoke test
         if: matrix.node-version != '12'
         run: npm run test:smoke:mjs
+
+  smoke-ts:
+    runs-on: ubuntu-latest
+    needs: build
+    strategy:
+      matrix:
+        ts: [4, 5]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+      - name: Install deps
+        run: npm ci
+      - name: Install TypeScript ${{ matrix.ts }}
+        run: npm i typescript@${{ matrix.ts }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: build
+      - run: npm i --no-package-lock --prefix ./test/fixtures/ts-project
+      - name: tsc
+        run: npm run test:smoke:tsc
+      - name: tsx
+        run: npm run test:smoke:tsx
+      - name: ts-node
+        run: npm run test:smoke:ts-node
