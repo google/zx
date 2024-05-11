@@ -1,6 +1,7 @@
 # Setup
 
 ## Requirements
+* Linux, macOS, or Windows
 * JavaScript Runtime:
   * Node.js 12.17.0 or later
   * Bun 1.0.0 or later
