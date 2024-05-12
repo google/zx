@@ -101,6 +101,7 @@ describe('cli', () => {
 
   test('supports `--cwd` option ', async () => {
     let cwd = path.resolve(fileURLToPath(import.meta.url), '../../temp')
+    fs.mkdirSync(cwd, { recursive: true })
     let p =
       await $`node build/cli.js --verbose --cwd=${cwd} <<< '$\`echo \${$.cwd}\`'`
     assert.ok(p.stderr.endsWith(cwd + '\n'))
