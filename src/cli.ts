@@ -59,8 +59,7 @@ const argv = minimist(process.argv.slice(2), {
 })
 
 ;(async function main() {
-  const globals = './globals.js'
-  await import(globals)
+  await import('./globals.js')
   if (argv.verbose) $.verbose = true
   if (argv.quiet) $.verbose = false
   if (argv.shell) $.shell = argv.shell
