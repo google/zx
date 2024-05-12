@@ -32,6 +32,8 @@ brew install zx
 
 :::
 
+Dev snapshot versions are published to npm under the [`dev` tag]((https://www.npmjs.com/package/zx?activeTab=versions)): `npm i zx@dev`.
+
 ## Bash
 
 zx mostly relies on bash, so make sure it's available in your environment. If you're on Windows, consider using [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install) or [Git Bash](https://git-scm.com/downloads).

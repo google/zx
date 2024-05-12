@@ -1,0 +1,36 @@
+# Contribution Guide
+
+zx is a fully [open-source project](https://github.com/google/zx), which is developing by the community for the community. 
+We welcome contributions of any kind, including but not limited to:
+* Bug reports
+* Feature requests
+* Code contributions
+* Documentation improvements
+* Discussions
+
+## Code of Conduct
+We rely on [Google's Open Source Code of Conduct](https://github.com/google/zx?tab=coc-ov-file#readme) to ensure that all contributors are treated with respect and fairness.
+
+## Google CLA
+All contributors are covered under a [CLA with Google](https://cla.developers.google.com/).
+
+## How to contribute
+Before proposing changes, look for similar ones in the project's [issues](https://github.com/google/zx/issues) and [pull requests](https://github.com/google/zx/pulls). If you can't decide, create a new [discussion](https://github.com/google/zx/discussions) topic, and we will help you figure it out. When ready to move on:
+* Prepare your development environment.
+  * Ensure you have Node.js 20+ installed.
+  * Bash is essential for running zx scripts. Linux and macOS users usually have it installed by default. Consider using [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install) or [Git Bash](https://git-scm.com/downloads) if you are on Windows.
+* Fork [the repository](https://github.com/google/zx).
+* Create a new branch.
+* Make your changes.
+  * If you are adding a new feature, please include additional tests. The coverage threshold is 98%.
+  * Create a [conventional-commits](https://www.conventionalcommits.org/en/v1.0.0/) compliant messages.
+* Ensure that everything is working:
+  * `npm run fmt` to format your code.
+  * `npm run cov` to run the tests.
+* Push the changes to your fork.
+* Create a pull request.
+  * Describe your changes in detail.
+  * Reference any related issues if applicable.
+
+## License
+The project is licensed under the [Apache-2.0](https://github.com/google/zx?tab=Apache-2.0-1-ov-file#readme)
