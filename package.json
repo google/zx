@@ -51,6 +51,7 @@
   "bin": {
     "zx": "./build/cli.js"
   },
+  "man": "./man/zx.1",
   "engines": {
     "node": ">= 12.17.0"
   },
@@ -118,7 +119,7 @@
   },
   "files": [
     "build",
-    "zx.js"
+    "man"
   ],
   "prettier": {
     "semi": false,
