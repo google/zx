@@ -32,7 +32,7 @@ brew install zx
 
 :::
 
-Dev snapshot versions are published to npm under the [`dev` tag]((https://www.npmjs.com/package/zx?activeTab=versions)): `npm i zx@dev`.
+Dev snapshot versions are published to npm under the [`dev` tag](https://www.npmjs.com/package/zx?activeTab=versions): `npm i zx@dev`.
 
 ## Bash
 
