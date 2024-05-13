@@ -234,6 +234,25 @@ await kill(123)
 await kill(123, 'SIGKILL')
 ```
 
+## tmpdir()
+
+Creates a temporary directory.
+
+```js
+t1 = tmpdir()       // /os/based/tmp/zx-1ra1iofojgg/
+t2 = tmpdir('foo')  // /os/based/tmp/zx-1ra1iofojgg/foo/
+```
+
+## tmpfile()
+
+Temp file factory.
+
+```js
+f1 = tmpfile()         // /os/based/tmp/zx-1ra1iofojgg
+f2 = tmpfile('f.txt')  // /os/based/tmp/zx-1ra1iofojgg/foo.txt
+f3 = tmpfile('f.txt', 'string or buffer')
+```
+
 ## minimist
 
 The [minimist](https://www.npmjs.com/package/minimist) package.
