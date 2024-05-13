@@ -1,7 +1,7 @@
 {
   "private": true,
   "devDependencies": {
-    "vitepress": "^1.0.0-rc.45"
+    "vitepress": "^1.1.4"
   },
   "scripts": {
     "docs:dev": "vitepress dev",
