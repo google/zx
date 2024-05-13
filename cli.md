@@ -91,6 +91,14 @@ Attach a command to the beginning or the end of every command.
 zx --prefix='echo foo;' --postfix='; echo bar' script.mjs
 ```
 
+## --cwd
+
+Set the current working directory.
+
+```bash
+zx --cwd=/foo/bar script.mjs
+```
+
 ## --version
 
 Print the current version of `zx`.
