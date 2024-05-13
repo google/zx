@@ -1,5 +1,86 @@
 # API Reference
 
+## $.sync 
+Zx provides both synchronous and asynchronous command executions, returns [`ProcessOutput`](./process-output) or [`ProcessPromise`](./process-promise) respectively.
+
+```js
+const list = await $`ls -la`
+const dir = $.sync`pwd`
+```
+
+## $({...})
+
+`$` object holds the default zx [configuration](./configuration), which is used for all execution. To specify a custom preset use `$` as factory:
+
+```js
+const $$ = $({
+  verbose: false,
+  env: {NODE_ENV: 'production'},
+})
+
+const env = await $$`node -e 'console.log(process.env.NODE_ENV)'`
+const pwd = $$.sync`pwd`
+const hello = $({quiet: true})`echo "Hello!"`
+```
+
+### $({input})
+
+The input option passes the specified `stdin` to the command.
+
+```js
+const p1 = $({ input: 'foo' })`cat`
+const p2 = $({ input: Readable.from('bar') })`cat`
+const p3 = $({ input: Buffer.from('baz') })`cat`
+const p4 = $({ input: p3 })`cat`
+const p5 = $({ input: await p3 })`cat`
+```
+
+### $({signal})
+
+The signal option makes the process abortable.
+
+```js
+const {signal} = new AbortController()
+const p = $({ signal })`sleep 9999`
+
+setTimeout(() => signal.abort('reason'), 1000)
+```
+
+### $({timeout})
+
+The timeout option makes the process autokillable after the specified delay.
+
+```js
+const p = $({timeout: '1s'})`sleep 999`
+```
+
+The full options list:
+```ts
+interface Options {
+  cwd:            string
+  ac:             AbortController
+  signal:         AbortSignal
+  input:          string | Buffer | Readable | ProcessOutput | ProcessPromise
+  timeout:        Duration
+  timeoutSignal:  string
+  stdio:          StdioOptions
+  verbose:        boolean
+  sync:           boolean
+  env:            NodeJS.ProcessEnv
+  shell:          string | boolean
+  nothrow:        boolean
+  prefix:         string
+  postfix:        string
+  quote:          typeof quote
+  quiet:          boolean
+  detached:       boolean
+  spawn:          typeof spawn
+  spawnSync:      typeof spawnSync
+  log:            typeof log
+  kill:           typeof kill
+}
+```
+
 ## cd()
 
 Changes the current working directory.
@@ -133,9 +214,54 @@ The [which](https://github.com/npm/node-which) package.
 const node = await which('node')
 ```
 
-## argv
+## ps()
+
+The [@webpod/ps](https://github.com/webpod/ps) package to provide a cross-platform way to list processes.
+
+```js
+const all = await ps.lookup()
+const nodejs = await ps.lookup({ command: 'node' })
+const children = await ps.tree({ pid: 123 })
+const fulltree = await ps.tree({ pid: 123, recursive: true })
+```
+
+## kill()
+
+A process killer.
+
+```js
+await kill(123)
+await kill(123, 'SIGKILL')
+```
+
+## tmpdir()
+
+Creates a temporary directory.
+
+```js
+t1 = tmpdir()       // /os/based/tmp/zx-1ra1iofojgg/
+t2 = tmpdir('foo')  // /os/based/tmp/zx-1ra1iofojgg/foo/
+```
+
+## tmpfile()
+
+Temp file factory.
+
+```js
+f1 = tmpfile()         // /os/based/tmp/zx-1ra1iofojgg
+f2 = tmpfile('f.txt')  // /os/based/tmp/zx-1ra1iofojgg/foo.txt
+f3 = tmpfile('f.txt', 'string or buffer')
+```
+
+## minimist
 
 The [minimist](https://www.npmjs.com/package/minimist) package.
+
+```js
+const argv = minimist(process.argv.slice(2), {})
+```
+
+## argv
 
 A minimist-parsed version of the `process.argv` as `argv`.
 

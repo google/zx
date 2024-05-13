@@ -14,6 +14,8 @@ Or use a CLI argument: `--shell=/bin/bash`
 
 Specifies a `spawn` api. Defaults to `require('child_process').spawn`.
 
+To override a sync API implementation, set `$.spawnSync` correspondingly.
+
 ## $.prefix
 
 Specifies the command that will be prefixed to all commands run.
@@ -22,6 +24,14 @@ Default is `set -euo pipefail;`.
 
 Or use a CLI argument: `--prefix='set -e;'`
 
+## $.postfix
+
+Like a `$.prefix`, but for the end of the command.
+
+```js
+$.postfix = '; exit $LastExitCode' // for PowerShell compatibility
+```
+
 ## $.quote
 
 Specifies a function for escaping special characters during
@@ -29,12 +39,18 @@ command substitution.
 
 ## $.verbose
 
-Specifies verbosity. Default is `true`.
+Specifies verbosity. Default is `false`.
 
 In verbose mode, `zx` prints all executed commands alongside with their
 outputs.
 
-Or use the CLI argument `--quiet` to set `$.verbose = false`.
+Or use the CLI argument: `--verbose` to set `true`.
+
+## $.quiet
+
+Suppresses all output. Default is `false`.
+
+Via CLI argument: `--quiet` sets `$.quiet = true`.
 
 ## $.env
 

@@ -35,6 +35,10 @@ gives sensible defaults.
 npm install zx
 ```
 
+```bash [bun]
+bun install zx
+```
+
 ```bash [deno]
 deno install -A npm:zx
 ```
@@ -82,7 +86,12 @@ import 'zx/globals'
 ### ``$`command` ``
 
 Executes a given command using the `spawn` func
-and returns [`ProcessPromise`](process-promise.md).
+and returns [`ProcessPromise`](process-promise.md). It supports both sync and async modes.
+
+```js
+const list = await $`ls -la`
+const dir = $.sync`pwd`
+```
 
 Everything passed through `${...}` will be automatically escaped and quoted.
 

@@ -1,11 +1,11 @@
 # Process Promise
 
-The `$` returns a `ProcessPromise` instance.
+The `$` returns a `ProcessPromise` instance. When resolved, it becomes a [`ProcessOutput`](./process-output.md).
 
 ```js
-const p = $`command`
+const p = $`command` // ProcessPromise
 
-await p
+const o = await p    // ProcessOutput
 ```
 
 ## `stdin`
