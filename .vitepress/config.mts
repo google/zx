@@ -24,9 +24,10 @@ export default defineConfig({
       {text: 'Home', link: '/'},
       {text: 'Docs', link: '/getting-started'},
       {
-        text: 'v8',
+        text: 'Version',
         items: [
           {text: 'v7', link: '/v7/api'},
+          {text: 'v8', link: '/api'},
         ],
       },
     ],
