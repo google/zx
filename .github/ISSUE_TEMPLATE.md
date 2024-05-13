@@ -1,16 +1,21 @@
-## Expected Behavior
+### Expected Behavior
+```js
 
+```
 
-## Actual Behavior
+### Actual Behavior
+```js
 
+```
 
-## Steps to Reproduce the Problem
+### Steps to Reproduce
 
 1.
-1.
-1.
+2.
+3.
 
-## Specifications
+### Specifications
 
-- Version:
-- Platform:
+- zx version:  x.x.x
+- Platform: windows / macos / linux
+- Runtime: node / deno / bun
