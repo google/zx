@@ -27,7 +27,15 @@ export {
   glob as globby,
 } from './vendor.js'
 
-export { type Duration, quote, quotePowerShell } from './util.js'
+export {
+  type Duration,
+  quote,
+  quotePowerShell,
+  tempdir,
+  tempdir as tmpdir,
+  tempfile,
+  tempfile as tmpfile,
+} from './util.js'
 
 /**
  *  @deprecated Use $`cmd`.nothrow() instead.

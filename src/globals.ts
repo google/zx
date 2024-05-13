@@ -41,12 +41,16 @@ declare global {
   var quote: typeof _.quote
   var quotePowerShell: typeof _.quotePowerShell
   var retry: typeof _.retry
-  var usePowerShell: typeof _.usePowerShell
-  var usePwsh: typeof _.usePwsh
-  var useBash: typeof _.useBash
   var sleep: typeof _.sleep
   var spinner: typeof _.spinner
   var stdin: typeof _.stdin
+  var tempdir: typeof _.tempdir
+  var tempfile: typeof _.tempfile
+  var tmpdir: typeof _.tempdir
+  var tmpfile: typeof _.tempfile
+  var usePowerShell: typeof _.usePowerShell
+  var usePwsh: typeof _.usePwsh
+  var useBash: typeof _.useBash
   var which: typeof _.which
   var within: typeof _.within
   var YAML: typeof _.YAML

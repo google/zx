@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import assert from 'node:assert'
+import fs from 'node:fs'
 import { test, describe } from 'node:test'
 import {
   exitCodeInfo,
@@ -26,6 +27,8 @@ import {
   randomId,
   normalizeMultilinePieces,
   getCallerLocationFromString,
+  tempdir,
+  tempfile,
 } from '../build/util.js'
 
 describe('util', () => {
@@ -147,4 +150,18 @@ test(`getCallerLocationFromString-JSC`, () => {
     d@/Users/user/test.js:11:5
   `
   assert.match(getCallerLocationFromString(stack), /^.*:11:5.*$/)
+})
+
+test('tempdir() creates temporary folders', () => {
+  assert.match(tempdir(), /\/zx-/)
+  assert.match(tempdir('foo'), /\/foo$/)
+})
+
+test('tempfile() creates temporary files', () => {
+  assert.match(tempfile(), /\/zx-.+/)
+  assert.match(tempfile('foo.txt'), /\/zx-.+\/foo\.txt$/)
+
+  const tf = tempfile('bar.txt', 'bar')
+  assert.match(tf, /\/zx-.+\/bar\.txt$/)
+  assert.equal(fs.readFileSync(tf, 'utf-8'), 'bar')
 })
