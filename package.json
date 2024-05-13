@@ -52,6 +52,10 @@
     "zx": "./build/cli.js"
   },
   "man": "./man/zx.1",
+  "files": [
+    "build",
+    "man"
+  ],
   "engines": {
     "node": ">= 12.17.0"
   },
@@ -122,9 +126,19 @@
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"
   },
-  "files": [
-    "build",
-    "man"
+  "keywords": [
+    "shell",
+    "script",
+    "bash",
+    "bin",
+    "binary",
+    "child",
+    "process",
+    "exec",
+    "execute",
+    "invoke",
+    "call",
+    "spawn"
   ],
   "prettier": {
     "semi": false,
