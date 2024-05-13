@@ -26,6 +26,7 @@ export default defineConfig({
       {
         text: 'v8',
         items: [
+          {text: 'v8', link: '/migration-from-v7'},
           {text: 'v7', link: '/v7/api'},
         ],
       },
