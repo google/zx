@@ -29,7 +29,7 @@ describe('package', () => {
     const pack = path.resolve('package')
     const out = await within(async () => {
       cd('test/fixtures/ts-project')
-      await $`npm i`
+      await $`npm i --no-package-lock`
       try {
         await $`npx tsc`
       } catch (err) {
@@ -44,7 +44,7 @@ describe('package', () => {
     const pack = path.resolve('package')
     const out = await within(async () => {
       cd('test/fixtures/js-project')
-      await $`npm i`
+      await $`npm i --no-package-lock`
       return $`node node_modules/zx/build/cli.js --verbose script.js`
     })
     assert.match(out.stderr, /js-script/)
