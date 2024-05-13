@@ -81,7 +81,7 @@
     "test:smoke:cjs": "node ./test/smoke/node.test.cjs",
     "test:smoke:mjs": "node ./test/smoke/node.test.mjs",
     "test:smoke:deno": "deno test ./test/smoke/deno.test.js --allow-read --allow-sys --allow-env --allow-run",
-    "coverage": "c8 -x build/vendor.cjs -x build/esblib.cjs -x 'test/**' -x scripts --check-coverage npm test",
+    "coverage": "c8 -x build/deno.js -x build/vendor.cjs -x build/esblib.cjs -x 'test/**' -x scripts --check-coverage npm test",
     "version": "cat package.json | fx .version"
   },
   "optionalDependencies": {
