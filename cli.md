@@ -67,6 +67,38 @@ the import.
 import sh from 'tinysh' // @^1
 ```
 
+## --quiet
+
+Suppress any outputs.
+
+## --verbose
+
+Enable verbose mode.
+
+## --shell
+
+Specify a custom shell binary.
+
+```bash
+zx --shell=/bin/bash script.mjs
+```
+
+## --prefix & --postfix
+
+Attach a command to the beginning or the end of every command.
+
+```bash
+zx --prefix='echo foo;' --postfix='; echo bar' script.mjs
+```
+
+## --version
+
+Print the current version of `zx`.
+
+## --help
+
+Print help.
+
 ## __filename & __dirname
 
 In [ESM](https://nodejs.org/api/esm.html) modules, Node.js does not provide
