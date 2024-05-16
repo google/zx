@@ -651,12 +651,9 @@ export function log(entry: LogEntry) {
     case 'stdout':
     case 'stderr':
       if (!entry.verbose) return
-      let lastChar = entry.data.toString('utf-8', entry.data.length - 1)
-      if (lastChar !== '\n') {
-        process.stdout.write(
-          Buffer.concat([entry.data, Buffer.from('\n', 'utf-8')])
-        )
-        break
+      const eol = Buffer.from('\n', 'utf-8')
+      if (Uint8Array.prototype.slice.call(entry.data, -1)[0] !== eol[0]) {
+        entry.data = Buffer.concat([entry.data, eol])
       }
       process.stderr.write(entry.data)
       break
