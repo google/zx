@@ -651,6 +651,13 @@ export function log(entry: LogEntry) {
     case 'stdout':
     case 'stderr':
       if (!entry.verbose) return
+      let lastChar = entry.data.toString('utf-8', entry.data.length - 1)
+      if (lastChar !== '\n') {
+        process.stdout.write(
+          Buffer.concat([entry.data, Buffer.from('\n', 'utf-8')])
+        )
+        break
+      }
       process.stderr.write(entry.data)
       break
     case 'cd':
