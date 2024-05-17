@@ -23,27 +23,27 @@
   },
   "exports": {
     ".": {
+      "types": "./build/index.d.ts",
       "import": "./build/index.js",
       "require": "./build/index.cjs",
-      "types": "./build/index.d.ts",
       "default": "./build/index.js"
     },
     "./globals": {
+      "types": "./build/globals.d.ts",
       "import": "./build/globals.js",
       "require": "./build/globals.cjs",
-      "types": "./build/globals.d.ts",
       "default": "./build/globals.js"
     },
     "./cli": {
+      "types": "./build/cli.d.ts",
       "import": "./build/cli.js",
       "require": "./build/cli.cjs",
-      "types": "./build/cli.d.ts",
       "default": "./build/cli.js"
     },
     "./core": {
+      "types": "./build/core.d.ts",
       "import": "./build/core.js",
       "require": "./build/core.cjs",
-      "types": "./build/core.d.ts",
       "default": "./build/core.js"
     },
     "./package.json": "./package.json"
