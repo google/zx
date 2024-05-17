@@ -38,6 +38,7 @@ import {
   quote,
   quotePowerShell,
   noquote,
+  ensureEol,
 } from './util.js'
 
 export interface Shell {
@@ -651,7 +652,7 @@ export function log(entry: LogEntry) {
     case 'stdout':
     case 'stderr':
       if (!entry.verbose) return
-      process.stderr.write(entry.data)
+      process.stderr.write(ensureEol(entry.data))
       break
     case 'cd':
       if (!$.verbose) return
