@@ -226,24 +226,6 @@ describe('core', () => {
     assert.equal((await p).toString(), 'foo\n')
   })
 
-  test('ProcessPromise: implements json()', async () => {
-    const p = $`echo '{"key":"value"}'`
-    assert.equal(
-      JSON.stringify((await p).json()),
-      JSON.stringify({ key: 'value' })
-    )
-  })
-
-  test('ProcessPromise: implements text()', async () => {
-    const p = $`echo foo`
-    assert.equal((await p).toString(), 'foo\n')
-  })
-
-  test('ProcessPromise: implements buffer()', async () => {
-    const p = $`echo foo`
-    assert.equal((await p).buffer().compare(Buffer.from('foo\n', 'utf-8')), 0)
-  })
-
   test('ProcessPromise: implements valueOf()', async () => {
     const p = $`echo foo`
     assert.equal((await p).valueOf(), 'foo')
