@@ -411,3 +411,11 @@ export function getCallerLocationFromString(stackString = 'unknown') {
       ?.trim() || stackString
   )
 }
+
+export function ensureEol(buffer: Buffer): Buffer {
+  if (buffer.toString('utf8', buffer.length - 1) !== '\n') {
+    return Buffer.concat([buffer, Buffer.from('\n')])
+  }
+
+  return buffer
+}
