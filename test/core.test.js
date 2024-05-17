@@ -228,10 +228,7 @@ describe('core', () => {
 
   test('ProcessPromise: implements json()', async () => {
     const p = $`echo '{"key":"value"}'`
-    assert.equal(
-      JSON.stringify((await p).json()),
-      JSON.stringify({ key: 'value' })
-    )
+    assert.deepEqual((await p).json(), { key: 'value' })
   })
 
   test('ProcessPromise: implements text()', async () => {
