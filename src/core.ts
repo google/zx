@@ -202,7 +202,7 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
 )
 try {
   useBash()
-} catch (err) { }
+} catch (err) {}
 
 type Resolve = (out: ProcessOutput) => void
 
@@ -523,7 +523,7 @@ export class ProcessOutput extends Error {
   }
 
   text() {
-    return this._combined;
+    return this._combined
   }
 
   valueOf() {
@@ -555,8 +555,9 @@ export class ProcessOutput extends Error {
     let message = `exit code: ${code}`
     if (code != 0 || signal != null) {
       message = `${stderr || '\n'}    at ${from}`
-      message += `\n    exit code: ${code}${exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : ''
-        }`
+      message += `\n    exit code: ${code}${
+        exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : ''
+      }`
       if (signal != null) {
         message += `\n    signal: ${signal}`
       }
@@ -581,10 +582,11 @@ export class ProcessOutput extends Error {
   stdout: ${stringify(this.stdout, chalk.green)},
   stderr: ${stringify(this.stderr, chalk.red)},
   signal: ${inspect(this.signal)},
-  exitCode: ${(this.exitCode === 0 ? chalk.green : chalk.red)(this.exitCode)}${exitCodeInfo(this.exitCode)
-        ? chalk.grey(' (' + exitCodeInfo(this.exitCode) + ')')
-        : ''
-      }
+  exitCode: ${(this.exitCode === 0 ? chalk.green : chalk.red)(this.exitCode)}${
+    exitCodeInfo(this.exitCode)
+      ? chalk.grey(' (' + exitCodeInfo(this.exitCode) + ')')
+      : ''
+  }
 }`
   }
 }
@@ -612,45 +614,45 @@ export async function kill(pid: number, signal?: string) {
   for (const p of children) {
     try {
       process.kill(+p.pid, signal)
-    } catch (e) { }
+    } catch (e) {}
   }
   try {
     process.kill(-pid, signal)
   } catch (e) {
     try {
       process.kill(+pid, signal)
-    } catch (e) { }
+    } catch (e) {}
   }
 }
 
 export type LogEntry =
   | {
-    kind: 'cmd'
-    verbose: boolean
-    cmd: string
-  }
+      kind: 'cmd'
+      verbose: boolean
+      cmd: string
+    }
   | {
-    kind: 'stdout' | 'stderr'
-    verbose: boolean
-    data: Buffer
-  }
+      kind: 'stdout' | 'stderr'
+      verbose: boolean
+      data: Buffer
+    }
   | {
-    kind: 'cd'
-    dir: string
-  }
+      kind: 'cd'
+      dir: string
+    }
   | {
-    kind: 'fetch'
-    url: RequestInfo
-    init?: RequestInit
-  }
+      kind: 'fetch'
+      url: RequestInfo
+      init?: RequestInit
+    }
   | {
-    kind: 'retry'
-    error: string
-  }
+      kind: 'retry'
+      error: string
+    }
   | {
-    kind: 'custom'
-    data: any
-  }
+      kind: 'custom'
+      data: any
+    }
 
 export function log(entry: LogEntry) {
   switch (entry.kind) {
