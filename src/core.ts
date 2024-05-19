@@ -515,6 +515,18 @@ export class ProcessOutput extends Error {
     return this._combined
   }
 
+  json() {
+    return JSON.parse(this._combined)
+  }
+
+  buffer() {
+    return Buffer.from(this._combined, 'utf8')
+  }
+
+  text() {
+    return this._combined
+  }
+
   valueOf() {
     return this._combined.trim()
   }
