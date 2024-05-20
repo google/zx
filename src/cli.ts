@@ -63,7 +63,7 @@ const argv = minimist(process.argv.slice(2), {
   await import('./globals.js')
   if (argv.cwd) $.cwd = argv.cwd
   if (argv.verbose) $.verbose = true
-  if (argv.quiet) $.verbose = false
+  if (argv.quiet) $.quiet = true
   if (argv.shell) $.shell = argv.shell
   if (argv.prefix) $.prefix = argv.prefix
   if (argv.postfix) $.postfix = argv.postfix
