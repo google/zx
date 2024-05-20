@@ -465,33 +465,76 @@ describe('core', () => {
         assert.equal(signal, 'SIGKILL')
       })
     })
+
+    test('json()', async () => {
+      assert.deepEqual(await $`echo '{"key":"value"}'`.json(), { key: 'value' })
+    })
+
+    test('text()', async () => {
+      const p = $`echo foo`
+      assert.equal(await p.text(), 'foo\n')
+      assert.equal(await p.text('hex'), '666f6f0a')
+    })
+
+    test('lines()', async () => {
+      const p = $`echo 'foo\nbar\r\nbaz'`
+      assert.deepEqual(await p.lines(), ['foo', 'bar', 'baz'])
+    })
+
+    test('buffer()', async () => {
+      assert.equal(
+        (await $`echo foo`.buffer()).compare(Buffer.from('foo\n', 'utf-8')),
+        0
+      )
+    })
+
+    test('blob()', async () => {
+      const p = $`echo foo`
+      assert.equal(await (await p.blob()).text(), 'foo\n')
+    })
   })
 
   describe('ProcessOutput', () => {
-    test('implements toString()', async () => {
-      const p = $`echo foo`
-      assert.equal((await p).toString(), 'foo\n')
+    test('toString()', async () => {
+      const o = new ProcessOutput(null, null, '', '', 'foo\n')
+      assert.equal(o.toString(), 'foo\n')
     })
 
-    test('implements valueOf()', async () => {
-      const p = $`echo foo`
-      assert.equal((await p).valueOf(), 'foo')
-      assert.ok((await p) == 'foo')
+    test('valueOf()', async () => {
+      const o = new ProcessOutput(null, null, '', '', 'foo\n')
+      assert.equal(o.valueOf(), 'foo')
+      assert.ok(o == 'foo')
     })
 
-    test('implements json()', async () => {
-      const p = $`echo '{"key":"value"}'`
-      assert.deepEqual((await p).json(), { key: 'value' })
+    test('json()', async () => {
+      const o = new ProcessOutput(null, null, '', '', '{"key":"value"}')
+      assert.deepEqual(o.json(), { key: 'value' })
     })
 
-    test('implements text()', async () => {
-      const p = $`echo foo`
-      assert.equal((await p).toString(), 'foo\n')
+    test('text()', async () => {
+      const o = new ProcessOutput(null, null, '', '', 'foo\n')
+      assert.equal(o.text(), 'foo\n')
+      assert.equal(o.text('hex'), '666f6f0a')
     })
 
-    test('implements buffer()', async () => {
-      const p = $`echo foo`
-      assert.equal((await p).buffer().compare(Buffer.from('foo\n', 'utf-8')), 0)
+    test('lines()', async () => {
+      const o = new ProcessOutput(null, null, '', '', 'foo\nbar\r\nbaz\n')
+      assert.deepEqual(o.lines(), ['foo', 'bar', 'baz'])
+    })
+
+    test('buffer()', async () => {
+      const o = new ProcessOutput(null, null, '', '', 'foo\n')
+      assert.equal(o.buffer().compare(Buffer.from('foo\n', 'utf-8')), 0)
+    })
+
+    test('blob()', async () => {
+      const o = new ProcessOutput(null, null, '', '', 'foo\n')
+      assert.equal(await o.blob().text(), 'foo\n')
+
+      const { Blob } = globalThis
+      globalThis.Blob = undefined
+      assert.throws(() => o.blob(), /Blob is not supported/)
+      globalThis.Blob = Blob
     })
   })
 

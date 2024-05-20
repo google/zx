@@ -14,6 +14,7 @@
 
 import assert from 'node:assert'
 import { spawn, spawnSync, StdioOptions, IOType } from 'node:child_process'
+import { type Encoding } from 'node:crypto'
 import { AsyncHook, AsyncLocalStorage, createHook } from 'node:async_hooks'
 import { Readable, Writable } from 'node:stream'
 import { inspect } from 'node:util'
@@ -374,6 +375,26 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     )
   }
 
+  json<T = any>(): Promise<T> {
+    return this.then((p) => p.json<T>())
+  }
+
+  text(encoding?: Encoding): Promise<string> {
+    return this.then((p) => p.text(encoding))
+  }
+
+  lines(): Promise<string[]> {
+    return this.then((p) => p.lines())
+  }
+
+  buffer(): Promise<Buffer> {
+    return this.then((p) => p.buffer())
+  }
+
+  blob(type?: string): Promise<Blob> {
+    return this.then((p) => p.blob(type))
+  }
+
   then<R = ProcessOutput, E = ProcessOutput>(
     onfulfilled?:
       | ((value: ProcessOutput) => PromiseLike<R> | R)
@@ -515,16 +536,30 @@ export class ProcessOutput extends Error {
     return this._combined
   }
 
-  json() {
+  json<T = any>(): T {
     return JSON.parse(this._combined)
   }
 
   buffer() {
-    return Buffer.from(this._combined, 'utf8')
+    return Buffer.from(this._combined)
   }
 
-  text() {
-    return this._combined
+  blob(type = 'text/plain') {
+    if (!globalThis.Blob)
+      throw new Error(
+        'Blob is not supported in this environment. Provide a polyfill'
+      )
+    return new Blob([this.buffer()], { type })
+  }
+
+  text(encoding: Encoding = 'utf8') {
+    return encoding === 'utf8'
+      ? this.toString()
+      : this.buffer().toString(encoding)
+  }
+
+  lines() {
+    return this.valueOf().split(/\r?\n/)
   }
 
   valueOf() {
