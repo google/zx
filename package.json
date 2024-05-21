@@ -86,7 +86,7 @@
   },
   "optionalDependencies": {
     "@types/fs-extra": "^11.0.4",
-    "@types/node": ">=20.12.11"
+    "@types/node": ">=20.12.12"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
@@ -100,12 +100,12 @@
     "create-require": "^1.1.1",
     "depseek": "^0.4.1",
     "dts-bundle-generator": "^9.5.1",
-    "esbuild": "^0.21.1",
+    "esbuild": "^0.21.3",
     "esbuild-node-externals": "^1.13.1",
     "esbuild-plugin-entry-chunks": "^0.1.14",
     "esbuild-plugin-extract-helpers": "^0.0.5",
     "esbuild-plugin-hybrid-export": "^0.2.3",
-    "esbuild-plugin-transform-hook": "^0.0.3",
+    "esbuild-plugin-transform-hook": "^0.1.0",
     "esbuild-plugin-utils": "^0.0.1",
     "fs-extra": "^11.2.0",
     "fx": "*",
@@ -117,7 +117,7 @@
     "prettier": "^3.2.5",
     "ts-node": "^10.9.2",
     "tsd": "^0.31.0",
-    "tsx": "^4.9.4",
+    "tsx": "^4.10.5",
     "typescript": "^5.4.5",
     "which": "^4.0.0",
     "yaml": "^2.4.2",
