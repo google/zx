@@ -44,6 +44,21 @@ if (await $`[[ -d path ]]`.exitCode == 0) {
 }
 ```
 
+## `json(), text(), lines(), buffer(), blob()`
+
+Output formatters collection.
+
+```js
+const p = $`echo 'foo\nbar'`
+
+await p.text()        // foo\n\bar\n
+await p.text('hex')   //  666f6f0a0861720a
+await p.buffer()      //  Buffer.from('foo\n\bar\n')
+await p.lines()       // ['foo', 'bar']
+await $`echo '{"foo": "bar"}'`.json() // {foo: 'bar'}
+```
+
+
 ## `pipe()`
 
 Redirects the stdout of the process.
@@ -90,6 +105,29 @@ By default, signal `SIGTERM` is sent. You can specify a signal via an argument.
 const p = $`sleep 999`
 setTimeout(() => p.kill('SIGINT'), 100)
 await p
+```
+
+## `abort()`
+
+Terminates the process via an `AbortController` signal.
+
+```js
+const ac = new AbortController()
+const {signal} = ac
+const p = $({signal})`sleep 999`
+
+setTimeout(() => ac.abort('reason'), 100)
+await p
+```
+
+If `ac` or `signal` is not provided, it will be autocreated and could be used to control external processes.
+
+```js
+const p = $`sleep 999`
+const {signal} = p
+
+const res = fetch('https://example.com', {signal})
+p.abort('reason')
 ```
 
 ## `stdio()`

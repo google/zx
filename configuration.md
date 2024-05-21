@@ -32,6 +32,16 @@ Like a `$.prefix`, but for the end of the command.
 $.postfix = '; exit $LastExitCode' // for PowerShell compatibility
 ```
 
+## $.preferLocal
+
+Specifies whether to prefer `node_modules/.bin` located binaries over globally system installed ones.
+
+```js
+$.preferLocal = true
+
+await $`c8 npm test`
+```
+
 ## $.quote
 
 Specifies a function for escaping special characters during
