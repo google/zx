@@ -51,6 +51,10 @@ import {
   expBackoff,
   spinner,
   path,
+  tempdir,
+  tempfile,
+  tmpdir,
+  tmpfile,
 } from '../build/index.js'
 
 describe('index', () => {
@@ -100,5 +104,9 @@ describe('index', () => {
     // utils
     assert(quote)
     assert(quotePowerShell)
+    assert(tempdir)
+    assert(tmpdir)
+    assert(tmpfile)
+    assert(tempfile)
   })
 })

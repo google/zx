@@ -43,6 +43,7 @@ function printUsage() {
    --shell=<path>       custom shell binary
    --prefix=<command>   prefix all commands
    --postfix=<command>  postfix all commands
+   --cwd=<path>         set current directory
    --eval=<js>, -e      evaluate script 
    --install, -i        install dependencies
    --version, -v        print current zx version
@@ -52,17 +53,17 @@ function printUsage() {
 }
 
 const argv = minimist(process.argv.slice(2), {
-  string: ['shell', 'prefix', 'postfix', 'eval'],
+  string: ['shell', 'prefix', 'postfix', 'eval', 'cwd'],
   boolean: ['version', 'help', 'quiet', 'verbose', 'install', 'repl'],
   alias: { e: 'eval', i: 'install', v: 'version', h: 'help' },
   stopEarly: true,
 })
 
 ;(async function main() {
-  const globals = './globals.js'
-  await import(globals)
+  await import('./globals.js')
+  if (argv.cwd) $.cwd = argv.cwd
   if (argv.verbose) $.verbose = true
-  if (argv.quiet) $.verbose = false
+  if (argv.quiet) $.quiet = true
   if (argv.shell) $.shell = argv.shell
   if (argv.prefix) $.prefix = argv.prefix
   if (argv.postfix) $.postfix = argv.postfix
@@ -107,7 +108,7 @@ const argv = minimist(process.argv.slice(2), {
 })
 
 async function runScript(script: string) {
-  const filepath = join(process.cwd(), `zx-${randomId()}.mjs`)
+  const filepath = join($.cwd ?? process.cwd(), `zx-${randomId()}.mjs`)
   await writeAndImport(script, filepath)
 }
 
@@ -137,7 +138,7 @@ async function scriptFromHttp(remote: string) {
   const pathname = new URL(remote).pathname
   const name = basename(pathname)
   const ext = extname(pathname) || '.mjs'
-  const filepath = join(process.cwd(), `${name}-${randomId()}${ext}`)
+  const filepath = join($.cwd ?? process.cwd(), `${name}-${randomId()}${ext}`)
   await writeAndImport(script, filepath)
 }
 

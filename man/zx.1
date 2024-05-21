@@ -1,0 +1,40 @@
+.\" Manpage for zx.
+.TH man 8 "12 May 2024" "8.x" "zx man page"
+.SH NAME
+zx \- the zx CLI
+.SH DESCRIPTION
+A tool for writing better scripts.
+.SH SYNOPSIS
+.SS zx\fR [\fIOPTIONS\fR]  \fIURI\fR
+.SH OPTIONS
+.SS --quiet
+don't echo commands
+.SS --verbose
+Enables verbose mode
+.SS --shell=<path>
+Sets the shell to use
+.SS --prefix=<command>
+prefix all commands
+.SS --postfix=<command>
+postfix all commands
+.SS --eval=<js>, -e
+evaluate script
+.SS --install, -i
+install dependencies
+.SS --repl
+start repl
+.SS --version, -v
+print current zx version
+.SS --help, -h
+Print command help and options
+.SH EXAMPLES
+.TP
+.I zx --verbose script.js
+.TP
+.I zx https://example.com/script.js
+.TP
+.I zx -e '$`ls -l`'
+.SH BUGS
+https://github.com/google/zx/issues.
+.SH AUTHOR
+Anton Medvedev (https://medv.io/)

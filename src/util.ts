@@ -12,7 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { chalk, parseLine } from './vendor.js'
+import os from 'node:os'
+import path from 'node:path'
+import { chalk, parseLine, fs } from './vendor.js'
+
+export function tempdir(prefix = `zx-${randomId()}`) {
+  const dirpath = path.join(os.tmpdir(), prefix)
+  fs.mkdirSync(dirpath, { recursive: true })
+
+  return dirpath
+}
+
+export function tempfile(name?: string, data?: string | Buffer) {
+  const filepath = name
+    ? path.join(tempdir(), name)
+    : path.join(os.tmpdir(), `zx-${randomId()}`)
+
+  if (data === undefined) fs.closeSync(fs.openSync(filepath, 'w'))
+  else fs.writeFileSync(filepath, data)
+
+  return filepath
+}
 
 export function noop() {}
 
@@ -390,4 +410,12 @@ export function getCallerLocationFromString(stackString = 'unknown') {
       .filter((s) => s?.includes(':'))[2]
       ?.trim() || stackString
   )
+}
+
+export function ensureEol(buffer: Buffer): Buffer {
+  if (buffer.toString('utf8', buffer.length - 1) !== '\n') {
+    return Buffer.concat([buffer, Buffer.from('\n')])
+  }
+
+  return buffer
 }

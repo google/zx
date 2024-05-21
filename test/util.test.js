@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import assert from 'node:assert'
+import fs from 'node:fs'
 import { test, describe } from 'node:test'
 import {
   exitCodeInfo,
@@ -26,6 +27,9 @@ import {
   randomId,
   normalizeMultilinePieces,
   getCallerLocationFromString,
+  tempdir,
+  tempfile,
+  ensureEol,
 } from '../build/util.js'
 
 describe('util', () => {
@@ -147,4 +151,35 @@ test(`getCallerLocationFromString-JSC`, () => {
     d@/Users/user/test.js:11:5
   `
   assert.match(getCallerLocationFromString(stack), /^.*:11:5.*$/)
+})
+
+test('tempdir() creates temporary folders', () => {
+  assert.match(tempdir(), /\/zx-/)
+  assert.match(tempdir('foo'), /\/foo$/)
+})
+
+test('tempfile() creates temporary files', () => {
+  assert.match(tempfile(), /\/zx-.+/)
+  assert.match(tempfile('foo.txt'), /\/zx-.+\/foo\.txt$/)
+
+  const tf = tempfile('bar.txt', 'bar')
+  assert.match(tf, /\/zx-.+\/bar\.txt$/)
+  assert.equal(fs.readFileSync(tf, 'utf-8'), 'bar')
+})
+
+test('ensureEol() should ensure buffer ends with a newline character', () => {
+  // Test case 1: Buffer without newline
+  const buffer1 = Buffer.from('Hello, world!')
+  const result1 = ensureEol(buffer1).toString()
+  assert.strictEqual(result1, 'Hello, world!\n')
+
+  // Test case 2: Buffer with newline
+  const buffer2 = Buffer.from('Hello, world!\n')
+  const result2 = ensureEol(buffer2).toString()
+  assert.strictEqual(result2, 'Hello, world!\n')
+
+  // Test case 3: Empty buffer
+  const buffer3 = Buffer.from('')
+  const result3 = ensureEol(buffer3).toString()
+  assert.strictEqual(result3, '\n')
 })

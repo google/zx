@@ -14,6 +14,7 @@
 
 import assert from 'node:assert'
 import { test, describe, beforeEach } from 'node:test'
+import { fileURLToPath } from 'node:url'
 import '../build/globals.js'
 
 describe('cli', () => {
@@ -45,7 +46,7 @@ describe('cli', () => {
     assert.match(help.stdout, /zx/)
   })
 
-  test('zx prints usage', async () => {
+  test('zx prints usage if no param passed', async () => {
     let p = $`node build/cli.js`
     p.stdin.end()
     let out = await p
@@ -96,6 +97,14 @@ describe('cli', () => {
     let p =
       await $`node build/cli.js --verbose --postfix=${postfix} <<< '$\`echo \${$.postfix}\`'`
     assert.ok(p.stderr.includes(postfix))
+  })
+
+  test('supports `--cwd` option ', async () => {
+    let cwd = path.resolve(fileURLToPath(import.meta.url), '../../temp')
+    fs.mkdirSync(cwd, { recursive: true })
+    let p =
+      await $`node build/cli.js --verbose --cwd=${cwd} <<< '$\`echo \${$.cwd}\`'`
+    assert.ok(p.stderr.endsWith(cwd + '\n'))
   })
 
   test('scripts from https', async () => {

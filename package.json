@@ -1,6 +1,6 @@
 {
   "name": "zx",
-  "version": "8.0.2",
+  "version": "8.1.0",
   "description": "A tool for writing better scripts",
   "type": "module",
   "main": "./build/index.js",
@@ -23,27 +23,27 @@
   },
   "exports": {
     ".": {
+      "types": "./build/index.d.ts",
       "import": "./build/index.js",
       "require": "./build/index.cjs",
-      "types": "./build/index.d.ts",
       "default": "./build/index.js"
     },
     "./globals": {
+      "types": "./build/globals.d.ts",
       "import": "./build/globals.js",
       "require": "./build/globals.cjs",
-      "types": "./build/globals.d.ts",
       "default": "./build/globals.js"
     },
     "./cli": {
+      "types": "./build/cli.d.ts",
       "import": "./build/cli.js",
       "require": "./build/cli.cjs",
-      "types": "./build/cli.d.ts",
       "default": "./build/cli.js"
     },
     "./core": {
+      "types": "./build/core.d.ts",
       "import": "./build/core.js",
       "require": "./build/core.cjs",
-      "types": "./build/core.d.ts",
       "default": "./build/core.js"
     },
     "./package.json": "./package.json"
@@ -51,6 +51,11 @@
   "bin": {
     "zx": "./build/cli.js"
   },
+  "man": "./man/zx.1",
+  "files": [
+    "build",
+    "man"
+  ],
   "engines": {
     "node": ">= 12.17.0"
   },
@@ -68,12 +73,15 @@
     "test:circular": "madge --circular src/*",
     "test:types": "tsd",
     "test:license": "node ./test/extra.test.js",
+    "test:smoke:tsx": "tsx test/smoke/ts.test.ts",
+    "test:smoke:tsc": "cd test/smoke && mkdir -p node_modules && ln -s ../../../  ./node_modules/zx; tsc --esModuleInterop --module node16 --rootDir . --outdir ./temp ts.test.ts && node ./temp/ts.test.js",
+    "test:smoke:ts-node": "node --loader ts-node/esm test/smoke/ts.test.ts",
     "test:smoke:bun": "bun test ./test/smoke/bun.test.js",
     "test:smoke:win32": "node ./test/smoke/win32.test.js",
     "test:smoke:cjs": "node ./test/smoke/node.test.cjs",
     "test:smoke:mjs": "node ./test/smoke/node.test.mjs",
     "test:smoke:deno": "deno test ./test/smoke/deno.test.js --allow-read --allow-sys --allow-env --allow-run",
-    "coverage": "c8 -x build/vendor.cjs -x build/esblib.cjs -x 'test/**' -x scripts --check-coverage npm test",
+    "coverage": "c8 -x build/deno.js -x build/vendor.cjs -x build/esblib.cjs -x 'test/**' -x scripts --check-coverage npm test",
     "version": "cat package.json | fx .version"
   },
   "optionalDependencies": {
@@ -94,11 +102,11 @@
     "dts-bundle-generator": "^9.5.1",
     "esbuild": "^0.21.1",
     "esbuild-node-externals": "^1.13.1",
-    "esbuild-plugin-utils": "^0.0.1",
     "esbuild-plugin-entry-chunks": "^0.1.14",
+    "esbuild-plugin-extract-helpers": "^0.0.5",
     "esbuild-plugin-hybrid-export": "^0.2.3",
     "esbuild-plugin-transform-hook": "^0.0.3",
-    "esbuild-plugin-extract-helpers": "^0.0.5",
+    "esbuild-plugin-utils": "^0.0.1",
     "fs-extra": "^11.2.0",
     "fx": "*",
     "globby": "^14.0.1",
@@ -107,7 +115,9 @@
     "node-abort-controller": "^3.1.1",
     "node-fetch-native": "^1.6.4",
     "prettier": "^3.2.5",
+    "ts-node": "^10.9.2",
     "tsd": "^0.31.0",
+    "tsx": "^4.9.4",
     "typescript": "^5.4.5",
     "which": "^4.0.0",
     "yaml": "^2.4.2",
@@ -116,9 +126,19 @@
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"
   },
-  "files": [
-    "build",
-    "zx.js"
+  "keywords": [
+    "shell",
+    "script",
+    "bash",
+    "bin",
+    "binary",
+    "child",
+    "process",
+    "exec",
+    "execute",
+    "invoke",
+    "call",
+    "spawn"
   ],
   "prettier": {
     "semi": false,
