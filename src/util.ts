@@ -46,6 +46,28 @@ export function isString(obj: any) {
 
 const pad = (v: string) => (v === ' ' ? ' ' : '')
 
+export function preferNmBin(
+  env: NodeJS.ProcessEnv,
+  ...dirs: (string | undefined)[]
+) {
+  const pathKey =
+    process.platform === 'win32'
+      ? Object.keys(env)
+          .reverse()
+          .find((key) => key.toUpperCase() === 'PATH') || 'Path'
+      : 'PATH'
+  const pathValue = dirs
+    .map((c) => c && path.resolve(c as string, 'node_modules', '.bin'))
+    .concat(env[pathKey])
+    .filter(Boolean)
+    .join(path.delimiter)
+
+  return {
+    ...env,
+    [pathKey]: pathValue,
+  }
+}
+
 export function normalizeMultilinePieces(
   pieces: TemplateStringsArray
 ): TemplateStringsArray {

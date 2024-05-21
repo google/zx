@@ -206,14 +206,14 @@ describe('core', () => {
         assert.equal(exitCode, null)
         assert.equal(signal, 'SIGKILL')
       })
-      
+
       test('`env` option', async () => {
         const baz = await $({
           env: { ZX_TEST_BAZ: 'baz' },
         })`echo $ZX_TEST_BAZ`
         assert.equal(baz.stdout, 'baz\n')
       })
-      
+
       test('`preferLocal` preserves env', async () => {
         const path = await $({
           preferLocal: true,

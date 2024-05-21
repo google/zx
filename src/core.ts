@@ -18,7 +18,6 @@ import { type Encoding } from 'node:crypto'
 import { AsyncHook, AsyncLocalStorage, createHook } from 'node:async_hooks'
 import { Readable, Writable } from 'node:stream'
 import { inspect } from 'node:util'
-import path from 'node:path'
 import {
   exec,
   buildCmd,
@@ -41,6 +40,7 @@ import {
   quotePowerShell,
   noquote,
   ensureEol,
+  preferNmBin,
 } from './util.js'
 
 export interface Shell {
@@ -254,7 +254,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
     if (input) this.stdio('pipe')
     if ($.timeout) this.timeout($.timeout, $.timeoutSignal)
-    if ($.preferLocal) $.env = injectNmBin($.env, $.cwd, $[processCwd])
+    if ($.preferLocal) $.env = preferNmBin($.env, $.cwd, $[processCwd])
 
     $.log({
       kind: 'cmd',
@@ -644,25 +644,6 @@ export function within<R>(callback: () => R): R {
 
 function syncCwd() {
   if ($[processCwd] != process.cwd()) process.chdir($[processCwd])
-}
-
-function injectNmBin(env: NodeJS.ProcessEnv, ...dirs: (string | undefined)[]) {
-  const pathKey =
-    process.platform === 'win32'
-      ? Object.keys(env)
-          .reverse()
-          .find((key) => key.toUpperCase() === 'PATH') || 'Path'
-      : 'PATH'
-  const pathValue = dirs
-    .map((c) => c && path.resolve(c as string, 'node_modules', '.bin'))
-    .concat(env[pathKey])
-    .filter(Boolean)
-    .join(path.delimiter)
-
-  return {
-    ...env,
-    [pathKey]: pathValue,
-  }
 }
 
 export function cd(dir: string | ProcessOutput) {

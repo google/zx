@@ -30,6 +30,7 @@ import {
   tempdir,
   tempfile,
   ensureEol,
+  preferNmBin,
 } from '../build/util.js'
 
 describe('util', () => {
@@ -182,4 +183,12 @@ test('ensureEol() should ensure buffer ends with a newline character', () => {
   const buffer3 = Buffer.from('')
   const result3 = ensureEol(buffer3).toString()
   assert.strictEqual(result3, '\n')
+})
+
+test('preferNmBin()', () => {
+  const env = {
+    PATH: '/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/local/sbin',
+  }
+  const _env = preferNmBin(env, process.cwd())
+  assert.equal(_env.PATH, `${process.cwd()}/node_modules/.bin:${env.PATH}`)
 })
