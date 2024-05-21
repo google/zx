@@ -238,7 +238,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     this._from = from
     this._resolve = resolve
     this._reject = reject
-    this._snapshot = { ...options }
+    this._snapshot = { ac: new AbortController(), ...options }
   }
 
   run(): ProcessPromise {
@@ -448,10 +448,17 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   abort(reason?: string) {
+    if (this.signal !== this._snapshot.ac?.signal)
+      throw new Error('The signal is controlled by another process.')
+
     if (!this.child)
       throw new Error('Trying to abort a process without creating one.')
 
     this._zurk?.ac.abort(reason)
+  }
+
+  get signal() {
+    return this._snapshot.signal || this._snapshot.ac?.signal
   }
 
   async kill(signal = 'SIGTERM'): Promise<void> {

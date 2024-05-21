@@ -358,6 +358,45 @@ describe('core', () => {
           assert.match(message, /The operation was aborted/)
         }
       })
+
+      test('exposes `signal` property', async () => {
+        const ac = new AbortController()
+        const p = $({ ac, detached: true })`echo test`
+
+        assert.equal(p.signal, ac.signal)
+        await p
+      })
+
+      test('throws if the signal was previously aborted', async () => {
+        const ac = new AbortController()
+        const { signal } = ac
+        ac.abort('reason')
+
+        try {
+          await $({ signal, detached: true })`sleep 999`
+        } catch ({ message }) {
+          assert.match(message, /The operation was aborted/)
+        }
+      })
+
+      test('throws if the signal is controlled by another process', async () => {
+        const ac = new AbortController()
+        const { signal } = ac
+        const p = $({ signal })`sleep 999`
+
+        try {
+          p.abort()
+        } catch ({ message }) {
+          assert.match(message, /The signal is controlled by another process./)
+        }
+
+        try {
+          ac.abort()
+          await p
+        } catch ({ message }) {
+          assert.match(message, /The operation was aborted/)
+        }
+      })
     })
 
     describe('kill()', () => {
