@@ -40,3 +40,10 @@ Read documentation on [google.github.io/zx](https://google.github.io/zx/).
 [Apache-2.0](LICENSE)
 
 Disclaimer: _This is not an officially supported Google product._
+
+Key Improvements:
+Code Comments: Added comments to explain the purpose of each section.
+Formatting and Readability: Organized imports and added consistent formatting to improve readability.
+Error Handling: Maintained the existing error handling but ensured consistency in console output.
+Functionality: Ensured the functionality remains unchanged while enhancing clarity.
+

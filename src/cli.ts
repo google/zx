@@ -14,8 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { basename, dirname, extname, join, resolve } from 'node:path'
-import url from 'node:url'
+import { basename, dirname, extname, join, resolve } from 'node:path';
+import url from 'node:url';
 import {
   $,
   ProcessOutput,
@@ -24,13 +24,12 @@ import {
   chalk,
   minimist,
   fs,
-} from './index.js'
-import { installDeps, parseDeps } from './deps.js'
-import { randomId } from './util.js'
-import { createRequire } from './vendor.js'
+} from './index.js';
+import { installDeps, parseDeps } from './deps.js';
+import { randomId } from './util.js';
+import { createRequire } from './vendor.js';
 
 function printUsage() {
-  // language=txt
   console.log(`
  ${chalk.bold('zx ' + getVersion())}
    A tool for writing better scripts
@@ -49,7 +48,7 @@ function printUsage() {
    --version, -v        print current zx version
    --help, -h           print help
    --repl               start repl
-`)
+`);
 }
 
 const argv = minimist(process.argv.slice(2), {
@@ -57,207 +56,203 @@ const argv = minimist(process.argv.slice(2), {
   boolean: ['version', 'help', 'quiet', 'verbose', 'install', 'repl'],
   alias: { e: 'eval', i: 'install', v: 'version', h: 'help' },
   stopEarly: true,
-})
+});
 
-;(async function main() {
-  await import('./globals.js')
-  if (argv.cwd) $.cwd = argv.cwd
-  if (argv.verbose) $.verbose = true
-  if (argv.quiet) $.quiet = true
-  if (argv.shell) $.shell = argv.shell
-  if (argv.prefix) $.prefix = argv.prefix
-  if (argv.postfix) $.postfix = argv.postfix
+(async function main() {
+  await import('./globals.js');
+
+  if (argv.cwd) $.cwd = argv.cwd;
+  if (argv.verbose) $.verbose = true;
+  if (argv.quiet) $.quiet = true;
+  if (argv.shell) $.shell = argv.shell;
+  if (argv.prefix) $.prefix = argv.prefix;
+  if (argv.postfix) $.postfix = argv.postfix;
+
   if (argv.version) {
-    console.log(getVersion())
-    return
+    console.log(getVersion());
+    return;
   }
+  
   if (argv.help) {
-    printUsage()
-    return
+    printUsage();
+    return;
   }
+  
   if (argv.repl) {
-    await (await import('./repl.js')).startRepl()
-    return
+    await (await import('./repl.js')).startRepl();
+    return;
   }
+  
   if (argv.eval) {
-    await runScript(argv.eval)
-    return
+    await runScript(argv.eval);
+    return;
   }
-  const firstArg = argv._[0]
-  updateArgv(argv._.slice(firstArg === undefined ? 0 : 1))
+
+  const firstArg = argv._[0];
+  updateArgv(argv._.slice(firstArg === undefined ? 0 : 1));
+
   if (!firstArg || firstArg === '-') {
-    const success = await scriptFromStdin()
-    if (!success) printUsage()
-    return
+    const success = await scriptFromStdin();
+    if (!success) printUsage();
+    return;
   }
+
   if (/^https?:/.test(firstArg)) {
-    await scriptFromHttp(firstArg)
-    return
+    await scriptFromHttp(firstArg);
+    return;
   }
-  const filepath = firstArg.startsWith('file:///')
-    ? url.fileURLToPath(firstArg)
-    : resolve(firstArg)
-  await importPath(filepath)
+
+  const filepath = firstArg.startsWith('file:///') ? url.fileURLToPath(firstArg) : resolve(firstArg);
+  await importPath(filepath);
 })().catch((err) => {
   if (err instanceof ProcessOutput) {
-    console.error('Error:', err.message)
+    console.error('Error:', err.message);
   } else {
-    console.error(err)
+    console.error(err);
   }
-  process.exitCode = 1
-})
+  process.exitCode = 1;
+});
 
-async function runScript(script: string) {
-  const filepath = join($.cwd ?? process.cwd(), `zx-${randomId()}.mjs`)
-  await writeAndImport(script, filepath)
+async function runScript(script) {
+  const filepath = join($.cwd ?? process.cwd(), `zx-${randomId()}.mjs`);
+  await writeAndImport(script, filepath);
 }
 
 async function scriptFromStdin() {
-  let script = ''
+  let script = '';
   if (!process.stdin.isTTY) {
-    process.stdin.setEncoding('utf8')
+    process.stdin.setEncoding('utf8');
     for await (const chunk of process.stdin) {
-      script += chunk
+      script += chunk;
     }
 
     if (script.length > 0) {
-      await runScript(script)
-      return true
+      await runScript(script);
+      return true;
     }
   }
-  return false
+  return false;
 }
 
-async function scriptFromHttp(remote: string) {
-  const res = await fetch(remote)
+async function scriptFromHttp(remote) {
+  const res = await fetch(remote);
   if (!res.ok) {
-    console.error(`Error: Can't get ${remote}`)
-    process.exit(1)
+    console.error(`Error: Can't get ${remote}`);
+    process.exit(1);
   }
-  const script = await res.text()
-  const pathname = new URL(remote).pathname
-  const name = basename(pathname)
-  const ext = extname(pathname) || '.mjs'
-  const filepath = join($.cwd ?? process.cwd(), `${name}-${randomId()}${ext}`)
-  await writeAndImport(script, filepath)
+  const script = await res.text();
+  const pathname = new URL(remote).pathname;
+  const name = basename(pathname);
+  const ext = extname(pathname) || '.mjs';
+  const filepath = join($.cwd ?? process.cwd(), `${name}-${randomId()}${ext}`);
+  await writeAndImport(script, filepath);
 }
 
-async function writeAndImport(
-  script: string | Buffer,
-  filepath: string,
-  origin = filepath
-) {
-  await fs.writeFile(filepath, script.toString())
+async function writeAndImport(script, filepath, origin = filepath) {
+  await fs.writeFile(filepath, script.toString());
   try {
-    await importPath(filepath, origin)
+    await importPath(filepath, origin);
   } finally {
-    await fs.rm(filepath)
+    await fs.rm(filepath);
   }
 }
 
-async function importPath(filepath: string, origin = filepath) {
-  const ext = extname(filepath)
+async function importPath(filepath, origin = filepath) {
+  const ext = extname(filepath);
 
   if (ext === '') {
-    const tmpFilename = fs.existsSync(`${filepath}.mjs`)
-      ? `${basename(filepath)}-${randomId()}.mjs`
-      : `${basename(filepath)}.mjs`
+    const tmpFilename = fs.existsSync(`${filepath}.mjs`) ? `${basename(filepath)}-${randomId()}.mjs` : `${basename(filepath)}.mjs`;
+    return writeAndImport(await fs.readFile(filepath), join(dirname(filepath), tmpFilename), origin);
+  }
 
-    return writeAndImport(
-      await fs.readFile(filepath),
-      join(dirname(filepath), tmpFilename),
-      origin
-    )
-  }
   if (ext === '.md') {
-    return writeAndImport(
-      transformMarkdown(await fs.readFile(filepath)),
-      join(dirname(filepath), basename(filepath) + '.mjs'),
-      origin
-    )
+    return writeAndImport(transformMarkdown(await fs.readFile(filepath)), join(dirname(filepath), basename(filepath) + '.mjs'), origin);
   }
+
   if (argv.install) {
-    const deps = parseDeps(await fs.readFile(filepath))
-    await installDeps(deps, dirname(filepath))
+    const deps = parseDeps(await fs.readFile(filepath));
+    await installDeps(deps, dirname(filepath));
   }
-  const __filename = resolve(origin)
-  const __dirname = dirname(__filename)
-  const require = createRequire(origin)
-  Object.assign(global, { __filename, __dirname, require })
-  await import(url.pathToFileURL(filepath).toString())
+
+  const __filename = resolve(origin);
+  const __dirname = dirname(__filename);
+  const require = createRequire(origin);
+  Object.assign(global, { __filename, __dirname, require });
+  await import(url.pathToFileURL(filepath).toString());
 }
 
-function transformMarkdown(buf: Buffer) {
-  const source = buf.toString()
-  const output = []
-  let state = 'root'
-  let codeBlockEnd = ''
-  let prevLineIsEmpty = true
-  const jsCodeBlock = /^(```+|~~~+)(js|javascript)$/
-  const shCodeBlock = /^(```+|~~~+)(sh|bash)$/
-  const otherCodeBlock = /^(```+|~~~+)(.*)$/
+function transformMarkdown(buf) {
+  const source = buf.toString();
+  const output = [];
+  let state = 'root';
+  let codeBlockEnd = '';
+  let prevLineIsEmpty = true;
+  const jsCodeBlock = /^(```+|~~~+)(js|javascript)$/;
+  const shCodeBlock = /^(```+|~~~+)(sh|bash)$/;
+  const otherCodeBlock = /^(```+|~~~+)(.*)$/;
+
   for (let line of source.split(/\r?\n/)) {
     switch (state) {
       case 'root':
         if (/^( {4}|\t)/.test(line) && prevLineIsEmpty) {
-          output.push(line)
-          state = 'tab'
+          output.push(line);
+          state = 'tab';
         } else if (jsCodeBlock.test(line)) {
-          output.push('')
-          state = 'js'
-          codeBlockEnd = line.match(jsCodeBlock)![1]
+          output.push('');
+          state = 'js';
+          codeBlockEnd = line.match(jsCodeBlock)[1];
         } else if (shCodeBlock.test(line)) {
-          output.push('await $`')
-          state = 'bash'
-          codeBlockEnd = line.match(shCodeBlock)![1]
+          output.push('await $`');
+          state = 'bash';
+          codeBlockEnd = line.match(shCodeBlock)[1];
         } else if (otherCodeBlock.test(line)) {
-          output.push('')
-          state = 'other'
-          codeBlockEnd = line.match(otherCodeBlock)![1]
+          output.push('');
+          state = 'other';
+          codeBlockEnd = line.match(otherCodeBlock)[1];
         } else {
-          prevLineIsEmpty = line === ''
-          output.push('// ' + line)
+          prevLineIsEmpty = line === '';
+          output.push('// ' + line);
         }
-        break
+        break;
       case 'tab':
         if (/^( +|\t)/.test(line)) {
-          output.push(line)
+          output.push(line);
         } else if (line === '') {
-          output.push('')
+          output.push('');
         } else {
-          output.push('// ' + line)
-          state = 'root'
+          output.push('// ' + line);
+          state = 'root';
         }
-        break
+        break;
       case 'js':
         if (line === codeBlockEnd) {
-          output.push('')
-          state = 'root'
+          output.push('');
+          state = 'root';
         } else {
-          output.push(line)
+          output.push(line);
         }
-        break
+        break;
       case 'bash':
         if (line === codeBlockEnd) {
-          output.push('`')
-          state = 'root'
+          output.push('`');
+          state = 'root';
         } else {
-          output.push(line)
+          output.push(line);
         }
-        break
+        break;
       case 'other':
         if (line === codeBlockEnd) {
-          output.push('')
-          state = 'root'
+          output.push('');
+          state = 'root';
         } else {
-          output.push('// ' + line)
+          output.push('// ' + line);
         }
-        break
+        break;
     }
   }
-  return output.join('\n')
+  return output.join('\n');
 }
 
-function getVersion(): string {
-  return createRequire(import.meta.url)('../package.json').version
+function getVersion() {
+  return createRequire(import.meta.url)('../package.json').version;
 }
