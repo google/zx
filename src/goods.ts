@@ -12,183 +12,213 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import assert from 'node:assert'
-import { createInterface } from 'node:readline'
-import { $, within, ProcessOutput } from './core.js'
-import { type Duration, isString, parseDuration } from './util.js'
+import assert from 'node:assert';
+import { createInterface } from 'node:readline';
+import { $, within, ProcessOutput } from './core.js';
+import { type Duration, isString, parseDuration } from './util.js';
 import {
   chalk,
   minimist,
   nodeFetch,
   RequestInfo,
   RequestInit,
-} from './vendor.js'
+} from './vendor.js';
 
-export { default as path } from 'node:path'
-export * as os from 'node:os'
+export { default as path } from 'node:path';
+export * as os from 'node:os';
 
-export let argv = minimist(process.argv.slice(2))
-export function updateArgv(args: string[]) {
-  argv = minimist(args)
-  ;(global as any).argv = argv
+export let argv = minimist(process.argv.slice(2));
+
+/**
+ * Updates the global argv object with new arguments.
+ * @param {string[]} args - New arguments to set.
+ */
+export function updateArgv(args) {
+  argv = minimist(args);
+  global.argv = argv;
 }
 
-export function sleep(duration: Duration) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, parseDuration(duration))
-  })
+/**
+ * Sleeps for the specified duration.
+ * @param {Duration} duration - Duration to sleep.
+ * @returns {Promise<void>}
+ */
+export function sleep(duration) {
+  return new Promise(resolve => {
+    setTimeout(resolve, parseDuration(duration));
+  });
 }
 
-export async function fetch(url: RequestInfo, init?: RequestInit) {
-  $.log({ kind: 'fetch', url, init })
-  return nodeFetch(url, init)
+/**
+ * Fetches a URL with the given initialization options.
+ * @param {RequestInfo} url - The URL to fetch.
+ * @param {RequestInit} [init] - Initialization options.
+ * @returns {Promise<Response>}
+ */
+export async function fetch(url, init) {
+  $.log({ kind: 'fetch', url, init });
+  return nodeFetch(url, init);
 }
 
-export function echo(...args: any[]): void
-export function echo(pieces: TemplateStringsArray, ...args: any[]) {
-  let msg
-  const lastIdx = pieces.length - 1
-  if (
-    Array.isArray(pieces) &&
-    pieces.every(isString) &&
-    lastIdx === args.length
-  ) {
-    msg =
-      args.map((a, i) => pieces[i] + stringify(a)).join('') + pieces[lastIdx]
+/**
+ * Echoes the provided arguments or template string to the console.
+ * @param {TemplateStringsArray | any[]} pieces - Template strings array or arguments.
+ * @param {...any} args - Arguments to echo.
+ */
+export function echo(pieces, ...args) {
+  let msg;
+  const lastIdx = pieces.length - 1;
+  if (Array.isArray(pieces) && pieces.every(isString) && lastIdx === args.length) {
+    msg = args.map((a, i) => pieces[i] + stringify(a)).join('') + pieces[lastIdx];
   } else {
-    msg = [pieces, ...args].map(stringify).join(' ')
+    msg = [pieces, ...args].map(stringify).join(' ');
   }
-  console.log(msg)
+  console.log(msg);
 }
 
-function stringify(arg: ProcessOutput | any) {
+/**
+ * Converts an argument to a string.
+ * @param {ProcessOutput | any} arg - Argument to stringify.
+ * @returns {string}
+ */
+function stringify(arg) {
   if (arg instanceof ProcessOutput) {
-    return arg.toString().replace(/\n$/, '')
+    return arg.toString().replace(/\n$/, '');
   }
-  return `${arg}`
+  return `${arg}`;
 }
 
-export async function question(
-  query?: string,
-  options?: { choices: string[] }
-): Promise<string> {
-  let completer = undefined
-  if (options && Array.isArray(options.choices)) {
-    /* c8 ignore next 5 */
-    completer = function completer(line: string) {
-      const completions = options.choices
-      const hits = completions.filter((c) => c.startsWith(line))
-      return [hits.length ? hits : completions, line]
-    }
+/**
+ * Prompts the user with a question and returns their answer.
+ * @param {string} [query] - The question to prompt.
+ * @param {Object} [options] - Options for the prompt.
+ * @param {string[]} [options.choices] - Choices for auto-completion.
+ * @returns {Promise<string>}
+ */
+export async function question(query, options) {
+  let completer;
+  if (options?.choices) {
+    completer = function (line) {
+      const completions = options.choices;
+      const hits = completions.filter(c => c.startsWith(line));
+      return [hits.length ? hits : completions, line];
+    };
   }
+  
   const rl = createInterface({
     input: process.stdin,
     output: process.stdout,
     terminal: true,
     completer,
-  })
+  });
 
-  return new Promise((resolve) =>
-    rl.question(query ?? '', (answer) => {
-      rl.close()
-      resolve(answer)
+  return new Promise(resolve => 
+    rl.question(query ?? '', answer => {
+      rl.close();
+      resolve(answer);
     })
-  )
+  );
 }
 
+/**
+ * Reads input from stdin and returns it as a string.
+ * @returns {Promise<string>}
+ */
 export async function stdin() {
-  let buf = ''
-  process.stdin.setEncoding('utf8')
+  let buf = '';
+  process.stdin.setEncoding('utf8');
   for await (const chunk of process.stdin) {
-    buf += chunk
+    buf += chunk;
   }
-  return buf
+  return buf;
 }
 
-export async function retry<T>(count: number, callback: () => T): Promise<T>
-export async function retry<T>(
-  count: number,
-  duration: Duration | Generator<number>,
-  callback: () => T
-): Promise<T>
-export async function retry<T>(
-  count: number,
-  a: Duration | Generator<number> | (() => T),
-  b?: () => T
-): Promise<T> {
-  const total = count
-  let callback: () => T
-  let delayStatic = 0
-  let delayGen: Generator<number> | undefined
-  if (typeof a == 'function') {
-    callback = a
+/**
+ * Retries a callback function a specified number of times with optional delay between attempts.
+ * @template T
+ * @param {number} count - Number of retry attempts.
+ * @param {Duration | Generator<number> | (() => T)} a - Delay duration or callback function.
+ * @param {(() => T)} [b] - Callback function.
+ * @returns {Promise<T>}
+ */
+export async function retry(count, a, b) {
+  const total = count;
+  let callback, delayStatic = 0, delayGen;
+  
+  if (typeof a === 'function') {
+    callback = a;
   } else {
-    if (typeof a == 'object') {
-      delayGen = a
+    if (typeof a === 'object') {
+      delayGen = a;
     } else {
-      delayStatic = parseDuration(a)
+      delayStatic = parseDuration(a);
     }
-    assert(b)
-    callback = b
+    assert(b);
+    callback = b;
   }
-  let lastErr: unknown
-  let attempt = 0
+  
+  let lastErr, attempt = 0;
   while (count-- > 0) {
-    attempt++
+    attempt++;
     try {
-      return await callback()
+      return await callback();
     } catch (err) {
-      let delay = 0
-      if (delayStatic > 0) delay = delayStatic
-      if (delayGen) delay = delayGen.next().value
+      let delay = delayStatic;
+      if (delayGen) delay = delayGen.next().value;
       $.log({
         kind: 'retry',
-        error:
-          chalk.bgRed.white(' FAIL ') +
-          ` Attempt: ${attempt}${total == Infinity ? '' : `/${total}`}` +
-          (delay > 0 ? `; next in ${delay}ms` : ''),
-      })
-      lastErr = err
-      if (count == 0) break
-      if (delay) await sleep(delay)
+        error: `${chalk.bgRed.white(' FAIL ')} Attempt: ${attempt}${total === Infinity ? '' : `/${total}`}` + (delay > 0 ? `; next in ${delay}ms` : ''),
+      });
+      lastErr = err;
+      if (count === 0) break;
+      if (delay) await sleep(delay);
     }
   }
-  throw lastErr
+  throw lastErr;
 }
 
-export function* expBackoff(max: Duration = '60s', rand: Duration = '100ms') {
-  const maxMs = parseDuration(max)
-  const randMs = parseDuration(rand)
-  let n = 1
+/**
+ * Exponential backoff generator for retry delays.
+ * @param {Duration} [max='60s'] - Maximum backoff duration.
+ * @param {Duration} [rand='100ms'] - Random jitter duration.
+ * @returns {Generator<number>}
+ */
+export function* expBackoff(max = '60s', rand = '100ms') {
+  const maxMs = parseDuration(max);
+  const randMs = parseDuration(rand);
+  let n = 1;
   while (true) {
-    const ms = Math.floor(Math.random() * randMs)
-    yield Math.min(2 ** n++, maxMs) + ms
+    const ms = Math.floor(Math.random() * randMs);
+    yield Math.min(2 ** n++, maxMs) + ms;
   }
 }
 
-export async function spinner<T>(callback: () => T): Promise<T>
-export async function spinner<T>(title: string, callback: () => T): Promise<T>
-export async function spinner<T>(
-  title: string | (() => T),
-  callback?: () => T
-): Promise<T> {
-  if (typeof title == 'function') {
-    callback = title
-    title = ''
+/**
+ * Displays a spinner while a callback function is executing.
+ * @template T
+ * @param {string | (() => T)} title - Spinner title or callback function.
+ * @param {(() => T)} [callback] - Callback function.
+ * @returns {Promise<T>}
+ */
+export async function spinner(title, callback) {
+  if (typeof title === 'function') {
+    callback = title;
+    title = '';
   }
-  let i = 0
-  const spin = () =>
-    process.stderr.write(`  ${'⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'[i++ % 10]} ${title}\r`)
+  
+  let i = 0;
+  const spin = () => process.stderr.write(`  ${'⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'[i++ % 10]} ${title}\r`);
+  
   return within(async () => {
-    $.verbose = false
-    const id = setInterval(spin, 100)
-    let result: T
+    $.verbose = false;
+    const id = setInterval(spin, 100);
+    let result;
     try {
-      result = await callback!()
+      result = await callback();
     } finally {
-      clearInterval(id as NodeJS.Timeout)
-      process.stderr.write(' '.repeat((process.stdout.columns || 1) - 1) + '\r')
+      clearInterval(id);
+      process.stderr.write(' '.repeat(process.stdout.columns || 1) + '\r');
     }
-    return result
-  })
+    return result;
+  });
 }
