@@ -62,3 +62,8 @@ Regex Patterns: Simplified regex patterns to make them more readable and efficie
 Early Returns: Employed early returns in simple conditions for readability.
 Type Annotations: Ensured that functions and variables have clear type annotations.
 Comments: Removed inline comments that are unnecessary given the clarity of the refactored code.
+
+Explanation:
+Direct assignment: Directly assigning values to globalThis properties improves clarity and reduces overhead.
+Type declarations: Type declarations remain within the declare global block, simplifying type management.
+Removed redundancy: By directly importing and assigning values, we eliminate repetitive use of typeof.

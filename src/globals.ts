@@ -12,46 +12,47 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as _ from './index.js'
+import * as _ from './index.js';
 
-Object.assign(globalThis, _)
+// Assign global properties directly
+globalThis.ProcessPromise = _.ProcessPromise;
+globalThis.ProcessOutput = _.ProcessOutput;
+globalThis.log = _.log;
+globalThis.$ = _.$;
+globalThis.argv = _.argv;
+globalThis.cd = _.cd;
+globalThis.chalk = _.chalk;
+globalThis.echo = _.echo;
+globalThis.expBackoff = _.expBackoff;
+globalThis.fs = _.fs;
+globalThis.glob = _.glob;
+globalThis.globby = _.globby;
+globalThis.kill = _.kill;
+globalThis.minimist = _.minimist;
+globalThis.nothrow = _.nothrow;
+globalThis.os = _.os;
+globalThis.path = _.path;
+globalThis.question = _.question;
+globalThis.quiet = _.quiet;
+globalThis.quote = _.quote;
+globalThis.quotePowerShell = _.quotePowerShell;
+globalThis.retry = _.retry;
+globalThis.sleep = _.sleep;
+globalThis.spinner = _.spinner;
+globalThis.stdin = _.stdin;
+globalThis.tempdir = _.tempdir;
+globalThis.tempfile = _.tempfile;
+globalThis.tmpdir = _.tempdir;
+globalThis.tmpfile = _.tempfile;
+globalThis.usePowerShell = _.usePowerShell;
+globalThis.usePwsh = _.usePwsh;
+globalThis.useBash = _.useBash;
+globalThis.which = _.which;
+globalThis.within = _.within;
+globalThis.YAML = _.YAML;
 
 declare global {
-  type ProcessPromise = _.ProcessPromise
-  type ProcessOutput = _.ProcessOutput
-  var ProcessPromise: typeof _.ProcessPromise
-  var ProcessOutput: typeof _.ProcessOutput
-  var log: typeof _.log
-  var $: typeof _.$
-  var argv: typeof _.argv
-  var cd: typeof _.cd
-  var chalk: typeof _.chalk
-  var echo: typeof _.echo
-  var expBackoff: typeof _.expBackoff
-  var fs: typeof _.fs
-  var glob: typeof _.glob
-  var globby: typeof _.globby
-  var kill: typeof _.kill
-  var minimist: typeof _.minimist
-  var nothrow: typeof _.nothrow
-  var os: typeof _.os
-  var path: typeof _.path
-  var question: typeof _.question
-  var quiet: typeof _.quiet
-  var quote: typeof _.quote
-  var quotePowerShell: typeof _.quotePowerShell
-  var retry: typeof _.retry
-  var sleep: typeof _.sleep
-  var spinner: typeof _.spinner
-  var stdin: typeof _.stdin
-  var tempdir: typeof _.tempdir
-  var tempfile: typeof _.tempfile
-  var tmpdir: typeof _.tempdir
-  var tmpfile: typeof _.tempfile
-  var usePowerShell: typeof _.usePowerShell
-  var usePwsh: typeof _.usePwsh
-  var useBash: typeof _.useBash
-  var which: typeof _.which
-  var within: typeof _.within
-  var YAML: typeof _.YAML
+  // Type declarations
+  type ProcessPromise = typeof _.ProcessPromise;
+  type ProcessOutput = typeof _.ProcessOutput;
 }
