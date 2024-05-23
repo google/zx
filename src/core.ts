@@ -220,6 +220,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _stdio?: StdioOptions
   private _nothrow?: boolean
   private _quiet?: boolean
+  private _verbose?: boolean
   private _timeout?: number
   private _timeoutSignal = 'SIGTERM'
   private _resolved = false
@@ -487,8 +488,13 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this
   }
 
-  quiet(): ProcessPromise {
-    this._quiet = true
+  quiet(v = true): ProcessPromise {
+    this._quiet = v
+    return this
+  }
+
+  verbose(v = true): ProcessPromise {
+    this._verbose = v
     return this
   }
 
@@ -497,7 +503,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   isVerbose(): boolean {
-    return this._snapshot.verbose && !this.isQuiet()
+    return (this._verbose ?? this._snapshot.verbose) && !this.isQuiet()
   }
 
   timeout(d: Duration, signal = 'SIGTERM'): ProcessPromise {
