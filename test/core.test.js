@@ -458,6 +458,17 @@ describe('core', () => {
       }
     })
 
+    test('verbose() mode is working', async () => {
+      const p = $`echo 'test'`
+      assert.equal(p.isVerbose(), false)
+
+      p.verbose()
+      assert.equal(p.isVerbose(), true)
+
+      p.verbose(false)
+      assert.equal(p.isVerbose(), false)
+    })
+
     test('nothrow() do not throw', async () => {
       let { exitCode } = await $`exit 42`.nothrow()
       assert.equal(exitCode, 42)
