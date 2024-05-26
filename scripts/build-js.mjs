@@ -17,7 +17,7 @@
 import path from 'node:path'
 import fs from 'node:fs'
 import esbuild from 'esbuild'
-import { parseContentsLayout } from 'esbuild-plugin-utils'
+import { injectCode, injectFile } from 'esbuild-plugin-utils'
 import { nodeExternalsPlugin } from 'esbuild-node-externals'
 import { entryChunksPlugin } from 'esbuild-plugin-entry-chunks'
 import { hybridExportPlugin } from 'esbuild-plugin-hybrid-export'
@@ -97,33 +97,26 @@ plugins.push(
     hooks: [
       {
         on: 'end',
+        if: !hybrid,
         pattern: /\.js$/,
-        transform(contents, p) {
-          if (!hybrid) return contents
-
-          const { header, body } = parseContentsLayout(contents)
-          return [header, `import './deno.js'`, body].join('\n')
+        transform(contents) {
+          return injectCode(contents, `import './deno.js'`)
         },
       },
       {
         on: 'end',
         pattern: entryPointsToRegexp(entryPoints),
-        transform(contents, p) {
-          const { header, body } = parseContentsLayout(contents)
-          return [
-            header,
+        transform(contents) {
+          const extras = [
             // https://github.com/evanw/esbuild/issues/1633
-            body.includes('import_meta')
-              ? inject('./scripts/import-meta-url.polyfill.js')
+            contents.includes('import_meta')
+              ? './scripts/import-meta-url.polyfill.js'
               : '',
 
             //https://github.com/evanw/esbuild/issues/1921
-            // p.includes('vendor') ? inject('./scripts/require.polyfill.js') : '',
-
-            body,
-          ]
-            .filter(Boolean)
-            .join('\n')
+            // p.includes('vendor') ? './scripts/require.polyfill.js' : '',
+          ].filter(Boolean)
+          return injectFile(contents, ...extras)
         },
       },
       {
@@ -154,13 +147,6 @@ plugins.push(
     include: /\.cjs/,
   })
 )
-
-function inject(file) {
-  const extra = fs.readFileSync(file, 'utf8')
-  return `// ${file}
-${extra}
-`
-}
 
 function entryPointsToRegexp(entryPoints) {
   return new RegExp(
