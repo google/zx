@@ -173,7 +173,7 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
     ) as string
     const snapshot = getStore()
     const sync = snapshot[syncExec]
-    const callback = () => promise.isHalted || promise.run()
+    const callback = () => promise.isHalted() || promise.run()
 
     promise._bind(
       cmd,
@@ -329,7 +329,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
               message
             )
             self._output = output
-            if (status === 0 || (self._nothrow ?? $.nothrow)) {
+            if (status === 0 || self.isNothrow()) {
               self._resolve(output)
             } else {
               self._reject(output)
@@ -410,7 +410,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       | undefined
       | null
   ): Promise<R | E> {
-    if (this.isHalted && !this.child) {
+    if (this.isHalted() && !this.child) {
       throw new Error('The process is halted!')
     }
     return super.then(onfulfilled, onrejected)
@@ -506,6 +506,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return (this._verbose ?? this._snapshot.verbose) && !this.isQuiet()
   }
 
+  isNothrow(): boolean {
+    return this._nothrow ?? this._snapshot.nothrow
+  }
+
   timeout(d: Duration, signal = 'SIGTERM'): ProcessPromise {
     this._timeout = parseDuration(d)
     this._timeoutSignal = signal
@@ -517,7 +521,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this
   }
 
-  get isHalted(): boolean {
+  isHalted(): boolean {
     return this._halted
   }
 
