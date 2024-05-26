@@ -55,6 +55,7 @@ import {
   tempfile,
   tmpdir,
   tmpfile,
+  randomId,
 } from '../build/index.js'
 
 describe('index', () => {
@@ -104,6 +105,7 @@ describe('index', () => {
     // utils
     assert(quote)
     assert(quotePowerShell)
+    assert(randomId)
     assert(tempdir)
     assert(tmpdir)
     assert(tmpfile)

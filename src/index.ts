@@ -31,6 +31,7 @@ export {
   type Duration,
   quote,
   quotePowerShell,
+  randomId,
   tempdir,
   tempdir as tmpdir,
   tempfile,
