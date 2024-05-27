@@ -29,7 +29,6 @@ import {
   getCallerLocationFromString,
   tempdir,
   tempfile,
-  ensureEol,
   preferNmBin,
 } from '../build/util.js'
 
@@ -166,23 +165,6 @@ test('tempfile() creates temporary files', () => {
   const tf = tempfile('bar.txt', 'bar')
   assert.match(tf, /\/zx-.+\/bar\.txt$/)
   assert.equal(fs.readFileSync(tf, 'utf-8'), 'bar')
-})
-
-test('ensureEol() should ensure buffer ends with a newline character', () => {
-  // Test case 1: Buffer without newline
-  const buffer1 = Buffer.from('Hello, world!')
-  const result1 = ensureEol(buffer1).toString()
-  assert.strictEqual(result1, 'Hello, world!\n')
-
-  // Test case 2: Buffer with newline
-  const buffer2 = Buffer.from('Hello, world!\n')
-  const result2 = ensureEol(buffer2).toString()
-  assert.strictEqual(result2, 'Hello, world!\n')
-
-  // Test case 3: Empty buffer
-  const buffer3 = Buffer.from('')
-  const result3 = ensureEol(buffer3).toString()
-  assert.strictEqual(result3, '\n')
 })
 
 test('preferNmBin()', () => {
