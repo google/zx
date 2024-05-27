@@ -77,7 +77,7 @@ if (bundle === 'src') {
 if (hybrid) {
   plugins.push(
     hybridExportPlugin({
-      loader: 'import',
+      loader: 'require',
       to: 'build',
       toExt: '.js',
     })
@@ -85,14 +85,6 @@ if (hybrid) {
 }
 
 plugins.push(
-  {
-    name: 'deno',
-    setup(build) {
-      build.onEnd(() =>
-        fs.copyFileSync('./scripts/deno.polyfill.js', './build/deno.js')
-      )
-    },
-  },
   transformHookPlugin({
     hooks: [
       {
@@ -100,7 +92,7 @@ plugins.push(
         if: !hybrid,
         pattern: /\.js$/,
         transform(contents) {
-          return injectCode(contents, `import './deno.js'`)
+          return injectCode(contents, `import { require } from './deno.js'`)
         },
       },
       {
@@ -145,7 +137,15 @@ plugins.push(
   extractHelpersPlugin({
     cwd: 'build',
     include: /\.cjs/,
-  })
+  }),
+  {
+    name: 'deno',
+    setup(build) {
+      build.onEnd(() =>
+        fs.copyFileSync('./scripts/deno.polyfill.js', './build/deno.js')
+      )
+    },
+  }
 )
 
 function entryPointsToRegexp(entryPoints) {

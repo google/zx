@@ -116,7 +116,6 @@ jobs:
       - name: cjs smoke test
         run: npm run test:smoke:cjs
       - name: mjs smoke test
-        if: matrix.node-version != '12'
         run: npm run test:smoke:mjs
 
   smoke-ts:
