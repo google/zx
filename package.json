@@ -3,7 +3,7 @@
   "version": "8.1.1",
   "description": "A tool for writing better scripts",
   "type": "module",
-  "main": "./build/index.js",
+  "main": "./build/index.cjs",
   "types": "./build/index.d.ts",
   "typesVersions": {
     "*": {
