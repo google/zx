@@ -18,6 +18,7 @@ import { type Encoding } from 'node:crypto'
 import { AsyncHook, AsyncLocalStorage, createHook } from 'node:async_hooks'
 import { Readable, Writable } from 'node:stream'
 import { inspect } from 'node:util'
+import { EOL } from 'node:os'
 import {
   exec,
   buildCmd,
@@ -39,7 +40,6 @@ import {
   quote,
   quotePowerShell,
   noquote,
-  ensureEol,
   preferNmBin,
 } from './util.js'
 
@@ -54,6 +54,7 @@ export interface Shell {
 
 const processCwd = Symbol('processCwd')
 const syncExec = Symbol('syncExec')
+const eol = Buffer.from(EOL)
 
 export interface Options {
   [processCwd]: string
@@ -296,8 +297,12 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           // Stderr should be printed regardless of piping.
           $.log({ kind: 'stderr', data, verbose: !self.isQuiet() })
         },
-        end: ({ error, stdout, stderr, stdall, status, signal }) => {
+        end: ({ error, stdout, stderr, stdall, status, signal }, c) => {
           self._resolved = true
+
+          // Ensures EOL
+          if (stderr && !stderr.endsWith('\n')) c.on.stderr?.(eol, c)
+          if (stdout && !stdout.endsWith('\n')) c.on.stdout?.(eol, c)
 
           if (error) {
             const message = ProcessOutput.getErrorMessage(error, self._from)
@@ -426,7 +431,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   pipe(dest: Writable | ProcessPromise): ProcessPromise {
-    if (typeof dest == 'string')
+    if (typeof dest === 'string')
       throw new Error('The pipe() method does not take strings. Forgot $?')
     if (this._resolved) {
       if (dest instanceof ProcessPromise) dest.stdin.end() // In case of piped stdin, we may want to close stdin of dest as well.
@@ -720,7 +725,7 @@ export function log(entry: LogEntry) {
     case 'stdout':
     case 'stderr':
       if (!entry.verbose) return
-      process.stderr.write(ensureEol(entry.data))
+      process.stderr.write(entry.data)
       break
     case 'cd':
       if (!$.verbose) return
