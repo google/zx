@@ -49,12 +49,23 @@ function printUsage() {
    --version, -v        print current zx version
    --help, -h           print help
    --repl               start repl
+   --experimental       enables experimental features (deprecated)
+ 
+ ${chalk.italic('Full documentation:')} ${chalk.underline('https://google.github.io/zx/')}
 `)
 }
 
 const argv = minimist(process.argv.slice(2), {
   string: ['shell', 'prefix', 'postfix', 'eval', 'cwd'],
-  boolean: ['version', 'help', 'quiet', 'verbose', 'install', 'repl'],
+  boolean: [
+    'version',
+    'help',
+    'quiet',
+    'verbose',
+    'install',
+    'repl',
+    'experimental',
+  ],
   alias: { e: 'eval', i: 'install', v: 'version', h: 'help' },
   stopEarly: true,
 })
@@ -87,7 +98,10 @@ const argv = minimist(process.argv.slice(2), {
   updateArgv(argv._.slice(firstArg === undefined ? 0 : 1))
   if (!firstArg || firstArg === '-') {
     const success = await scriptFromStdin()
-    if (!success) printUsage()
+    if (!success) {
+      printUsage()
+      process.exitCode = 1
+    }
     return
   }
   if (/^https?:/.test(firstArg)) {

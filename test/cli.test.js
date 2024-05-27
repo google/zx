@@ -49,8 +49,13 @@ describe('cli', () => {
   test('zx prints usage if no param passed', async () => {
     let p = $`node build/cli.js`
     p.stdin.end()
-    let out = await p
-    assert.match(out.stdout, /A tool for writing better scripts/)
+    try {
+      await p
+      assert.fail('must throw')
+    } catch (out) {
+      assert.match(out.stdout, /A tool for writing better scripts/)
+      assert.equal(out.exitCode, 1)
+    }
   })
 
   test('starts repl with --repl', async () => {
