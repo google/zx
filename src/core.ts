@@ -687,15 +687,15 @@ export async function kill(pid: number, signal?: string) {
   }
 }
 
-export type LogEntry =
+export type LogEntry = {
+  verbose?: boolean
+} & (
   | {
       kind: 'cmd'
-      verbose: boolean
       cmd: string
     }
   | {
       kind: 'stdout' | 'stderr'
-      verbose: boolean
       data: Buffer
     }
   | {
@@ -715,31 +715,29 @@ export type LogEntry =
       kind: 'custom'
       data: any
     }
+)
 
 export function log(entry: LogEntry) {
+  if (!(entry.verbose ?? $.verbose)) return
   switch (entry.kind) {
     case 'cmd':
-      if (!entry.verbose) return
       process.stderr.write(formatCmd(entry.cmd))
       break
     case 'stdout':
     case 'stderr':
-      if (!entry.verbose) return
+    case 'custom':
       process.stderr.write(entry.data)
       break
     case 'cd':
-      if (!$.verbose) return
       process.stderr.write('$ ' + chalk.greenBright('cd') + ` ${entry.dir}\n`)
       break
     case 'fetch':
-      if (!$.verbose) return
       const init = entry.init ? ' ' + inspect(entry.init) : ''
       process.stderr.write(
         '$ ' + chalk.greenBright('fetch') + ` ${entry.url}${init}\n`
       )
       break
     case 'retry':
-      if (!$.verbose) return
       process.stderr.write(entry.error + '\n')
   }
 }
