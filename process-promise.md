@@ -170,11 +170,25 @@ if ((await $`[[ -d path ]]`.nothrow()).exitCode == 0) {
 
 ## `quiet()`
 
-Changes behavior of `$` to disable verbose output.
+Changes behavior of `$` to enable suppress mode.
 
 ```js
-// Command and output will not be displayed.
+// Command output will not be displayed.
 await $`grep something from-file`.quiet()
+
+$.quiet = true
+await $`echo foo`.quiet(false) // Disable for the specific command
+```
+
+## `verbose()`
+
+Enables verbose output. Pass `false` to disable.
+
+```js
+await $`grep something from-file`.verbose()
+
+$.verbose = true
+await $`echo foo`.verbose(false) // Turn off verbose mode once
 ```
 
 ## `timeout()`
