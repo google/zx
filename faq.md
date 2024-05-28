@@ -62,6 +62,54 @@ jobs:
           EOF
 ```
 
+## Verbose and Quiet
+zx has internal logger, which captures events if a condition is met:
+
+| Event  | Verbose | Quiet   | Description                  |
+|--------|---------|---------|------------------------------|
+| stdout | `true`  | `false` | Spawned process stdout       |
+| stderr | `any`   | `false` | Process stderr data          |
+| cmd    | `true`  | `false` | Command execution            |
+| fetch  | `true`  | `false` | Fetch resources by http(s)   |
+| cd     | `true`  | `false` | Change directory             |
+| retry  | `true`  | `false` | Capture exec error           |
+| custom | `true`  | `false` | User-defined event           |
+
+By default, both `$.verbose` and `$.quiet` options are `false`, so only `stderr` events are written. Any output goes to the `process.stderr` stream.
+
+You may control this flow globally or in-place
+```js
+// Global debug mode on
+$.verbose = true
+await $`echo hello`
+
+// Suppress the particular command
+await $`echo fobar`.quiet()
+
+// Suppress everything
+$.quiet = true
+await $`echo world`
+
+// Turn on in-place debug
+await $`echo foo`.verbose()
+```
+
+You can also override the default logger with your own:
+```js
+// globally
+$.log = (entry) => {
+  switch (entry.kind) {
+    case 'cmd':
+      console.log('Command:', entry.cmd)
+      break
+    default:
+      console.warn(entry)
+  }
+}
+// or in-place
+$({log: () => {}})`echo hello`
+```
+
 ## Canary / Beta / RC builds
 
 Impatient early adopters can try the experimental zx versions.
