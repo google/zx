@@ -50,7 +50,7 @@ useBash()       // Switch back to bash
 ## Package
 
 ### Hybrid
-zx is distributed as a [hybrid package](https://2ality.com/2019/10/hybrid-npm-packages.html): it provides both CJS an ESM entry points.
+zx is distributed as a [hybrid package](https://2ality.com/2019/10/hybrid-npm-packages.html): it provides both CJS and ESM entry points.
 
 ```js
 import { $ } from 'zx'
