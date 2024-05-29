@@ -14,7 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { basename, dirname, extname, join, resolve } from 'node:path'
 import url from 'node:url'
 import {
   $,
@@ -24,6 +23,7 @@ import {
   chalk,
   minimist,
   fs,
+  path,
 } from './index.js'
 import { installDeps, parseDeps } from './deps.js'
 import { randomId } from './util.js'
@@ -110,7 +110,7 @@ const argv = minimist(process.argv.slice(2), {
   }
   const filepath = firstArg.startsWith('file:///')
     ? url.fileURLToPath(firstArg)
-    : resolve(firstArg)
+    : path.resolve(firstArg)
   await importPath(filepath)
 })().catch((err) => {
   if (err instanceof ProcessOutput) {
@@ -122,7 +122,7 @@ const argv = minimist(process.argv.slice(2), {
 })
 
 async function runScript(script: string) {
-  const filepath = join($.cwd ?? process.cwd(), `zx-${randomId()}.mjs`)
+  const filepath = path.join($.cwd ?? process.cwd(), `zx-${randomId()}.mjs`)
   await writeAndImport(script, filepath)
 }
 
@@ -150,9 +150,10 @@ async function scriptFromHttp(remote: string) {
   }
   const script = await res.text()
   const pathname = new URL(remote).pathname
-  const name = basename(pathname)
-  const ext = extname(pathname) || '.mjs'
-  const filepath = join($.cwd ?? process.cwd(), `${name}-${randomId()}${ext}`)
+  const name = path.basename(pathname)
+  const ext = path.extname(pathname) || '.mjs'
+  const cwd = $.cwd ?? process.cwd()
+  const filepath = path.join(cwd, `${name}-${randomId()}${ext}`)
   await writeAndImport(script, filepath)
 }
 
@@ -170,35 +171,41 @@ async function writeAndImport(
 }
 
 async function importPath(filepath: string, origin = filepath) {
-  const ext = extname(filepath)
+  const ext = path.extname(filepath)
+  const base = path.basename(filepath)
+  const dir = path.dirname(filepath)
 
   if (ext === '') {
     const tmpFilename = fs.existsSync(`${filepath}.mjs`)
-      ? `${basename(filepath)}-${randomId()}.mjs`
-      : `${basename(filepath)}.mjs`
+      ? `${base}-${randomId()}.mjs`
+      : `${base}.mjs`
 
     return writeAndImport(
       await fs.readFile(filepath),
-      join(dirname(filepath), tmpFilename),
+      path.join(dir, tmpFilename),
       origin
     )
   }
   if (ext === '.md') {
     return writeAndImport(
       transformMarkdown(await fs.readFile(filepath)),
-      join(dirname(filepath), basename(filepath) + '.mjs'),
+      path.join(dir, base + '.mjs'),
       origin
     )
   }
   if (argv.install) {
     const deps = parseDeps(await fs.readFile(filepath))
-    await installDeps(deps, dirname(filepath))
+    await installDeps(deps, dir)
   }
-  const __filename = resolve(origin)
-  const __dirname = dirname(__filename)
-  const require = createRequire(origin)
-  Object.assign(global, { __filename, __dirname, require })
+  injectGlobalRequire(origin)
   await import(url.pathToFileURL(filepath).toString())
+}
+
+function injectGlobalRequire(origin: string) {
+  const __filename = path.resolve(origin)
+  const __dirname = path.dirname(__filename)
+  const require = createRequire(origin)
+  Object.assign(globalThis, { __filename, __dirname, require })
 }
 
 function transformMarkdown(buf: Buffer) {
