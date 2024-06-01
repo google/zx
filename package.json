@@ -85,14 +85,14 @@
     "version": "cat package.json | fx .version"
   },
   "optionalDependencies": {
-    "@types/fs-extra": "^11.0.4",
-    "@types/node": ">=20.12.12"
+    "@types/fs-extra": ">=11",
+    "@types/node": ">=20"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/minimist": "^1.2.5",
     "@types/node": ">=20.11.30",
-    "@types/which": "^3.0.3",
+    "@types/which": "^3.0.4",
     "@webpod/ingrid": "^0.0.0-beta.3",
     "@webpod/ps": "^0.0.0-beta.3",
     "c8": "^9.1.0",
@@ -121,7 +121,7 @@
     "typescript": "^5.4.5",
     "which": "^4.0.0",
     "yaml": "^2.4.2",
-    "zurk": "^0.1.4"
+    "zurk": "^0.2.0"
   },
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"
