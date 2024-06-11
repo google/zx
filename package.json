@@ -112,7 +112,6 @@
     "globby": "^14.0.1",
     "madge": "^7.0.0",
     "minimist": "^1.2.8",
-    "node-abort-controller": "^3.1.1",
     "node-fetch-native": "^1.6.4",
     "prettier": "^3.3.1",
     "ts-node": "^10.9.2",

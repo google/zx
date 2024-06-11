@@ -27,8 +27,7 @@ import {
 } from 'globby'
 import * as yaml from 'yaml'
 import * as _fs from 'fs-extra'
-import type { fetch } from 'node-fetch-native'
-import { AbortController } from 'node-abort-controller'
+import { type fetch, AbortController } from 'node-fetch-native'
 
 export { exec, buildCmd } from 'zurk/spawn'
 
