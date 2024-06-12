@@ -286,10 +286,13 @@ export function getVersion(): string {
   return createRequire(import.meta.url)('../package.json').version
 }
 
-function isMain() {
-  if (import.meta.url.startsWith('file:')) {
-    const modulePath = url.fileURLToPath(import.meta.url).replace(/\.\w+$/, '')
-    const mainPath = fs.realpathSync(process.argv[1]).replace(/\.\w+$/, '')
+export function isMain(
+  metaurl = import.meta.url,
+  scriptpath = process.argv[1]
+) {
+  if (metaurl.startsWith('file:')) {
+    const modulePath = url.fileURLToPath(metaurl).replace(/\.\w+$/, '')
+    const mainPath = fs.realpathSync(scriptpath).replace(/\.\w+$/, '')
     return mainPath === modulePath
   }
 

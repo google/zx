@@ -16,6 +16,9 @@ import assert from 'node:assert'
 import { test, describe, beforeEach } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import '../build/globals.js'
+import { isMain } from '../build/cli.js'
+
+const __filename = fileURLToPath(import.meta.url)
 
 describe('cli', () => {
   // Helps detect unresolved ProcessPromise.
@@ -223,5 +226,29 @@ describe('cli', () => {
   test('exit code can be set', async () => {
     let p = await $`node build/cli.js test/fixtures/exit-code.mjs`.nothrow()
     assert.equal(p.exitCode, 42)
+  })
+
+  describe('internals', () => {
+    test('isMain() checks process entry point', () => {
+      assert.equal(isMain(import.meta.url, __filename), true)
+
+      assert.equal(
+        isMain(import.meta.url.replace('.js', '.cjs'), __filename),
+        true
+      )
+
+      try {
+        assert.equal(
+          isMain(
+            'file:///root/zx/test/cli.test.js',
+            '/root/zx/test/all.test.js'
+          ),
+          true
+        )
+        assert.throw()
+      } catch (e) {
+        assert.ok(['EACCES', 'ENOENT'].includes(e.code))
+      }
+    })
   })
 })
