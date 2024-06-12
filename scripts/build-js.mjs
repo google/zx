@@ -126,6 +126,7 @@ plugins.push(
             )
             .replaceAll('require("fs/promises")', 'require("fs").promises')
             .replaceAll('}).prototype', '}).prototype || {}')
+            .replace(/DISABLE_NODE_FETCH_NATIVE_WARN/, ($0) => `${$0} || true`)
             .replace(
               /\/\/ Annotate the CommonJS export names for ESM import in node:/,
               ($0) => `/* c8 ignore next 100 */\n${$0}`
