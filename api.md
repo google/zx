@@ -99,7 +99,7 @@ cd(await $`mktemp -d`)
 
 ## fetch()
 
-A wrapper around the [node-fetch](https://www.npmjs.com/package/node-fetch)
+A wrapper around the [node-fetch-native](https://www.npmjs.com/package/node-fetch-native)
 package.
 
 ```js
