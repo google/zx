@@ -29,7 +29,7 @@ import * as yaml from 'yaml'
 import * as _fs from 'fs-extra'
 import { type fetch, AbortController } from 'node-fetch-native'
 
-export { exec, buildCmd } from 'zurk/spawn'
+export { exec, buildCmd, type TSpawnStore } from 'zurk/spawn'
 
 import _createRequire from 'create-require'
 

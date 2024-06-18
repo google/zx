@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import assert from 'node:assert'
-import { test, describe, before, after } from 'node:test'
+import { test, describe, before, after, it } from 'node:test'
 import { inspect } from 'node:util'
 import { basename } from 'node:path'
 import { Readable, Writable } from 'node:stream'
@@ -219,6 +219,30 @@ describe('core', () => {
           preferLocal: true,
         })`echo $PATH`
         assert(path.stdout.startsWith(`${process.cwd()}/node_modules/.bin:`))
+      })
+
+      test('supports custom intermediate store', async () => {
+        const getFixedSizeArray = (size) => {
+          const arr = []
+          return new Proxy(arr, {
+            get: (target, prop) =>
+              prop === 'push' && arr.length >= size
+                ? () => {
+                    /* noop */
+                  }
+                : target[prop],
+          })
+        }
+        const store = {
+          stdout: getFixedSizeArray(1),
+          stderr: getFixedSizeArray(1),
+          stdall: getFixedSizeArray(0),
+        }
+
+        const p = await $({ store })`echo foo`
+
+        assert.equal(p.stdout.trim(), 'foo')
+        assert.equal(p.toString(), '')
       })
     })
 

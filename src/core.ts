@@ -26,8 +26,9 @@ import {
   which,
   ps,
   type ChalkInstance,
-  RequestInfo,
-  RequestInit,
+  type RequestInfo,
+  type RequestInit,
+  type TSpawnStore,
 } from './vendor.js'
 import {
   Duration,
@@ -79,6 +80,7 @@ export interface Options {
   preferLocal: boolean
   spawn: typeof spawn
   spawnSync: typeof spawnSync
+  store?: TSpawnStore
   log: typeof log
   kill: typeof kill
 }
@@ -277,6 +279,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       env: $.env,
       spawn: $.spawn,
       spawnSync: $.spawnSync,
+      store: $.store,
       stdio: self._stdio ?? $.stdio,
       sync: $[syncExec],
       detached: $.detached,
