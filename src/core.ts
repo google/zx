@@ -84,15 +84,18 @@ export interface Options {
 }
 
 const storage = new AsyncLocalStorage<Options>()
-const cwdSyncHook: AsyncHook & { enabled?: boolean } = createHook({
-  init: syncCwd,
-  before: syncCwd,
-  promiseResolve: syncCwd,
-  after: syncCwd,
-  destroy: syncCwd,
-})
+let cwdSyncHook: AsyncHook
 
 export function syncProcessCwd(flag: boolean = true) {
+  cwdSyncHook =
+    cwdSyncHook ||
+    createHook({
+      init: syncCwd,
+      before: syncCwd,
+      promiseResolve: syncCwd,
+      after: syncCwd,
+      destroy: syncCwd,
+    })
   if (flag) cwdSyncHook.enable()
   else cwdSyncHook.disable()
 }
