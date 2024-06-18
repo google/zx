@@ -26,8 +26,9 @@ import {
   which,
   ps,
   type ChalkInstance,
-  RequestInfo,
-  RequestInit,
+  type RequestInfo,
+  type RequestInit,
+  type TSpawnStore,
 } from './vendor.js'
 import {
   Duration,
@@ -79,20 +80,24 @@ export interface Options {
   preferLocal: boolean
   spawn: typeof spawn
   spawnSync: typeof spawnSync
+  store?: TSpawnStore
   log: typeof log
   kill: typeof kill
 }
 
 const storage = new AsyncLocalStorage<Options>()
-const cwdSyncHook: AsyncHook & { enabled?: boolean } = createHook({
-  init: syncCwd,
-  before: syncCwd,
-  promiseResolve: syncCwd,
-  after: syncCwd,
-  destroy: syncCwd,
-})
+let cwdSyncHook: AsyncHook
 
 export function syncProcessCwd(flag: boolean = true) {
+  cwdSyncHook =
+    cwdSyncHook ||
+    createHook({
+      init: syncCwd,
+      before: syncCwd,
+      promiseResolve: syncCwd,
+      after: syncCwd,
+      destroy: syncCwd,
+    })
   if (flag) cwdSyncHook.enable()
   else cwdSyncHook.disable()
 }
@@ -274,6 +279,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       env: $.env,
       spawn: $.spawn,
       spawnSync: $.spawnSync,
+      store: $.store,
       stdio: self._stdio ?? $.stdio,
       sync: $[syncExec],
       detached: $.detached,

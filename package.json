@@ -100,7 +100,7 @@
     "create-require": "^1.1.1",
     "depseek": "^0.4.1",
     "dts-bundle-generator": "^9.5.1",
-    "esbuild": "^0.21.4",
+    "esbuild": "^0.21.5",
     "esbuild-node-externals": "^1.13.1",
     "esbuild-plugin-entry-chunks": "^0.1.15",
     "esbuild-plugin-extract-helpers": "^0.0.6",
@@ -113,14 +113,14 @@
     "madge": "^7.0.0",
     "minimist": "^1.2.8",
     "node-fetch-native": "^1.6.4",
-    "prettier": "^3.3.1",
+    "prettier": "^3.3.2",
     "ts-node": "^10.9.2",
-    "tsd": "^0.31.0",
-    "tsx": "^4.13.2",
+    "tsd": "^0.31.1",
+    "tsx": "^4.15.6",
     "typescript": "^5.4.5",
     "which": "^4.0.0",
-    "yaml": "^2.4.3",
-    "zurk": "^0.2.0"
+    "yaml": "^2.4.5",
+    "zurk": "^0.3.0"
   },
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"
