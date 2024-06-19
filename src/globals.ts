@@ -36,6 +36,7 @@ declare global {
   var nothrow: typeof _.nothrow
   var os: typeof _.os
   var path: typeof _.path
+  var ps: typeof _.ps
   var question: typeof _.question
   var quiet: typeof _.quiet
   var quote: typeof _.quote
@@ -44,10 +45,12 @@ declare global {
   var sleep: typeof _.sleep
   var spinner: typeof _.spinner
   var stdin: typeof _.stdin
+  var syncProcessCwd: typeof _.syncProcessCwd
   var tempdir: typeof _.tempdir
   var tempfile: typeof _.tempfile
   var tmpdir: typeof _.tempdir
   var tmpfile: typeof _.tempfile
+  var updateArgv: typeof _.updateArgv
   var usePowerShell: typeof _.usePowerShell
   var usePwsh: typeof _.usePwsh
   var useBash: typeof _.useBash
