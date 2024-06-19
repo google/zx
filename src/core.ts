@@ -149,9 +149,7 @@ export function useBash() {
 
 function checkShell() {
   if (!$.shell)
-    throw new Error(
-      `No shell is available: https://google.github.io/zx/setup#bash`
-    )
+    throw new Error(`No shell is available: https://ï.at/zx-no-shell`)
 }
 
 function checkQuote() {
