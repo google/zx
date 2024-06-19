@@ -20,6 +20,14 @@ await $`mkdir ${'path/to-dir/' + name}`
 await $`mkdir path/to-dir/${name}`
 ```
 
+Keep in mind, that `PowerShell` or `pwsh` requires a corresponding quote implementation. Define it [via helpers](./setup#bash) or manually:
+
+```js
+import { quotePowerShell } from 'zx'
+
+$.quote = quotePowerShell
+```
+
 ## Array of arguments
 
 Zx can also accept an array of arguments within `${...}`. Each array item will be quoted separately and then joined by a
