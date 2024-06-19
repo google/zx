@@ -20,8 +20,8 @@ import {
   chalk,
   minimist,
   nodeFetch,
-  RequestInfo,
-  RequestInit,
+  type RequestInfo,
+  type RequestInit,
 } from './vendor.js'
 
 export { default as path } from 'node:path'
