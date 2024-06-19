@@ -40,7 +40,6 @@ import {
   parseDuration,
   quote,
   quotePowerShell,
-  noquote,
   preferNmBin,
 } from './util.js'
 
@@ -74,7 +73,7 @@ export interface Options {
   nothrow: boolean
   prefix: string
   postfix: string
-  quote: typeof quote
+  quote?: typeof quote
   quiet: boolean
   detached: boolean
   preferLocal: boolean
@@ -114,7 +113,6 @@ export const defaults: Options = {
   quiet: false,
   prefix: '',
   postfix: '',
-  quote: noquote,
   detached: false,
   preferLocal: false,
   spawn,
@@ -145,9 +143,15 @@ export function useBash() {
 }
 
 function checkShell() {
-  if (!$.shell) {
-    throw new Error(`shell is not available: setup guide goes here`)
-  }
+  if (!$.shell)
+    throw new Error(
+      `No shell is available: https://google.github.io/zx/setup#bash`
+    )
+}
+
+function checkQuote() {
+  if (!$.quote)
+    throw new Error('No quote function is defined: https://ï.at/no-quote-func')
 }
 
 function getStore() {
@@ -156,8 +160,6 @@ function getStore() {
 
 export const $: Shell & Options = new Proxy<Shell & Options>(
   function (pieces, ...args) {
-    checkShell()
-
     if (!Array.isArray(pieces)) {
       return function (this: any, ...args: any) {
         const self = this
@@ -170,10 +172,13 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
     if (pieces.some((p) => p == undefined)) {
       throw new Error(`Malformed command at ${from}`)
     }
+    checkShell()
+    checkQuote()
+
     let resolve: Resolve, reject: Resolve
     const promise = new ProcessPromise((...args) => ([resolve, reject] = args))
     const cmd = buildCmd(
-      $.quote,
+      $.quote as typeof quote,
       pieces as TemplateStringsArray,
       args
     ) as string
