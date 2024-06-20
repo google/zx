@@ -34,7 +34,7 @@ import {
   type RequestInfo,
   type RequestInit,
   type TSpawnStore,
-} from './vendor.js'
+} from './core-vendor.js'
 import {
   type Duration,
   errnoMessage,

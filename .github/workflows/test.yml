@@ -12,7 +12,9 @@ jobs:
         with:
           node-version: 20.x
       - run: npm ci
-      - run: npm run build
+      - run: |
+          npm run build
+          cd build && ls -l
       - uses: actions/upload-artifact@v4
         with:
           name: build

@@ -56,7 +56,7 @@ const {
 const formats = format.split(',')
 const plugins = []
 const cwd = Array.isArray(_cwd) ? _cwd[_cwd.length - 1] : _cwd
-const entries = entry.split(/,\s?/)
+const entries = entry.split(/:\s?/)
 const entryPoints = entry.includes('*')
   ? await glob(entries, { absolute: false, onlyFiles: true, cwd, root: cwd })
   : entries.map((p) => path.relative(cwd, path.resolve(cwd, p)))

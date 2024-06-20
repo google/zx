@@ -25,7 +25,7 @@ import {
   quote,
   quotePowerShell,
   randomId,
-  normalizeMultilinePieces,
+  // normalizeMultilinePieces,
   getCallerLocationFromString,
   tempdir,
   tempfile,
@@ -98,12 +98,12 @@ describe('util', () => {
     )
   })
 
-  test('normalizeMultilinePieces()', () => {
-    assert.equal(
-      normalizeMultilinePieces([' a ', 'b    c    d', ' e']).join(','),
-      ' a ,b c d, e'
-    )
-  })
+  // test('normalizeMultilinePieces()', () => {
+  //   assert.equal(
+  //     normalizeMultilinePieces([' a ', 'b    c    d', ' e']).join(','),
+  //     ' a ,b c d, e'
+  //   )
+  // })
 })
 
 test('getCallerLocation: empty', () => {

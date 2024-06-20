@@ -65,7 +65,7 @@
     "build": "npm run build:js && npm run build:dts",
     "build:check": "tsc",
     "build:js": "node scripts/build-js.mjs --format=cjs --hybrid --entry=src/*.ts && npm run build:vendor",
-    "build:vendor": "node scripts/build-js.mjs --format=cjs --entry=src/vendor.ts --bundle=all",
+    "build:vendor": "node scripts/build-js.mjs --format=cjs --entry='src/core-vendor.ts:src/vendor.ts' --bundle=all",
     "build:dts": "tsc --project tsconfig.prod.json && node scripts/build-dts.mjs",
     "pretest": "npm run build",
     "test": "npm run test:unit && npm run test:types && npm run test:license",
@@ -81,7 +81,7 @@
     "test:smoke:cjs": "node ./test/smoke/node.test.cjs",
     "test:smoke:mjs": "node ./test/smoke/node.test.mjs",
     "test:smoke:deno": "deno test ./test/smoke/deno.test.js --allow-read --allow-sys --allow-env --allow-run",
-    "coverage": "c8 -x build/deno.js -x build/vendor.cjs -x build/esblib.cjs -x 'test/**' -x scripts --check-coverage npm test",
+    "coverage": "c8 -x build/deno.js -x build/vendor.cjs -x build/core-vendor.cjs -x build/esblib.cjs -x 'test/**' -x scripts --check-coverage npm test",
     "version": "cat package.json | fx .version"
   },
   "optionalDependencies": {

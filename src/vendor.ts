@@ -27,21 +27,18 @@ import {
 } from 'globby'
 import * as yaml from 'yaml'
 import * as _fs from 'fs-extra'
+import _createRequire from 'create-require'
 import { type fetch, AbortController } from 'node-fetch-native'
 
-export { exec, buildCmd, type TSpawnStore } from 'zurk/spawn'
+export * from './core-vendor.js'
 
-import _createRequire from 'create-require'
+export { fetch as nodeFetch } from 'node-fetch-native'
+
+global.AbortController = global.AbortController || AbortController
 
 export const createRequire = _createRequire as unknown as (
   filename: string | URL
 ) => NodeRequire
-
-global.AbortController = global.AbortController || AbortController
-
-export { fetch as nodeFetch } from 'node-fetch-native'
-export type RequestInfo = Parameters<typeof fetch>[0]
-export type RequestInit = Parameters<typeof fetch>[1]
 
 export const globbyModule = {
   convertPathToPattern,
@@ -70,8 +67,4 @@ export const YAML: {
 export const fs: typeof import('fs-extra') = _fs
 
 export { depseekSync as depseek } from 'depseek'
-export { default as chalk, type ChalkInstance } from 'chalk'
-export { default as which } from 'which'
 export { default as minimist } from 'minimist'
-export { default as ps } from '@webpod/ps'
-export { parseLine } from '@webpod/ingrid'
