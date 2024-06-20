@@ -14,7 +14,8 @@
 
 import os from 'node:os'
 import path from 'node:path'
-import { chalk, parseLine, fs } from './vendor.js'
+import fs from 'node:fs'
+import { chalk } from './vendor-core.js'
 
 export function tempdir(prefix = `zx-${randomId()}`) {
   const dirpath = path.join(os.tmpdir(), prefix)
@@ -68,22 +69,22 @@ export function preferNmBin(
   }
 }
 
-export function normalizeMultilinePieces(
-  pieces: TemplateStringsArray
-): TemplateStringsArray {
-  return Object.assign(
-    pieces.map((p, i) =>
-      p.trim()
-        ? pad(p[0]) +
-          parseLine(p)
-            .words.map(({ w }) => (w === '\\' ? '' : w.trim()))
-            .join(' ') +
-          pad(p[p.length - 1])
-        : pieces[i]
-    ),
-    { raw: pieces.raw }
-  )
-}
+// export function normalizeMultilinePieces(
+//   pieces: TemplateStringsArray
+// ): TemplateStringsArray {
+//   return Object.assign(
+//     pieces.map((p, i) =>
+//       p.trim()
+//         ? pad(p[0]) +
+//           parseLine(p)
+//             .words.map(({ w }) => (w === '\\' ? '' : w.trim()))
+//             .join(' ') +
+//           pad(p[p.length - 1])
+//         : pieces[i]
+//     ),
+//     { raw: pieces.raw }
+//   )
+// }
 
 export function quote(arg: string) {
   if (/^[a-z0-9/_.\-@:=]+$/i.test(arg) || arg === '') {

@@ -12,5 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from './vendor-core.js'
-export * from './vendor-extra.js'
+export { exec, buildCmd, type TSpawnStore } from 'zurk/spawn'
+
+export type RequestInfo = Parameters<typeof fetch>[0]
+export type RequestInit = Parameters<typeof fetch>[1]
+
+export { default as chalk, type ChalkInstance } from 'chalk'
+export { default as which } from 'which'
+export { default as ps } from '@webpod/ps'

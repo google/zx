@@ -7,12 +7,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js 20.x
+      - name: Use Node.js 22.x
         uses: actions/setup-node@v4
         with:
-          node-version: 20.x
+          node-version: 22.x
       - run: npm ci
-      - run: npm run build
+      - run: |
+          npm run build
+          cd build && ls -l
       - uses: actions/upload-artifact@v4
         with:
           name: build
@@ -126,10 +128,10 @@ jobs:
         ts: [4, 5]
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js 20.x
+      - name: Use Node.js 22.x
         uses: actions/setup-node@v4
         with:
-          node-version: 20.x
+          node-version: 22.x
       - name: Install deps
         run: npm ci
       - name: Install TypeScript ${{ matrix.ts }}
