@@ -99,11 +99,7 @@ for (const i in results) {
 }
 
 // Replaces redundant triple-slash directives
-for (const dts of await glob([
-  'build/**/*.d.ts',
-  '!build/vendor.d.ts',
-  '!build/core-vendor.d.ts',
-])) {
+for (const dts of await glob(['build/**/*.d.ts', '!build/vendor-*.d.ts'])) {
   const contents = (await fs.readFile(dts, 'utf8'))
     .split('\n')
     .filter((line) => !line.startsWith('/// <reference types'))
