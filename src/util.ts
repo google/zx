@@ -15,7 +15,7 @@
 import os from 'node:os'
 import path from 'node:path'
 import fs from 'node:fs'
-import { chalk } from './core-vendor.js'
+import { chalk } from './vendor-core.js'
 
 export function tempdir(prefix = `zx-${randomId()}`) {
   const dirpath = path.join(os.tmpdir(), prefix)
