@@ -49,7 +49,8 @@ export function printUsage() {
    zx [options] <script>
 
  ${chalk.bold('Options')}
-   --quiet              don't echo commands
+   --quiet              suppress any outputs
+   --verbose            enable verbose mode
    --shell=<path>       custom shell binary
    --prefix=<command>   prefix all commands
    --postfix=<command>  postfix all commands
