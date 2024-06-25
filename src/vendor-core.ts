@@ -14,8 +14,8 @@
 
 export { exec, buildCmd, type TSpawnStore } from 'zurk/spawn'
 
-export type RequestInfo = Parameters<typeof fetch>[0]
-export type RequestInit = Parameters<typeof fetch>[1]
+export type RequestInfo = Parameters<typeof globalThis.fetch>[0]
+export type RequestInit = Parameters<typeof globalThis.fetch>[1]
 
 export { default as chalk, type ChalkInstance } from 'chalk'
 export { default as which } from 'which'
