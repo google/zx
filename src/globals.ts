@@ -26,6 +26,7 @@ declare global {
   var argv: typeof _.argv
   var cd: typeof _.cd
   var chalk: typeof _.chalk
+  var defaults: typeof _.defaults
   var echo: typeof _.echo
   var expBackoff: typeof _.expBackoff
   var fs: typeof _.fs
