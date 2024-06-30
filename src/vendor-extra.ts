@@ -25,10 +25,10 @@ import {
   isDynamicPattern,
   type Options as GlobbyOptions,
 } from 'globby'
-import * as yaml from 'yaml'
+import { parse as yamlParse, stringify as yamlStringify } from 'yaml'
 import * as _fs from 'fs-extra'
 import _createRequire from 'create-require'
-import { type fetch, AbortController } from 'node-fetch-native'
+import { AbortController } from 'node-fetch-native'
 
 export { fetch as nodeFetch } from 'node-fetch-native'
 
@@ -60,7 +60,10 @@ export const glob = Object.assign(function globby(
 export const YAML: {
   parse(text: string): any
   stringify(object: any): string
-} = yaml
+} = {
+  parse: yamlParse,
+  stringify: yamlStringify,
+}
 
 export const fs: typeof import('fs-extra') = _fs
 
