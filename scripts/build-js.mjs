@@ -23,8 +23,11 @@ import { entryChunksPlugin } from 'esbuild-plugin-entry-chunks'
 import { hybridExportPlugin } from 'esbuild-plugin-hybrid-export'
 import { transformHookPlugin } from 'esbuild-plugin-transform-hook'
 import { extractHelpersPlugin } from 'esbuild-plugin-extract-helpers'
+import esbuildResolvePlugin from 'esbuild-plugin-resolve'
 import minimist from 'minimist'
 import glob from 'fast-glob'
+
+const __dirname = path.dirname(new URL(import.meta.url).pathname)
 
 const argv = minimist(process.argv.slice(2), {
   default: {
@@ -54,7 +57,6 @@ const {
 } = argv
 
 const formats = format.split(',')
-const plugins = []
 const cwd = Array.isArray(_cwd) ? _cwd[_cwd.length - 1] : _cwd
 const entries = entry.split(/:\s?/)
 const entryPoints = entry.includes('*')
@@ -63,6 +65,12 @@ const entryPoints = entry.includes('*')
 
 const _bundle = bundle !== 'none' && !process.argv.includes('--no-bundle')
 const _external = _bundle ? external.split(',') : undefined // https://github.com/evanw/esbuild/issues/1466
+
+const plugins = [
+  esbuildResolvePlugin({
+    yaml: path.resolve(__dirname, '../node_modules/yaml/browser'),
+  }),
+]
 
 if (_bundle && entryPoints.length > 1) {
   plugins.push(entryChunksPlugin())

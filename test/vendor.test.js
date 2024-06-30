@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,12 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import './cli.test.js'
-import './core.test.js'
-import './deps.test.js'
-import './global.test.js'
-import './goods.test.js'
-import './index.test.js'
-import './package.test.js'
-import './util.test.js'
-import './vendor.test.js'
+import assert from 'node:assert'
+import { test, describe } from 'node:test'
+import { YAML } from '../build/vendor.js'
+
+describe('YAML', () => {
+  test('YAML.parse', () => {
+    assert.deepEqual(YAML.parse('a: b\n'), { a: 'b' })
+  })
+
+  test('YAML.stringify', () => {
+    assert.equal(YAML.stringify({ a: 'b' }), 'a: b\n')
+  })
+})
