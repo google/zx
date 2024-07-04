@@ -9,7 +9,7 @@
   {
     "name": "zx/index",
     "path": "build/*.{js,cjs}",
-    "limit": "842 kB",
+    "limit": "781 kB",
     "brotli": false,
     "gzip": false
   },
@@ -23,14 +23,14 @@
   {
     "name": "vendor",
     "path": "build/vendor-*",
-    "limit": "803 kB",
+    "limit": "745 kB",
     "brotli": false,
     "gzip": false
   },
   {
     "name": "all",
     "path": "build/*",
-    "limit": "875 kB",
+    "limit": "815 kB",
     "brotli": false,
     "gzip": false
   }
