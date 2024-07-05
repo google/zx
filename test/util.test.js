@@ -64,7 +64,7 @@ describe('util', () => {
     assert.ok(quote(`'\f\n\r\t\v\0`) === `$'\\'\\f\\n\\r\\t\\v\\0'`)
   })
 
-  test('quotePowerShgell()', () => {
+  test('quotePowerShell()', () => {
     assert.equal(quotePowerShell('string'), 'string')
     assert.equal(quotePowerShell(`'`), `''''`)
   })

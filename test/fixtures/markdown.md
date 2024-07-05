@@ -13,7 +13,7 @@ await $`echo ${__dirname}`
 ```
 
 ~~~js
-await $`echo "tilda"`
+await $`echo "tilde"`
 ~~~
 
 ```js
