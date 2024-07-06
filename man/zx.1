@@ -1,5 +1,5 @@
 .\" Manpage for zx.
-.TH man 8 "12 May 2024" "8.x" "zx man page"
+.TH man 8 "06 Jul 2024" "8.x" "zx man page"
 .SH NAME
 zx \- the zx CLI
 .SH DESCRIPTION
@@ -7,12 +7,14 @@ A tool for writing better scripts.
 .SH SYNOPSIS
 .SS zx\fR [\fIOPTIONS\fR]  \fIURI\fR
 .SH OPTIONS
+.SS --cwd
+set current directory
 .SS --quiet
-don't echo commands
+suppress any outputs
 .SS --verbose
-Enables verbose mode
+enables verbose mode
 .SS --shell=<path>
-Sets the shell to use
+set the shell to use
 .SS --prefix=<command>
 prefix all commands
 .SS --postfix=<command>
@@ -26,7 +28,7 @@ start repl
 .SS --version, -v
 print current zx version
 .SS --help, -h
-Print command help and options
+print command help and options
 .SH EXAMPLES
 .TP
 .I zx --verbose script.js
