@@ -39,7 +39,7 @@ const entries = [
         'node-fetch-native',
         // 'chalk',
         'globby',
-        // '@types/minimist',
+        '@types/minimist',
         // '@types/which',
         // 'zurk',
         // '@webpod/ps',
