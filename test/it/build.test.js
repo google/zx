@@ -29,19 +29,22 @@ describe('npm artifact', () => {
     dependencies: {
       typescript: '^5',
       '@types/node': '*',
-      '@types/fs-extra': '*'
-    }
+      '@types/fs-extra': '*',
+    },
   }
 
   before(async () => {
     tmp = tempdir()
-    t$ = $({cwd: tmp, quiet: true})
+    t$ = $({ cwd: tmp, quiet: true })
     zxdir = path.resolve(tmp, 'node_modules/zx')
 
     await fs.outputJSON(path.resolve(tmp, 'package.json'), pkgJson)
     await t$`npm i`
     // `file:<path>` dep mounts `node_modules` too, so we use cloning here
-    await fs.copy(path.resolve(root, 'package.json'), path.resolve(zxdir, 'package.json'))
+    await fs.copy(
+      path.resolve(root, 'package.json'),
+      path.resolve(zxdir, 'package.json')
+    )
     await fs.copy(path.resolve(root, 'build'), path.resolve(zxdir, 'build'))
   })
 
