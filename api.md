@@ -97,6 +97,8 @@ trailing newlines from `ProcessOutput` enabling common idioms like:
 cd(await $`mktemp -d`)
 ```
 
+> ⚠️ `cd` invokes `process.chdir()` internally, so it does affect the global context. To keep `process.cwd()` in sync with separate `$` calls enable [syncProcessCwd()](#syncprocesscwd) hook.
+
 ## fetch()
 
 A wrapper around the [node-fetch-native](https://www.npmjs.com/package/node-fetch-native)
@@ -148,16 +150,20 @@ Creates a new async context.
 
 ```js
 await $`pwd` // => /home/path
+$.foo = 'bar'
 
 within(async () => {
-  cd('/tmp')
+  $.cwd = '/tmp'
+  $.foo = 'baz'
 
   setTimeout(async () => {
     await $`pwd` // => /tmp
+    $.foo // baz
   }, 1000)
 })
 
 await $`pwd` // => /home/path
+$.foo // still 'bar'
 ```
 
 ```js
@@ -171,6 +177,19 @@ const version = await within(async () => {
 
 echo(version) // => v16.20.0
 ```
+
+## syncProcessCwd()
+
+Keeps the `process.cwd()` in sync with the internal `$` current working directory if it is changed via [cd()](#cd).
+
+```ts
+import {syncProcessCwd} from 'zx'
+
+syncProcessCwd()
+syncProcessCwd(false) // pass false to disable the hook
+```
+
+> This feature is disabled by default because of performance overhead.
 
 ## retry()
 
