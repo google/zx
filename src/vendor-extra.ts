@@ -25,7 +25,7 @@ import {
   isDynamicPattern,
   type Options as GlobbyOptions,
 } from 'globby'
-import { parse as yamlParse, stringify as yamlStringify } from 'yaml'
+import * as _yaml from 'yaml'
 import * as _fs from 'fs-extra'
 import _createRequire from 'create-require'
 import { AbortController } from 'node-fetch-native'
@@ -57,12 +57,59 @@ export const glob = Object.assign(function globby(
   return globbyModule.globby(patterns, options)
 }, globbyModule) as (typeof globbyModule)['globby'] & typeof globbyModule
 
-export const YAML: {
+export const YAML: YAML = _yaml
+
+export interface YAML {
   parse(text: string): any
   stringify(object: any): string
-} = {
-  parse: yamlParse,
-  stringify: yamlStringify,
+  /** @deprecated */
+  parseAllDocuments(s: string, opts?: any): any[]
+  /** @deprecated */
+  parseDocument(s: string, opts?: any): any
+  /** @deprecated */
+  isAlias(v: any): boolean
+  /** @deprecated */
+  isCollection(v: any): boolean
+  /** @deprecated */
+  isDocument(v: any): boolean
+  /** @deprecated */
+  isMap(v: any): boolean
+  /** @deprecated */
+  isNode(v: any): boolean
+  /** @deprecated */
+  isPair(v: any): boolean
+  /** @deprecated */
+  isScalar(v: any): boolean
+  /** @deprecated */
+  isSeq(v: any): boolean
+  /** @deprecated */
+  Alias: any
+  /** @deprecated */
+  Composer: any
+  /** @deprecated */
+  Document: any
+  /** @deprecated */
+  Schema: any
+  /** @deprecated */
+  YAMLSeq: any
+  /** @deprecated */
+  YAMLMap: any
+  /** @deprecated */
+  YAMLError: any
+  /** @deprecated */
+  YAMLParseError: any
+  /** @deprecated */
+  YAMLWarning: any
+  /** @deprecated */
+  Pair: any
+  /** @deprecated */
+  Scalar: any
+  /** @deprecated */
+  Lexer: any
+  /** @deprecated */
+  LineCounter: any
+  /** @deprecated */
+  Parser: any
 }
 
 export const fs: typeof import('fs-extra') = _fs
