@@ -740,17 +740,22 @@ describe('core', () => {
       await promise
     })
 
-    test('restores previous cwd', async () => {
+    test('keeps the cwd ref for internal $ calls', async () => {
       let resolve, reject
       let promise = new Promise((...args) => ([resolve, reject] = args))
-
+      let cwd = process.cwd()
       let pwd = await $`pwd`
 
       within(async () => {
         cd('/tmp')
+        assert.ok(process.cwd().endsWith('/tmp'))
+        assert.ok((await $`pwd`).stdout.trim().endsWith('/tmp'))
+
         setTimeout(async () => {
+          process.chdir('/')
           assert.ok((await $`pwd`).stdout.trim().endsWith('/tmp'))
           resolve()
+          process.chdir(cwd)
         }, 1000)
       })
 
