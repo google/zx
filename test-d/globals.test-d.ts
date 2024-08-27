@@ -15,6 +15,7 @@
 import assert from 'node:assert'
 import { expectType } from 'tsd'
 import 'zx/globals'
+import { ParsedArgs } from 'minimist'
 
 let p = $`cmd`
 assert(p instanceof ProcessPromise)
@@ -26,3 +27,5 @@ expectType<ProcessOutput>(o)
 
 expectType<string>(quote('foo'))
 expectType<string>(quotePowerShell('foo'))
+
+expectType<ParsedArgs>(minimist(['--foo', 'bar']))
