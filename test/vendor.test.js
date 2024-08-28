@@ -24,4 +24,33 @@ describe('YAML', () => {
   test('YAML.stringify', () => {
     assert.equal(YAML.stringify({ a: 'b' }), 'a: b\n')
   })
+
+  test('exposes YAML extras', () => {
+    ;[
+      'parseAllDocuments',
+      'parseDocument',
+      'isAlias',
+      'isCollection',
+      'isDocument',
+      'isMap',
+      'isNode',
+      'isPair',
+      'isScalar',
+      'isSeq',
+      'Alias',
+      'Composer',
+      'Document',
+      'Schema',
+      'YAMLSeq',
+      'YAMLMap',
+      'YAMLError',
+      'YAMLParseError',
+      'YAMLWarning',
+      'Pair',
+      'Scalar',
+      'Lexer',
+      'LineCounter',
+      'Parser',
+    ].forEach((k) => assert.ok(k in YAML))
+  })
 })
