@@ -168,14 +168,19 @@ describe('core', () => {
     test('`$.sync()` provides synchronous API', () => {
       const o1 = $.sync`echo foo`
       const o2 = $({ sync: true })`echo foo`
+      const o3 = $.sync({})`echo foo`
       assert.equal(o1.stdout, 'foo\n')
       assert.equal(o2.stdout, 'foo\n')
+      assert.equal(o3.stdout, 'foo\n')
     })
 
     describe('$({opts}) API', () => {
       test('provides presets', async () => {
         const $$ = $({ nothrow: true })
         assert.equal((await $$`exit 1`).exitCode, 1)
+
+        const $$$ = $$({ sync: true })
+        assert.equal($$$`exit 2`.exitCode, 2)
       })
 
       test('handles `input` option', async () => {
