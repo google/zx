@@ -164,11 +164,12 @@ function getStore() {
 
 export const $: Shell & Options = new Proxy<Shell & Options>(
   function (pieces, ...args) {
+    const snapshot = getStore()
     if (!Array.isArray(pieces)) {
       return function (this: any, ...args: any) {
         const self = this
         return within(() => {
-          return Object.assign($, pieces).apply(self, args)
+          return Object.assign($, snapshot, pieces).apply(self, args)
         })
       }
     }
@@ -186,7 +187,6 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
       pieces as TemplateStringsArray,
       args
     ) as string
-    const snapshot = getStore()
     const sync = snapshot[syncExec]
     const callback = () => promise.isHalted() || promise.run()
 
