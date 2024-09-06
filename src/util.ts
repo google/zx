@@ -284,13 +284,11 @@ export function parseDuration(d: Duration) {
   if (typeof d == 'number') {
     if (isNaN(d) || d < 0) throw new Error(`Invalid duration: "${d}".`)
     return d
-  } else if (/\d+s/.test(d)) {
-    return +d.slice(0, -1) * 1000
-  } else if (/\d+ms/.test(d)) {
-    return +d.slice(0, -2)
-  } else if (/\d+m/.test(d)) {
-    return +d.slice(0, -1) * 1000 * 60
   }
+  if (/^\d+s$/.test(d)) return +d.slice(0, -1) * 1000
+  if (/^\d+ms$/.test(d)) return +d.slice(0, -2)
+  if (/^\d+m$/.test(d)) return +d.slice(0, -1) * 1000 * 60
+
   throw new Error(`Unknown duration: "${d}".`)
 }
 
