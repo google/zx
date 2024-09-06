@@ -284,13 +284,11 @@ export function parseDuration(d: Duration) {
   if (typeof d == 'number') {
     if (isNaN(d) || d < 0) throw new Error(`Invalid duration: "${d}".`)
     return d
-  } else if (/\d+s/.test(d)) {
-    return +d.slice(0, -1) * 1000
-  } else if (/\d+ms/.test(d)) {
-    return +d.slice(0, -2)
-  } else if (/\d+m/.test(d)) {
-    return +d.slice(0, -1) * 1000 * 60
   }
+  if (/^\d+s$/.test(d)) return +d.slice(0, -1) * 1000
+  if (/^\d+ms$/.test(d)) return +d.slice(0, -2)
+  if (/^\d+m$/.test(d)) return +d.slice(0, -1) * 1000 * 60
+
   throw new Error(`Unknown duration: "${d}".`)
 }
 
@@ -344,9 +342,9 @@ export function formatCmd(cmd?: string): string {
   function root() {
     if (/\s/.test(ch)) return space
     if (isSyntax(ch)) return syntax
-    if (/[$]/.test(ch)) return dollar
-    if (/["]/.test(ch)) return strDouble
-    if (/[']/.test(ch)) return strSingle
+    if (ch.includes('$')) return dollar
+    if (ch.includes('"')) return strDouble
+    if (ch.includes("'")) return strSingle
     return word
   }
 
@@ -366,13 +364,13 @@ export function formatCmd(cmd?: string): string {
   }
 
   function dollar() {
-    if (/[']/.test(ch)) return str
+    if (ch.includes("'")) return str
     return root
   }
 
   function str() {
-    if (/[']/.test(ch)) return strEnd
-    if (/[\\]/.test(ch)) return strBackslash
+    if (ch.includes("'")) return strEnd
+    if (ch.includes('\\')) return strBackslash
     return str
   }
 
@@ -385,12 +383,12 @@ export function formatCmd(cmd?: string): string {
   }
 
   function strDouble() {
-    if (/["]/.test(ch)) return strEnd
+    if (ch.includes('"')) return strEnd
     return strDouble
   }
 
   function strSingle() {
-    if (/[']/.test(ch)) return strEnd
+    if (ch.includes("'")) return strEnd
     return strSingle
   }
 
