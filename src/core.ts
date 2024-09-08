@@ -70,7 +70,7 @@ export interface Options {
   signal?: AbortSignal
   input?: string | Buffer | Readable | ProcessOutput | ProcessPromise
   timeout?: Duration
-  timeoutSignal?: string
+  timeoutSignal?: NodeJS.Signals
   stdio: StdioOptions
   verbose: boolean
   sync: boolean
@@ -88,6 +88,7 @@ export interface Options {
   store?: TSpawnStore
   log: typeof log
   kill: typeof kill
+  killSignal?: NodeJS.Signals
 }
 
 const storage = new AsyncLocalStorage<Options>()
@@ -125,6 +126,8 @@ export const defaults: Options = {
   spawnSync,
   log,
   kill,
+  killSignal: 'SIGTERM',
+  timeoutSignal: 'SIGTERM',
 }
 
 export function usePowerShell() {
@@ -168,9 +171,9 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
     if (!Array.isArray(pieces)) {
       return function (this: any, ...args: any) {
         const self = this
-        return within(() => {
-          return Object.assign($, snapshot, pieces).apply(self, args)
-        })
+        return within(() =>
+          Object.assign($, snapshot, pieces).apply(self, args)
+        )
       }
     }
     const from = getCallerLocation()
@@ -237,7 +240,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _quiet?: boolean
   private _verbose?: boolean
   private _timeout?: number
-  private _timeoutSignal = 'SIGTERM'
+  private _timeoutSignal = $.timeoutSignal
   private _resolved = false
   private _halted = false
   private _piped = false
@@ -486,7 +489,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this._snapshot.signal || this._snapshot.ac?.signal
   }
 
-  async kill(signal = 'SIGTERM'): Promise<void> {
+  async kill(signal = $.killSignal): Promise<void> {
     if (!this.child)
       throw new Error('Trying to kill a process without creating one.')
     if (!this.child.pid) throw new Error('The process pid is undefined.')
@@ -530,7 +533,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this._nothrow ?? this._snapshot.nothrow
   }
 
-  timeout(d: Duration, signal = 'SIGTERM'): ProcessPromise {
+  timeout(d: Duration, signal = $.timeoutSignal): ProcessPromise {
     this._timeout = parseDuration(d)
     this._timeoutSignal = signal
     return this
@@ -686,7 +689,7 @@ export function cd(dir: string | ProcessOutput) {
   $[processCwd] = process.cwd()
 }
 
-export async function kill(pid: number, signal?: string) {
+export async function kill(pid: number, signal = $.killSignal) {
   let children = await ps.tree({ pid, recursive: true })
   for (const p of children) {
     try {
