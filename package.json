@@ -114,7 +114,7 @@
     "fs-extra": "^11.2.0",
     "fx": "*",
     "globby": "^14.0.2",
-    "madge": "^7.0.0",
+    "madge": "^8.0.0",
     "minimist": "^1.2.8",
     "node-fetch-native": "^1.6.4",
     "prettier": "^3.3.3",
