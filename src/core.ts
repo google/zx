@@ -44,7 +44,7 @@ import {
   isString,
   noop,
   parseDuration,
-  preferNmBin,
+  preferLocalBin,
   quote,
   quotePowerShell,
 } from './util.js'
@@ -82,7 +82,7 @@ export interface Options {
   quote?: typeof quote
   quiet: boolean
   detached: boolean
-  preferLocal: boolean
+  preferLocal: boolean | string | string[]
   spawn: typeof spawn
   spawnSync: typeof spawnSync
   store?: TSpawnStore
@@ -273,7 +273,11 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
     if (input) this.stdio('pipe')
     if ($.timeout) this.timeout($.timeout, $.timeoutSignal)
-    if ($.preferLocal) $.env = preferNmBin($.env, $.cwd, $[processCwd])
+    if ($.preferLocal) {
+      const dirs =
+        $.preferLocal === true ? [$.cwd, $[processCwd]] : [$.preferLocal].flat()
+      $.env = preferLocalBin($.env, ...dirs)
+    }
 
     $.log({
       kind: 'cmd',
