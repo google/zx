@@ -47,7 +47,7 @@ export function isString(obj: any) {
 
 const pad = (v: string) => (v === ' ' ? ' ' : '')
 
-export function preferNmBin(
+export function preferLocalBin(
   env: NodeJS.ProcessEnv,
   ...dirs: (string | undefined)[]
 ) {
@@ -58,7 +58,14 @@ export function preferNmBin(
           .find((key) => key.toUpperCase() === 'PATH') || 'Path'
       : 'PATH'
   const pathValue = dirs
-    .map((c) => c && path.resolve(c as string, 'node_modules', '.bin'))
+    .map(
+      (c) =>
+        c && [
+          path.resolve(c as string, 'node_modules', '.bin'),
+          path.resolve(c as string),
+        ]
+    )
+    .flat()
     .concat(env[pathKey])
     .filter(Boolean)
     .join(path.delimiter)

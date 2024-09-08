@@ -220,10 +220,22 @@ describe('core', () => {
       })
 
       test('`preferLocal` preserves env', async () => {
-        const path = await $({
-          preferLocal: true,
-        })`echo $PATH`
-        assert(path.stdout.startsWith(`${process.cwd()}/node_modules/.bin:`))
+        const cases = [
+          [true, `${process.cwd()}/node_modules/.bin:${process.cwd()}:`],
+          ['/foo', `/foo/node_modules/.bin:/foo:`],
+          [
+            ['/bar', '/baz'],
+            `/bar/node_modules/.bin:/bar:/baz/node_modules/.bin:/baz`,
+          ],
+        ]
+
+        for (const [preferLocal, expected] of cases) {
+          const path = await $({
+            preferLocal,
+            env: { PATH: process.env.PATH },
+          })`echo $PATH`
+          assert(path.stdout.startsWith(expected))
+        }
       })
 
       test('supports custom intermediate store', async () => {
