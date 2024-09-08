@@ -1,6 +1,10 @@
 name: Test
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 12 */4 * *'
 
 jobs:
   build:
@@ -148,7 +152,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        node-version: [12, 14, 16, 18, 20, 22]
+        node-version: [12, 14, 16, 18, 20, 22, 22-nightly]
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
@@ -168,7 +172,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        ts: [4, 5]
+        ts: [4, 5, rc]
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js 22.x
@@ -178,9 +182,7 @@ jobs:
       - name: Install deps
         run: npm ci
       - name: Install TypeScript ${{ matrix.ts }}
-        run: |
-          npm i typescript@${{ matrix.ts }}
-          tsc -v
+        run: npm i --force --no-package-lock typescript@${{ matrix.ts }}
       - uses: actions/download-artifact@v4
         with:
           name: build
