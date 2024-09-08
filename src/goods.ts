@@ -182,13 +182,12 @@ export async function spinner<T>(
   return within(async () => {
     $.verbose = false
     const id = setInterval(spin, 100)
-    let result: T
+
     try {
-      result = await callback!()
+      return await callback!()
     } finally {
       clearInterval(id as NodeJS.Timeout)
       process.stderr.write(' '.repeat((process.stdout.columns || 1) - 1) + '\r')
     }
-    return result
   })
 }
