@@ -29,7 +29,7 @@ import {
   getCallerLocationFromString,
   tempdir,
   tempfile,
-  preferNmBin,
+  preferLocalBin,
 } from '../build/util.js'
 
 describe('util', () => {
@@ -169,10 +169,13 @@ test('tempfile() creates temporary files', () => {
   assert.equal(fs.readFileSync(tf, 'utf-8'), 'bar')
 })
 
-test('preferNmBin()', () => {
+test('preferLocalBin()', () => {
   const env = {
     PATH: '/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/local/sbin',
   }
-  const _env = preferNmBin(env, process.cwd())
-  assert.equal(_env.PATH, `${process.cwd()}/node_modules/.bin:${env.PATH}`)
+  const _env = preferLocalBin(env, process.cwd())
+  assert.equal(
+    _env.PATH,
+    `${process.cwd()}/node_modules/.bin:${process.cwd()}:${env.PATH}`
+  )
 })
