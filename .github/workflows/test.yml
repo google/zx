@@ -183,7 +183,7 @@ jobs:
         run: npm ci
       - name: Install TypeScript ${{ matrix.ts }}
         run: |
-          npm i typescript@${{ matrix.ts }}
+          npm i --force --no-package-lock typescript@${{ matrix.ts }}
           tsc -v
       - uses: actions/download-artifact@v4
         with:
