@@ -42,6 +42,13 @@ $.preferLocal = true
 await $`c8 npm test`
 ```
 
+You can also specify a directory to search for local binaries:
+
+```js
+$.preferLocal = '/some/to/bin'
+$.preferLocal = ['/path/to/bin', '/another/path/bin']
+```
+
 ## $.quote
 
 Specifies a function for escaping special characters during
