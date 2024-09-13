@@ -319,7 +319,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           // Stderr should be printed regardless of piping.
           $.log({ kind: 'stderr', data, verbose: !self.isQuiet() })
         },
-        end: ({ error, stdout, stderr, stdall, status, signal }, c) => {
+        end: (
+          { error, stdout, stderr, stdall, status, signal, duration },
+          c
+        ) => {
           self._resolved = true
 
           // Ensures EOL
@@ -336,7 +339,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
               stdout,
               stderr,
               stdall,
-              message
+              message,
+              duration
             )
             self._output = output
             self._reject(output)
@@ -353,7 +357,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
               stdout,
               stderr,
               stdall,
-              message
+              message,
+              duration
             )
             self._output = output
             if (status === 0 || self.isNothrow()) {
@@ -563,6 +568,7 @@ export class ProcessOutput extends Error {
   private readonly _stdout: string
   private readonly _stderr: string
   private readonly _combined: string
+  private readonly _duration: number
 
   constructor(
     code: number | null,
@@ -570,7 +576,8 @@ export class ProcessOutput extends Error {
     stdout: string,
     stderr: string,
     combined: string,
-    message: string
+    message: string,
+    duration: number = 0
   ) {
     super(message)
     this._code = code
@@ -578,6 +585,7 @@ export class ProcessOutput extends Error {
     this._stdout = stdout
     this._stderr = stderr
     this._combined = combined
+    this._duration = duration
   }
 
   toString() {
@@ -630,6 +638,10 @@ export class ProcessOutput extends Error {
     return this._signal
   }
 
+  get duration() {
+    return this._duration
+  }
+
   static getExitMessage(
     code: number | null,
     signal: NodeJS.Signals | null,
@@ -670,7 +682,8 @@ export class ProcessOutput extends Error {
     exitCodeInfo(this.exitCode)
       ? chalk.grey(' (' + exitCodeInfo(this.exitCode) + ')')
       : ''
-  }
+  },
+  duration: ${this.duration}
 }`
   }
 }
