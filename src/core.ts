@@ -58,13 +58,13 @@ export interface Shell {
   }
 }
 
-const processCwd = Symbol('processCwd')
-const syncExec = Symbol('syncExec')
+const CWD = Symbol('processCwd')
+const SYNC = Symbol('syncExec')
 const eol = Buffer.from(EOL)
 
 export interface Options {
-  [processCwd]: string
-  [syncExec]: boolean
+  [CWD]: string
+  [SYNC]: boolean
   cwd?: string
   ac?: AbortController
   signal?: AbortSignal
@@ -109,8 +109,8 @@ export function syncProcessCwd(flag: boolean = true) {
 }
 
 export const defaults: Options = {
-  [processCwd]: process.cwd(),
-  [syncExec]: false,
+  [CWD]: process.cwd(),
+  [SYNC]: false,
   verbose: false,
   env: process.env,
   sync: false,
@@ -190,7 +190,7 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
       pieces as TemplateStringsArray,
       args
     ) as string
-    const sync = snapshot[syncExec]
+    const sync = snapshot[SYNC]
     const callback = () => promise.isHalted() || promise.run()
 
     promise._bind(
@@ -211,7 +211,7 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
   {
     set(_, key, value) {
       const target = key in Function.prototype ? _ : getStore()
-      Reflect.set(target, key === 'sync' ? syncExec : key, value)
+      Reflect.set(target, key === 'sync' ? SYNC : key, value)
 
       return true
     },
@@ -275,7 +275,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     if ($.timeout) this.timeout($.timeout, $.timeoutSignal)
     if ($.preferLocal) {
       const dirs =
-        $.preferLocal === true ? [$.cwd, $[processCwd]] : [$.preferLocal].flat()
+        $.preferLocal === true ? [$.cwd, $[CWD]] : [$.preferLocal].flat()
       $.env = preferLocalBin($.env, ...dirs)
     }
 
@@ -288,7 +288,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     this._zurk = exec({
       input,
       cmd: $.prefix + self._command + $.postfix,
-      cwd: $.cwd ?? $[processCwd],
+      cwd: $.cwd ?? $[CWD],
       ac: $.ac,
       signal: $.signal,
       shell: typeof $.shell === 'string' ? $.shell : true,
@@ -297,7 +297,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       spawnSync: $.spawnSync,
       store: $.store,
       stdio: self._stdio ?? $.stdio,
-      sync: $[syncExec],
+      sync: $[SYNC],
       detached: $.detached,
       run: (cb) => cb(),
       on: {
@@ -684,7 +684,7 @@ export function within<R>(callback: () => R): R {
 }
 
 function syncCwd() {
-  if ($[processCwd] != process.cwd()) process.chdir($[processCwd])
+  if ($[CWD] != process.cwd()) process.chdir($[CWD])
 }
 
 export function cd(dir: string | ProcessOutput) {
@@ -694,7 +694,7 @@ export function cd(dir: string | ProcessOutput) {
 
   $.log({ kind: 'cd', dir })
   process.chdir(dir)
-  $[processCwd] = process.cwd()
+  $[CWD] = process.cwd()
 }
 
 export async function kill(pid: number, signal = $.killSignal) {
