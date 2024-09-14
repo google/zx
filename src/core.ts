@@ -376,6 +376,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this
   }
 
+  get cmd() {
+    return this._command
+  }
+
   get child() {
     return this._zurk?.child
   }

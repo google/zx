@@ -295,6 +295,13 @@ describe('core', () => {
       assert.ok(o instanceof ProcessOutput)
     })
 
+    test('cmd() returns cmd to exec', () => {
+      const foo = '#bar'
+      const baz = 1
+      const p = $`echo ${foo} --t ${baz}`
+      assert.equal(p.cmd, "echo $'#bar' --t 1")
+    })
+
     test('stdio() works', async () => {
       let p = $`printf foo`
       await p
