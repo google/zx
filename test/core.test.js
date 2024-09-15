@@ -464,11 +464,13 @@ describe('core', () => {
 
     describe('kill()', () => {
       test('just works', async () => {
-        let p = $`sleep 999`.nothrow()
+        const p = $`sleep 999`.nothrow()
         setTimeout(() => {
           p.kill()
         }, 100)
-        await p
+        const o = await p
+        assert.equal(o.signal, 'SIGTERM')
+        assert.ok(o.duration >= 100 && o.duration < 1000)
       })
 
       test('a signal is passed with kill() method', async () => {
@@ -608,6 +610,16 @@ describe('core', () => {
   })
 
   describe('ProcessOutput', () => {
+    test('getters', async () => {
+      const o = new ProcessOutput(-1, 'SIGTERM', '', '', 'foo\n', 'msg', 20)
+
+      assert.equal(o.stdout, '')
+      assert.equal(o.stderr, '')
+      assert.equal(o.signal, 'SIGTERM')
+      assert.equal(o.exitCode, -1)
+      assert.equal(o.duration, 20)
+    })
+
     test('toString()', async () => {
       const o = new ProcessOutput(null, null, '', '', 'foo\n')
       assert.equal(o.toString(), 'foo\n')
