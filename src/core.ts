@@ -711,7 +711,7 @@ export function cd(dir: string | ProcessOutput) {
 }
 
 export async function kill(pid: number, signal = $.killSignal) {
-  let children = await ps.tree({ pid, recursive: true })
+  const children = await ps.tree({ pid, recursive: true })
   for (const p of children) {
     try {
       process.kill(+p.pid, signal)

@@ -464,11 +464,13 @@ describe('core', () => {
 
     describe('kill()', () => {
       test('just works', async () => {
-        let p = $`sleep 999`.nothrow()
+        const p = $`sleep 999`.nothrow()
         setTimeout(() => {
           p.kill()
         }, 100)
-        await p
+        const o = await p
+        assert.equal(o.signal, 'SIGTERM')
+        assert.ok(o.duration >= 100 && o.duration < 1000)
       })
 
       test('a signal is passed with kill() method', async () => {
