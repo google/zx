@@ -176,11 +176,14 @@ describe('core', () => {
 
     describe('$({opts}) API', () => {
       test('provides presets', async () => {
-        const $$ = $({ nothrow: true })
-        assert.equal((await $$`exit 1`).exitCode, 1)
+        const $1 = $({ nothrow: true })
+        assert.equal((await $1`exit 1`).exitCode, 1)
 
-        const $$$ = $$({ sync: true })
-        assert.equal($$$`exit 2`.exitCode, 2)
+        const $2 = $1({ sync: true })
+        assert.equal($2`exit 2`.exitCode, 2)
+
+        const $3 = $({ sync: true })({ nothrow: true })
+        assert.equal($3`exit 3`.exitCode, 3)
       })
 
       test('handles `input` option', async () => {
