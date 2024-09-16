@@ -49,7 +49,7 @@
     "./package.json": "./package.json"
   },
   "bin": {
-    "zx": "./build/cli.js"
+    "zx": "build/cli.js"
   },
   "man": "./man/zx.1",
   "files": [
@@ -150,7 +150,10 @@
     "endOfLine": "lf",
     "trailingComma": "es5"
   },
-  "repository": "google/zx",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/google/zx.git"
+  },
   "homepage": "https://google.github.io/zx/",
   "author": "Anton Medvedev <anton@medv.io>",
   "license": "Apache-2.0"
