@@ -23,6 +23,19 @@ const pwd = $$.sync`pwd`
 const hello = $({quiet: true})`echo "Hello!"`
 ```
 
+Moreover, presets are chainable:
+
+```js
+const $1 = $({ nothrow: true })
+assert.equal((await $1`exit 1`).exitCode, 1)
+
+const $2 = $1({ sync: true }) // Both {nothrow: true, sync: true} are applied
+assert.equal($2`exit 2`.exitCode, 2)
+
+const $3 = $({ sync: true })({ nothrow: true })
+assert.equal($3`exit 3`.exitCode, 3)
+```
+
 ### $({input})
 
 The input option passes the specified `stdin` to the command.
