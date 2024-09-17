@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export { exec, buildCmd, type TSpawnStore } from 'zurk/spawn'
+export { exec, buildCmd, isStringLiteral, type TSpawnStore } from 'zurk/spawn'
 
 export type RequestInfo = Parameters<typeof globalThis.fetch>[0]
 export type RequestInit = Parameters<typeof globalThis.fetch>[1]

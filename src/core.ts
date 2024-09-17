@@ -30,6 +30,7 @@ import {
   chalk,
   which,
   ps,
+  isStringLiteral,
   type ChalkInstance,
   type RequestInfo,
   type RequestInit,
@@ -461,7 +462,12 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return super.catch(onrejected)
   }
 
-  pipe(dest: Writable | ProcessPromise): ProcessPromise {
+  pipe(
+    dest: Writable | ProcessPromise | TemplateStringsArray,
+    ...args: any[]
+  ): ProcessPromise {
+    if (isStringLiteral(dest))
+      return this.pipe($(dest as TemplateStringsArray, ...args))
     if (isString(dest))
       throw new Error('The pipe() method does not take strings. Forgot $?')
     if (this._resolved) {
@@ -488,7 +494,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       }
       return dest
     } else {
-      this._postrun = () => this.stdout.pipe(dest)
+      this._postrun = () => this.stdout.pipe(dest as Writable)
       return this
     }
   }

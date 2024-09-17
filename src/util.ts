@@ -17,6 +17,8 @@ import path from 'node:path'
 import fs from 'node:fs'
 import { chalk } from './vendor-core.js'
 
+export { isStringLiteral } from './vendor-core.js'
+
 export function tempdir(prefix = `zx-${randomId()}`) {
   const dirpath = path.join(os.tmpdir(), prefix)
   fs.mkdirSync(dirpath, { recursive: true })
