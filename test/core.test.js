@@ -413,6 +413,21 @@ describe('core', () => {
         const p3 = await $({ nothrow: true })`echo hello && exit 1`.pipe($`cat`)
         assert.equal(p3.exitCode, 0)
         assert.equal(p3.stdout.trim(), 'hello')
+
+        const p4 = $`exit 1`.pipe($`echo hello`)
+        try {
+          await p4
+        } catch (e) {
+          assert.equal(e.exitCode, 1)
+        }
+
+        const p5 = $`echo foo && exit 1`
+        const [r1, r2] = await Promise.allSettled([
+          p5.pipe($({ nothrow: true })`cat`),
+          p5.pipe($`cat`),
+        ])
+        assert.equal(r1.value.exitCode, 0)
+        assert.equal(r2.reason.exitCode, 1)
       })
     })
 
