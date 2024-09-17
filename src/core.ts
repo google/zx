@@ -472,6 +472,11 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     }
     this._piped = true
     if (dest instanceof ProcessPromise) {
+      const _reject = this._reject
+      this._reject = function (v) {
+        _reject(v)
+        dest._reject(v)
+      }
       dest.stdio('pipe')
       dest._prerun = this.run.bind(this)
       dest._postrun = () => {
