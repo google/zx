@@ -478,7 +478,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     }
     this._piped = true
     if (dest instanceof ProcessPromise) {
-      this.catch(dest._reject)
+      this.catch((e) => (dest.isNothrow() ? noop : dest._reject(e)))
       dest.stdio('pipe')
       dest._prerun = this.run.bind(this)
       dest._postrun = () => {
