@@ -413,6 +413,13 @@ describe('core', () => {
         const p3 = await $({ nothrow: true })`echo hello && exit 1`.pipe($`cat`)
         assert.equal(p3.exitCode, 0)
         assert.equal(p3.stdout.trim(), 'hello')
+
+        const p4 = $`exit 1`.pipe($`echo hello`)
+        try {
+          await p4
+        } catch (e) {
+          assert.equal(e.exitCode, 1)
+        }
       })
     })
 
