@@ -317,34 +317,6 @@ describe('core', () => {
     })
 
     describe('pipe() API', () => {
-      test('is chainable', async () => {
-        let { stdout } = await $`echo "hello"`
-          .pipe($`awk '{print $1" world"}'`)
-          .pipe($`tr '[a-z]' '[A-Z]'`)
-        assert.equal(stdout, 'HELLO WORLD\n')
-      })
-
-      test('propagates rejection', async () => {
-        const p1 = $`exit 1`
-        const p2 = p1.pipe($`echo hello`)
-
-        try {
-          await p1
-        } catch (e) {
-          assert.equal(e.exitCode, 1)
-        }
-
-        try {
-          await p2
-        } catch (e) {
-          assert.equal(e.exitCode, 1)
-        }
-
-        const p3 = await $({ nothrow: true })`echo hello && exit 1`.pipe($`cat`)
-        assert.equal(p3.exitCode, 0)
-        assert.equal(p3.stdout.trim(), 'hello')
-      })
-
       test('accepts Writable', async () => {
         let contents = ''
         let stream = new Writable({
@@ -376,6 +348,16 @@ describe('core', () => {
         }
       })
 
+      test('accepts ProcessPromise', async () => {
+        const p = await $`echo foo`.pipe($`cat`)
+        assert.equal(p.stdout.trim(), 'foo')
+      })
+
+      test('accepts $ template literal', async () => {
+        const p = await $`echo foo`.pipe`cat`
+        assert.equal(p.stdout.trim(), 'foo')
+      })
+
       test('checks argument type', async () => {
         let err
         try {
@@ -387,6 +369,13 @@ describe('core', () => {
           err.message,
           'The pipe() method does not take strings. Forgot $?'
         )
+      })
+
+      test('is chainable', async () => {
+        let { stdout } = await $`echo "hello"`
+          .pipe($`awk '{print $1" world"}'`)
+          .pipe($`tr '[a-z]' '[A-Z]'`)
+        assert.equal(stdout, 'HELLO WORLD\n')
       })
 
       test('throws if already resolved', async (t) => {
@@ -403,6 +392,27 @@ describe('core', () => {
           )
         }
         assert.ok(ok, 'Expected failure!')
+      })
+
+      test('propagates rejection', async () => {
+        const p1 = $`exit 1`
+        const p2 = p1.pipe($`echo hello`)
+
+        try {
+          await p1
+        } catch (e) {
+          assert.equal(e.exitCode, 1)
+        }
+
+        try {
+          await p2
+        } catch (e) {
+          assert.equal(e.exitCode, 1)
+        }
+
+        const p3 = await $({ nothrow: true })`echo hello && exit 1`.pipe($`cat`)
+        assert.equal(p3.exitCode, 0)
+        assert.equal(p3.stdout.trim(), 'hello')
       })
     })
 
