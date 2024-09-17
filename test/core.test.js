@@ -324,6 +324,27 @@ describe('core', () => {
         assert.equal(stdout, 'HELLO WORLD\n')
       })
 
+      test('propagates rejection', async () => {
+        const p1 = $`exit 1`
+        const p2 = p1.pipe($`echo hello`)
+
+        try {
+          await p1
+        } catch (e) {
+          assert.equal(e.exitCode, 1)
+        }
+
+        try {
+          await p2
+        } catch (e) {
+          assert.equal(e.exitCode, 1)
+        }
+
+        const p3 = await $({ nothrow: true })`echo hello && exit 1`.pipe($`cat`)
+        assert.equal(p3.exitCode, 0)
+        assert.equal(p3.stdout.trim(), 'hello')
+      })
+
       test('accepts Writable', async () => {
         let contents = ''
         let stream = new Writable({
