@@ -321,59 +321,50 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           // Stderr should be printed regardless of piping.
           $.log({ kind: 'stderr', data, verbose: !self.isQuiet() })
         },
+        // prettier-ignore
         end: (data, c) => {
           self._resolved = true
           const { error, status, signal, duration, ctx } = data
           const { stdout, stderr, stdall } = ctx.store
+
+          // Lazy getters
           const _stdout = once(() => stdout.join(''))
           const _stderr = once(() => stderr.join(''))
           const _stdall = once(() => stdall.join(''))
+          const _duration = () => duration
+          let _code = () => status
+          let _signal = () => signal
+          let _message = once(() => ProcessOutput.getExitMessage(
+            status,
+            signal,
+            _stderr(),
+            self._from
+          ))
 
           // Ensures EOL
-          // prettier-ignore
           if (stdout.length && !stdout[stdout.length - 1]?.toString().endsWith('\n')) c.on.stdout?.(eol, c)
-          // prettier-ignore
           if (stderr.length && !stderr[stderr.length - 1]?.toString().endsWith('\n')) c.on.stderr?.(eol, c)
-          // prettier-ignore
           if (error) {
-            // Should we enable this?
-            // (nothrow ? self._resolve : self._reject)(
+            _code = () => null
+            _signal = () => null
+            _message = () => ProcessOutput.getErrorMessage(error, self._from)
+          }
 
-            const message = ProcessOutput.getErrorMessage(error, self._from)
-            const output = new ProcessOutput({
-              code: null,
-              signal: null,
-              get stdout() { return _stdout() },
-              get stderr() { return _stderr() },
-              get stdall() { return _stdall() },
-              message,
-              duration
-            })
-            self._output = output
+          const output = new ProcessOutput({
+            code: _code,
+            signal: _signal,
+            stdout: _stdout,
+            stderr: _stderr,
+            stdall: _stdall,
+            message: _message,
+            duration: _duration
+          })
+          self._output = output
+
+          if (error || status !== 0 && !self.isNothrow()) {
             self._reject(output)
           } else {
-            const _message = once(() => ProcessOutput.getExitMessage(
-              status,
-              signal,
-              _stderr(),
-              self._from
-            ))
-            const output = new ProcessOutput({
-              code: status,
-              signal,
-              get message() { return _message() },
-              get stdout() { return _stdout() },
-              get stderr() { return _stderr() },
-              get stdall() { return _stdall() },
-              duration
-            })
-
-            self._output = output
-            if (status === 0 || self.isNothrow()) {
-              self._resolve(output)
-            } else {
-              self._reject(output)
-            }
+            self._resolve(output)
           }
         },
       },
@@ -580,18 +571,20 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 }
 
-export type ProcessOutputDto = {
+type GettersRecord<T extends Record<any, any>> = { [K in keyof T]: () => T[K] }
+
+type ProcessOutputLazyDto = GettersRecord<{
   code: number | null
   signal: NodeJS.Signals | null
   stdout: string
   stderr: string
   stdall: string
-  duration: number
   message: string
-}
+  duration: number
+}>
 
 export class ProcessOutput extends Error {
-  private readonly _code: number | null
+  private readonly _code: number | null = null
   private readonly _signal: NodeJS.Signals | null
   private readonly _stdout: string
   private readonly _stderr: string
@@ -599,7 +592,7 @@ export class ProcessOutput extends Error {
   private readonly _duration: number
 
   constructor(
-    code: number | null | ProcessOutputDto,
+    code: number | null | ProcessOutputLazyDto,
     signal: NodeJS.Signals | null = null,
     stdout: string = '',
     stderr: string = '',
@@ -614,15 +607,14 @@ export class ProcessOutput extends Error {
     this._combined = combined
     this._duration = duration
     if (code !== null && typeof code === 'object') {
-      this._code = code.code
-      this._signal = code.signal
-      this._duration = code.duration
-      // prettier-ignore
       Object.defineProperties(this, {
-        message: { get() { return code.message }},
-        _stdout: { get() { return code.stdout }},
-        _stderr: { get() { return code.stderr }},
-        _combined: { get() { return code.stdall }},
+        _code: { get: code.code },
+        _signal: { get: code.signal },
+        _duration: { get: code.duration },
+        _stdout: { get: code.stdout },
+        _stderr: { get: code.stderr },
+        _combined: { get: code.stdall },
+        message: { get: code.message },
       })
     } else {
       this._code = code
