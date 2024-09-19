@@ -14,7 +14,7 @@
 
 import assert from 'node:assert'
 import { Readable, Writable } from 'node:stream'
-import { expectType } from 'tsd'
+import { expectError, expectType } from 'tsd'
 import { $, ProcessPromise, ProcessOutput, within } from 'zx'
 
 let p = $`cmd`
@@ -40,5 +40,19 @@ expectType<string>(o.stdout)
 expectType<string>(o.stderr)
 expectType<number | null>(o.exitCode)
 expectType<NodeJS.Signals | null>(o.signal)
+// prettier-ignore
+expectType<ProcessOutput>(new ProcessOutput({
+  code() { return null },
+  signal() { return null },
+  stdall() { return '' },
+  stderr() { return '' },
+  stdout() { return '' },
+  duration() { return 0 },
+  message() { return '' },
+}))
+
+expectType<ProcessOutput>(new ProcessOutput(null, null, '', '', '', '', 1))
+expectType<ProcessOutput>(new ProcessOutput(null, null, '', '', '', ''))
+expectError(new ProcessOutput(null, null))
 
 expectType<'banana'>(within(() => 'apple' as 'banana'))

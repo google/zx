@@ -449,3 +449,13 @@ export function getCallerLocationFromString(stackString = 'unknown') {
       ?.trim() || stackString
   )
 }
+
+export const once = <T extends (...args: any[]) => any>(fn: T) => {
+  let called = false
+  let result: ReturnType<T>
+  return (...args: Parameters<T>): ReturnType<T> => {
+    if (called) return result
+    called = true
+    return (result = fn(...args))
+  }
+}
