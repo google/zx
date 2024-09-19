@@ -358,6 +358,13 @@ describe('core', () => {
         assert.equal(p.stdout.trim(), 'foo')
       })
 
+      test('accepts stdout', async () => {
+        const p1 = $`echo pipe-to-stdout`
+        const p2 = p1.pipe(process.stdout)
+        assert.equal(p1, p2)
+        assert.equal((await p1).stdout.trim(), 'pipe-to-stdout')
+      })
+
       test('checks argument type', async () => {
         let err
         try {
