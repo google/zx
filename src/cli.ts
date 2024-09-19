@@ -218,10 +218,10 @@ export function transformMarkdown(buf: Buffer) {
   let state = 'root'
   let codeBlockEnd = ''
   let prevLineIsEmpty = true
-  const jsCodeBlock = /^(```+|~~~+)(js|javascript)$/
-  const shCodeBlock = /^(```+|~~~+)(sh|bash)$/
-  const otherCodeBlock = /^(```+|~~~+)(.*)$/
-  for (let line of source.split(/\r?\n/)) {
+  const jsCodeBlock = /^(```{1,20}|~~~{1,20})(js|javascript)$/
+  const shCodeBlock = /^(```{1,20}|~~~{1,20})(sh|shell|bash)$/
+  const otherCodeBlock = /^(```{1,20}|~~~{1,20})(.*)$/
+  for (const line of source.split(/\r?\n/)) {
     switch (state) {
       case 'root':
         if (/^( {4}|\t)/.test(line) && prevLineIsEmpty) {
@@ -245,10 +245,10 @@ export function transformMarkdown(buf: Buffer) {
         }
         break
       case 'tab':
-        if (/^( +|\t)/.test(line)) {
-          output.push(line)
-        } else if (line === '') {
+        if (line === '') {
           output.push('')
+        } else if (/^( +|\t)/.test(line)) {
+          output.push(line)
         } else {
           output.push('// ' + line)
           state = 'root'
