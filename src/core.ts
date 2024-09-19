@@ -591,6 +591,16 @@ export class ProcessOutput extends Error {
   private readonly _combined: string
   private readonly _duration: number
 
+  constructor(dto: ProcessOutputLazyDto)
+  constructor(
+    code: number | null,
+    signal: NodeJS.Signals | null,
+    stdout: string,
+    stderr: string,
+    combined: string,
+    message: string,
+    duration?: number
+  )
   constructor(
     code: number | null | ProcessOutputLazyDto,
     signal: NodeJS.Signals | null = null,
