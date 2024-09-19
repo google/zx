@@ -20,6 +20,7 @@ import {
   errnoMessage,
   formatCmd,
   isString,
+  isStringLiteral,
   noop,
   parseDuration,
   quote,
@@ -57,6 +58,17 @@ describe('util', () => {
   test('isString()', () => {
     assert.ok(isString('string'))
     assert.ok(!isString(1))
+  })
+
+  test('isStringLiteral()', () => {
+    const bar = 'baz'
+    assert.ok(isStringLiteral``)
+    assert.ok(isStringLiteral`foo`)
+    assert.ok(isStringLiteral`foo ${bar}`)
+
+    assert.ok(!isStringLiteral(''))
+    assert.ok(!isStringLiteral('foo'))
+    assert.ok(!isStringLiteral(['foo']))
   })
 
   test('quote()', () => {

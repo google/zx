@@ -30,7 +30,6 @@ import {
   chalk,
   which,
   ps,
-  isStringLiteral,
   type ChalkInstance,
   type RequestInfo,
   type RequestInit,
@@ -43,6 +42,7 @@ import {
   formatCmd,
   getCallerLocation,
   isString,
+  isStringLiteral,
   noop,
   parseDuration,
   preferLocalBin,
@@ -325,7 +325,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           c
         ) => {
           self._resolved = true
-
           // Ensures EOL
           if (stderr && !stderr.endsWith('\n')) c.on.stderr?.(eol, c)
           if (stdout && !stdout.endsWith('\n')) c.on.stdout?.(eol, c)
@@ -466,7 +465,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     dest: Writable | ProcessPromise | TemplateStringsArray,
     ...args: any[]
   ): ProcessPromise {
-    if (isStringLiteral(dest))
+    if (isStringLiteral(dest, ...args))
       return this.pipe($(dest as TemplateStringsArray, ...args))
     if (isString(dest))
       throw new Error('The pipe() method does not take strings. Forgot $?')
