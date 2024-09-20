@@ -326,39 +326,32 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           self._resolved = true
           const { error, status, signal, duration, ctx } = data
           const { stdout, stderr, stdall } = ctx.store
-
-          // Lazy getters
-          const _stdout = once(() => stdout.join(''))
-          const _stderr = once(() => stderr.join(''))
-          const _stdall = once(() => stdall.join(''))
-          const _duration = () => duration
-          let _code = () => status
-          let _signal = () => signal
-          let _message = once(() => ProcessOutput.getExitMessage(
-            status,
-            signal,
-            _stderr(),
-            self._from
-          ))
+          const dto: ProcessOutputLazyDto = {
+            // Lazy getters
+            code: () => status,
+            signal: () => signal,
+            stdout: once(() => stdout.join('')),
+            stderr: once(() => stderr.join('')),
+            stdall: once(() => stdall.join('')),
+            message: once(() => ProcessOutput.getExitMessage(
+              status,
+              signal,
+              dto.stderr(),
+              self._from
+            )),
+            duration: () => duration,
+          }
 
           // Ensures EOL
           if (stdout.length && !stdout[stdout.length - 1]?.toString().endsWith('\n')) c.on.stdout?.(eol, c)
           if (stderr.length && !stderr[stderr.length - 1]?.toString().endsWith('\n')) c.on.stderr?.(eol, c)
           if (error) {
-            _code = () => null
-            _signal = () => null
-            _message = () => ProcessOutput.getErrorMessage(error, self._from)
+            dto.code = () => null
+            dto.signal = () => null
+            dto.message = () => ProcessOutput.getErrorMessage(error, self._from)
           }
 
-          const output = new ProcessOutput({
-            code: _code,
-            signal: _signal,
-            stdout: _stdout,
-            stderr: _stderr,
-            stdall: _stdall,
-            message: _message,
-            duration: _duration
-          })
+          const output = new ProcessOutput(dto)
           self._output = output
 
           if (error || status !== 0 && !self.isNothrow()) {
@@ -487,10 +480,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
         this.stdout.pipe(dest.stdin)
       }
       return dest
-    } else {
-      this._postrun = () => this.stdout.pipe(dest as Writable)
-      return this
     }
+
+    this._postrun = () => this.stdout.pipe(dest as Writable)
+    return this
   }
 
   abort(reason?: string) {
