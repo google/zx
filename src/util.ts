@@ -17,6 +17,8 @@ import path from 'node:path'
 import fs from 'node:fs'
 import { chalk } from './vendor-core.js'
 
+export { isStringLiteral } from './vendor-core.js'
+
 export function tempdir(prefix = `zx-${randomId()}`) {
   const dirpath = path.join(os.tmpdir(), prefix)
   fs.mkdirSync(dirpath, { recursive: true })
@@ -43,18 +45,6 @@ export function randomId() {
 
 export function isString(obj: any) {
   return typeof obj === 'string'
-}
-
-export const isStringLiteral = (
-  pieces: any,
-  ...rest: any[]
-): pieces is TemplateStringsArray => {
-  return (
-    pieces?.length > 0 &&
-    pieces.raw?.length === pieces.length &&
-    Object.isFrozen(pieces) &&
-    rest.length + 1 === pieces.length
-  )
 }
 
 const pad = (v: string) => (v === ' ' ? ' ' : '')
