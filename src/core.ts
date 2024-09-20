@@ -330,6 +330,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
             // Lazy getters
             code: () => status,
             signal: () => signal,
+            duration: () => duration,
             stdout: once(() => stdout.join('')),
             stderr: once(() => stderr.join('')),
             stdall: once(() => stdall.join('')),
@@ -339,17 +340,16 @@ export class ProcessPromise extends Promise<ProcessOutput> {
               dto.stderr(),
               self._from
             )),
-            duration: () => duration,
+            ...error && {
+              code: () => null,
+              signal: () => null,
+              message: () => ProcessOutput.getErrorMessage(error, self._from)
+            }
           }
 
           // Ensures EOL
           if (stdout.length && !stdout[stdout.length - 1]?.toString().endsWith('\n')) c.on.stdout?.(eol, c)
           if (stderr.length && !stderr[stderr.length - 1]?.toString().endsWith('\n')) c.on.stderr?.(eol, c)
-          if (error) {
-            dto.code = () => null
-            dto.signal = () => null
-            dto.message = () => ProcessOutput.getErrorMessage(error, self._from)
-          }
 
           const output = new ProcessOutput(dto)
           self._output = output
