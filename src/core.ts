@@ -293,7 +293,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       cwd: $.cwd ?? $[CWD],
       ac: $.ac,
       signal: $.signal,
-      shell: typeof $.shell === 'string' ? $.shell : true,
+      shell: isString($.shell) ? $.shell : true,
       env: $.env,
       spawn: $.spawn,
       spawnSync: $.spawnSync,

@@ -13,29 +13,34 @@
 // limitations under the License.
 
 import assert from 'node:assert'
-import { test, describe, beforeEach } from 'node:test'
+import { test, describe, before, after } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import '../build/globals.js'
 import { isMain } from '../build/cli.js'
 
 const __filename = fileURLToPath(import.meta.url)
-
+const spawn = $.spawn
 describe('cli', () => {
   // Helps detect unresolved ProcessPromise.
-  let promiseResolved = false
-
-  beforeEach(() => {
+  before(() => {
+    const spawned = []
+    $.spawn = (...args) => {
+      const proc = spawn(...args)
+      const done = () => (proc._done = true)
+      spawned.push(proc)
+      return proc.once('close', done).once('error', done)
+    }
     process.on('exit', () => {
-      if (!promiseResolved) {
+      if (spawned.some((p) => p._done !== true)) {
         console.error('Error: ProcessPromise never resolved.')
         process.exitCode = 1
       }
     })
   })
+  after(() => ($.spawn = spawn))
 
   test('promise resolved', async () => {
     await $`echo`
-    promiseResolved = true
   })
 
   test('prints version', async () => {
