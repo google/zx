@@ -23,7 +23,7 @@ import { type Encoding } from 'node:crypto'
 import { type AsyncHook, AsyncLocalStorage, createHook } from 'node:async_hooks'
 import { type Readable, type Writable } from 'node:stream'
 import { inspect } from 'node:util'
-import { EOL } from 'node:os'
+import { EOL as _EOL } from 'node:os'
 import {
   exec,
   buildCmd,
@@ -51,18 +51,18 @@ import {
   quotePowerShell,
 } from './util.js'
 
-export interface Shell {
-  (pieces: TemplateStringsArray, ...args: any[]): ProcessPromise
-  (opts: Partial<Options>): Shell
-  sync: {
-    (pieces: TemplateStringsArray, ...args: any[]): ProcessOutput
-    (opts: Partial<Options>): Shell
-  }
-}
-
 const CWD = Symbol('processCwd')
 const SYNC = Symbol('syncExec')
-const eol = Buffer.from(EOL)
+const EOL = Buffer.from(_EOL)
+const storage = new AsyncLocalStorage<Options>()
+
+function getStore() {
+  return storage.getStore() || defaults
+}
+
+export function within<R>(callback: () => R): R {
+  return storage.run({ ...getStore() }, callback)
+}
 
 export interface Options {
   [CWD]: string
@@ -93,23 +93,6 @@ export interface Options {
   killSignal?: NodeJS.Signals
 }
 
-const storage = new AsyncLocalStorage<Options>()
-let cwdSyncHook: AsyncHook
-
-export function syncProcessCwd(flag: boolean = true) {
-  cwdSyncHook =
-    cwdSyncHook ||
-    createHook({
-      init: syncCwd,
-      before: syncCwd,
-      promiseResolve: syncCwd,
-      after: syncCwd,
-      destroy: syncCwd,
-    })
-  if (flag) cwdSyncHook.enable()
-  else cwdSyncHook.disable()
-}
-
 export const defaults: Options = {
   [CWD]: process.cwd(),
   [SYNC]: false,
@@ -132,39 +115,13 @@ export const defaults: Options = {
   timeoutSignal: 'SIGTERM',
 }
 
-export function usePowerShell() {
-  $.shell = which.sync('powershell.exe')
-  $.prefix = ''
-  $.postfix = '; exit $LastExitCode'
-  $.quote = quotePowerShell
-}
-
-export function usePwsh() {
-  $.shell = which.sync('pwsh')
-  $.prefix = ''
-  $.postfix = '; exit $LastExitCode'
-  $.quote = quotePowerShell
-}
-
-export function useBash() {
-  $.shell = which.sync('bash')
-  $.prefix = 'set -euo pipefail;'
-  $.postfix = ''
-  $.quote = quote
-}
-
-function checkShell() {
-  if (!$.shell)
-    throw new Error(`No shell is available: https://ï.at/zx-no-shell`)
-}
-
-function checkQuote() {
-  if (!$.quote)
-    throw new Error('No quote function is defined: https://ï.at/no-quote-func')
-}
-
-function getStore() {
-  return storage.getStore() || defaults
+export interface Shell {
+  (pieces: TemplateStringsArray, ...args: any[]): ProcessPromise
+  (opts: Partial<Options>): Shell
+  sync: {
+    (pieces: TemplateStringsArray, ...args: any[]): ProcessOutput
+    (opts: Partial<Options>): Shell
+  }
 }
 
 export const $: Shell & Options = new Proxy<Shell & Options>(
@@ -225,9 +182,6 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
     },
   }
 )
-try {
-  useBash()
-} catch (err) {}
 
 type Resolve = (out: ProcessOutput) => void
 
@@ -348,8 +302,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           }
 
           // Ensures EOL
-          if (stdout.length && !stdout[stdout.length - 1]?.toString().endsWith('\n')) c.on.stdout?.(eol, c)
-          if (stderr.length && !stderr[stderr.length - 1]?.toString().endsWith('\n')) c.on.stderr?.(eol, c)
+          if (stdout.length && !stdout[stdout.length - 1]?.toString().endsWith('\n')) c.on.stdout?.(EOL, c)
+          if (stderr.length && !stderr[stderr.length - 1]?.toString().endsWith('\n')) c.on.stderr?.(EOL, c)
 
           const output = new ProcessOutput(dto)
           self._output = output
@@ -724,8 +678,55 @@ export class ProcessOutput extends Error {
   }
 }
 
-export function within<R>(callback: () => R): R {
-  return storage.run({ ...getStore() }, callback)
+export function usePowerShell() {
+  $.shell = which.sync('powershell.exe')
+  $.prefix = ''
+  $.postfix = '; exit $LastExitCode'
+  $.quote = quotePowerShell
+}
+
+export function usePwsh() {
+  $.shell = which.sync('pwsh')
+  $.prefix = ''
+  $.postfix = '; exit $LastExitCode'
+  $.quote = quotePowerShell
+}
+
+export function useBash() {
+  $.shell = which.sync('bash')
+  $.prefix = 'set -euo pipefail;'
+  $.postfix = ''
+  $.quote = quote
+}
+
+try {
+  useBash()
+} catch (err) {}
+
+function checkShell() {
+  if (!$.shell)
+    throw new Error(`No shell is available: https://ï.at/zx-no-shell`)
+}
+
+function checkQuote() {
+  if (!$.quote)
+    throw new Error('No quote function is defined: https://ï.at/no-quote-func')
+}
+
+let cwdSyncHook: AsyncHook
+
+export function syncProcessCwd(flag: boolean = true) {
+  cwdSyncHook =
+    cwdSyncHook ||
+    createHook({
+      init: syncCwd,
+      before: syncCwd,
+      promiseResolve: syncCwd,
+      after: syncCwd,
+      destroy: syncCwd,
+    })
+  if (flag) cwdSyncHook.enable()
+  else cwdSyncHook.disable()
 }
 
 function syncCwd() {
