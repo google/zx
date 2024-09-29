@@ -188,20 +188,20 @@ type Resolve = (out: ProcessOutput) => void
 export class ProcessPromise extends Promise<ProcessOutput> {
   private _command = ''
   private _from = ''
-  private _resolve: Resolve = noop
-  private _reject: Resolve = noop
   private _snapshot = getStore()
   private _stdio?: StdioOptions
   private _nothrow?: boolean
   private _quiet?: boolean
   private _verbose?: boolean
   private _timeout?: number
-  private _timeoutSignal = $.timeoutSignal
+  private _timeoutSignal?: NodeJS.Signals
   private _resolved = false
   private _halted = false
   private _piped = false
   private _zurk: ReturnType<typeof exec> | null = null
   private _output: ProcessOutput | null = null
+  private _reject: Resolve = noop
+  private _resolve: Resolve = noop
   _prerun = noop
   _postrun = noop
 
@@ -322,91 +322,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this
   }
 
-  get cmd() {
-    return this._command
-  }
-
-  get child() {
-    return this._zurk?.child
-  }
-
-  get stdin(): Writable {
-    this.stdio('pipe')
-    this.run()
-    assert(this.child)
-    if (this.child.stdin == null)
-      throw new Error('The stdin of subprocess is null.')
-    return this.child.stdin
-  }
-
-  get stdout(): Readable {
-    this.run()
-    assert(this.child)
-    if (this.child.stdout == null)
-      throw new Error('The stdout of subprocess is null.')
-    return this.child.stdout
-  }
-
-  get stderr(): Readable {
-    this.run()
-    assert(this.child)
-    if (this.child.stderr == null)
-      throw new Error('The stderr of subprocess is null.')
-    return this.child.stderr
-  }
-
-  get exitCode(): Promise<number | null> {
-    return this.then(
-      (p) => p.exitCode,
-      (p) => p.exitCode
-    )
-  }
-
-  json<T = any>(): Promise<T> {
-    return this.then((p) => p.json<T>())
-  }
-
-  text(encoding?: Encoding): Promise<string> {
-    return this.then((p) => p.text(encoding))
-  }
-
-  lines(): Promise<string[]> {
-    return this.then((p) => p.lines())
-  }
-
-  buffer(): Promise<Buffer> {
-    return this.then((p) => p.buffer())
-  }
-
-  blob(type?: string): Promise<Blob> {
-    return this.then((p) => p.blob(type))
-  }
-
-  then<R = ProcessOutput, E = ProcessOutput>(
-    onfulfilled?:
-      | ((value: ProcessOutput) => PromiseLike<R> | R)
-      | undefined
-      | null,
-    onrejected?:
-      | ((reason: ProcessOutput) => PromiseLike<E> | E)
-      | undefined
-      | null
-  ): Promise<R | E> {
-    if (this.isHalted() && !this.child) {
-      throw new Error('The process is halted!')
-    }
-    return super.then(onfulfilled, onrejected)
-  }
-
-  catch<T = ProcessOutput>(
-    onrejected?:
-      | ((reason: ProcessOutput) => PromiseLike<T> | T)
-      | undefined
-      | null
-  ): Promise<ProcessOutput | T> {
-    return super.catch(onrejected)
-  }
-
+  // Essentials
   pipe(
     dest: Writable | ProcessPromise | TemplateStringsArray,
     ...args: any[]
@@ -450,11 +366,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     this._zurk?.ac.abort(reason)
   }
 
-  get signal() {
-    return this._snapshot.signal || this._snapshot.ac?.signal
-  }
-
-  async kill(signal = $.killSignal): Promise<void> {
+  kill(signal = $.killSignal): Promise<void> {
     if (!this.child)
       throw new Error('Trying to kill a process without creating one.')
     if (!this.child.pid) throw new Error('The process pid is undefined.')
@@ -462,6 +374,56 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return $.kill(this.child.pid, signal)
   }
 
+  // Getters
+  get cmd() {
+    return this._command
+  }
+
+  get child() {
+    return this._zurk?.child
+  }
+
+  get stdin(): Writable {
+    this.stdio('pipe')
+    this.run()
+    assert(this.child)
+    if (this.child.stdin == null)
+      throw new Error('The stdin of subprocess is null.')
+    return this.child.stdin
+  }
+
+  get stdout(): Readable {
+    this.run()
+    assert(this.child)
+    if (this.child.stdout == null)
+      throw new Error('The stdout of subprocess is null.')
+    return this.child.stdout
+  }
+
+  get stderr(): Readable {
+    this.run()
+    assert(this.child)
+    if (this.child.stderr == null)
+      throw new Error('The stderr of subprocess is null.')
+    return this.child.stderr
+  }
+
+  get exitCode(): Promise<number | null> {
+    return this.then(
+      (p) => p.exitCode,
+      (p) => p.exitCode
+    )
+  }
+
+  get signal() {
+    return this._snapshot.signal || this._snapshot.ac?.signal
+  }
+
+  get output() {
+    return this._output
+  }
+
+  // Configurators
   stdio(
     stdin: IOType,
     stdout: IOType = 'pipe',
@@ -486,6 +448,43 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this
   }
 
+  timeout(d: Duration, signal = $.timeoutSignal): ProcessPromise {
+    this._timeout = parseDuration(d)
+    this._timeoutSignal = signal
+    return this
+  }
+
+  halt(): ProcessPromise {
+    this._halted = true
+    return this
+  }
+
+  // Output formatters
+  json<T = any>(): Promise<T> {
+    return this.then((p) => p.json<T>())
+  }
+
+  text(encoding?: Encoding): Promise<string> {
+    return this.then((p) => p.text(encoding))
+  }
+
+  lines(): Promise<string[]> {
+    return this.then((p) => p.lines())
+  }
+
+  buffer(): Promise<Buffer> {
+    return this.then((p) => p.buffer())
+  }
+
+  blob(type?: string): Promise<Blob> {
+    return this.then((p) => p.blob(type))
+  }
+
+  // Status checkers
+  isHalted(): boolean {
+    return this._halted
+  }
+
   isQuiet(): boolean {
     return this._quiet ?? this._snapshot.quiet
   }
@@ -498,23 +497,30 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this._nothrow ?? this._snapshot.nothrow
   }
 
-  timeout(d: Duration, signal = $.timeoutSignal): ProcessPromise {
-    this._timeout = parseDuration(d)
-    this._timeoutSignal = signal
-    return this
+  // Promise API
+  then<R = ProcessOutput, E = ProcessOutput>(
+    onfulfilled?:
+      | ((value: ProcessOutput) => PromiseLike<R> | R)
+      | undefined
+      | null,
+    onrejected?:
+      | ((reason: ProcessOutput) => PromiseLike<E> | E)
+      | undefined
+      | null
+  ): Promise<R | E> {
+    if (this.isHalted() && !this.child) {
+      throw new Error('The process is halted!')
+    }
+    return super.then(onfulfilled, onrejected)
   }
 
-  halt(): ProcessPromise {
-    this._halted = true
-    return this
-  }
-
-  isHalted(): boolean {
-    return this._halted
-  }
-
-  get output() {
-    return this._output
+  catch<T = ProcessOutput>(
+    onrejected?:
+      | ((reason: ProcessOutput) => PromiseLike<T> | T)
+      | undefined
+      | null
+  ): Promise<ProcessOutput | T> {
+    return super.catch(onrejected)
   }
 }
 
