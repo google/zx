@@ -305,7 +305,7 @@ describe('core', () => {
       assert.equal(p.cmd, "echo $'#bar' --t 1")
     })
 
-    test.only('stdio() works', async () => {
+    test('stdio() works', async () => {
       let p = $`printf foo`
       await p
       // assert.throws(() => p.stdin)
@@ -339,7 +339,7 @@ describe('core', () => {
             'foo\n'
           )
 
-          let r = $({ stdio: 'pipe' })`cat`
+          let r = $`cat`
           fs.createReadStream('/tmp/output.txt').pipe(r.stdin)
           assert.equal((await r).stdout, 'foo\n')
         } finally {
@@ -384,20 +384,18 @@ describe('core', () => {
         assert.equal(stdout, 'HELLO WORLD\n')
       })
 
-      test.skip('throws if already resolved', async (t) => {
-        let ok = true
-        let p = $`echo "Hello"`
-        await p
-        try {
-          await p.pipe($`less`)
-          ok = false
-        } catch (err) {
-          assert.equal(
-            err.message,
-            `The pipe() method shouldn't be called after promise is already resolved!`
-          )
-        }
-        assert.ok(ok, 'Expected failure!')
+      it('supports multipiping', async () => {
+        const result = $`echo 1; sleep 1; echo 2; sleep 1; echo 3`
+        const piped1 = result.pipe`cat`
+        let piped2
+
+        setTimeout(() => {
+          piped2 = result.pipe`cat`
+        }, 1500)
+
+        await piped1
+        assert.equal((await piped1).toString(), '1\n2\n3\n')
+        assert.equal((await piped2).toString(), '1\n2\n3\n')
       })
 
       test('propagates rejection', async () => {
