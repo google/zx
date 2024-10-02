@@ -30,6 +30,7 @@ import {
   chalk,
   which,
   ps,
+  VoidWritable,
   type ChalkInstance,
   type RequestInfo,
   type RequestInit,
@@ -91,6 +92,7 @@ export interface Options {
   log: typeof log
   kill: typeof kill
   killSignal?: NodeJS.Signals
+  halt?: boolean
 }
 
 export const defaults: Options = {
@@ -100,7 +102,7 @@ export const defaults: Options = {
   env: process.env,
   sync: false,
   shell: true,
-  stdio: ['inherit', 'pipe', 'pipe'],
+  stdio: 'pipe',
   nothrow: false,
   quiet: false,
   prefix: '',
@@ -147,16 +149,15 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
     checkQuote()
 
     let resolve: Resolve, reject: Resolve
-    const promise = new ProcessPromise((...args) => ([resolve, reject] = args))
+    const process = new ProcessPromise((...args) => ([resolve, reject] = args))
     const cmd = buildCmd(
       $.quote as typeof quote,
       pieces as TemplateStringsArray,
       args
     ) as string
     const sync = snapshot[SYNC]
-    const callback = () => promise.isHalted() || promise.run()
 
-    promise._bind(
+    process._bind(
       cmd,
       from,
       resolve!,
@@ -166,10 +167,9 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
       },
       snapshot
     )
-    // Postpone run to allow promise configuration.
-    sync ? callback() : setImmediate(callback)
+    process.isHalted() || process.run()
 
-    return sync ? promise.output : promise
+    return sync ? process.output : process
   } as Shell & Options,
   {
     set(_, key, value) {
@@ -199,15 +199,14 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _verbose?: boolean
   private _timeout?: number
   private _timeoutSignal?: NodeJS.Signals
+  private _timeoutId?: NodeJS.Timeout
   private _resolved = false
-  private _halted = false
+  private _halted?: boolean
   private _piped = false
   private _zurk: ReturnType<typeof exec> | null = null
   private _output: ProcessOutput | null = null
   private _reject: Resolve = noop
   private _resolve: Resolve = noop
-  _prerun = noop
-  _postrun = noop
 
   _bind(
     cmd: string,
@@ -225,7 +224,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   run(): ProcessPromise {
     if (this.child) return this // The _run() can be called from a few places.
-    this._prerun() // In case $1.pipe($2), the $2 returned, and on $2._run() invoke $1._run().
 
     const $ = this._snapshot
     const self = this
@@ -262,13 +260,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       run: (cb) => cb(),
       on: {
         start: () => {
-          if (self._timeout) {
-            const t = setTimeout(
-              () => self.kill(self._timeoutSignal),
-              self._timeout
-            )
-            self.finally(() => clearTimeout(t)).catch(noop)
-          }
+          self._timeout && self.timeout(self._timeout, self._timeoutSignal)
         },
         stdout: (data) => {
           // If process is piped, don't print output.
@@ -321,8 +313,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       },
     })
 
-    this._postrun() // In case $1.pipe($2), after both subprocesses are running, we can pipe $1.stdout to $2.stdin.
-
     return this
   }
 
@@ -335,28 +325,40 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       return this.pipe($(dest as TemplateStringsArray, ...args))
     if (isString(dest))
       throw new Error('The pipe() method does not take strings. Forgot $?')
-    if (this._resolved) {
-      if (dest instanceof ProcessPromise) dest.stdin.end() // In case of piped stdin, we may want to close stdin of dest as well.
-      throw new Error(
-        "The pipe() method shouldn't be called after promise is already resolved!"
-      )
-    }
+
     this._piped = true
-    if (dest instanceof ProcessPromise) {
-      this.catch((e) => (dest.isNothrow() ? noop : dest._reject(e)))
-      dest.stdio('pipe')
-      dest._prerun = this.run.bind(this)
-      dest._postrun = () => {
-        if (!dest.child)
-          throw new Error(
-            'Access to stdin of pipe destination without creation a subprocess.'
-          )
-        this.stdout.pipe(dest.stdin)
+    const { store, ee, fulfilled } = this._zurk as any
+    const from = new VoidWritable()
+    const input = fulfilled ? fulfilled.stdout : from
+    const fill = () => {
+      for (const chunk of store.stdout) {
+        from.write(chunk)
       }
+    }
+
+    if (fulfilled) {
+      fill()
+      from.end()
+    } else {
+      const onStdout = (chunk: string | Buffer) => from.write(chunk)
+      ee.once('stdout', () => {
+        fill()
+        ee.on('stdout', onStdout)
+      }).once('end', () => {
+        ee.removeListener('stdout', onStdout)
+        from.end()
+      })
+    }
+
+    if (dest instanceof ProcessPromise) {
+      from.pipe(dest.stdin)
+      this.catch((e) => (dest.isNothrow() ? noop : dest._reject(e)))
+
       return dest
     }
 
-    this._postrun = () => this.stdout.pipe(dest as Writable)
+    from.pipe(dest as Writable)
+
     return this
   }
 
@@ -455,6 +457,15 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   timeout(d: Duration, signal = $.timeoutSignal): ProcessPromise {
     this._timeout = parseDuration(d)
     this._timeoutSignal = signal
+
+    if (this._timeoutId) clearTimeout(this._timeoutId)
+    if (this._timeout) {
+      this._timeoutId = setTimeout(
+        () => this.kill(this._timeoutSignal),
+        this._timeout
+      )
+      this.finally(() => clearTimeout(this._timeoutId)).catch(noop)
+    }
     return this
   }
 
@@ -486,7 +497,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   // Status checkers
   isHalted(): boolean {
-    return this._halted
+    return this._halted ?? this._snapshot.halt ?? false
   }
 
   isQuiet(): boolean {
