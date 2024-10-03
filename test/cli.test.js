@@ -121,16 +121,18 @@ describe('cli', () => {
   })
 
   test('scripts from https', async () => {
-    $`cat ${path.resolve('test/fixtures/echo.http')} | nc -l 8080`
+    const server = $`cat ${path.resolve('test/fixtures/echo.http')} | nc -l 8080`
     let out =
       await $`node build/cli.js --verbose http://127.0.0.1:8080/echo.mjs`
     assert.match(out.stderr, /test/)
+    await server.kill()
   })
 
   test('scripts from https not ok', async () => {
-    $`echo $'HTTP/1.1 500\n\n' | nc -l 8081`
+    const server = $`echo $'HTTP/1.1 500\n\n' | nc -l 8081`
     let out = await $`node build/cli.js http://127.0.0.1:8081`.nothrow()
     assert.match(out.stderr, /Error: Can't get/)
+    await server.kill()
   })
 
   test('scripts with no extension', async () => {
@@ -201,7 +203,7 @@ describe('cli', () => {
 
     try {
       await $`chmod +x ${zxLocation}`
-      await $`echo ${scriptCode}`.pipe(
+      await $({ stdio: ['inherit', 'pipe', 'pipe'] })`echo ${scriptCode}`.pipe(
         fs.createWriteStream('/tmp/script-from-path', { mode: 0o744 })
       )
       await $`script-from-path`

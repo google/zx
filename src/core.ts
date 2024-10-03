@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import assert from 'node:assert'
 import {
   type StdioOptions,
   type IOType,
@@ -30,6 +29,7 @@ import {
   chalk,
   which,
   ps,
+  VoidWritable,
   type ChalkInstance,
   type RequestInfo,
   type RequestInit,
@@ -54,6 +54,7 @@ import {
 const CWD = Symbol('processCwd')
 const SYNC = Symbol('syncExec')
 const EOL = Buffer.from(_EOL)
+const SIGTERM = 'SIGTERM'
 const storage = new AsyncLocalStorage<Options>()
 
 function getStore() {
@@ -91,6 +92,7 @@ export interface Options {
   log: typeof log
   kill: typeof kill
   killSignal?: NodeJS.Signals
+  halt?: boolean
 }
 
 export const defaults: Options = {
@@ -100,7 +102,7 @@ export const defaults: Options = {
   env: process.env,
   sync: false,
   shell: true,
-  stdio: ['inherit', 'pipe', 'pipe'],
+  stdio: 'pipe',
   nothrow: false,
   quiet: false,
   prefix: '',
@@ -111,21 +113,25 @@ export const defaults: Options = {
   spawnSync,
   log,
   kill,
-  killSignal: 'SIGTERM',
-  timeoutSignal: 'SIGTERM',
+  killSignal: SIGTERM,
+  timeoutSignal: SIGTERM,
 }
 
-export interface Shell {
-  (pieces: TemplateStringsArray, ...args: any[]): ProcessPromise
-  (opts: Partial<Options>): Shell
+// prettier-ignore
+export interface Shell<
+  S = false,
+  R = S extends true ? ProcessOutput : ProcessPromise,
+> {
+  (pieces: TemplateStringsArray, ...args: any[]): R
+  <O extends Partial<Options> = Partial<Options>, R = O extends { sync: true } ? Shell<true> : Shell>(opts: O): R
   sync: {
     (pieces: TemplateStringsArray, ...args: any[]): ProcessOutput
-    (opts: Partial<Options>): Shell
+    (opts: Partial<Omit<Options, 'sync'>>): Shell<true>
   }
 }
 
 export const $: Shell & Options = new Proxy<Shell & Options>(
-  function (pieces, ...args) {
+  function (pieces: TemplateStringsArray | Partial<Options>, ...args: any) {
     const snapshot = getStore()
     if (!Array.isArray(pieces)) {
       return function (this: any, ...args: any) {
@@ -136,23 +142,20 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
       }
     }
     const from = getCallerLocation()
-    if (pieces.some((p) => p == undefined)) {
-      throw new Error(`Malformed command at ${from}`)
-    }
+    checkCmd(pieces as TemplateStringsArray, from)
     checkShell()
     checkQuote()
 
     let resolve: Resolve, reject: Resolve
-    const promise = new ProcessPromise((...args) => ([resolve, reject] = args))
+    const process = new ProcessPromise((...args) => ([resolve, reject] = args))
     const cmd = buildCmd(
       $.quote as typeof quote,
       pieces as TemplateStringsArray,
       args
     ) as string
     const sync = snapshot[SYNC]
-    const callback = () => promise.isHalted() || promise.run()
 
-    promise._bind(
+    process._bind(
       cmd,
       from,
       resolve!,
@@ -162,10 +165,10 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
       },
       snapshot
     )
-    // Postpone run to allow promise configuration.
-    sync ? callback() : setImmediate(callback)
 
-    return sync ? promise.output : promise
+    if (!process.isHalted() || sync) process.run()
+
+    return sync ? process.output : process
   } as Shell & Options,
   {
     set(_, key, value) {
@@ -195,15 +198,14 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _verbose?: boolean
   private _timeout?: number
   private _timeoutSignal?: NodeJS.Signals
+  private _timeoutId?: NodeJS.Timeout
   private _resolved = false
-  private _halted = false
+  private _halted?: boolean
   private _piped = false
   private _zurk: ReturnType<typeof exec> | null = null
   private _output: ProcessOutput | null = null
   private _reject: Resolve = noop
   private _resolve: Resolve = noop
-  _prerun = noop
-  _postrun = noop
 
   _bind(
     cmd: string,
@@ -221,7 +223,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   run(): ProcessPromise {
     if (this.child) return this // The _run() can be called from a few places.
-    this._prerun() // In case $1.pipe($2), the $2 returned, and on $2._run() invoke $1._run().
 
     const $ = this._snapshot
     const self = this
@@ -258,13 +259,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       run: (cb) => cb(),
       on: {
         start: () => {
-          if (self._timeout) {
-            const t = setTimeout(
-              () => self.kill(self._timeoutSignal),
-              self._timeout
-            )
-            self.finally(() => clearTimeout(t)).catch(noop)
-          }
+          self._timeout && self.timeout(self._timeout, self._timeoutSignal)
         },
         stdout: (data) => {
           // If process is piped, don't print output.
@@ -317,8 +312,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       },
     })
 
-    this._postrun() // In case $1.pipe($2), after both subprocesses are running, we can pipe $1.stdout to $2.stdin.
-
     return this
   }
 
@@ -331,28 +324,37 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       return this.pipe($(dest as TemplateStringsArray, ...args))
     if (isString(dest))
       throw new Error('The pipe() method does not take strings. Forgot $?')
-    if (this._resolved) {
-      if (dest instanceof ProcessPromise) dest.stdin.end() // In case of piped stdin, we may want to close stdin of dest as well.
-      throw new Error(
-        "The pipe() method shouldn't be called after promise is already resolved!"
-      )
-    }
+
     this._piped = true
+    const { store, ee, fulfilled } = this._zurk!
+    const from = new VoidWritable()
+    const fill = () => {
+      for (const chunk of store.stdout) {
+        from.write(chunk)
+      }
+    }
+
+    if (fulfilled) {
+      fill()
+      from.end()
+    } else {
+      const onStdout = (chunk: string | Buffer) => from.write(chunk)
+      ee.once('stdout', () => {
+        fill()
+        ee.on('stdout', onStdout)
+      }).once('end', () => {
+        ee.removeListener('stdout', onStdout)
+        from.end()
+      })
+    }
+
     if (dest instanceof ProcessPromise) {
       this.catch((e) => (dest.isNothrow() ? noop : dest._reject(e)))
-      dest.stdio('pipe')
-      dest._prerun = this.run.bind(this)
-      dest._postrun = () => {
-        if (!dest.child)
-          throw new Error(
-            'Access to stdin of pipe destination without creation a subprocess.'
-          )
-        this.stdout.pipe(dest.stdin)
-      }
+      from.pipe(dest.stdin)
       return dest
     }
 
-    this._postrun = () => this.stdout.pipe(dest as Writable)
+    from.pipe(dest as Writable)
     return this
   }
 
@@ -375,6 +377,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   // Getters
+  get pid() {
+    return this.child?.pid
+  }
+
   get cmd() {
     return this._command
   }
@@ -384,28 +390,15 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   get stdin(): Writable {
-    this.stdio('pipe')
-    this.run()
-    assert(this.child)
-    if (this.child.stdin == null)
-      throw new Error('The stdin of subprocess is null.')
-    return this.child.stdin
+    return this.child?.stdin!
   }
 
   get stdout(): Readable {
-    this.run()
-    assert(this.child)
-    if (this.child.stdout == null)
-      throw new Error('The stdout of subprocess is null.')
-    return this.child.stdout
+    return this.child?.stdout!
   }
 
   get stderr(): Readable {
-    this.run()
-    assert(this.child)
-    if (this.child.stderr == null)
-      throw new Error('The stderr of subprocess is null.')
-    return this.child.stderr
+    return this.child?.stderr!
   }
 
   get exitCode(): Promise<number | null> {
@@ -451,11 +444,15 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   timeout(d: Duration, signal = $.timeoutSignal): ProcessPromise {
     this._timeout = parseDuration(d)
     this._timeoutSignal = signal
-    return this
-  }
 
-  halt(): ProcessPromise {
-    this._halted = true
+    if (this._timeoutId) clearTimeout(this._timeoutId)
+    if (this._timeout) {
+      this._timeoutId = setTimeout(
+        () => this.kill(this._timeoutSignal),
+        this._timeout
+      )
+      this.finally(() => clearTimeout(this._timeoutId)).catch(noop)
+    }
     return this
   }
 
@@ -482,7 +479,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   // Status checkers
   isHalted(): boolean {
-    return this._halted
+    return this._halted ?? this._snapshot.halt ?? false
   }
 
   isQuiet(): boolean {
@@ -717,6 +714,12 @@ function checkShell() {
 function checkQuote() {
   if (!$.quote)
     throw new Error('No quote function is defined: https://ï.at/no-quote-func')
+}
+
+function checkCmd(pieces: TemplateStringsArray, from: string) {
+  if (pieces.some((p) => p == undefined)) {
+    throw new Error(`Malformed command at ${from}`)
+  }
 }
 
 let cwdSyncHook: AsyncHook
