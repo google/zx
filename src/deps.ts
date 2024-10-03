@@ -20,10 +20,10 @@ export async function installDeps(
   dependencies: Record<string, string>,
   prefix?: string
 ) {
+  const flags = prefix ? `--prefix=${prefix}` : ''
   const packages = Object.entries(dependencies).map(
     ([name, version]) => `${name}@${version}`
   )
-  const flags = prefix ? `--prefix=${prefix}` : ''
   if (packages.length === 0) {
     return
   }
