@@ -383,10 +383,14 @@ describe('core', () => {
       })
 
       test('is chainable', async () => {
-        let { stdout } = await $`echo "hello"`
+        let { stdout: o1 } = await $`echo "hello"`
           .pipe($`awk '{print $1" world"}'`)
           .pipe($`tr '[a-z]' '[A-Z]'`)
-        assert.equal(stdout, 'HELLO WORLD\n')
+        assert.equal(o1, 'HELLO WORLD\n')
+
+        let { stdout: o2 } = await $`echo "hello"`
+          .pipe`awk '{print $1" world"}'`.pipe`tr '[a-z]' '[A-Z]'`
+        assert.equal(o2, 'HELLO WORLD\n')
       })
 
       it('supports multipiping', async () => {
