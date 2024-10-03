@@ -27,10 +27,10 @@ import {
 export { default as path } from 'node:path'
 export * as os from 'node:os'
 
-export let argv = minimist(process.argv.slice(2))
+export const argv = minimist(process.argv.slice(2))
 export function updateArgv(args: string[]) {
-  argv = minimist(args)
-  ;(global as any).argv = argv
+  for (var k in argv) delete argv[k]
+  Object.assign(argv, minimist(args))
 }
 
 export function sleep(duration: Duration) {
