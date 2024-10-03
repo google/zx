@@ -508,6 +508,11 @@ describe('core', () => {
           }
           assert.ok(ok, 'Expected failure!')
         })
+
+        test('sync process ignores halt option', () => {
+          const p = $.sync({ halt: true })`echo foo`
+          assert.equal(p.stdout, 'foo\n')
+        })
       })
 
       test('exposes `signal` property', async () => {

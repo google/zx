@@ -167,7 +167,8 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
       },
       snapshot
     )
-    process.isHalted() || process.run()
+
+    if (!process.isHalted() || sync) process.run()
 
     return sync ? process.output : process
   } as Shell & Options,
