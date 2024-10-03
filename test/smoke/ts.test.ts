@@ -15,9 +15,15 @@
 import * as assert from 'node:assert'
 import 'zx/globals'
 ;(async () => {
-  // smoke test
+  // smoke test async
   {
     const p = await $`echo foo`
+    assert.match(p.stdout, /foo/)
+  }
+
+  // smoke test sync
+  {
+    const p = $.sync`echo foo`
     assert.match(p.stdout, /foo/)
   }
 
