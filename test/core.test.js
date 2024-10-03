@@ -484,6 +484,32 @@ describe('core', () => {
         }
       })
 
+      describe('handles halt option', () => {
+        test('just works', async () => {
+          let filepath = `/tmp/${Math.random().toString()}`
+          let p = $({ halt: true })`touch ${filepath}`
+          await sleep(1)
+          assert.ok(
+            !fs.existsSync(filepath),
+            'The cmd called, but it should not have been called'
+          )
+          await p.run()
+          assert.ok(fs.existsSync(filepath), 'The cmd should have been called')
+        })
+
+        test('await on halted throws', async () => {
+          let p = $({ halt: true })`sleep 1`
+          let ok = true
+          try {
+            await p
+            ok = false
+          } catch (err) {
+            assert.equal(err.message, 'The process is halted!')
+          }
+          assert.ok(ok, 'Expected failure!')
+        })
+      })
+
       test('exposes `signal` property', async () => {
         const ac = new AbortController()
         const p = $({ ac, detached: true })`echo test`
@@ -581,7 +607,7 @@ describe('core', () => {
       assert.equal(p.isVerbose(), false)
     })
 
-    test('nothrow() do not throw', async () => {
+    test('nothrow() does not throw', async () => {
       let { exitCode } = await $`exit 42`.nothrow()
       assert.equal(exitCode, 42)
       {
@@ -589,32 +615,6 @@ describe('core', () => {
         let { exitCode } = await nothrow($`exit 42`)
         assert.equal(exitCode, 42)
       }
-    })
-
-    describe('halt()', () => {
-      test('just works', async () => {
-        let filepath = `/tmp/${Math.random().toString()}`
-        let p = $`touch ${filepath}`.halt()
-        await sleep(1)
-        assert.ok(
-          !fs.existsSync(filepath),
-          'The cmd called, but it should not have been called'
-        )
-        await p.run()
-        assert.ok(fs.existsSync(filepath), 'The cmd should have been called')
-      })
-
-      test('await on halted throws', async () => {
-        let p = $({ halt: true })`sleep 1` //.halt()
-        let ok = true
-        try {
-          await p
-          ok = false
-        } catch (err) {
-          assert.equal(err.message, 'The process is halted!')
-        }
-        assert.ok(ok, 'Expected failure!')
-      })
     })
 
     describe('timeout()', () => {
