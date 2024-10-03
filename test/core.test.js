@@ -305,6 +305,11 @@ describe('core', () => {
       assert.equal(p.cmd, "echo $'#bar' --t 1")
     })
 
+    test('exposes pid', () => {
+      const p = $`echo foo`
+      assert.ok(p.pid > 0)
+    })
+
     test('stdio() works', async () => {
       let p = $`printf foo`
       await p
