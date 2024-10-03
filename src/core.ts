@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import assert from 'node:assert'
 import {
   type StdioOptions,
   type IOType,
@@ -392,28 +391,15 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   get stdin(): Writable {
-    this.stdio('pipe')
-    this.run()
-    assert(this.child)
-    if (this.child.stdin == null)
-      throw new Error('The stdin of subprocess is null.')
-    return this.child.stdin
+    return this.child?.stdin!
   }
 
   get stdout(): Readable {
-    this.run()
-    assert(this.child)
-    if (this.child.stdout == null)
-      throw new Error('The stdout of subprocess is null.')
-    return this.child.stdout
+    return this.child?.stdout!
   }
 
   get stderr(): Readable {
-    this.run()
-    assert(this.child)
-    if (this.child.stderr == null)
-      throw new Error('The stderr of subprocess is null.')
-    return this.child.stderr
+    return this.child?.stderr!
   }
 
   get exitCode(): Promise<number | null> {
