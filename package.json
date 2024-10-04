@@ -1,6 +1,6 @@
 {
   "name": "zx",
-  "version": "8.1.8",
+  "version": "8.1.9",
   "description": "A tool for writing better scripts",
   "type": "module",
   "main": "./build/index.cjs",
