@@ -56,3 +56,8 @@ expectType<ProcessOutput>(new ProcessOutput(null, null, '', '', '', ''))
 expectError(new ProcessOutput(null, null))
 
 expectType<'banana'>(within(() => 'apple' as 'banana'))
+
+expectType<ProcessPromise>($`cmd`)
+expectType<ProcessPromise>($({ sync: false })`cmd`)
+expectType<ProcessOutput>($({ sync: true })`cmd`)
+expectType<ProcessOutput>($.sync`cmd`)

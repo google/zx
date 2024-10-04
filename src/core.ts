@@ -115,17 +115,21 @@ export const defaults: Options = {
   timeoutSignal: 'SIGTERM',
 }
 
-export interface Shell {
-  (pieces: TemplateStringsArray, ...args: any[]): ProcessPromise
-  (opts: Partial<Options>): Shell
+// prettier-ignore
+export interface Shell<
+  S = false,
+  R = S extends true ? ProcessOutput : ProcessPromise,
+> {
+  (pieces: TemplateStringsArray, ...args: any[]): R
+  <O extends Partial<Options> = Partial<Options>, R = O extends { sync: true } ? Shell<true> : Shell>(opts: O): R
   sync: {
     (pieces: TemplateStringsArray, ...args: any[]): ProcessOutput
-    (opts: Partial<Options>): Shell
+    (opts: Partial<Omit<Options, 'sync'>>): Shell<true>
   }
 }
 
 export const $: Shell & Options = new Proxy<Shell & Options>(
-  function (pieces, ...args) {
+  function (pieces: TemplateStringsArray | Partial<Options>, ...args: any) {
     const snapshot = getStore()
     if (!Array.isArray(pieces)) {
       return function (this: any, ...args: any) {
@@ -136,9 +140,9 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
       }
     }
     const from = getCallerLocation()
-    if (pieces.some((p) => p == undefined)) {
+    if (pieces.some((p) => p == undefined))
       throw new Error(`Malformed command at ${from}`)
-    }
+
     checkShell()
     checkQuote()
 
