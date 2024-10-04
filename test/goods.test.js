@@ -14,7 +14,7 @@
 
 import chalk from 'chalk'
 import assert from 'node:assert'
-import { test, describe, beforeEach } from 'node:test'
+import { test, describe } from 'node:test'
 import '../build/globals.js'
 
 describe('goods', () => {
