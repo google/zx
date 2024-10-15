@@ -230,7 +230,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     const self = this
     const input = ($.input as ProcessPromise | ProcessOutput)?.stdout ?? $.input
 
-    if (input) this.stdio('pipe')
     if ($.timeout) this.timeout($.timeout, $.timeoutSignal)
     if ($.preferLocal) {
       const dirs =
@@ -299,8 +298,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           }
 
           // Ensures EOL
-          if (stdout.length && !stdout[stdout.length - 1]?.toString().endsWith('\n')) c.on.stdout?.(EOL, c)
-          if (stderr.length && !stderr[stderr.length - 1]?.toString().endsWith('\n')) c.on.stderr?.(EOL, c)
+          if (stdout.length && !stdout[stdout.length - 1]!.toString().endsWith('\n')) c.on.stdout!(EOL, c)
+          if (stderr.length && !stderr[stderr.length - 1]!.toString().endsWith('\n')) c.on.stderr!(EOL, c)
 
           const output = new ProcessOutput(dto)
           self._output = output
@@ -376,6 +375,13 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     if (!this.child.pid) throw new Error('The process pid is undefined.')
 
     return $.kill(this.child.pid, signal)
+  }
+
+  /**
+   *  @deprecated Use $({halt: true})`cmd` instead.
+   */
+  halt() {
+    return this
   }
 
   // Getters
