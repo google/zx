@@ -64,57 +64,57 @@ function getStore() {
 export function within<R>(callback: () => R): R {
   return storage.run({ ...getStore() }, callback)
 }
-
+// prettier-ignore
 export interface Options {
-  [CWD]: string
-  [SYNC]: boolean
-  cwd?: string
-  ac?: AbortController
-  signal?: AbortSignal
-  input?: string | Buffer | Readable | ProcessOutput | ProcessPromise
-  timeout?: Duration
+  [CWD]:          string
+  [SYNC]:         boolean
+  cwd?:           string
+  ac?:            AbortController
+  signal?:        AbortSignal
+  input?:         string | Buffer | Readable | ProcessOutput | ProcessPromise
+  timeout?:       Duration
   timeoutSignal?: NodeJS.Signals
-  stdio: StdioOptions
-  verbose: boolean
-  sync: boolean
-  env: NodeJS.ProcessEnv
-  shell: string | boolean
-  nothrow: boolean
-  prefix: string
-  postfix: string
-  quote?: typeof quote
-  quiet: boolean
-  detached: boolean
-  preferLocal: boolean | string | string[]
-  spawn: typeof spawn
-  spawnSync: typeof spawnSync
-  store?: TSpawnStore
-  log: typeof log
-  kill: typeof kill
-  killSignal?: NodeJS.Signals
-  halt?: boolean
+  stdio:          StdioOptions
+  verbose:        boolean
+  sync:           boolean
+  env:            NodeJS.ProcessEnv
+  shell:          string | boolean
+  nothrow:        boolean
+  prefix:         string
+  postfix:        string
+  quote?:         typeof quote
+  quiet:          boolean
+  detached:       boolean
+  preferLocal:    boolean | string | string[]
+  spawn:          typeof spawn
+  spawnSync:      typeof spawnSync
+  store?:         TSpawnStore
+  log:            typeof log
+  kill:           typeof kill
+  killSignal?:    NodeJS.Signals
+  halt?:          boolean
 }
-
+// prettier-ignore
 export const defaults: Options = {
-  [CWD]: process.cwd(),
-  [SYNC]: false,
-  verbose: false,
-  env: process.env,
-  sync: false,
-  shell: true,
-  stdio: 'pipe',
-  nothrow: false,
-  quiet: false,
-  prefix: '',
-  postfix: '',
-  detached: false,
-  preferLocal: false,
+  [CWD]:          process.cwd(),
+  [SYNC]:         false,
+  verbose:        false,
+  env:            process.env,
+  sync:           false,
+  shell:          true,
+  stdio:          'pipe',
+  nothrow:        false,
+  quiet:          false,
+  prefix:         '',
+  postfix:        '',
+  detached:       false,
+  preferLocal:    false,
   spawn,
   spawnSync,
   log,
   kill,
-  killSignal: SIGTERM,
-  timeoutSignal: SIGTERM,
+  killSignal:     SIGTERM,
+  timeoutSignal:  SIGTERM,
 }
 
 // prettier-ignore
