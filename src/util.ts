@@ -353,9 +353,9 @@ export function formatCmd(cmd?: string): string {
   function root() {
     if (/\s/.test(ch)) return space
     if (isSyntax(ch)) return syntax
-    if (ch.includes('$')) return dollar
-    if (ch.includes('"')) return strDouble
-    if (ch.includes("'")) return strSingle
+    if (ch === '$') return dollar
+    if (ch === '"') return strDouble
+    if (ch === "'") return strSingle
     return word
   }
 
@@ -375,13 +375,13 @@ export function formatCmd(cmd?: string): string {
   }
 
   function dollar() {
-    if (ch.includes("'")) return str
+    if (ch === "'") return str
     return root
   }
 
   function str() {
-    if (ch.includes("'")) return strEnd
-    if (ch.includes('\\')) return strBackslash
+    if (ch === "'") return strEnd
+    if (ch === '\\') return strBackslash
     return str
   }
 
@@ -394,12 +394,12 @@ export function formatCmd(cmd?: string): string {
   }
 
   function strDouble() {
-    if (ch.includes('"')) return strEnd
+    if (ch === '"') return strEnd
     return strDouble
   }
 
   function strSingle() {
-    if (ch.includes("'")) return strEnd
+    if (ch === "'") return strEnd
     return strSingle
   }
 
