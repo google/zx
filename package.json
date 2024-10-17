@@ -97,7 +97,7 @@
     "@types/node": ">=20.11.30",
     "@types/which": "^3.0.4",
     "@webpod/ingrid": "^0.0.0-beta.3",
-    "@webpod/ps": "^0.0.0-beta.8",
+    "@webpod/ps": "^0.0.0-beta.10",
     "c8": "^10.1.2",
     "chalk": "^5.3.0",
     "create-require": "^1.1.1",
@@ -125,7 +125,7 @@
     "typescript": "^5.6.2",
     "which": "^4.0.0",
     "yaml": "^2.5.1",
-    "zurk": "^0.4.4"
+    "zurk": "^0.6.0"
   },
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"
