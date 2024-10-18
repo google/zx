@@ -133,12 +133,16 @@ jobs:
   smoke-deno:
     runs-on: ubuntu-latest
     needs: build
+    strategy:
+      matrix:
+        deno-version: [v1.x, v2.x]
     steps:
       - uses: actions/checkout@v4
       - name: Setup Deno
-        uses: denoland/setup-deno@v1
+        uses: denoland/setup-deno@v2
         with:
-          deno-version: v1.x
+          deno-version: ${{ matrix.deno-version }}
+      - run: deno install npm:types/node npm:types/fs-extra
       - uses: actions/download-artifact@v4
         with:
           name: build
@@ -152,7 +156,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        node-version: [12, 14, 16, 18, 20, 22, 22-nightly]
+        node-version: [12, 14, 16, 18, 20, 22, 22-nightly, 23]
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
