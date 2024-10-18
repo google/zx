@@ -246,6 +246,12 @@ The [which](https://github.com/npm/node-which) package.
 const node = await which('node')
 ```
 
+If nothrow option is used, returns null if not found.
+
+```js
+const pathOrNull = await which('node', { nothrow: true })
+```
+
 ## ps()
 
 The [@webpod/ps](https://github.com/webpod/ps) package to provide a cross-platform way to list processes.
