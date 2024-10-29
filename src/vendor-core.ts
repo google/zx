@@ -17,7 +17,7 @@ export {
   buildCmd,
   isStringLiteral,
   type TSpawnStore,
-  VoidWritable,
+  VoidStream,
 } from 'zurk/spawn'
 
 export type RequestInfo = Parameters<typeof globalThis.fetch>[0]

@@ -29,7 +29,7 @@ import {
   chalk,
   which,
   ps,
-  VoidWritable,
+  VoidStream,
   type ChalkInstance,
   type RequestInfo,
   type RequestInit,
@@ -328,7 +328,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
     this._piped = true
     const { store, ee, fulfilled } = this._zurk!
-    const from = new VoidWritable()
+    const from = new VoidStream()
     const fill = () => {
       for (const chunk of store.stdout) {
         from.write(chunk)
