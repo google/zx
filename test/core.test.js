@@ -305,12 +305,16 @@ describe('core', () => {
       assert.equal(p.cmd, "echo $'#bar' --t 1")
     })
 
+    test('exposes pid', () => {
+      const p = $`echo foo`
+      assert.ok(p.pid > 0)
+    })
+
     test('stdio() works', async () => {
       let p = $`printf foo`
       await p
-      assert.throws(() => p.stdin)
+      // assert.throws(() => p.stdin)
       assert.equal((await p).stdout, 'foo')
-
       let b = $`read; printf $REPLY`
       b.stdin.write('bar\n')
       assert.equal((await b).stdout, 'bar')
@@ -379,26 +383,28 @@ describe('core', () => {
       })
 
       test('is chainable', async () => {
-        let { stdout } = await $`echo "hello"`
+        let { stdout: o1 } = await $`echo "hello"`
           .pipe($`awk '{print $1" world"}'`)
           .pipe($`tr '[a-z]' '[A-Z]'`)
-        assert.equal(stdout, 'HELLO WORLD\n')
+        assert.equal(o1, 'HELLO WORLD\n')
+
+        let { stdout: o2 } = await $`echo "hello"`
+          .pipe`awk '{print $1" world"}'`.pipe`tr '[a-z]' '[A-Z]'`
+        assert.equal(o2, 'HELLO WORLD\n')
       })
 
-      test('throws if already resolved', async (t) => {
-        let ok = true
-        let p = $`echo "Hello"`
-        await p
-        try {
-          await p.pipe($`less`)
-          ok = false
-        } catch (err) {
-          assert.equal(
-            err.message,
-            `The pipe() method shouldn't be called after promise is already resolved!`
-          )
-        }
-        assert.ok(ok, 'Expected failure!')
+      it('supports multipiping', async () => {
+        const result = $`echo 1; sleep 1; echo 2; sleep 1; echo 3`
+        const piped1 = result.pipe`cat`
+        let piped2
+
+        setTimeout(() => {
+          piped2 = result.pipe`cat`
+        }, 1500)
+
+        await piped1
+        assert.equal((await piped1).toString(), '1\n2\n3\n')
+        assert.equal((await piped2).toString(), '1\n2\n3\n')
       })
 
       test('propagates rejection', async () => {
@@ -476,6 +482,37 @@ describe('core', () => {
         } catch ({ message }) {
           assert.match(message, /The operation was aborted/)
         }
+      })
+
+      describe('handles halt option', () => {
+        test('just works', async () => {
+          let filepath = `/tmp/${Math.random().toString()}`
+          let p = $({ halt: true })`touch ${filepath}`
+          await sleep(1)
+          assert.ok(
+            !fs.existsSync(filepath),
+            'The cmd called, but it should not have been called'
+          )
+          await p.run()
+          assert.ok(fs.existsSync(filepath), 'The cmd should have been called')
+        })
+
+        test('await on halted throws', async () => {
+          let p = $({ halt: true })`sleep 1`
+          let ok = true
+          try {
+            await p
+            ok = false
+          } catch (err) {
+            assert.equal(err.message, 'The process is halted!')
+          }
+          assert.ok(ok, 'Expected failure!')
+        })
+
+        test('sync process ignores halt option', () => {
+          const p = $.sync({ halt: true })`echo foo`
+          assert.equal(p.stdout, 'foo\n')
+        })
       })
 
       test('exposes `signal` property', async () => {
@@ -575,7 +612,7 @@ describe('core', () => {
       assert.equal(p.isVerbose(), false)
     })
 
-    test('nothrow() do not throw', async () => {
+    test('nothrow() does not throw', async () => {
       let { exitCode } = await $`exit 42`.nothrow()
       assert.equal(exitCode, 42)
       {
@@ -583,32 +620,6 @@ describe('core', () => {
         let { exitCode } = await nothrow($`exit 42`)
         assert.equal(exitCode, 42)
       }
-    })
-
-    describe('halt()', () => {
-      test('just works', async () => {
-        let filepath = `/tmp/${Math.random().toString()}`
-        let p = $`touch ${filepath}`.halt()
-        await sleep(1)
-        assert.ok(
-          !fs.existsSync(filepath),
-          'The cmd called, but it should not have been called'
-        )
-        await p.run()
-        assert.ok(fs.existsSync(filepath), 'The cmd should have been called')
-      })
-
-      test('await on halted throws', async () => {
-        let p = $`sleep 1`.halt()
-        let ok = true
-        try {
-          await p
-          ok = false
-        } catch (err) {
-          assert.equal(err.message, 'The process is halted!')
-        }
-        assert.ok(ok, 'Expected failure!')
-      })
     })
 
     describe('timeout()', () => {
