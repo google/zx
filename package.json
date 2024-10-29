@@ -76,6 +76,7 @@
     "test:license": "node ./test/extra.test.js",
     "test:audit": "npm audit fix",
     "test:size": "size-limit",
+    "test:smoke:strip-types": "node --experimental-strip-types test/smoke/ts.test.ts",
     "test:smoke:tsx": "tsx test/smoke/ts.test.ts",
     "test:smoke:tsc": "cd test/smoke && mkdir -p node_modules && ln -s ../../../  ./node_modules/zx; ../../node_modules/typescript/bin/tsc -v && ../../node_modules/typescript/bin/tsc --esModuleInterop --module node16 --rootDir . --outdir ./temp ts.test.ts && node ./temp/ts.test.js",
     "test:smoke:ts-node": "node --loader ts-node/esm test/smoke/ts.test.ts",
