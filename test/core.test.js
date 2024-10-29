@@ -16,6 +16,7 @@ import assert from 'node:assert'
 import { test, describe, before, after, it } from 'node:test'
 import { inspect } from 'node:util'
 import { basename } from 'node:path'
+import { WriteStream } from 'node:fs'
 import { Readable, Transform, Writable } from 'node:stream'
 import { Socket } from 'node:net'
 import { ProcessPromise, ProcessOutput } from '../build/index.js'
@@ -394,7 +395,7 @@ describe('core', () => {
       })
 
       test('is chainable (Transform/Duplex)', async () => {
-        const p = await $`echo "hello"`
+        const p = $`echo "hello"`
           .pipe(
             new Transform({
               transform(chunk, encoding, callback) {
@@ -404,6 +405,8 @@ describe('core', () => {
           )
           .pipe(fs.createWriteStream('/tmp/output2.txt'))
 
+        assert.ok(p instanceof WriteStream)
+        assert.equal(await p, undefined)
         assert.equal(
           (await fs.readFile('/tmp/output2.txt')).toString(),
           'HELLO\n'
