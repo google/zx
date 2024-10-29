@@ -317,10 +317,13 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   // Essentials
+  pipe(dest: TemplateStringsArray, ...args: any[]): ProcessPromise
+  pipe<D extends Writable>(dest: D): D & PromiseLike<void>
+  pipe<D extends ProcessPromise>(dest: D): D
   pipe(
     dest: Writable | ProcessPromise | TemplateStringsArray,
     ...args: any[]
-  ): ProcessPromise {
+  ): (Writable & PromiseLike<void>) | ProcessPromise {
     if (isStringLiteral(dest, ...args))
       return this.pipe($(dest as TemplateStringsArray, ...args))
     if (isString(dest))
@@ -355,8 +358,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       return dest
     }
 
-    from.pipe(dest as Writable)
-    return this
+    from.pipe(dest)
+    return ProcessPromise.promisifyStream(dest)
   }
 
   abort(reason?: string) {
@@ -526,6 +529,38 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       | null
   ): Promise<ProcessOutput | T> {
     return super.catch(onrejected)
+  }
+
+  private static promisifyStream<D extends Writable>(
+    dest: D
+  ): D & PromiseLike<void>
+  private static promisifyStream(
+    dest: Writable | ProcessPromise
+  ): (Writable & PromiseLike<void>) | ProcessPromise {
+    return dest instanceof ProcessPromise
+      ? dest
+      : (new Proxy(dest as Writable, {
+          get(target, key) {
+            if (key === 'then') {
+              return (res: any = noop, rej: any = noop) =>
+                new Promise((_res, _rej) =>
+                  target
+                    .once('error', () => _rej(rej()))
+                    .once('finish', () => _res(res()))
+                )
+            }
+            if (key === 'pipe') {
+              const pipe = Reflect.get(target, key)
+              if (typeof pipe === 'function')
+                return function (...args: any) {
+                  return ProcessPromise.promisifyStream(
+                    pipe.apply(target, args) as Writable
+                  )
+                }
+            }
+            return Reflect.get(target, key)
+          },
+        }) as Writable & PromiseLike<void>)
   }
 }
 
