@@ -170,6 +170,9 @@ jobs:
         run: npm run test:smoke:cjs
       - name: mjs smoke test
         run: npm run test:smoke:mjs
+      - name: strip-types
+        if: matrix.node-version >= 22
+        run: npm run test:smoke:strip-types
 
   smoke-ts:
     runs-on: ubuntu-latest
