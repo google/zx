@@ -13,12 +13,17 @@
 // limitations under the License.
 
 import assert from 'node:assert'
-import fs from 'node:fs/promises'
 import { test, describe } from 'node:test'
-import { globby } from '../build/index.js'
+import { globby, fs, path } from '../build/index.js'
+
+const __dirname = path.dirname(new URL(import.meta.url).pathname)
 
 describe('extra', () => {
   test('every file should have a license', async () => {
+    const copyright = await fs.readFile(
+      path.resolve(__dirname, 'fixtures/copyright.txt'),
+      'utf8'
+    )
     const files = await globby(['**/*.{js,mjs,ts}', '!**/*polyfill.js'], {
       gitignore: true,
       onlyFiles: true,
@@ -28,23 +33,7 @@ describe('extra', () => {
     for (const file of files) {
       const content = await fs.readFile(file, 'utf8')
       assert(
-        content
-          .replace(/\d{4}/g, 'YEAR')
-          .includes(
-            '// Copyright YEAR Google LLC\n' +
-              '//\n' +
-              '// Licensed under the Apache License, Version 2.0 (the "License");\n' +
-              '// you may not use this file except in compliance with the License.\n' +
-              '// You may obtain a copy of the License at\n' +
-              '//\n' +
-              '//     https://www.apache.org/licenses/LICENSE-2.0\n' +
-              '//\n' +
-              '// Unless required by applicable law or agreed to in writing, software\n' +
-              '// distributed under the License is distributed on an "AS IS" BASIS,\n' +
-              '// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n' +
-              '// See the License for the specific language governing permissions and\n' +
-              '// limitations under the License.'
-          ),
+        content.replace(/\d{4}/g, 'YEAR').includes(copyright),
         `No license header in ${file}.`
       )
     }
