@@ -47,6 +47,7 @@ import {
   once,
   parseDuration,
   preferLocalBin,
+  promisifyStream,
   quote,
   quotePowerShell,
 } from './util.js'
@@ -359,7 +360,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     }
 
     from.pipe(dest)
-    return ProcessPromise.promisifyStream(dest)
+    return promisifyStream(dest)
   }
 
   abort(reason?: string) {
@@ -529,32 +530,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       | null
   ): Promise<ProcessOutput | T> {
     return super.catch(onrejected)
-  }
-
-  private static promisifyStream<S extends Writable>(
-    stream: S
-  ): S & PromiseLike<void> {
-    return new Proxy(stream as S & PromiseLike<void>, {
-      get(target, key) {
-        if (key === 'then') {
-          return (res: any = noop, rej: any = noop) =>
-            new Promise((_res, _rej) =>
-              target
-                .once('error', () => _rej(rej()))
-                .once('finish', () => _res(res()))
-            )
-        }
-        const value = Reflect.get(target, key)
-        if (key === 'pipe' && typeof value === 'function') {
-          return function (...args: any) {
-            return ProcessPromise.promisifyStream(
-              value.apply(target, args) as S
-            )
-          }
-        }
-        return value
-      },
-    })
   }
 }
 

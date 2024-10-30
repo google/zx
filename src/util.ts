@@ -16,6 +16,7 @@ import os from 'node:os'
 import path from 'node:path'
 import fs from 'node:fs'
 import { chalk } from './vendor-core.js'
+import type { Writable } from 'node:stream'
 
 export { isStringLiteral } from './vendor-core.js'
 
@@ -449,3 +450,26 @@ export const once = <T extends (...args: any[]) => any>(fn: T) => {
     return (result = fn(...args))
   }
 }
+
+export const promisifyStream = <S extends Writable>(
+  stream: S
+): S & PromiseLike<void> =>
+  new Proxy(stream as S & PromiseLike<void>, {
+    get(target, key) {
+      if (key === 'then') {
+        return (res: any = noop, rej: any = noop) =>
+          new Promise((_res, _rej) =>
+            target
+              .once('error', () => _rej(rej()))
+              .once('finish', () => _res(res()))
+          )
+      }
+      const value = Reflect.get(target, key)
+      if (key === 'pipe' && typeof value === 'function') {
+        return function (...args: any) {
+          return promisifyStream(value.apply(target, args) as S)
+        }
+      }
+      return value
+    },
+  })
