@@ -28,7 +28,7 @@ describe('deps', () => {
   })
 
   test('installDeps() loader works via CLI', async () => {
-    let out =
+    const out =
       await $`node build/cli.js --install <<< 'import _ from "lodash" /* @4.17.15 */; console.log(_.VERSION)'`
     assert.match(out.stdout, /4.17.15/)
   })

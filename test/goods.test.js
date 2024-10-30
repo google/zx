@@ -23,7 +23,7 @@ describe('goods', () => {
   }
 
   test('question() works', async () => {
-    let p = $`node build/cli.js --eval "
+    const p = $`node build/cli.js --eval "
   let answer = await question('foo or bar? ', { choices: ['foo', 'bar'] })
   echo('Answer is', answer)
 "`
@@ -52,8 +52,8 @@ describe('goods', () => {
   })
 
   test('echo() works', async () => {
+    const log = console.log
     let stdout = ''
-    let log = console.log
     console.log = (...args) => {
       stdout += args.join(' ')
     }
@@ -103,7 +103,7 @@ describe('goods', () => {
 
   test('retry() works', async () => {
     const now = Date.now()
-    let p = await zx(`
+    const p = await zx(`
     try {
       await retry(5, '50ms', () => $\`exit 123\`)
     } catch (e) {
@@ -119,7 +119,7 @@ describe('goods', () => {
 
   test('retry() with expBackoff() works', async () => {
     const now = Date.now()
-    let p = await zx(`
+    const p = await zx(`
     try {
       await retry(5, expBackoff('60s', 0), () => $\`exit 123\`)
     } catch (e) {
@@ -133,7 +133,7 @@ describe('goods', () => {
   })
 
   test('spinner() works', async () => {
-    let out = await zx(`
+    const out = await zx(`
     echo(await spinner(async () => {
       await sleep(100)
       await $\`echo hidden\`
@@ -146,14 +146,14 @@ describe('goods', () => {
   })
 
   test('spinner() with title works', async () => {
-    let out = await zx(`
+    const out = await zx(`
     await spinner('processing', () => sleep(100))
   `)
     assert.match(out.stderr, /processing/)
   })
 
   test('spinner() stops on throw', async () => {
-    let out = await zx(`
+    const out = await zx(`
     await spinner('processing', () => $\`wtf-cmd\`)
   `)
     assert.match(out.stderr, /Error:/)

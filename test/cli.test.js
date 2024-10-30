@@ -48,14 +48,14 @@ describe('cli', () => {
   })
 
   test('prints help', async () => {
-    let p = $`node build/cli.js -h`
+    const p = $`node build/cli.js -h`
     p.stdin.end()
-    let help = await p
+    const help = await p
     assert.match(help.stdout, /zx/)
   })
 
   test('zx prints usage if no param passed', async () => {
-    let p = $`node build/cli.js`
+    const p = $`node build/cli.js`
     p.stdin.end()
     try {
       await p
@@ -67,62 +67,62 @@ describe('cli', () => {
   })
 
   test('starts repl with --repl', async () => {
-    let p = $`node build/cli.js --repl`
+    const p = $`node build/cli.js --repl`
     p.stdin.write('await $`echo f"o"o`\n')
     p.stdin.write('"b"+"ar"\n')
     p.stdin.end()
-    let out = await p
+    const out = await p
     assert.match(out.stdout, /foo/)
     assert.match(out.stdout, /bar/)
   })
 
   test('starts repl with verbosity off', async () => {
-    let p = $`node build/cli.js --repl`
+    const p = $`node build/cli.js --repl`
     p.stdin.write('"verbose" + " is " + $.verbose\n')
     p.stdin.end()
-    let out = await p
+    const out = await p
     assert.match(out.stdout, /verbose is false/)
   })
 
   test('supports `--quiet` flag', async () => {
-    let p = await $`node build/cli.js --quiet test/fixtures/markdown.md`
+    const p = await $`node build/cli.js --quiet test/fixtures/markdown.md`
     assert.ok(!p.stderr.includes('ignore'), 'ignore was printed')
     assert.ok(!p.stderr.includes('hello'), 'no hello')
     assert.ok(p.stdout.includes('world'), 'no world')
   })
 
   test('supports `--shell` flag ', async () => {
-    let shell = $.shell
-    let p =
+    const shell = $.shell
+    const p =
       await $`node build/cli.js --verbose --shell=${shell} <<< '$\`echo \${$.shell}\`'`
     assert.ok(p.stderr.includes(shell))
   })
 
   test('supports `--prefix` flag ', async () => {
-    let prefix = 'set -e;'
-    let p =
+    const prefix = 'set -e;'
+    const p =
       await $`node build/cli.js --verbose --prefix=${prefix} <<< '$\`echo \${$.prefix}\`'`
     assert.ok(p.stderr.includes(prefix))
   })
 
   test('supports `--postfix` flag ', async () => {
-    let postfix = '; exit 0'
-    let p =
+    const postfix = '; exit 0'
+    const p =
       await $`node build/cli.js --verbose --postfix=${postfix} <<< '$\`echo \${$.postfix}\`'`
     assert.ok(p.stderr.includes(postfix))
   })
 
   test('supports `--cwd` option ', async () => {
-    let cwd = path.resolve(fileURLToPath(import.meta.url), '../../temp')
+    const cwd = path.resolve(fileURLToPath(import.meta.url), '../../temp')
     fs.mkdirSync(cwd, { recursive: true })
-    let p =
+    const p =
       await $`node build/cli.js --verbose --cwd=${cwd} <<< '$\`echo \${$.cwd}\`'`
     assert.ok(p.stderr.endsWith(cwd + '\n'))
   })
 
   test('scripts from https', async () => {
     const server = $`cat ${path.resolve('test/fixtures/echo.http')} | nc -l 8080`
-    let out =
+    const out =
       await $`node build/cli.js --verbose http://127.0.0.1:8080/echo.mjs`
     assert.match(out.stderr, /test/)
     await server.kill()
@@ -130,7 +130,7 @@ describe('cli', () => {
 
   test('scripts from https not ok', async () => {
     const server = $`echo $'HTTP/1.1 500\n\n' | nc -l 8081`
-    let out = await $`node build/cli.js http://127.0.0.1:8081`.nothrow()
+    const out = await $`node build/cli.js http://127.0.0.1:8081`.nothrow()
     assert.match(out.stderr, /Error: Can't get/)
     await server.kill()
   })
@@ -145,7 +145,7 @@ describe('cli', () => {
   })
 
   test('require() is working from stdin', async () => {
-    let out =
+    const out =
       await $`node build/cli.js <<< 'console.log(require("./package.json").name)'`
     assert.match(out.stdout, /zx/)
   })
@@ -167,14 +167,14 @@ describe('cli', () => {
   })
 
   test('markdown scripts are working for CRLF', async () => {
-    let p = await $`node build/cli.js test/fixtures/markdown-crlf.md`
+    const p = await $`node build/cli.js test/fixtures/markdown-crlf.md`
     assert.ok(p.stdout.includes('Hello, world!'))
   })
 
   test('exceptions are caught', async () => {
-    let out1 = await $`node build/cli.js <<<${'await $`wtf`'}`.nothrow()
+    const out1 = await $`node build/cli.js <<<${'await $`wtf`'}`.nothrow()
+    const out2 = await $`node build/cli.js <<<'throw 42'`.nothrow()
     assert.match(out1.stderr, /Error:/)
-    let out2 = await $`node build/cli.js <<<'throw 42'`.nothrow()
     assert.match(out2.stderr, /42/)
   })
 
@@ -184,7 +184,7 @@ describe('cli', () => {
   })
 
   test('eval works with stdin', async () => {
-    let p = $`(printf foo; sleep 0.1; printf bar) | node build/cli.js --eval 'echo(await stdin())'`
+    const p = $`(printf foo; sleep 0.1; printf bar) | node build/cli.js --eval 'echo(await stdin())'`
     assert.equal((await p).stdout, 'foobar\n')
   })
 
@@ -231,7 +231,7 @@ describe('cli', () => {
   })
 
   test('exit code can be set', async () => {
-    let p = await $`node build/cli.js test/fixtures/exit-code.mjs`.nothrow()
+    const p = await $`node build/cli.js test/fixtures/exit-code.mjs`.nothrow()
     assert.equal(p.exitCode, 42)
   })
 

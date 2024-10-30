@@ -13,6 +13,6 @@
 // limitations under the License.
 
 import { strict as assert } from 'assert'
-let data = require('../../package.json')
+const data = require('../../package.json')
 assert.equal(data.name, 'zx')
 assert.equal(data, require('zx/package.json'))
