@@ -267,10 +267,26 @@ describe('core', () => {
       })
     })
 
-    test('accepts `stdio`', async () => {
-      let p = $({ stdio: 'ignore' })`echo foo`
+    describe('accepts `stdio`', () => {
+      test('ignore', async () => {
+        const p = $({ stdio: 'ignore' })`echo foo`
+        assert.equal((await p).stdout, '')
+      })
 
-      assert.equal((await p).stdout, '')
+      test('file stream as stdout', async () => {
+        const createWriteStream = (f) => {
+          const stream = fs.createWriteStream(f)
+          return new Promise((resolve) => {
+            stream.on('open', () => resolve(stream))
+          })
+        }
+        const file = tempfile()
+        const stream = await createWriteStream(file)
+        const p = $({ stdio: ['pipe', stream, 'ignore'] })`echo foo`
+
+        await p
+        assert.equal((await fs.readFile(file)).toString(), 'foo\n')
+      })
     })
   })
 
@@ -339,18 +355,16 @@ describe('core', () => {
       })
 
       test('accepts WriteStream', async () => {
+        const file = tempfile()
         try {
-          await $`echo foo`.pipe(fs.createWriteStream('/tmp/output.txt'))
-          assert.equal(
-            (await fs.readFile('/tmp/output.txt')).toString(),
-            'foo\n'
-          )
+          await $`echo foo`.pipe(fs.createWriteStream(file))
+          assert.equal((await fs.readFile(file)).toString(), 'foo\n')
 
           let r = $`cat`
-          fs.createReadStream('/tmp/output.txt').pipe(r.stdin)
+          fs.createReadStream(file).pipe(r.stdin)
           assert.equal((await r).stdout, 'foo\n')
         } finally {
-          await fs.rm('/tmp/output.txt')
+          await fs.rm(file)
         }
       })
 
@@ -395,6 +409,7 @@ describe('core', () => {
       })
 
       test('is chainable (Transform/Duplex)', async () => {
+        const file = tempfile()
         const p = $`echo "hello"`
           .pipe(
             new Transform({
@@ -403,14 +418,12 @@ describe('core', () => {
               },
             })
           )
-          .pipe(fs.createWriteStream('/tmp/output2.txt'))
+          .pipe(fs.createWriteStream(file))
 
         assert.ok(p instanceof WriteStream)
         assert.equal(await p, undefined)
-        assert.equal(
-          (await fs.readFile('/tmp/output2.txt')).toString(),
-          'HELLO\n'
-        )
+        assert.equal((await fs.readFile(file)).toString(), 'HELLO\n')
+        await fs.rm(file)
       })
 
       it('supports multipiping', async () => {
