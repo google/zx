@@ -533,34 +533,31 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   private static promisifyStream<D extends Writable>(
     dest: D
-  ): D & PromiseLike<void>
-  private static promisifyStream(
-    dest: Writable | ProcessPromise
-  ): (Writable & PromiseLike<void>) | ProcessPromise {
-    return dest instanceof ProcessPromise
-      ? dest
-      : (new Proxy(dest as Writable, {
-          get(target, key) {
-            if (key === 'then') {
-              return (res: any = noop, rej: any = noop) =>
-                new Promise((_res, _rej) =>
-                  target
-                    .once('error', () => _rej(rej()))
-                    .once('finish', () => _res(res()))
-                )
+  ): D & PromiseLike<void> {
+    return new Proxy(dest as D & PromiseLike<void>, {
+      get(target, key) {
+        if (key === 'then') {
+          return (res: any = noop, rej: any = noop) =>
+            new Promise((_res, _rej) =>
+              target
+                .once('error', () => _rej(rej()))
+                .once('finish', () => _res(res()))
+            )
+        }
+        if (key === 'pipe') {
+          const pipe = Reflect.get(target, key)
+          if (typeof pipe === 'function')
+            return function (...args: any) {
+              return (
+                args[0] instanceof ProcessPromise
+                  ? noop
+                  : ProcessPromise.promisifyStream
+              )(pipe.apply(target, args) as Writable)
             }
-            if (key === 'pipe') {
-              const pipe = Reflect.get(target, key)
-              if (typeof pipe === 'function')
-                return function (...args: any) {
-                  return ProcessPromise.promisifyStream(
-                    pipe.apply(target, args) as Writable
-                  )
-                }
-            }
-            return Reflect.get(target, key)
-          },
-        }) as Writable & PromiseLike<void>)
+        }
+        return Reflect.get(target, key)
+      },
+    })
   }
 }
 
