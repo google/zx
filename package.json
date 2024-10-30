@@ -85,7 +85,7 @@
     "test:smoke:cjs": "node ./test/smoke/node.test.cjs",
     "test:smoke:mjs": "node ./test/smoke/node.test.mjs",
     "test:smoke:deno": "deno test ./test/smoke/deno.test.js --allow-read --allow-sys --allow-env --allow-run",
-    "version": "cat package.json | fx .version"
+    "version": "node -e \"console.log(require('./package.json').version)\""
   },
   "optionalDependencies": {
     "@types/fs-extra": ">=11",
@@ -113,7 +113,6 @@
     "esbuild-plugin-transform-hook": "^0.1.1",
     "esbuild-plugin-utils": "^0.1.0",
     "fs-extra": "^11.2.0",
-    "fx": "*",
     "globby": "^14.0.2",
     "madge": "^8.0.0",
     "minimist": "^1.2.8",
