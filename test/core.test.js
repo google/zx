@@ -397,33 +397,35 @@ describe('core', () => {
         )
       })
 
-      test('is chainable ($)', async () => {
-        let { stdout: o1 } = await $`echo "hello"`
-          .pipe($`awk '{print $1" world"}'`)
-          .pipe($`tr '[a-z]' '[A-Z]'`)
-        assert.equal(o1, 'HELLO WORLD\n')
+      describe('is chainable', () => {
+        test('$ to $', async () => {
+          let { stdout: o1 } = await $`echo "hello"`
+            .pipe($`awk '{print $1" world"}'`)
+            .pipe($`tr '[a-z]' '[A-Z]'`)
+          assert.equal(o1, 'HELLO WORLD\n')
 
-        let { stdout: o2 } = await $`echo "hello"`
-          .pipe`awk '{print $1" world"}'`.pipe`tr '[a-z]' '[A-Z]'`
-        assert.equal(o2, 'HELLO WORLD\n')
-      })
+          let { stdout: o2 } = await $`echo "hello"`
+            .pipe`awk '{print $1" world"}'`.pipe`tr '[a-z]' '[A-Z]'`
+          assert.equal(o2, 'HELLO WORLD\n')
+        })
 
-      test('is chainable (Transform/Duplex)', async () => {
-        const file = tempfile()
-        const p = $`echo "hello"`
-          .pipe(
-            new Transform({
-              transform(chunk, encoding, callback) {
-                callback(null, String(chunk).toUpperCase())
-              },
-            })
-          )
-          .pipe(fs.createWriteStream(file))
+        test('Transform/Duplex', async () => {
+          const file = tempfile()
+          const p = $`echo "hello"`
+            .pipe(
+              new Transform({
+                transform(chunk, encoding, callback) {
+                  callback(null, String(chunk).toUpperCase())
+                },
+              })
+            )
+            .pipe(fs.createWriteStream(file))
 
-        assert.ok(p instanceof WriteStream)
-        assert.equal(await p, undefined)
-        assert.equal((await fs.readFile(file)).toString(), 'HELLO\n')
-        await fs.rm(file)
+          assert.ok(p instanceof WriteStream)
+          assert.equal(await p, undefined)
+          assert.equal((await fs.readFile(file)).toString(), 'HELLO\n')
+          await fs.rm(file)
+        })
       })
 
       it('supports multipiping', async () => {

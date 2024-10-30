@@ -531,10 +531,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return super.catch(onrejected)
   }
 
-  private static promisifyStream<D extends Writable>(
-    dest: D
-  ): D & PromiseLike<void> {
-    return new Proxy(dest as D & PromiseLike<void>, {
+  private static promisifyStream<S extends Writable>(
+    stream: S
+  ): S & PromiseLike<void> {
+    return new Proxy(stream as S & PromiseLike<void>, {
       get(target, key) {
         if (key === 'then') {
           return (res: any = noop, rej: any = noop) =>
@@ -548,11 +548,9 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           const pipe = Reflect.get(target, key)
           if (typeof pipe === 'function')
             return function (...args: any) {
-              return (
-                args[0] instanceof ProcessPromise
-                  ? noop
-                  : ProcessPromise.promisifyStream
-              )(pipe.apply(target, args) as Writable)
+              return ProcessPromise.promisifyStream(
+                pipe.apply(target, args) as S
+              )
             }
         }
         return Reflect.get(target, key)
