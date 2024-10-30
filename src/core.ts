@@ -544,16 +544,15 @@ export class ProcessPromise extends Promise<ProcessOutput> {
                 .once('finish', () => _res(res()))
             )
         }
-        if (key === 'pipe') {
-          const pipe = Reflect.get(target, key)
-          if (typeof pipe === 'function')
-            return function (...args: any) {
-              return ProcessPromise.promisifyStream(
-                pipe.apply(target, args) as S
-              )
-            }
+        const value = Reflect.get(target, key)
+        if (key === 'pipe' && typeof value === 'function') {
+          return function (...args: any) {
+            return ProcessPromise.promisifyStream(
+              value.apply(target, args) as S
+            )
+          }
         }
-        return Reflect.get(target, key)
+        return value
       },
     })
   }
