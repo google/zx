@@ -29,7 +29,7 @@ export * as os from 'node:os'
 
 export const argv = minimist(process.argv.slice(2))
 export function updateArgv(args: string[]) {
-  for (var k in argv) delete argv[k]
+  for (const k in argv) delete argv[k]
   Object.assign(argv, minimist(args))
 }
 

@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-let out = fs.createWriteStream('log.txt') // Record program output to this file.
+const out = fs.createWriteStream('log.txt') // Record program output to this file.
 
 process.stdin.pipe(out) // Record user input as well.
 await $`npm init`.pipe(out) // Process will be interactive.

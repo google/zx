@@ -27,7 +27,7 @@ describe('global', () => {
   })
 
   test('injects zx index to global', () => {
-    for (let [key, value] of Object.entries(index)) {
+    for (const [key, value] of Object.entries(index)) {
       assert.equal(global[key], value)
     }
   })

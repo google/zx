@@ -26,21 +26,21 @@ describe('core', () => {
   describe('$', () => {
     test('is a regular function', async () => {
       const _$ = $.bind(null)
-      let foo = await _$`echo foo`
+      const foo = await _$`echo foo`
       assert.equal(foo.stdout, 'foo\n')
       assert.ok(typeof $.call === 'function')
       assert.ok(typeof $.apply === 'function')
     })
 
     test('only stdout is used during command substitution', async () => {
-      let hello = await $`echo Error >&2; echo Hello`
-      let len = +(await $`echo ${hello} | wc -c`)
+      const hello = await $`echo Error >&2; echo Hello`
+      const len = +(await $`echo ${hello} | wc -c`)
       assert.equal(len, 6)
     })
 
     test('env vars works', async () => {
       process.env.ZX_TEST_FOO = 'foo'
-      let foo = await $`echo $ZX_TEST_FOO`
+      const foo = await $`echo $ZX_TEST_FOO`
       assert.equal(foo.stdout, 'foo\n')
     })
 
@@ -51,7 +51,7 @@ describe('core', () => {
     })
 
     test('arguments are quoted', async () => {
-      let bar = 'bar"";baz!$#^$\'&*~*%)({}||\\/'
+      const bar = 'bar"";baz!$#^$\'&*~*%)({}||\\/'
       assert.equal((await $`echo ${bar}`).stdout.trim(), bar)
     })
 
@@ -83,7 +83,7 @@ describe('core', () => {
     })
 
     test('can create a dir with a space in the name', async () => {
-      let name = 'foo bar'
+      const name = 'foo bar'
       try {
         await $`mkdir /tmp/${name}`
       } catch {
@@ -104,13 +104,13 @@ describe('core', () => {
     })
 
     test('toString() is called on arguments', async () => {
-      let foo = 0
-      let p = await $`echo ${foo}`
+      const foo = 0
+      const p = await $`echo ${foo}`
       assert.equal(p.stdout, '0\n')
     })
 
     test('can use array as an argument', async () => {
-      let args = ['-n', 'foo']
+      const args = ['-n', 'foo']
       assert.equal((await $`echo ${args}`).toString(), 'foo')
     })
 
@@ -128,9 +128,9 @@ describe('core', () => {
     test('snapshots works', async () => {
       await within(async () => {
         $.prefix += 'echo success;'
-        let p = $`:`
+        const p = $`:`
         $.prefix += 'echo fail;'
-        let out = await p
+        const out = await p
         assert.equal(out.stdout, 'success\n')
         assert.doesNotMatch(out.stdout, /fail/)
       })
@@ -328,26 +328,26 @@ describe('core', () => {
     })
 
     test('stdio() works', async () => {
-      let p = $`printf foo`
-      await p
+      const p1 = $`printf foo`
+      await p1
       // assert.throws(() => p.stdin)
-      assert.equal((await p).stdout, 'foo')
-      let b = $`read; printf $REPLY`
-      b.stdin.write('bar\n')
-      assert.equal((await b).stdout, 'bar')
+      assert.equal((await p1).stdout, 'foo')
+      const p2 = $`read; printf $REPLY`
+      p2.stdin.write('bar\n')
+      assert.equal((await p2).stdout, 'bar')
     })
 
     describe('pipe() API', () => {
       test('accepts Writable', async () => {
         let contents = ''
-        let stream = new Writable({
+        const stream = new Writable({
           write: function (chunk, encoding, next) {
             contents += chunk.toString()
             next()
           },
         })
-        let p1 = $`echo 'test'`
-        let p2 = p1.pipe(stream)
+        const p1 = $`echo 'test'`
+        const p2 = p1.pipe(stream)
         await p2
         assert.ok(p1._piped)
         assert.ok(p1.stderr instanceof Socket)
@@ -360,7 +360,7 @@ describe('core', () => {
           await $`echo foo`.pipe(fs.createWriteStream(file))
           assert.equal((await fs.readFile(file)).toString(), 'foo\n')
 
-          let r = $`cat`
+          const r = $`cat`
           fs.createReadStream(file).pipe(r.stdin)
           assert.equal((await r).stdout, 'foo\n')
         } finally {
@@ -397,19 +397,19 @@ describe('core', () => {
         )
       })
 
-      describe('is chainable', () => {
-        test('$ to $', async () => {
-          let { stdout: o1 } = await $`echo "hello"`
+      describe('supports chaining', () => {
+        test('$ > $', async () => {
+          const { stdout: o1 } = await $`echo "hello"`
             .pipe($`awk '{print $1" world"}'`)
             .pipe($`tr '[a-z]' '[A-Z]'`)
           assert.equal(o1, 'HELLO WORLD\n')
 
-          let { stdout: o2 } = await $`echo "hello"`
+          const { stdout: o2 } = await $`echo "hello"`
             .pipe`awk '{print $1" world"}'`.pipe`tr '[a-z]' '[A-Z]'`
           assert.equal(o2, 'HELLO WORLD\n')
         })
 
-        test('Transform/Duplex', async () => {
+        test('$ > stream', async () => {
           const file = tempfile()
           const p = $`echo "hello"`
             .pipe(
@@ -428,7 +428,7 @@ describe('core', () => {
         })
       })
 
-      it('supports multipiping', async () => {
+      it('supports delayed piping', async () => {
         const result = $`echo 1; sleep 1; echo 2; sleep 1; echo 3`
         const piped1 = result.pipe`cat`
         let piped2
@@ -521,8 +521,8 @@ describe('core', () => {
 
       describe('handles halt option', () => {
         test('just works', async () => {
-          let filepath = `/tmp/${Math.random().toString()}`
-          let p = $({ halt: true })`touch ${filepath}`
+          const filepath = `${tmpdir()}/${Math.random().toString()}`
+          const p = $({ halt: true })`touch ${filepath}`
           await sleep(1)
           assert.ok(
             !fs.existsSync(filepath),
@@ -533,7 +533,7 @@ describe('core', () => {
         })
 
         test('await on halted throws', async () => {
-          let p = $({ halt: true })`sleep 1`
+          const p = $({ halt: true })`sleep 1`
           let ok = true
           try {
             await p
@@ -602,7 +602,7 @@ describe('core', () => {
       })
 
       test('a signal is passed with kill() method', async () => {
-        let p = $`while true; do :; done`
+        const p = $`while true; do :; done`
         setTimeout(() => p.kill('SIGKILL'), 100)
         let signal
         try {
@@ -615,8 +615,8 @@ describe('core', () => {
     })
 
     test('quiet() mode is working', async () => {
+      const log = console.log
       let stdout = ''
-      let log = console.log
       console.log = (...args) => {
         stdout += args.join(' ')
       }
@@ -626,7 +626,6 @@ describe('core', () => {
       {
         // Deprecated.
         let stdout = ''
-        let log = console.log
         console.log = (...args) => {
           stdout += args.join(' ')
         }
@@ -648,11 +647,11 @@ describe('core', () => {
     })
 
     test('nothrow() does not throw', async () => {
-      let { exitCode } = await $`exit 42`.nothrow()
+      const { exitCode } = await $`exit 42`.nothrow()
       assert.equal(exitCode, 42)
       {
         // Deprecated.
-        let { exitCode } = await nothrow($`exit 42`)
+        const { exitCode } = await nothrow($`exit 42`)
         assert.equal(exitCode, 42)
       }
     })
@@ -771,21 +770,21 @@ describe('core', () => {
 
   describe('cd()', () => {
     test('works with relative paths', async () => {
-      let cwd = process.cwd()
+      const cwd = process.cwd()
       try {
         fs.mkdirpSync('/tmp/zx-cd-test/one/two')
         cd('/tmp/zx-cd-test/one/two')
-        let p1 = $`pwd`
+        const p1 = $`pwd`
         assert.equal($.cwd, undefined)
         assert.ok(process.cwd().endsWith('/two'))
 
         cd('..')
-        let p2 = $`pwd`
+        const p2 = $`pwd`
         assert.equal($.cwd, undefined)
         assert.ok(process.cwd().endsWith('/one'))
 
         cd('..')
-        let p3 = $`pwd`
+        const p3 = $`pwd`
         assert.equal($.cwd, undefined)
         assert.ok(process.cwd().endsWith('/tmp/zx-cd-test'))
 
@@ -859,7 +858,7 @@ describe('core', () => {
   describe('within()', () => {
     test('just works', async () => {
       let resolve, reject
-      let promise = new Promise((...args) => ([resolve, reject] = args))
+      const promise = new Promise((...args) => ([resolve, reject] = args))
 
       function yes() {
         assert.equal($.verbose, true)
@@ -884,9 +883,9 @@ describe('core', () => {
 
     test('keeps the cwd ref for internal $ calls', async () => {
       let resolve, reject
-      let promise = new Promise((...args) => ([resolve, reject] = args))
-      let cwd = process.cwd()
-      let pwd = await $`pwd`
+      const promise = new Promise((...args) => ([resolve, reject] = args))
+      const cwd = process.cwd()
+      const pwd = await $`pwd`
 
       within(async () => {
         cd('/tmp')
