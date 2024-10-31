@@ -453,21 +453,21 @@ export const once = <T extends (...args: any[]) => any>(fn: T) => {
 
 export const promisifyStream = <S extends Writable>(
   stream: S
-): S & PromiseLike<void> =>
-  new Proxy(stream as S & PromiseLike<void>, {
+): S & PromiseLike<S> =>
+  new Proxy(stream as S & PromiseLike<S>, {
     get(target, key) {
       if (key === 'then') {
         return (res: any = noop, rej: any = noop) =>
           new Promise((_res, _rej) =>
             target
-              .once('error', () => _rej(rej()))
-              .once('finish', () => _res(res()))
+              .once('error', (e) => _rej(rej(e)))
+              .once('finish', () => _res(res(target)))
           )
       }
       const value = Reflect.get(target, key)
       if (key === 'pipe' && typeof value === 'function') {
         return function (...args: any) {
-          return promisifyStream(value.apply(target, args) as S)
+          return promisifyStream(value.apply(target, args))
         }
       }
       return value
