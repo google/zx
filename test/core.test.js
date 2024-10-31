@@ -411,6 +411,7 @@ describe('core', () => {
 
         test('$ > stream', async () => {
           const file = tempfile()
+          const fileStream = fs.createWriteStream(file)
           const p = $`echo "hello"`
             .pipe(
               new Transform({
@@ -419,10 +420,10 @@ describe('core', () => {
                 },
               })
             )
-            .pipe(fs.createWriteStream(file))
+            .pipe(fileStream)
 
           assert.ok(p instanceof WriteStream)
-          assert.equal(await p, undefined)
+          assert.equal(await p, fileStream)
           assert.equal((await fs.readFile(file)).toString(), 'HELLO\n')
           await fs.rm(file)
         })

@@ -319,12 +319,12 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   // Essentials
   pipe(dest: TemplateStringsArray, ...args: any[]): ProcessPromise
-  pipe<D extends Writable>(dest: D): D & PromiseLike<void>
+  pipe<D extends Writable>(dest: D): D & PromiseLike<D>
   pipe<D extends ProcessPromise>(dest: D): D
   pipe(
     dest: Writable | ProcessPromise | TemplateStringsArray,
     ...args: any[]
-  ): (Writable & PromiseLike<void>) | ProcessPromise {
+  ): (Writable & PromiseLike<Writable>) | ProcessPromise {
     if (isStringLiteral(dest, ...args))
       return this.pipe($(dest as TemplateStringsArray, ...args))
     if (isString(dest))
