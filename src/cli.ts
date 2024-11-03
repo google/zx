@@ -29,6 +29,8 @@ import { installDeps, parseDeps } from './deps.js'
 import { randomId } from './util.js'
 import { createRequire } from './vendor.js'
 
+const EXT = '.mjs'
+
 isMain() &&
   main().catch((err) => {
     if (err instanceof ProcessOutput) {
@@ -56,6 +58,7 @@ export function printUsage() {
    --postfix=<command>  postfix all commands
    --cwd=<path>         set current directory
    --eval=<js>, -e      evaluate script 
+   --ext=<.mjs>         eval extension
    --install, -i        install dependencies
    --version, -v        print current zx version
    --help, -h           print help
@@ -67,7 +70,7 @@ export function printUsage() {
 }
 
 export const argv = minimist(process.argv.slice(2), {
-  string: ['shell', 'prefix', 'postfix', 'eval', 'cwd'],
+  string: ['shell', 'prefix', 'postfix', 'eval', 'cwd', 'ext'],
   boolean: [
     'version',
     'help',
@@ -102,13 +105,13 @@ export async function main() {
     return
   }
   if (argv.eval) {
-    await runScript(argv.eval)
+    await runScript(argv.eval, argv.ext)
     return
   }
   const firstArg = argv._[0]
   updateArgv(argv._.slice(firstArg === undefined ? 0 : 1))
   if (!firstArg || firstArg === '-') {
-    const success = await scriptFromStdin()
+    const success = await scriptFromStdin(argv.ext)
     if (!success) {
       printUsage()
       process.exitCode = 1
@@ -116,7 +119,7 @@ export async function main() {
     return
   }
   if (/^https?:/.test(firstArg)) {
-    await scriptFromHttp(firstArg)
+    await scriptFromHttp(firstArg, argv.ext)
     return
   }
   const filepath = firstArg.startsWith('file:///')
@@ -125,12 +128,12 @@ export async function main() {
   await importPath(filepath)
 }
 
-export async function runScript(script: string) {
-  const filepath = path.join($.cwd ?? process.cwd(), `zx-${randomId()}.mjs`)
+export async function runScript(script: string, ext = EXT) {
+  const filepath = path.join($.cwd ?? process.cwd(), `zx-${randomId()}${ext}`)
   await writeAndImport(script, filepath)
 }
 
-export async function scriptFromStdin() {
+export async function scriptFromStdin(ext?: string) {
   let script = ''
   if (!process.stdin.isTTY) {
     process.stdin.setEncoding('utf8')
@@ -139,14 +142,14 @@ export async function scriptFromStdin() {
     }
 
     if (script.length > 0) {
-      await runScript(script)
+      await runScript(script, ext)
       return true
     }
   }
   return false
 }
 
-export async function scriptFromHttp(remote: string) {
+export async function scriptFromHttp(remote: string, _ext = EXT) {
   const res = await fetch(remote)
   if (!res.ok) {
     console.error(`Error: Can't get ${remote}`)
@@ -155,7 +158,7 @@ export async function scriptFromHttp(remote: string) {
   const script = await res.text()
   const pathname = new URL(remote).pathname
   const name = path.basename(pathname)
-  const ext = path.extname(pathname) || '.mjs'
+  const ext = path.extname(pathname) || _ext
   const cwd = $.cwd ?? process.cwd()
   const filepath = path.join(cwd, `${name}-${randomId()}${ext}`)
   await writeAndImport(script, filepath)
