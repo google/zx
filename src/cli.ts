@@ -58,7 +58,7 @@ export function printUsage() {
    --postfix=<command>  postfix all commands
    --cwd=<path>         set current directory
    --eval=<js>, -e      evaluate script 
-   --ext=<.mjs>         eval extension
+   --ext=<.mjs>         default extension
    --install, -i        install dependencies
    --version, -v        print current zx version
    --help, -h           print help
