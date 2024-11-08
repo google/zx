@@ -16,7 +16,7 @@ import assert from 'node:assert'
 import { test, describe, before, after } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import '../build/globals.js'
-import { isMain } from '../build/cli.js'
+import { isMain, normalizeExt } from '../build/cli.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const spawn = $.spawn
@@ -266,5 +266,12 @@ describe('cli', () => {
         assert.ok(['EACCES', 'ENOENT'].includes(e.code))
       }
     })
+  })
+
+  test('normalizeExt()', () => {
+    assert.equal(normalizeExt('.ts'), '.ts')
+    assert.equal(normalizeExt('ts'), '.ts')
+    assert.equal(normalizeExt(), undefined)
+    assert.throws(() => normalizeExt('.'))
   })
 })

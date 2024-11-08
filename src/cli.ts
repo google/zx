@@ -86,6 +86,7 @@ export const argv = minimist(process.argv.slice(2), {
 
 export async function main() {
   await import('./globals.js')
+  argv.ext = normalizeExt(argv.ext)
   if (argv.cwd) $.cwd = argv.cwd
   if (argv.verbose) $.verbose = true
   if (argv.quiet) $.quiet = true
@@ -301,4 +302,10 @@ export function isMain(
   }
 
   return false
+}
+
+export function normalizeExt(ext?: string) {
+  if (!ext) return
+  if (!/^\.?\w+(\.\w+)*$/.test(ext)) throw new Error(`Invalid extension ${ext}`)
+  return ext[0] === '.' ? ext : `.${ext}`
 }
