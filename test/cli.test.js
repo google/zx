@@ -16,10 +16,13 @@ import assert from 'node:assert'
 import { test, describe, before, after } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import '../build/globals.js'
-import { isMain } from '../build/cli.js'
+import { isMain, normalizeExt } from '../build/cli.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const spawn = $.spawn
+const nodeMajor = +process.versions?.node?.split('.')[0]
+const test22 = nodeMajor >= 22 ? test : test.skip
+
 describe('cli', () => {
   // Helps detect unresolved ProcessPromise.
   before(() => {
@@ -144,6 +147,12 @@ describe('cli', () => {
     )
   })
 
+  test22('scripts from stdin with explicit extension', async () => {
+    const out =
+      await $`node --experimental-strip-types build/cli.js --ext='.ts' <<< 'const foo: string = "bar"; console.log(foo)'`
+    assert.match(out.stdout, /bar/)
+  })
+
   test('require() is working from stdin', async () => {
     const out =
       await $`node build/cli.js <<< 'console.log(require("./package.json").name)'`
@@ -257,5 +266,12 @@ describe('cli', () => {
         assert.ok(['EACCES', 'ENOENT'].includes(e.code))
       }
     })
+  })
+
+  test('normalizeExt()', () => {
+    assert.equal(normalizeExt('.ts'), '.ts')
+    assert.equal(normalizeExt('ts'), '.ts')
+    assert.equal(normalizeExt(), undefined)
+    assert.throws(() => normalizeExt('.'))
   })
 })
