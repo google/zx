@@ -271,7 +271,7 @@ describe('cli', () => {
   test('normalizeExt()', () => {
     assert.equal(normalizeExt('.ts'), '.ts')
     assert.equal(normalizeExt('ts'), '.ts')
+    assert.equal(normalizeExt('.'), '.')
     assert.equal(normalizeExt(), undefined)
-    assert.throws(() => normalizeExt('.'))
   })
 })

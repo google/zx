@@ -305,7 +305,5 @@ export function isMain(
 }
 
 export function normalizeExt(ext?: string) {
-  if (!ext) return
-  if (!/^\.?\w+(\.\w+)*$/.test(ext)) throw new Error(`Invalid extension ${ext}`)
-  return ext[0] === '.' ? ext : `.${ext}`
+  return ext ? path.parse(`foo.${ext}`).ext : ext
 }
