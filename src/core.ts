@@ -358,8 +358,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       from.pipe(dest.stdin)
       return dest
     }
-
-    from.pipe(dest)
+    from.once('end', () => dest.emit('end-piped-from')).pipe(dest)
     return promisifyStream(dest)
   }
 
