@@ -427,6 +427,11 @@ describe('core', () => {
           assert.equal((await fs.readFile(file)).toString(), 'HELLO\n')
           await fs.rm(file)
         })
+
+        test('$ > stdout', async () => {
+          const p = $`echo 1`.pipe(process.stdout)
+          assert.equal(await p, process.stdout)
+        })
       })
 
       it('supports delayed piping', async () => {

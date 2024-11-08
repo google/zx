@@ -462,6 +462,7 @@ export const promisifyStream = <S extends Writable>(
             target
               .once('error', (e) => _rej(rej(e)))
               .once('finish', () => _res(res(target)))
+              .once('end-piped-from', () => _res(res(target)))
           )
       }
       const value = Reflect.get(target, key)
