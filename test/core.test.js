@@ -273,6 +273,10 @@ describe('core', () => {
         assert.equal((await p).stdout, '')
       })
 
+      test('inherit', async () => {
+        await $({ stdio: 'inherit' })`ls`
+      })
+
       test('file stream as stdout', async () => {
         const createWriteStream = (f) => {
           const stream = fs.createWriteStream(f)
