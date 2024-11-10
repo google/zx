@@ -274,7 +274,9 @@ describe('core', () => {
       })
 
       test('inherit', async () => {
-        await $({ stdio: 'inherit' })`ls`
+        const r1 = (await $({ stdio: 'inherit' })`ls`).stdout
+        const r2 = $.sync({ stdio: 'inherit' })`ls`.stdout
+        assert.equal(r1, r2)
       })
 
       test('file stream as stdout', async () => {
