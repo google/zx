@@ -1,6 +1,6 @@
 {
   "name": "zx",
-  "version": "8.2.1",
+  "version": "8.2.2",
   "description": "A tool for writing better scripts",
   "type": "module",
   "main": "./build/index.cjs",
@@ -80,7 +80,7 @@
     "test:smoke:tsx": "tsx test/smoke/ts.test.ts",
     "test:smoke:tsc": "cd test/smoke && mkdir -p node_modules && ln -s ../../../  ./node_modules/zx; ../../node_modules/typescript/bin/tsc -v && ../../node_modules/typescript/bin/tsc --esModuleInterop --module node16 --rootDir . --outdir ./temp ts.test.ts && node ./temp/ts.test.js",
     "test:smoke:ts-node": "node --loader ts-node/esm test/smoke/ts.test.ts",
-    "test:smoke:bun": "bun test ./test/smoke/bun.test.js",
+    "test:smoke:bun": "bun test ./test/smoke/bun.test.js && bun ./test/smoke/node.test.mjs",
     "test:smoke:win32": "node ./test/smoke/win32.test.js",
     "test:smoke:cjs": "node ./test/smoke/node.test.cjs",
     "test:smoke:mjs": "node ./test/smoke/node.test.mjs",
@@ -97,7 +97,7 @@
     "@types/node": ">=20.11.30",
     "@types/which": "^3.0.4",
     "@webpod/ingrid": "^0.0.0-beta.3",
-    "@webpod/ps": "^0.0.0-beta.10",
+    "@webpod/ps": "^0.0.0-beta.11",
     "c8": "^10.1.2",
     "chalk": "^5.3.0",
     "create-require": "^1.1.1",
@@ -124,7 +124,7 @@
     "typescript": "^5.6.3",
     "which": "^5.0.0",
     "yaml": "^2.5.1",
-    "zurk": "^0.6.0"
+    "zurk": "^0.6.2"
   },
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"
