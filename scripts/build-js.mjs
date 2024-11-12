@@ -57,13 +57,13 @@ const {
 } = argv
 
 const formats = format.split(',')
-const cwd = Array.isArray(_cwd) ? _cwd[_cwd.length - 1] : _cwd
+const cwd = [_cwd].flat().pop()
 const entries = entry.split(/:\s?/)
 const entryPoints = entry.includes('*')
   ? await glob(entries, { absolute: false, onlyFiles: true, cwd, root: cwd })
   : entries.map((p) => path.relative(cwd, path.resolve(cwd, p)))
 
-const _bundle = bundle !== 'none' && !process.argv.includes('--no-bundle')
+const _bundle = bundle && bundle !== 'none'
 const _external = _bundle ? external.split(',') : undefined // https://github.com/evanw/esbuild/issues/1466
 
 const plugins = [
@@ -159,8 +159,14 @@ plugins.push(
 
 function entryPointsToRegexp(entryPoints) {
   return new RegExp(
-    '(' + entryPoints.map((e) => path.parse(e).name).join('|') + ')\\.cjs$'
+    '(' +
+      entryPoints.map((e) => escapeRegExp(path.parse(e).name)).join('|') +
+      ')\\.cjs$'
   )
+}
+
+function escapeRegExp(str) {
+  return str.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&')
 }
 
 const esmConfig = {
