@@ -279,6 +279,27 @@ describe('core', () => {
         assert.equal(r1, r2)
       })
 
+      test('mixed', async () => {
+        assert.equal(
+          (
+            await $({
+              quiet: true,
+              stdio: ['inherit', 'pipe', 'ignore'],
+            })`>&2 echo error; echo ok`
+          ).toString(),
+          'ok\n'
+        )
+        assert.equal(
+          (
+            await $({ halt: true })`>&2 echo error; echo ok`
+              .stdio('inherit', 'ignore', 'pipe')
+              .quiet()
+              .run()
+          ).toString(),
+          'error\n'
+        )
+      })
+
       test('file stream as stdout', async () => {
         const createWriteStream = (f) => {
           const stream = fs.createWriteStream(f)
