@@ -483,12 +483,14 @@ describe('core', () => {
           await p1
         } catch (e) {
           assert.equal(e.exitCode, 1)
+          assert.equal(e.stdout, '')
         }
 
         try {
           await p2
         } catch (e) {
           assert.equal(e.exitCode, 1)
+          assert.equal(e.stdout, '')
         }
 
         const p3 = await $({ nothrow: true })`echo hello && exit 1`.pipe($`cat`)
@@ -500,6 +502,7 @@ describe('core', () => {
           await p4
         } catch (e) {
           assert.equal(e.exitCode, 1)
+          assert.equal(e.stdout, '')
         }
 
         const p5 = $`echo foo && exit 1`
@@ -507,7 +510,9 @@ describe('core', () => {
           p5.pipe($({ nothrow: true })`cat`),
           p5.pipe($`cat`),
         ])
+        assert.equal(r1.value.stdout, 'foo\n')
         assert.equal(r1.value.exitCode, 0)
+        assert.equal(r2.reason.stdout, 'foo\n')
         assert.equal(r2.reason.exitCode, 1)
       })
     })
