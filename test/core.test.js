@@ -436,6 +436,32 @@ describe('core', () => {
           assert.equal(o2, 'HELLO WORLD\n')
         })
 
+        test('$ > $ halted', async () => {
+          const $h = $({ halt: true })
+          const { stdout } = await $`echo "hello"`
+            .pipe($h`awk '{print $1" world"}'`)
+            .pipe($h`tr '[a-z]' '[A-Z]'`)
+
+          assert.equal(stdout, 'HELLO WORLD\n')
+        })
+
+        test('$ halted > $ halted', async () => {
+          const $h = $({ halt: true })
+          const { stdout } = await $h`echo "hello"`
+            .pipe($h`awk '{print $1" world"}'`)
+            .pipe($h`tr '[a-z]' '[A-Z]'`)
+            .run()
+
+          assert.equal(stdout, 'HELLO WORLD\n')
+        })
+
+        test('$ halted > $ literal', async () => {
+          const { stdout } = await $({ halt: true })`echo "hello"`
+            .pipe`awk '{print $1" world"}'`.pipe`tr '[a-z]' '[A-Z]'`.run()
+
+          assert.equal(stdout, 'HELLO WORLD\n')
+        })
+
         test('$ > stream', async () => {
           const file = tempfile()
           const fileStream = fs.createWriteStream(file)

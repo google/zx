@@ -23,6 +23,7 @@ import { type AsyncHook, AsyncLocalStorage, createHook } from 'node:async_hooks'
 import { type Readable, type Writable } from 'node:stream'
 import { inspect } from 'node:util'
 import { EOL as _EOL } from 'node:os'
+import { EventEmitter } from 'node:events'
 import {
   exec,
   buildCmd,
@@ -205,6 +206,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _resolved = false
   private _halted?: boolean
   private _piped = false
+  private _pipedFrom?: ProcessPromise
+  private _run = false
+  private _ee = new EventEmitter()
+  private _stdin = new VoidStream()
   private _zurk: ReturnType<typeof exec> | null = null
   private _output: ProcessOutput | null = null
   private _reject: Resolve = noop
@@ -225,7 +230,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   run(): ProcessPromise {
-    if (this.child) return this // The _run() can be called from a few places.
+    if (this._run) return this // The _run() can be called from a few places.
+    this._halted = false
+    this._run = true
+    this._pipedFrom?.run()
 
     const $ = this._snapshot
     const self = this
@@ -255,9 +263,11 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       spawn: $.spawn,
       spawnSync: $.spawnSync,
       store: $.store,
+      stdin: self._stdin,
       stdio: self._stdio ?? $.stdio,
       sync: $[SYNC],
       detached: $.detached,
+      ee: self._ee,
       run: (cb) => cb(),
       on: {
         start: () => {
@@ -326,20 +336,18 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     ...args: any[]
   ): (Writable & PromiseLike<Writable>) | ProcessPromise {
     if (isStringLiteral(dest, ...args))
-      return this.pipe($(dest as TemplateStringsArray, ...args))
+      return this.pipe($({ halt: true })(dest as TemplateStringsArray, ...args))
     if (isString(dest))
       throw new Error('The pipe() method does not take strings. Forgot $?')
 
     this._piped = true
-    const { store, ee, fulfilled } = this._zurk!
+    const ee = this._ee
     const from = new VoidStream()
     const fill = () => {
-      for (const chunk of store.stdout) {
-        from.write(chunk)
-      }
+      for (const chunk of this._zurk!.store.stdout) from.write(chunk)
     }
 
-    if (fulfilled) {
+    if (this._resolved) {
       fill()
       from.end()
     } else {
@@ -354,8 +362,14 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     }
 
     if (dest instanceof ProcessPromise) {
-      this.catch((e) => (dest.isNothrow() ? noop : dest._reject(e)))
-      from.pipe(dest.stdin)
+      dest._pipedFrom = this
+
+      if (dest.isHalted() && this.isHalted()) {
+        ee.once('start', () => from.pipe(dest.run()._stdin))
+      } else {
+        this.catch((e) => (dest.isNothrow() ? noop : dest._reject(e)))
+        from.pipe(dest.run()._stdin)
+      }
       return dest
     }
     from.once('end', () => dest.emit('end-piped-from')).pipe(dest)
