@@ -48,7 +48,6 @@ import {
   once,
   parseDuration,
   preferLocalBin,
-  promisifyStream,
   quote,
   quotePowerShell,
 } from './util.js'
@@ -373,7 +372,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       return dest
     }
     from.once('end', () => dest.emit('end-piped-from')).pipe(dest)
-    return promisifyStream(dest)
+    return promisifyStream(dest, this)
   }
 
   abort(reason?: string) {
@@ -543,6 +542,32 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       | null
   ): Promise<ProcessOutput | T> {
     return super.catch(onrejected)
+  }
+
+  // Stream-like API
+  private writable = true
+  private emit(event: string, ...args: any[]) {
+    return this
+  }
+  private on(event: string, cb: any) {
+    this._stdin.on(event, cb)
+    return this
+  }
+  private once(event: string, cb: any) {
+    this._stdin.once(event, cb)
+    return this
+  }
+  private write(data: any, encoding: BufferEncoding, cb: any) {
+    this._stdin.write(data, encoding, cb)
+    return this
+  }
+  private end(chunk: any, cb: any) {
+    this._stdin.end(chunk, cb)
+    return this
+  }
+  private removeListener(event: string, cb: any) {
+    this._stdin.removeListener(event, cb)
+    return this
   }
 }
 
@@ -841,3 +866,33 @@ export function log(entry: LogEntry) {
       process.stderr.write(entry.error + '\n')
   }
 }
+
+export const promisifyStream = <S extends Writable>(
+  stream: S,
+  from?: ProcessPromise
+): S & PromiseLike<S> =>
+  new Proxy(stream as S & PromiseLike<S>, {
+    get(target, key) {
+      if (key === 'run') return from?.run.bind(from)
+      if (key === 'then') {
+        return (res: any = noop, rej: any = noop) =>
+          new Promise((_res, _rej) =>
+            target
+              .once('error', (e) => _rej(rej(e)))
+              .once('finish', () => _res(res(target)))
+              .once('end-piped-from', () => _res(res(target)))
+          )
+      }
+      const value = Reflect.get(target, key)
+      if (key === 'pipe' && typeof value === 'function') {
+        return function (...args: any) {
+          const piped = value.apply(target, args)
+          piped._pipedFrom = from
+          return piped instanceof ProcessPromise
+            ? piped
+            : promisifyStream(piped, from)
+        }
+      }
+      return value
+    },
+  })

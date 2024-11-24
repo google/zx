@@ -2,7 +2,7 @@
   {
     "name": "zx/core",
     "path": ["build/core.cjs", "build/util.cjs", "build/vendor-core.cjs"],
-    "limit": "72 kB",
+    "limit": "73 kB",
     "brotli": false,
     "gzip": false
   },
@@ -16,7 +16,7 @@
   {
     "name": "dts libdefs",
     "path": "build/*.d.ts",
-    "limit": "36 kB",
+    "limit": "37 kB",
     "brotli": false,
     "gzip": false
   },
@@ -30,7 +30,7 @@
   {
     "name": "all",
     "path": "build/*",
-    "limit": "835 kB",
+    "limit": "840 kB",
     "brotli": false,
     "gzip": false
   }

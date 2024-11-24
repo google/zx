@@ -425,6 +425,13 @@ describe('core', () => {
       })
 
       describe('supports chaining', () => {
+        const getUpperCaseTransform = () =>
+          new Transform({
+            transform(chunk, encoding, callback) {
+              callback(null, String(chunk).toUpperCase())
+            },
+          })
+
         test('$ > $', async () => {
           const { stdout: o1 } = await $`echo "hello"`
             .pipe($`awk '{print $1" world"}'`)
@@ -466,19 +473,46 @@ describe('core', () => {
           const file = tempfile()
           const fileStream = fs.createWriteStream(file)
           const p = $`echo "hello"`
-            .pipe(
-              new Transform({
-                transform(chunk, encoding, callback) {
-                  callback(null, String(chunk).toUpperCase())
-                },
-              })
-            )
+            .pipe(getUpperCaseTransform())
             .pipe(fileStream)
 
           assert.ok(p instanceof WriteStream)
           assert.equal(await p, fileStream)
           assert.equal((await fs.readFile(file)).toString(), 'HELLO\n')
           await fs.rm(file)
+        })
+
+        test('$ halted > stream', async () => {
+          const file = tempfile()
+          const fileStream = fs.createWriteStream(file)
+          const p = $({ halt: true })`echo "hello"`
+            .pipe(getUpperCaseTransform())
+            .pipe(fileStream)
+
+          assert.ok(p instanceof WriteStream)
+          assert.ok(p.run() instanceof ProcessPromise)
+          await p
+          assert.equal((await p.run()).stdout, 'hello\n')
+          assert.equal((await fs.readFile(file)).toString(), 'HELLO\n')
+          await fs.rm(file)
+        })
+
+        test('stream > $', async () => {
+          const file = tempfile()
+          await fs.writeFile(file, 'test')
+          const { stdout } = await fs
+            .createReadStream(file)
+            .pipe(getUpperCaseTransform())
+            .pipe($`cat`)
+
+          assert.equal(stdout, 'TEST')
+        })
+
+        test('$ > stream > $', async () => {
+          const p = $`echo "hello"`
+          const { stdout } = await p.pipe(getUpperCaseTransform()).pipe($`cat`)
+
+          assert.equal(stdout, 'HELLO\n')
         })
 
         test('$ > stdout', async () => {
