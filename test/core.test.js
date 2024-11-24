@@ -475,11 +475,19 @@ describe('core', () => {
           const p = $`echo "hello"`
             .pipe(getUpperCaseTransform())
             .pipe(fileStream)
+          const o = await p
 
           assert.ok(p instanceof WriteStream)
-          assert.equal(await p, fileStream)
+          assert.ok(o instanceof WriteStream)
+          assert.equal(o.stdout, 'hello\n')
+          assert.equal(o.exitCode, 0)
           assert.equal((await fs.readFile(file)).toString(), 'HELLO\n')
           await fs.rm(file)
+        })
+
+        test('$ > stdout', async () => {
+          const p = $`echo 1`.pipe(process.stdout)
+          assert.deepEqual(p, process.stdout)
         })
 
         test('$ halted > stream', async () => {
@@ -513,11 +521,6 @@ describe('core', () => {
           const { stdout } = await p.pipe(getUpperCaseTransform()).pipe($`cat`)
 
           assert.equal(stdout, 'HELLO\n')
-        })
-
-        test('$ > stdout', async () => {
-          const p = $`echo 1`.pipe(process.stdout)
-          assert.equal(await p, process.stdout)
         })
       })
 
