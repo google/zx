@@ -27,9 +27,9 @@ expectType<ProcessPromise>(p.nothrow())
 expectType<ProcessPromise>(p.quiet())
 expectType<ProcessPromise>(p.pipe($`cmd`))
 expectType<ProcessPromise>(p.pipe`cmd`)
-expectType<typeof process.stdout & PromiseLike<typeof process.stdout>>(
-  p.pipe(process.stdout)
-)
+expectType<
+  typeof process.stdout & PromiseLike<ProcessOutput & typeof process.stdout>
+>(p.pipe(process.stdout))
 expectType<ProcessPromise>(p.stdio('pipe'))
 expectType<ProcessPromise>(p.timeout('1s'))
 expectType<Promise<void>>(p.kill())

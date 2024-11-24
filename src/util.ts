@@ -449,3 +449,16 @@ export const once = <T extends (...args: any[]) => any>(fn: T) => {
     return (result = fn(...args))
   }
 }
+
+export const proxyOverride = <T extends object>(
+  origin: T,
+  ...fallbacks: any
+): T =>
+  new Proxy(origin, {
+    get(target: T, key) {
+      return (
+        fallbacks.find((f: any) => key in f)?.[key] ??
+        Reflect.get(target as T, key)
+      )
+    },
+  }) as T

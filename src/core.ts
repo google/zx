@@ -48,6 +48,7 @@ import {
   once,
   parseDuration,
   preferLocalBin,
+  proxyOverride,
   quote,
   quotePowerShell,
 } from './util.js'
@@ -328,12 +329,12 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   // Essentials
   pipe(dest: TemplateStringsArray, ...args: any[]): ProcessPromise
-  pipe<D extends Writable>(dest: D): D & PromiseLike<D>
+  pipe<D extends Writable>(dest: D): D & PromiseLike<ProcessOutput & D>
   pipe<D extends ProcessPromise>(dest: D): D
   pipe(
     dest: Writable | ProcessPromise | TemplateStringsArray,
     ...args: any[]
-  ): (Writable & PromiseLike<Writable>) | ProcessPromise {
+  ): (Writable & PromiseLike<ProcessPromise & Writable>) | ProcessPromise {
     if (isStringLiteral(dest, ...args))
       return this.pipe($({ halt: true })(dest as TemplateStringsArray, ...args))
     if (isString(dest))
@@ -372,7 +373,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       return dest
     }
     from.once('end', () => dest.emit('end-piped-from')).pipe(dest)
-    return promisifyStream(dest, this)
+    return promisifyStream(dest, this) as Writable &
+      PromiseLike<ProcessPromise & Writable>
   }
 
   abort(reason?: string) {
@@ -867,32 +869,31 @@ export function log(entry: LogEntry) {
   }
 }
 
-export const promisifyStream = <S extends Writable>(
+const promisifyStream = <S extends Writable>(
   stream: S,
-  from?: ProcessPromise
-): S & PromiseLike<S> =>
-  new Proxy(stream as S & PromiseLike<S>, {
-    get(target, key) {
-      if (key === 'run') return from?.run.bind(from)
-      if (key === 'then') {
-        return (res: any = noop, rej: any = noop) =>
-          new Promise((_res, _rej) =>
-            target
-              .once('error', (e) => _rej(rej(e)))
-              .once('finish', () => _res(res(target)))
-              .once('end-piped-from', () => _res(res(target)))
+  from: ProcessPromise
+): S & PromiseLike<ProcessOutput & S> =>
+  proxyOverride(stream as S & PromiseLike<ProcessOutput & S>, {
+    then(res: any = noop, rej: any = noop) {
+      return new Promise((_res, _rej) =>
+        stream
+          .once('error', (e) => _rej(rej(e)))
+          .once('finish', () =>
+            _res(res(proxyOverride(stream, (from as any)._output)))
           )
-      }
-      const value = Reflect.get(target, key)
-      if (key === 'pipe' && typeof value === 'function') {
-        return function (...args: any) {
-          const piped = value.apply(target, args)
-          piped._pipedFrom = from
-          return piped instanceof ProcessPromise
-            ? piped
-            : promisifyStream(piped, from)
-        }
-      }
-      return value
+          .once('end-piped-from', () =>
+            _res(res(proxyOverride(stream, (from as any)._output)))
+          )
+      )
+    },
+    run() {
+      return from.run()
+    },
+    _pipedFrom: from,
+    pipe(...args: any) {
+      const piped = stream.pipe.apply(stream, args)
+      return piped instanceof ProcessPromise
+        ? piped
+        : promisifyStream(piped as Writable, from)
     },
   })
