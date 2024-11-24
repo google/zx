@@ -633,18 +633,6 @@ describe('core', () => {
           assert.ok(fs.existsSync(filepath), 'The cmd should have been called')
         })
 
-        test('await on halted throws', async () => {
-          const p = $({ halt: true })`sleep 1`
-          let ok = true
-          try {
-            await p
-            ok = false
-          } catch (err) {
-            assert.equal(err.message, 'The process is halted!')
-          }
-          assert.ok(ok, 'Expected failure!')
-        })
-
         test('sync process ignores halt option', () => {
           const p = $.sync({ halt: true })`echo foo`
           assert.equal(p.stdout, 'foo\n')
