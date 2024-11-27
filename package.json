@@ -107,7 +107,7 @@
     "esbuild-node-externals": "^1.15.0",
     "esbuild-plugin-entry-chunks": "^0.1.15",
     "esbuild-plugin-extract-helpers": "^0.0.6",
-    "esbuild-plugin-hybrid-export": "^0.3.0",
+    "esbuild-plugin-hybrid-export": "^0.3.1",
     "esbuild-plugin-resolve": "^2.0.0",
     "esbuild-plugin-transform-hook": "^0.1.1",
     "esbuild-plugin-utils": "^0.1.0",
