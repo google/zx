@@ -85,7 +85,7 @@ if (bundle === 'src') {
 if (hybrid) {
   plugins.push(
     hybridExportPlugin({
-      loader: 'require',
+      loader: 'reexport',
       to: 'build',
       toExt: '.js',
     })
@@ -100,7 +100,7 @@ plugins.push(
         if: !hybrid,
         pattern: /\.js$/,
         transform(contents) {
-          return injectCode(contents, `import { require } from './deno.js'`)
+          return injectCode(contents, `import './deno.js'`)
         },
       },
       {
