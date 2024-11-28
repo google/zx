@@ -192,25 +192,6 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
 
 type Resolve = (out: ProcessOutput) => void
 
-export interface ProcessPromise extends Promise<ProcessOutput> {
-  then<R = ProcessOutput, E = ProcessOutput>(
-    onfulfilled?:
-      | ((value: ProcessOutput) => PromiseLike<R> | R)
-      | undefined
-      | null,
-    onrejected?:
-      | ((reason: ProcessOutput) => PromiseLike<E> | E)
-      | undefined
-      | null
-  ): Promise<R | E>
-  catch<T = ProcessOutput>(
-    onrejected?:
-      | ((reason: ProcessOutput) => PromiseLike<T> | T)
-      | undefined
-      | null
-  ): Promise<ProcessOutput | T>
-}
-
 export class ProcessPromise extends Promise<ProcessOutput> {
   private _command = ''
   private _from = ''
@@ -537,6 +518,29 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   isNothrow(): boolean {
     return this._nothrow ?? this._snapshot.nothrow
+  }
+
+  // Promise API
+  then<R = ProcessOutput, E = ProcessOutput>(
+    onfulfilled?:
+      | ((value: ProcessOutput) => PromiseLike<R> | R)
+      | undefined
+      | null,
+    onrejected?:
+      | ((reason: ProcessOutput) => PromiseLike<E> | E)
+      | undefined
+      | null
+  ): Promise<R | E> {
+    return super.then(onfulfilled, onrejected)
+  }
+
+  catch<T = ProcessOutput>(
+    onrejected?:
+      | ((reason: ProcessOutput) => PromiseLike<T> | T)
+      | undefined
+      | null
+  ): Promise<ProcessOutput | T> {
+    return super.catch(onrejected)
   }
 
   // Stream-like API
