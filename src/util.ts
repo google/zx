@@ -462,3 +462,37 @@ export const proxyOverride = <T extends object>(
       )
     },
   }) as T
+
+// https://stackoverflow.com/a/61375162
+const snakeToCamel = (str: string) =>
+  str
+    .toLowerCase()
+    .replace(/([-_][a-z])/g, (group) =>
+      group.toUpperCase().replace('-', '').replace('_', '')
+    )
+
+export function extractFromEnv<T>(prefix: string = 'ZX_') {
+  const result: Record<PropertyKey, number | string | boolean> = {}
+  for (const key in process.env) {
+    if (key.startsWith(prefix)) {
+      const propKey = snakeToCamel(key.substring(prefix.length))
+      const value = process.env[key]
+      if (value) {
+        if (value.toLowerCase() === 'true') {
+          result[propKey] = true
+          continue
+        }
+        if (value.toLowerCase() === 'false') {
+          result[propKey] = false
+          continue
+        }
+        if (Number.isFinite(Number(value))) {
+          result[propKey] = Number(value)
+          continue
+        }
+        result[propKey] = value
+      }
+    }
+  }
+  return result as T
+}

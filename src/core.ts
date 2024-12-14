@@ -51,6 +51,7 @@ import {
   proxyOverride,
   quote,
   quotePowerShell,
+  extractFromEnv,
 } from './util.js'
 
 const CWD = Symbol('processCwd')
@@ -97,27 +98,30 @@ export interface Options {
   halt?:          boolean
 }
 // prettier-ignore
-export const defaults: Options = {
-  [CWD]:          process.cwd(),
-  [SYNC]:         false,
-  verbose:        false,
-  env:            process.env,
-  sync:           false,
-  shell:          true,
-  stdio:          'pipe',
-  nothrow:        false,
-  quiet:          false,
-  prefix:         '',
-  postfix:        '',
-  detached:       false,
-  preferLocal:    false,
-  spawn,
-  spawnSync,
-  log,
-  kill,
-  killSignal:     SIGTERM,
-  timeoutSignal:  SIGTERM,
-}
+export const defaults: Options = Object.assign(
+  {
+    [CWD]: process.cwd(),
+    [SYNC]: false,
+    verbose: false,
+    env: process.env,
+    sync: false,
+    shell: true,
+    stdio: 'pipe',
+    nothrow: false,
+    quiet: false,
+    prefix: '',
+    postfix: '',
+    detached: false,
+    preferLocal: false,
+    spawn,
+    spawnSync,
+    log,
+    kill,
+    killSignal: SIGTERM,
+    timeoutSignal: SIGTERM,
+  },
+  extractFromEnv<Partial<Options>>()
+)
 
 // prettier-ignore
 export interface Shell<
