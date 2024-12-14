@@ -1,5 +1,10 @@
 # Contribution Guide
 
+## Disclaimer
+
+This is a snapshot of a contribution guide.
+Latest can be found in [Docs](https://google.github.io/zx/contribution)
+
 zx is a fully [open-source project](https://github.com/google/zx), which is developing by the community for the community. 
 We welcome contributions of any kind, including but not limited to:
 * Bug reports
