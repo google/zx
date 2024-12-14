@@ -42,12 +42,14 @@ describe('core', () => {
       process.env.ZX_TEST_FOO = 'foo'
       const foo = await $`echo $ZX_TEST_FOO`
       assert.equal(foo.stdout, 'foo\n')
+      delete process.env.ZX_TEST_FOO
     })
 
     test('env vars are safe to pass', async () => {
       process.env.ZX_TEST_BAR = 'hi; exit 1'
       const bar = await $`echo $ZX_TEST_BAR`
       assert.equal(bar.stdout, 'hi; exit 1\n')
+      delete process.env.ZX_TEST_BAR
     })
 
     test('arguments are quoted', async () => {
