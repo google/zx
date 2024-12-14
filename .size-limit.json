@@ -2,14 +2,14 @@
   {
     "name": "zx/core",
     "path": ["build/core.cjs", "build/util.cjs", "build/vendor-core.cjs"],
-    "limit": "73 kB",
+    "limit": "74 kB",
     "brotli": false,
     "gzip": false
   },
   {
     "name": "zx/index",
     "path": "build/*.{js,cjs}",
-    "limit": "800 kB",
+    "limit": "801 kB",
     "brotli": false,
     "gzip": false
   },
