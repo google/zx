@@ -26,7 +26,7 @@ import {
   path,
 } from './index.js'
 import { installDeps, parseDeps } from './deps.js'
-import { randomId } from './util.js'
+import { randomId, getVersion } from './util.js'
 import { createRequire } from './vendor.js'
 
 const EXT = '.mjs'
@@ -285,10 +285,6 @@ export function transformMarkdown(buf: Buffer) {
     }
   }
   return output.join('\n')
-}
-
-export function getVersion(): string {
-  return createRequire(import.meta.url)('../package.json').version
 }
 
 export function isMain(

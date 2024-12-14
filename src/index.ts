@@ -29,6 +29,7 @@ export {
 
 export {
   type Duration,
+  getVersion,
   quote,
   quotePowerShell,
   tempdir,

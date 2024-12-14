@@ -15,6 +15,7 @@
 import os from 'node:os'
 import path from 'node:path'
 import fs from 'node:fs'
+import { createRequire } from './vendor.js'
 import { chalk } from './vendor-core.js'
 
 export { isStringLiteral } from './vendor-core.js'
@@ -462,3 +463,7 @@ export const proxyOverride = <T extends object>(
       )
     },
   }) as T
+
+export function getVersion(): string {
+  return createRequire(import.meta.url)('../package.json').version
+}

@@ -28,6 +28,7 @@ import {
   randomId,
   // normalizeMultilinePieces,
   getCallerLocationFromString,
+  getVersion,
   tempdir,
   tempfile,
   preferLocalBin,
@@ -190,4 +191,11 @@ test('preferLocalBin()', () => {
     _env.PATH,
     `${process.cwd()}/node_modules/.bin:${process.cwd()}:${env.PATH}`
   )
+})
+
+test('getVersion return version from package.json', () => {
+  const packageJsonContent = fs.readFileSync('./package.json', 'utf8')
+  const packageInfo = JSON.parse(packageJsonContent)
+
+  assert.equal(getVersion(), packageInfo.version)
 })
