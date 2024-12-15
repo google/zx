@@ -15,7 +15,7 @@
 import * as _ from './index.js'
 
 Object.assign(globalThis, _)
-
+// TODO: global types not working with jsr.io
 declare global {
   type ProcessPromise = _.ProcessPromise
   type ProcessOutput = _.ProcessOutput

@@ -19,14 +19,14 @@ import { chalk } from './vendor-core.js'
 
 export { isStringLiteral } from './vendor-core.js'
 
-export function tempdir(prefix = `zx-${randomId()}`) {
+export function tempdir(prefix: string = `zx-${randomId()}`): string {
   const dirpath = path.join(os.tmpdir(), prefix)
   fs.mkdirSync(dirpath, { recursive: true })
 
   return dirpath
 }
 
-export function tempfile(name?: string, data?: string | Buffer) {
+export function tempfile(name?: string, data?: string | Buffer): string {
   const filepath = name
     ? path.join(tempdir(), name)
     : path.join(os.tmpdir(), `zx-${randomId()}`)
@@ -95,7 +95,7 @@ export function preferLocalBin(
 //   )
 // }
 
-export function quote(arg: string) {
+export function quote(arg: string): string {
   if (/^[a-z0-9/_.\-@:=]+$/i.test(arg) || arg === '') {
     return arg
   }
@@ -114,7 +114,7 @@ export function quote(arg: string) {
   )
 }
 
-export function quotePowerShell(arg: string) {
+export function quotePowerShell(arg: string): string {
   if (/^[a-z0-9/_.\-]+$/i.test(arg) || arg === '') {
     return arg
   }
