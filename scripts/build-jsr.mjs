@@ -14,9 +14,10 @@
 
 import fs from 'node:fs'
 import path from 'node:path'
-const cwd = process.cwd()
+const __dirname = path.dirname(new URL(import.meta.url).pathname)
+const root = path.resolve(__dirname, '..')
 const pkgJson = JSON.parse(
-  fs.readFileSync(path.resolve(cwd, 'package.json'), 'utf-8')
+  fs.readFileSync(path.resolve(root, 'package.json'), 'utf-8')
 )
 
 fs.writeFileSync(
