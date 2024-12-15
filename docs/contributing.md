@@ -13,6 +13,8 @@ We welcome contributions of any kind, including but not limited to:
 * Documentation improvements
 * Discussions
 
+https://google.github.io/zx/contribution
+
 ## Community Guidelines
 
 This project follows [Google's Open Source Community Guidelines](https://opensource.google/conduct/).
