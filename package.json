@@ -69,6 +69,7 @@
     "pretest": "npm run build",
     "test": "npm run test:size && npm run fmt:check && npm run test:unit && npm run test:types && npm run test:license",
     "test:it": "node ./test/it/build.test.js",
+    "test:jsr": "node ./test/it/build-jsr.test.js",
     "test:unit": "node ./test/all.test.js",
     "test:coverage": "c8 -x build/deno.js -x build/vendor-extra.cjs -x build/vendor-core.cjs -x build/esblib.cjs -x 'test/**' -x scripts --check-coverage npm run test:unit",
     "test:circular": "madge --circular src/*",
