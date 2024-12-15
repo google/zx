@@ -44,7 +44,7 @@ Before proposing changes, look for similar ones in the project's [issues](https:
   * Create a [conventional-commits](https://www.conventionalcommits.org/en/v1.0.0/) compliant messages.
 * Ensure that everything is working:
   * `npm run fmt` to format your code.
-  * `npm run cov` to run the tests.
+  * `npm run test:coverage` to run the tests.
 * Push the changes to your fork.
 * Create a pull request.
   * Describe your changes in detail.
