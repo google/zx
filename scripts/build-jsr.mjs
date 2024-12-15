@@ -21,7 +21,7 @@ const pkgJson = JSON.parse(
 )
 
 fs.writeFileSync(
-  path.resolve(cwd, 'jsr.json'),
+  path.resolve(root, 'jsr.json'),
   JSON.stringify(
     {
       name: '@zx/zx',
