@@ -62,9 +62,10 @@
   "scripts": {
     "fmt": "prettier --write .",
     "fmt:check": "prettier --check .",
-    "build": "npm run build:js && npm run build:dts",
+    "build": "npm run build:js && npm run build:dts && npm run build:tests",
     "build:js": "node scripts/build-js.mjs --format=cjs --hybrid --entry=src/*.ts && npm run build:vendor",
     "build:vendor": "node scripts/build-js.mjs --format=cjs --entry=src/vendor-*.ts --bundle=all",
+    "build:tests": "node scripts/build-tests.mjs",
     "build:dts": "tsc --project tsconfig.prod.json && node scripts/build-dts.mjs",
     "pretest": "npm run build",
     "test": "npm run test:size && npm run fmt:check && npm run test:unit && npm run test:types && npm run test:license",
