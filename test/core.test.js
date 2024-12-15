@@ -683,7 +683,7 @@ describe('core', () => {
         const { signal } = ac
         const p1 = $({ signal, nothrow: true })`echo test`
         const p2 = p1.pipe`sleep 999`
-        setTimeout(ac.abort, 50)
+        setTimeout(() => ac.abort(), 50)
 
         try {
           await p2

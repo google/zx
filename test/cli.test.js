@@ -15,6 +15,7 @@
 import assert from 'node:assert'
 import { test, describe, before, after } from 'node:test'
 import { fileURLToPath } from 'node:url'
+import net from 'node:net'
 import getPort from 'get-port'
 import '../build/globals.js'
 import { isMain, normalizeExt } from '../build/cli.js'
@@ -23,6 +24,18 @@ const __filename = fileURLToPath(import.meta.url)
 const spawn = $.spawn
 const nodeMajor = +process.versions?.node?.split('.')[0]
 const test22 = nodeMajor >= 22 ? test : test.skip
+const getServer = (resp = [], log = console.log) => {
+  const server = net.createServer()
+  server.on('connection', (conn) => {
+    conn.on('data', (d) => {
+      conn.write(resp.shift() || 'pong')
+    })
+  })
+  server.stop = () => new Promise((resolve) => server.close(() => resolve()))
+  server.start = (port) =>
+    new Promise((resolve) => server.listen(port, () => resolve(server)))
+  return server
+}
 
 describe('cli', () => {
   // Helps detect unresolved ProcessPromise.
@@ -124,22 +137,22 @@ describe('cli', () => {
     assert.ok(p.stderr.endsWith(cwd + '\n'))
   })
 
-  test('scripts from https', async () => {
+  test('scripts from https 200', async () => {
+    const resp = await fs.readFile(path.resolve('test/fixtures/echo.http'))
     const port = await getPort()
-    const server = $`cat ${path.resolve('test/fixtures/echo.http')} | nc -l ${port}`
+    const server = await getServer([resp]).start(port)
     const out =
-      await $`sleep 10 && node build/cli.js --verbose http://127.0.0.1:${port}/echo.mjs`
+      await $`node build/cli.js --verbose http://127.0.0.1:${port}/echo.mjs`
     assert.match(out.stderr, /test/)
-    await server.kill()
+    await server.stop()
   })
 
-  test('scripts from https not ok', async () => {
+  test('scripts from https 500', async () => {
     const port = await getPort()
-    const server = $`echo $'HTTP/1.1 500\n\n' | nc -l ${port}`
-    const out =
-      await $`sleep 10 && node build/cli.js http://127.0.0.1:${port}`.nothrow()
+    const server = await getServer(['HTTP/1.1 500\n\n']).listen(port)
+    const out = await $`node build/cli.js http://127.0.0.1:${port}`.nothrow()
     assert.match(out.stderr, /Error: Can't get/)
-    await server.kill()
+    await server.stop()
   })
 
   test('scripts with no extension', async () => {
