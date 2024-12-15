@@ -681,11 +681,11 @@ describe('core', () => {
       test('abort signal is transmittable through pipe', async () => {
         const ac = new AbortController()
         const { signal } = ac
-        const p1 = $({ signal })`echo test`
+        const p1 = $({ signal, nothrow: true })`echo test`
         const p2 = p1.pipe`sleep 999`
+        setTimeout(ac.abort, 50)
 
         try {
-          ac.abort()
           await p2
         } catch ({ message }) {
           assert.match(message, /The operation was aborted/)
