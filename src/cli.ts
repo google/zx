@@ -57,19 +57,19 @@ export function printUsage() {
    --prefix=<command>   prefix all commands
    --postfix=<command>  postfix all commands
    --cwd=<path>         set current directory
-   --eval=<js>, -e      evaluate script 
+   --eval=<js>, -e      evaluate script
    --ext=<.mjs>         default extension
    --install, -i        install dependencies
    --version, -v        print current zx version
    --help, -h           print help
    --repl               start repl
    --experimental       enables experimental features (deprecated)
- 
+
  ${chalk.italic('Full documentation:')} ${chalk.underline('https://google.github.io/zx/')}
 `)
 }
 
-export const argv = minimist(process.argv.slice(2), {
+export const argv: minimist.ParsedArgs = minimist(process.argv.slice(2), {
   string: ['shell', 'prefix', 'postfix', 'eval', 'cwd', 'ext'],
   boolean: [
     'version',
@@ -134,7 +134,7 @@ export async function runScript(script: string, ext = EXT) {
   await writeAndImport(script, filepath)
 }
 
-export async function scriptFromStdin(ext?: string) {
+export async function scriptFromStdin(ext?: string): Promise<boolean> {
   let script = ''
   if (!process.stdin.isTTY) {
     process.stdin.setEncoding('utf8')
@@ -178,7 +178,10 @@ export async function writeAndImport(
   }
 }
 
-export async function importPath(filepath: string, origin = filepath) {
+export async function importPath(
+  filepath: string,
+  origin = filepath
+): Promise<void> {
   const ext = path.extname(filepath)
   const base = path.basename(filepath)
   const dir = path.dirname(filepath)
@@ -206,6 +209,7 @@ export async function importPath(filepath: string, origin = filepath) {
     await installDeps(deps, dir)
   }
   injectGlobalRequire(origin)
+  // TODO: fix unanalyzable-dynamic-import to work correctly with jsr.io
   await import(url.pathToFileURL(filepath).toString())
 }
 
@@ -216,7 +220,7 @@ export function injectGlobalRequire(origin: string) {
   Object.assign(globalThis, { __filename, __dirname, require })
 }
 
-export function transformMarkdown(buf: Buffer) {
+export function transformMarkdown(buf: Buffer): string {
   const source = buf.toString()
   const output = []
   let state = 'root'
@@ -292,9 +296,9 @@ export function getVersion(): string {
 }
 
 export function isMain(
-  metaurl = import.meta.url,
-  scriptpath = process.argv[1]
-) {
+  metaurl: string = import.meta.url,
+  scriptpath: string = process.argv[1]
+): boolean {
   if (metaurl.startsWith('file:')) {
     const modulePath = url.fileURLToPath(metaurl).replace(/\.\w+$/, '')
     const mainPath = fs.realpathSync(scriptpath).replace(/\.\w+$/, '')
@@ -304,6 +308,6 @@ export function isMain(
   return false
 }
 
-export function normalizeExt(ext?: string) {
+export function normalizeExt(ext?: string): string | undefined {
   return ext ? path.parse(`foo.${ext}`).ext : ext
 }

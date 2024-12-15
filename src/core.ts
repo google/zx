@@ -17,6 +17,7 @@ import {
   type IOType,
   spawn,
   spawnSync,
+  type ChildProcess,
 } from 'node:child_process'
 import { type Encoding } from 'node:crypto'
 import { type AsyncHook, AsyncLocalStorage, createHook } from 'node:async_hooks'
@@ -398,20 +399,20 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   /**
    *  @deprecated Use $({halt: true})`cmd` instead.
    */
-  halt() {
+  halt(): this {
     return this
   }
 
   // Getters
-  get pid() {
+  get pid(): number | undefined {
     return this.child?.pid
   }
 
-  get cmd() {
+  get cmd(): string {
     return this._command
   }
 
-  get child() {
+  get child(): ChildProcess | undefined {
     return this._zurk?.child
   }
 
@@ -434,11 +435,11 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     )
   }
 
-  get signal() {
+  get signal(): AbortSignal | undefined {
     return this._snapshot.signal || this._snapshot.ac?.signal
   }
 
-  get output() {
+  get output(): ProcessOutput | null {
     return this._output
   }
 
@@ -630,7 +631,7 @@ export class ProcessOutput extends Error {
     }
   }
 
-  toString() {
+  toString(): string {
     return this._combined
   }
 
@@ -638,11 +639,11 @@ export class ProcessOutput extends Error {
     return JSON.parse(this._combined)
   }
 
-  buffer() {
+  buffer(): Buffer {
     return Buffer.from(this._combined)
   }
 
-  blob(type = 'text/plain') {
+  blob(type = 'text/plain'): Blob {
     if (!globalThis.Blob)
       throw new Error(
         'Blob is not supported in this environment. Provide a polyfill'
@@ -650,37 +651,37 @@ export class ProcessOutput extends Error {
     return new Blob([this.buffer()], { type })
   }
 
-  text(encoding: Encoding = 'utf8') {
+  text(encoding: Encoding = 'utf8'): string {
     return encoding === 'utf8'
       ? this.toString()
       : this.buffer().toString(encoding)
   }
 
-  lines() {
+  lines(): string[] {
     return this.valueOf().split(/\r?\n/)
   }
 
-  valueOf() {
+  valueOf(): string {
     return this._combined.trim()
   }
 
-  get stdout() {
+  get stdout(): string {
     return this._stdout
   }
 
-  get stderr() {
+  get stderr(): string {
     return this._stderr
   }
 
-  get exitCode() {
+  get exitCode(): number | null {
     return this._code
   }
 
-  get signal() {
+  get signal(): NodeJS.Signals | null {
     return this._signal
   }
 
-  get duration() {
+  get duration(): number {
     return this._duration
   }
 
@@ -689,7 +690,7 @@ export class ProcessOutput extends Error {
     signal: NodeJS.Signals | null,
     stderr: string,
     from: string
-  ) {
+  ): string {
     let message = `exit code: ${code}`
     if (code != 0 || signal != null) {
       message = `${stderr || '\n'}    at ${from}`
@@ -704,7 +705,7 @@ export class ProcessOutput extends Error {
     return message
   }
 
-  static getErrorMessage(err: NodeJS.ErrnoException, from: string) {
+  static getErrorMessage(err: NodeJS.ErrnoException, from: string): string {
     return (
       `${err.message}\n` +
       `    errno: ${err.errno} (${errnoMessage(err.errno)})\n` +
@@ -713,7 +714,7 @@ export class ProcessOutput extends Error {
     )
   }
 
-  [inspect.custom]() {
+  [inspect.custom](): string {
     let stringify = (s: string, c: ChalkInstance) =>
       s.length === 0 ? "''" : c(inspect(s))
     return `ProcessOutput {
