@@ -41,13 +41,13 @@ export {
 /**
  *  @deprecated Use $`cmd`.nothrow() instead.
  */
-export function nothrow(promise: ProcessPromise) {
+export function nothrow(promise: ProcessPromise): ProcessPromise {
   return promise.nothrow()
 }
 
 /**
  * @deprecated Use $`cmd`.quiet() instead.
  */
-export function quiet(promise: ProcessPromise) {
+export function quiet(promise: ProcessPromise): ProcessPromise {
   return promise.quiet()
 }
