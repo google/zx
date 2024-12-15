@@ -544,6 +544,38 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return super.catch(onrejected)
   }
 
+  // Async iterator API
+  async *[Symbol.asyncIterator]() {
+    const _store = this._zurk!.store.stdout
+    let _stream
+
+    if (_store.length) {
+      _stream = VoidStream.from(_store)
+    } else {
+      _stream = this.stdout[Symbol.asyncIterator]
+        ? this.stdout
+        : VoidStream.from(this.stdout)
+    }
+
+    let buffer = ''
+
+    for await (const chunk of _stream) {
+      const chunkStr = chunk.toString()
+      buffer += chunkStr
+
+      let lines = buffer.split('\n')
+      buffer = lines.pop() || ''
+
+      for (const line of lines) {
+        yield line
+      }
+    }
+
+    if (buffer.length > 0) {
+      yield buffer
+    }
+  }
+
   // Stream-like API
   private writable = true
   private emit(event: string, ...args: any[]) {
