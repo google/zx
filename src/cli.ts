@@ -64,6 +64,7 @@ export function printUsage() {
    --help, -h           print help
    --repl               start repl
    --experimental       enables experimental features (deprecated)
+
  ${chalk.italic('Full documentation:')} ${chalk.underline('https://google.github.io/zx/')}
 `)
 }
