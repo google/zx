@@ -703,6 +703,95 @@ describe('core', () => {
       })
     })
 
+    describe('[Symbol.asyncIterator]', () => {
+      it('should iterate over lines from stdout', async () => {
+        const process = $`echo "Line1\nLine2\nLine3"`
+
+        const lines = []
+        for await (const line of process) {
+          lines.push(line)
+        }
+
+        assert.equal(lines.length, 3, 'Should have 3 lines')
+        assert.equal(lines[0], 'Line1', 'First line should be "Line1"')
+        assert.equal(lines[1], 'Line2', 'Second line should be "Line2"')
+        assert.equal(lines[2], 'Line3', 'Third line should be "Line3"')
+      })
+
+      it('should handle partial lines correctly', async () => {
+        const process = $`node -e "process.stdout.write('PartialLine1\\nLine2\\nPartial'); setTimeout(() => process.stdout.write('Line3\\n'), 100)"`
+
+        const lines = []
+        for await (const line of process) {
+          lines.push(line)
+        }
+
+        assert.equal(lines.length, 3, 'Should have 3 lines')
+        assert.equal(
+          lines[0],
+          'PartialLine1',
+          'First line should be "PartialLine1"'
+        )
+        assert.equal(lines[1], 'Line2', 'Second line should be "Line2"')
+        assert.equal(
+          lines[2],
+          'PartialLine3',
+          'Third line should be "PartialLine3"'
+        )
+      })
+
+      it('should handle empty stdout', async () => {
+        const process = $`echo -n ""`
+
+        const lines = []
+        for await (const line of process) {
+          lines.push(line)
+        }
+
+        assert.equal(lines.length, 0, 'Should have 0 lines for empty stdout')
+      })
+
+      it('should handle single line without trailing newline', async () => {
+        const process = $`echo -n "SingleLine"`
+
+        const lines = []
+        for await (const line of process) {
+          lines.push(line)
+        }
+
+        assert.equal(
+          lines.length,
+          1,
+          'Should have 1 line for single line without trailing newline'
+        )
+        assert.equal(lines[0], 'SingleLine', 'The line should be "SingleLine"')
+      })
+
+      it('should yield all buffered and new chunks when iterated after a delay', async () => {
+        const process = $`sleep 0.1; echo Chunk1; sleep 0.2; echo Chunk2;`
+
+        const collectedChunks = []
+
+        await new Promise((resolve) => setTimeout(resolve, 400))
+
+        for await (const chunk of process) {
+          collectedChunks.push(chunk)
+        }
+
+        assert.equal(collectedChunks.length, 2, 'Should have received 2 chunks')
+        assert.equal(
+          collectedChunks[0],
+          'Chunk1',
+          'First chunk should be "Chunk1"'
+        )
+        assert.equal(
+          collectedChunks[1],
+          'Chunk2',
+          'Second chunk should be "Chunk2"'
+        )
+      })
+    })
+
     test('quiet() mode is working', async () => {
       const log = console.log
       let stdout = ''
