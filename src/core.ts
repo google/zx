@@ -99,6 +99,29 @@ export interface Options {
   halt?:          boolean
 }
 
+// prettier-ignore
+export const defaults: Options = getZxDefaults({
+    [CWD]:          process.cwd(),
+    [SYNC]:         false,
+    verbose:        false,
+    env:            process.env,
+    sync:           false,
+    shell:          true,
+    stdio:          'pipe',
+    nothrow:        false,
+    quiet:          false,
+    prefix:         '',
+    postfix:        '',
+    detached:       false,
+    preferLocal:    false,
+    spawn,
+    spawnSync,
+    log,
+    kill,
+    killSignal:     SIGTERM,
+    timeoutSignal:  SIGTERM,
+})
+
 export function getZxDefaults(
   defs: Options,
   prefix: string = 'ZX_',
@@ -130,29 +153,6 @@ export function getZxDefaults(
   )
   return Object.assign(defs, o)
 }
-
-// prettier-ignore
-export const defaults: Options = getZxDefaults({
-    [CWD]:          process.cwd(),
-    [SYNC]:         false,
-    verbose:        false,
-    env:            process.env,
-    sync:           false,
-    shell:          true,
-    stdio:          'pipe',
-    nothrow:        false,
-    quiet:          false,
-    prefix:         '',
-    postfix:        '',
-    detached:       false,
-    preferLocal:    false,
-    spawn,
-    spawnSync,
-    log,
-    kill,
-    killSignal:     SIGTERM,
-    timeoutSignal:  SIGTERM,
-})
 
 // prettier-ignore
 export interface Shell<
