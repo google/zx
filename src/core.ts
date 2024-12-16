@@ -105,23 +105,22 @@ export function getZxDefaults(
   env = process.env
 ) {
   const types: Record<PropertyKey, Array<'string' | 'boolean'>> = {
-    cwd: ['string'],
-    shell: ['string', 'boolean'],
-    halt: ['boolean'],
     preferLocal: ['string', 'boolean'],
-    input: ['string'],
+    detached: ['boolean'],
+    verbose: ['boolean'],
+    quiet: ['boolean'],
+    timeout: ['string'],
+    timeoutSignal: ['string'],
+    prefix: ['string'],
+    postfix: ['string'],
   }
 
   const o = Object.entries(env).reduce<Record<string, string | boolean>>(
     (m, [k, v]) => {
-      if (k.startsWith(prefix) && v) {
+      if (v && k.startsWith(prefix)) {
         const _k = snakeToCamel(k.slice(prefix.length))
         const _v = { true: true, false: false }[v.toLowerCase()] ?? v
-        if (
-          [typeof defs[_k as keyof Options], ...(types[_k] ?? [])].includes(
-            typeof _v
-          )
-        ) {
+        if (_k in types && types[_k].some((type) => type === typeof _v)) {
           m[_k] = _v
         }
       }
@@ -132,9 +131,8 @@ export function getZxDefaults(
   return Object.assign(defs, o)
 }
 
-export const defaults: Options = getZxDefaults(
-  // prettier-ignore
-  {
+// prettier-ignore
+export const defaults: Options = getZxDefaults({
     [CWD]:          process.cwd(),
     [SYNC]:         false,
     verbose:        false,
@@ -154,8 +152,7 @@ export const defaults: Options = getZxDefaults(
     kill,
     killSignal:     SIGTERM,
     timeoutSignal:  SIGTERM,
-  }
-)
+})
 
 // prettier-ignore
 export interface Shell<
