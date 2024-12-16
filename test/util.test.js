@@ -32,6 +32,7 @@ import {
   tempfile,
   preferLocalBin,
   camelToSnake,
+  snakeToCamel,
 } from '../build/util.js'
 
 describe('util', () => {
@@ -192,9 +193,17 @@ test('preferLocalBin()', () => {
     `${process.cwd()}/node_modules/.bin:${process.cwd()}:${env.PATH}`
   )
 })
+
 test('camelToSnake()', () => {
   assert.equal(camelToSnake('verbose'), 'VERBOSE')
   assert.equal(camelToSnake('nothrow'), 'NOTHROW')
   assert.equal(camelToSnake('preferLocal'), 'PREFER_LOCAL')
   assert.equal(camelToSnake('someMoreBigStr'), 'SOME_MORE_BIG_STR')
+})
+
+test('snakeToCamel()', () => {
+  assert.equal(snakeToCamel('VERBOSE'), 'verbose')
+  assert.equal(snakeToCamel('NOTHROW'), 'nothrow')
+  assert.equal(snakeToCamel('PREFER_LOCAL'), 'preferLocal')
+  assert.equal(snakeToCamel('SOME_MORE_BIG_STR'), 'someMoreBigStr')
 })
