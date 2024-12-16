@@ -27,19 +27,22 @@ import {
 export { default as path } from 'node:path'
 export * as os from 'node:os'
 
-export const argv = minimist(process.argv.slice(2))
+export const argv: minimist.ParsedArgs = minimist(process.argv.slice(2))
 export function updateArgv(args: string[]) {
   for (const k in argv) delete argv[k]
   Object.assign(argv, minimist(args))
 }
 
-export function sleep(duration: Duration) {
+export function sleep(duration: Duration): Promise<unknown> {
   return new Promise((resolve) => {
     setTimeout(resolve, parseDuration(duration))
   })
 }
 
-export async function fetch(url: RequestInfo, init?: RequestInit) {
+export async function fetch(
+  url: RequestInfo,
+  init?: RequestInit
+): Promise<Response> {
   $.log({ kind: 'fetch', url, init })
   return nodeFetch(url, init)
 }
@@ -89,7 +92,7 @@ export async function question(
   )
 }
 
-export async function stdin() {
+export async function stdin(): Promise<string> {
   let buf = ''
   process.stdin.setEncoding('utf8')
   for await (const chunk of process.stdin) {
@@ -149,7 +152,10 @@ export async function retry<T>(
   throw lastErr
 }
 
-export function* expBackoff(max: Duration = '60s', rand: Duration = '100ms') {
+export function* expBackoff(
+  max: Duration = '60s',
+  rand: Duration = '100ms'
+): Generator<number, void, unknown> {
   const maxMs = parseDuration(max)
   const randMs = parseDuration(rand)
   let n = 1
