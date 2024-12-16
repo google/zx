@@ -16,11 +16,19 @@ import { $ } from './core.js'
 import { spinner } from './goods.js'
 import { depseek } from './vendor.js'
 
+/**
+ * Install npm dependencies
+ * @param dependencies object of dependencies
+ * @param prefix  path to the directory where npm should install the dependencies
+ * @param registry custom npm registry URL when installing dependencies
+ */
 export async function installDeps(
   dependencies: Record<string, string>,
-  prefix?: string
-) {
-  const flags = prefix ? `--prefix=${prefix}` : ''
+  prefix?: string,
+  registry?: string
+): Promise<void> {
+  const prefixFlag = prefix ? `--prefix=${prefix}` : ''
+  const registryFlag = registry ? `--registry=${registry}` : ''
   const packages = Object.entries(dependencies).map(
     ([name, version]) => `${name}@${version}`
   )
@@ -28,7 +36,7 @@ export async function installDeps(
     return
   }
   await spinner(`npm i ${packages.join(' ')}`, () =>
-    $`npm install --no-save --no-audit --no-fund ${flags} ${packages}`.nothrow()
+    $`npm install --no-save --no-audit --no-fund ${registryFlag} ${prefixFlag} ${packages}`.nothrow()
   )
 }
 
