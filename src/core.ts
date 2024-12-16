@@ -52,7 +52,7 @@ import {
   proxyOverride,
   quote,
   quotePowerShell,
-  camelToSnake,
+  snakeToCamel,
 } from './util.js'
 
 const CWD = Symbol('processCwd')
@@ -101,58 +101,60 @@ export interface Options {
 
 export function getZxDefaults(
   defs: Options,
-  extra: Partial<Options> = {
-    cwd: '',
-    halt: false,
-    preferLocal: '',
-    input: '',
-  },
   prefix: string = 'ZX_',
   env = process.env
 ) {
-  const process = (opts: Partial<Options>) => {
-    const o: Record<string, string | boolean> = {}
-    for (const [dk, dv] of Object.entries(opts)) {
-      const ek = prefix + camelToSnake(dk)
-      const ev = env[ek]
-      if (typeof ev !== 'undefined') {
-        const v = { true: true, false: false }[ev.toLowerCase()] ?? ev
-        if (typeof v === typeof dv) {
-          o[dk] = v
+  const types: Record<PropertyKey, Array<'string' | 'boolean'>> = {
+    cwd: ['string'],
+    shell: ['string', 'boolean'],
+    halt: ['boolean'],
+    preferLocal: ['string', 'boolean'],
+    input: ['string'],
+  }
+
+  const o = Object.entries(env).reduce<Record<string, string | boolean>>(
+    (m, [k, v]) => {
+      if (k.startsWith(prefix) && v) {
+        const _k = snakeToCamel(k.slice(prefix.length))
+        const _v = { true: true, false: false }[v.toLowerCase()] ?? v
+        if (
+          [typeof defs[_k as keyof Options], ...(types[_k] ?? [])].includes(
+            typeof _v
+          )
+        ) {
+          m[_k] = _v
         }
       }
-    }
-    return o
-  }
-  const subset1 = process(defs)
-  const subset2 = process(extra)
-
-  return Object.assign(defs, subset1, subset2)
+      return m
+    },
+    {}
+  )
+  return Object.assign(defs, o)
 }
 
-// prettier-ignore
 export const defaults: Options = getZxDefaults(
+  // prettier-ignore
   {
-    [CWD]: process.cwd(),
-    [SYNC]: false,
-    verbose: false,
-    env: process.env,
-    sync: false,
-    shell: true,
-    stdio: 'pipe',
-    nothrow: false,
-    quiet: false,
-    prefix: '',
-    postfix: '',
-    detached: false,
-    preferLocal: false,
+    [CWD]:          process.cwd(),
+    [SYNC]:         false,
+    verbose:        false,
+    env:            process.env,
+    sync:           false,
+    shell:          true,
+    stdio:          'pipe',
+    nothrow:        false,
+    quiet:          false,
+    prefix:         '',
+    postfix:        '',
+    detached:       false,
+    preferLocal:    false,
     spawn,
     spawnSync,
     log,
     kill,
-    killSignal: SIGTERM,
-    timeoutSignal: SIGTERM,
-  },
+    killSignal:     SIGTERM,
+    timeoutSignal:  SIGTERM,
+  }
 )
 
 // prettier-ignore
