@@ -114,6 +114,7 @@
     "esbuild-plugin-transform-hook": "^0.1.1",
     "esbuild-plugin-utils": "^0.1.0",
     "fs-extra": "^11.2.0",
+    "get-port": "^7.1.0",
     "globby": "^14.0.2",
     "jsr": "^0.13.2",
     "madge": "^8.0.0",
