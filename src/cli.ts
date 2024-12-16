@@ -60,6 +60,7 @@ export function printUsage() {
    --eval=<js>, -e      evaluate script
    --ext=<.mjs>         default extension
    --install, -i        install dependencies
+   --registry=<URL>     npm registry, defaults to https://registry.npmjs.org/
    --version, -v        print current zx version
    --help, -h           print help
    --repl               start repl
@@ -70,7 +71,7 @@ export function printUsage() {
 }
 
 export const argv: minimist.ParsedArgs = minimist(process.argv.slice(2), {
-  string: ['shell', 'prefix', 'postfix', 'eval', 'cwd', 'ext'],
+  string: ['shell', 'prefix', 'postfix', 'eval', 'cwd', 'ext', 'registry'],
   boolean: [
     'version',
     'help',
@@ -206,8 +207,9 @@ export async function importPath(
   }
   if (argv.install) {
     const deps = parseDeps(await fs.readFile(filepath))
-    await installDeps(deps, dir)
+    await installDeps(deps, dir, argv.registry)
   }
+
   injectGlobalRequire(origin)
   // TODO: fix unanalyzable-dynamic-import to work correctly with jsr.io
   await import(url.pathToFileURL(filepath).toString())

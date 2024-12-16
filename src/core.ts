@@ -337,7 +337,14 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     ...args: any[]
   ): (Writable & PromiseLike<ProcessPromise & Writable>) | ProcessPromise {
     if (isStringLiteral(dest, ...args))
-      return this.pipe($({ halt: true })(dest as TemplateStringsArray, ...args))
+      return this.pipe(
+        $({
+          halt: true,
+          ac: this._snapshot.ac,
+          signal: this._snapshot.signal,
+        })(dest as TemplateStringsArray, ...args)
+      )
+
     if (isString(dest))
       throw new Error('The pipe() method does not take strings. Forgot $?')
 
