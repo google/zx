@@ -51,7 +51,7 @@ import {
   proxyOverride,
   quote,
   quotePowerShell,
-  extractFromEnv,
+  camelToSnake,
 } from './util.js'
 
 const CWD = Symbol('processCwd')
@@ -81,7 +81,7 @@ export interface Options {
   verbose:        boolean
   sync:           boolean
   env:            NodeJS.ProcessEnv
-  shell:          string | boolean
+  shell:          string | true
   nothrow:        boolean
   prefix:         string
   postfix:        string
@@ -97,8 +97,40 @@ export interface Options {
   killSignal?:    NodeJS.Signals
   halt?:          boolean
 }
+
+export function getZxDefaults(
+  defs: Options,
+  extra: Partial<Options> = {
+    cwd: '',
+    halt: false,
+    preferLocal: '',
+    input: '',
+  },
+  prefix: string = 'ZX_',
+  env = process.env
+) {
+  const process = (opts: Partial<Options>) => {
+    const o: Record<string, string | boolean> = {}
+    for (const [dk, dv] of Object.entries(opts)) {
+      const ek = prefix + camelToSnake(dk)
+      const ev = env[ek]
+      if (typeof ev !== 'undefined') {
+        const v = { true: true, false: false }[ev.toLowerCase()] ?? ev
+        if (typeof v === typeof dv) {
+          o[dk] = v
+        }
+      }
+    }
+    return o
+  }
+  const subset1 = process(defs)
+  const subset2 = process(extra)
+
+  return Object.assign(defs, subset1, subset2)
+}
+
 // prettier-ignore
-export const defaults: Options = Object.assign(
+export const defaults: Options = getZxDefaults(
   {
     [CWD]: process.cwd(),
     [SYNC]: false,
@@ -120,7 +152,6 @@ export const defaults: Options = Object.assign(
     killSignal: SIGTERM,
     timeoutSignal: SIGTERM,
   },
-  extractFromEnv<Partial<Options>>()
 )
 
 // prettier-ignore
