@@ -25,36 +25,33 @@ import '../build/globals.js'
 describe('core', () => {
   describe('getZxDefaults', () => {
     test('verbose rewrite', async () => {
-      const defaults = getZxDefaults({ verbose: false }, {}, 'ZX_', {
+      const defaults = getZxDefaults({ verbose: false }, 'ZX_', {
         ZX_VERBOSE: 'true',
       })
       assert.equal(defaults.verbose, true)
     })
     test('verbose ignore', async () => {
-      const defaults = getZxDefaults({ verbose: false }, {}, 'ZX_', {
+      const defaults = getZxDefaults({ verbose: false }, 'ZX_', {
         ZX_VERBOSE: 'true123',
       })
       assert.equal(defaults.verbose, false)
     })
     test('input in extra', async () => {
-      const defaults = getZxDefaults({}, { input: '' }, 'ZX_', {
+      const defaults = getZxDefaults({}, 'ZX_', {
         ZX_INPUT: 'input',
       })
       assert.equal(defaults.input, 'input')
     })
     test('preferLocal rewrite boolean', async () => {
-      const defaults = getZxDefaults({ preferLocal: false }, {}, 'ZX_', {
+      const defaults = getZxDefaults({ preferLocal: false }, 'ZX_', {
         ZX_PREFER_LOCAL: 'true',
       })
       assert.equal(defaults.preferLocal, true)
     })
     test('preferLocal rewrite string', async () => {
-      const defaults = getZxDefaults(
-        { preferLocal: false },
-        { preferLocal: '' },
-        'ZX_',
-        { ZX_PREFER_LOCAL: 'true123' }
-      )
+      const defaults = getZxDefaults({ preferLocal: false }, 'ZX_', {
+        ZX_PREFER_LOCAL: 'true123',
+      })
       assert.equal(defaults.preferLocal, 'true123')
     })
   })
