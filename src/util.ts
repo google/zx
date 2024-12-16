@@ -463,9 +463,17 @@ export const proxyOverride = <T extends object>(
     },
   }) as T
 
-// https://stackoverflow.com/questions/7888238/javascript-split-string-on-uppercase-characters
+// https://stackoverflow.com/a/7888303
 export const camelToSnake = (str: string) =>
   str
     .split(/(?=[A-Z])/)
     .map((s) => s.toUpperCase())
     .join('_')
+
+// https://stackoverflow.com/a/61375162
+export const snakeToCamel = (str: string) =>
+  str
+    .toLowerCase()
+    .replace(/([-_][a-z])/g, (group) =>
+      group.toUpperCase().replace('-', '').replace('_', '')
+    )
