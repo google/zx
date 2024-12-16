@@ -9,10 +9,40 @@ export default defineConfig({
   titleTemplate: ':title | google/zx',
   description: 'A tool for writing better scripts',
   head: [
-    ['link', { rel: 'apple-touch-icon', sizes: '180x180', href: '/zx/img/favicons/apple-touch-icon.png' }],
-    ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/zx/img/favicons/favicon-32x32.png' }],
-    ['link', { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/zx/img/favicons/favicon-16x16.png' }],
-    ['link', { rel: 'mask-icon', href: '/zx/img/favicons/safari-pinned-tab.svg', color: '#3a0839' }],
+    [
+      'link',
+      {
+        rel: 'apple-touch-icon',
+        sizes: '180x180',
+        href: '/zx/img/favicons/apple-touch-icon.png',
+      },
+    ],
+    [
+      'link',
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '32x32',
+        href: '/zx/img/favicons/favicon-32x32.png',
+      },
+    ],
+    [
+      'link',
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '16x16',
+        href: '/zx/img/favicons/favicon-16x16.png',
+      },
+    ],
+    [
+      'link',
+      {
+        rel: 'mask-icon',
+        href: '/zx/img/favicons/safari-pinned-tab.svg',
+        color: '#3a0839',
+      },
+    ],
     ['link', { rel: 'shortcut icon', href: '/zx/img/favicons/favicon.ico' }],
     ['meta', { name: 'og:image', content: '/zx/img/og-image.png' }],
     ['meta', { name: 'twitter:image', content: '/zx/img/og-image.png' }],
@@ -83,16 +113,15 @@ export default defineConfig({
       ],
     },
 
-    socialLinks: [
-      { icon: 'github', link: 'https://github.com/google/zx' },
-    ],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/google/zx' }],
 
     editLink: {
       pattern: 'https://github.com/google/zx/blob/main/docs/:path',
     },
 
     footer: {
-      message: 'Disclaimer: This is not an officially supported Google product.',
+      message:
+        'Disclaimer: This is not an officially supported Google product.',
     },
 
     search: {

@@ -2,7 +2,10 @@
   <div class="Oxygen">
     <a href="https://webpod.dev/?from=zx-site">
       <!--<img src="https://webpod.dev/img/banner.png" alt="Webpod - deploy JavaScript apps">-->
-      <img src="https://webpod.dev/img/logo.svg" alt="Webpod - deploy JavaScript apps">
+      <img
+        src="https://webpod.dev/img/logo.svg"
+        alt="Webpod - deploy JavaScript apps"
+      />
       <p>Webpod – deploy JavaScript apps to own cloud or private server</p>
     </a>
   </div>
@@ -38,5 +41,4 @@
   color: var(--vp-carbon-ads-hover-text-color);
 }
 </style>
-<script setup>
-</script>
+<script setup></script>

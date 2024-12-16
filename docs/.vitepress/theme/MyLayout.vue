@@ -8,7 +8,7 @@ const { Layout } = DefaultTheme
 <template>
   <Layout>
     <template #aside-ads-after>
-      <MyOxygen/>
+      <MyOxygen />
     </template>
   </Layout>
 </template>
