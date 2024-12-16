@@ -31,7 +31,7 @@ import {
   tempdir,
   tempfile,
   preferLocalBin,
-  extractFromEnv,
+  camelToSnake,
 } from '../build/util.js'
 
 describe('util', () => {
@@ -192,21 +192,9 @@ test('preferLocalBin()', () => {
     `${process.cwd()}/node_modules/.bin:${process.cwd()}:${env.PATH}`
   )
 })
-
-test('extractFromEnv()', () => {
-  process.env.ZX_VERBOSE = 'true'
-  process.env.ZX_SHELL = '/some/custom/shell/path'
-  process.env.ZX_PREFER_LOCAL = 'false'
-
-  const envVariables = extractFromEnv()
-
-  assert.deepEqual(envVariables, {
-    verbose: true,
-    shell: process.env.ZX_SHELL,
-    preferLocal: false,
-  })
-
-  delete process.env.ZX_VERBOSE
-  delete process.env.ZX_SHELL
-  delete process.env.ZX_PREFER_LOCAL
+test('camelToSnake()', () => {
+  assert.equal(camelToSnake('verbose'), 'VERBOSE')
+  assert.equal(camelToSnake('nothrow'), 'NOTHROW')
+  assert.equal(camelToSnake('preferLocal'), 'PREFER_LOCAL')
+  assert.equal(camelToSnake('someMoreBigStr'), 'SOME_MORE_BIG_STR')
 })

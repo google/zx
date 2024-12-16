@@ -19,10 +19,46 @@ import { basename } from 'node:path'
 import { WriteStream } from 'node:fs'
 import { Readable, Transform, Writable } from 'node:stream'
 import { Socket } from 'node:net'
-import { ProcessPromise, ProcessOutput } from '../build/index.js'
+import { ProcessPromise, ProcessOutput, getZxDefaults } from '../build/index.js'
 import '../build/globals.js'
 
 describe('core', () => {
+  describe('getZxDefaults', () => {
+    test('verbose rewrite', async () => {
+      const defaults = getZxDefaults({ verbose: false }, {}, 'ZX_', {
+        ZX_VERBOSE: 'true',
+      })
+      assert.equal(defaults.verbose, true)
+    })
+    test('verbose ignore', async () => {
+      const defaults = getZxDefaults({ verbose: false }, {}, 'ZX_', {
+        ZX_VERBOSE: 'true123',
+      })
+      assert.equal(defaults.verbose, false)
+    })
+    test('input in extra', async () => {
+      const defaults = getZxDefaults({}, { input: '' }, 'ZX_', {
+        ZX_INPUT: 'input',
+      })
+      assert.equal(defaults.input, 'input')
+    })
+    test('preferLocal rewrite boolean', async () => {
+      const defaults = getZxDefaults({ preferLocal: false }, {}, 'ZX_', {
+        ZX_PREFER_LOCAL: 'true',
+      })
+      assert.equal(defaults.preferLocal, true)
+    })
+    test('preferLocal rewrite string', async () => {
+      const defaults = getZxDefaults(
+        { preferLocal: false },
+        { preferLocal: '' },
+        'ZX_',
+        { ZX_PREFER_LOCAL: 'true123' }
+      )
+      assert.equal(defaults.preferLocal, 'true123')
+    })
+  })
+
   describe('$', () => {
     test('is a regular function', async () => {
       const _$ = $.bind(null)
