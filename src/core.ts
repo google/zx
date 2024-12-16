@@ -372,7 +372,14 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     ...args: any[]
   ): (Writable & PromiseLike<ProcessPromise & Writable>) | ProcessPromise {
     if (isStringLiteral(dest, ...args))
-      return this.pipe($({ halt: true })(dest as TemplateStringsArray, ...args))
+      return this.pipe(
+        $({
+          halt: true,
+          ac: this._snapshot.ac,
+          signal: this._snapshot.signal,
+        })(dest as TemplateStringsArray, ...args)
+      )
+
     if (isString(dest))
       throw new Error('The pipe() method does not take strings. Forgot $?')
 
@@ -577,6 +584,38 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       | null
   ): Promise<ProcessOutput | T> {
     return super.catch(onrejected)
+  }
+
+  // Async iterator API
+  async *[Symbol.asyncIterator]() {
+    const _store = this._zurk!.store.stdout
+    let _stream
+
+    if (_store.length) {
+      _stream = VoidStream.from(_store)
+    } else {
+      _stream = this.stdout[Symbol.asyncIterator]
+        ? this.stdout
+        : VoidStream.from(this.stdout)
+    }
+
+    let buffer = ''
+
+    for await (const chunk of _stream) {
+      const chunkStr = chunk.toString()
+      buffer += chunkStr
+
+      let lines = buffer.split('\n')
+      buffer = lines.pop() || ''
+
+      for (const line of lines) {
+        yield line
+      }
+    }
+
+    if (buffer.length > 0) {
+      yield buffer
+    }
   }
 
   // Stream-like API
