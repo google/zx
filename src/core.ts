@@ -335,7 +335,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   pipe<D extends Writable>(dest: D): D & PromiseLike<ProcessOutput & D>
   pipe<D extends ProcessPromise>(dest: D): D
   pipe(
-    dest: Writable | ProcessPromise | TemplateStringsArray,
+    dest: Writable | ProcessPromise | TemplateStringsArray | string,
     ...args: any[]
   ): (Writable & PromiseLike<ProcessPromise & Writable>) | ProcessPromise {
     if (isStringLiteral(dest, ...args))
@@ -346,9 +346,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           signal: this._snapshot.signal,
         })(dest as TemplateStringsArray, ...args)
       )
-
-    if (isString(dest))
-      throw new Error('The pipe() method does not take strings. Forgot $?')
 
     this._piped = true
     const ee = this._ee
@@ -371,6 +368,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       })
     }
 
+    if (isString(dest)) dest = fs.createWriteStream(dest)
+
     if (dest instanceof ProcessPromise) {
       dest._pipedFrom = this
 
@@ -382,6 +381,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       }
       return dest
     }
+
     from.once('end', () => dest.emit('end-piped-from')).pipe(dest)
     return promisifyStream(dest, this) as Writable &
       PromiseLike<ProcessPromise & Writable>

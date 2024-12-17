@@ -70,6 +70,13 @@ await $`echo "Hello, stdout!"`
 await $`cat /tmp/output.txt`
 ```
 
+You can pass a string to `pipe()` to implicitly create a receiving file. The previous example is equivalent to:
+
+```js
+await $`echo "Hello, stdout!"`
+  .pipe('/tmp/output.txt')
+```
+
 Pipes can be used to show a real-time output of the process:
 
 ```js

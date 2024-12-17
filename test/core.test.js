@@ -421,6 +421,20 @@ describe('core', () => {
         }
       })
 
+      test('accepts file', async () => {
+        const file = tempfile()
+        try {
+          await $`echo foo`.pipe(file)
+          assert.equal((await fs.readFile(file)).toString(), 'foo\n')
+
+          const r = $`cat`
+          fs.createReadStream(file).pipe(r.stdin)
+          assert.equal((await r).stdout, 'foo\n')
+        } finally {
+          await fs.rm(file)
+        }
+      })
+
       test('accepts ProcessPromise', async () => {
         const p = await $`echo foo`.pipe($`cat`)
         assert.equal(p.stdout.trim(), 'foo')
@@ -435,19 +449,6 @@ describe('core', () => {
         const p1 = $`echo pipe-to-stdout`
         const p2 = p1.pipe(process.stdout)
         assert.equal((await p1).stdout.trim(), 'pipe-to-stdout')
-      })
-
-      test('checks argument type', async () => {
-        let err
-        try {
-          $`echo 'test'`.pipe('str')
-        } catch (p) {
-          err = p
-        }
-        assert.equal(
-          err.message,
-          'The pipe() method does not take strings. Forgot $?'
-        )
       })
 
       describe('supports chaining', () => {
