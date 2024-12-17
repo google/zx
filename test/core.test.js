@@ -817,6 +817,32 @@ describe('core', () => {
         assert.equal(chunks[0], 'Chunk1', 'First chunk should be "Chunk1"')
         assert.equal(chunks[3], 'Chunk4', 'Second chunk should be "Chunk4"')
       })
+
+      it('should process all output before handling a non-zero exit code', async () => {
+        const process = $`sleep 0.1; echo foo; sleep 0.1; echo bar; sleep 0.1; exit 1;`
+
+        const chunks = []
+
+        let errorCaught = null
+        try {
+          for await (const chunk of process) {
+            chunks.push(chunk)
+          }
+        } catch (err) {
+          errorCaught = err
+        }
+
+        assert.equal(chunks.length, 2, 'Should have received 2 chunks')
+        assert.equal(chunks[0], 'foo', 'First chunk should be "foo"')
+        assert.equal(chunks[1], 'bar', 'Second chunk should be "bar"')
+
+        assert.ok(errorCaught, 'An error should have been caught')
+        assert.equal(
+          errorCaught.exitCode,
+          1,
+          'The process exit code should be 1'
+        )
+      })
     })
 
     test('quiet() mode is working', async () => {
