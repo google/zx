@@ -1,9 +1,8 @@
 name: Deploy docs
-
 on:
-  push:
-    branches: ['gh-pages']
   workflow_dispatch:
+  release:
+    types: [created]
 
 permissions:
   contents: read
@@ -24,17 +23,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: gh-pages
+          ref: main
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Install deps
         run: npm ci
-      - name: Built docs
-        run: npm run docs:built
+      - name: Build docs
+        run: npm run docs:build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
-          path: 'docs'
+          path: 'docs/build'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2

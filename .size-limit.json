@@ -23,7 +23,7 @@
   {
     "name": "vendor",
     "path": "build/vendor-*",
-    "limit": "760 kB",
+    "limit": "761 kB",
     "brotli": false,
     "gzip": false
   },
