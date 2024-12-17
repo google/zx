@@ -67,6 +67,9 @@
     "build:vendor": "node scripts/build-js.mjs --format=cjs --entry=src/vendor-*.ts --bundle=all",
     "build:tests": "node scripts/build-tests.mjs",
     "build:dts": "tsc --project tsconfig.prod.json && node scripts/build-dts.mjs",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
     "pretest": "npm run build",
     "test": "npm run test:size && npm run fmt:check && npm run test:unit && npm run test:types && npm run test:license",
     "test:it": "node ./test/it/build.test.js",
@@ -126,6 +129,7 @@
     "tsd": "^0.31.2",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
+    "vitepress": "^1.5.0",
     "which": "^5.0.0",
     "yaml": "~2.5.1",
     "zurk": "^0.9.3"
