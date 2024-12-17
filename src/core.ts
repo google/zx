@@ -52,6 +52,7 @@ import {
   proxyOverride,
   quote,
   quotePowerShell,
+  snakeToCamel,
 } from './util.js'
 
 const CWD = Symbol('processCwd')
@@ -81,7 +82,7 @@ export interface Options {
   verbose:        boolean
   sync:           boolean
   env:            NodeJS.ProcessEnv
-  shell:          string | boolean
+  shell:          string | true
   nothrow:        boolean
   prefix:         string
   postfix:        string
@@ -97,8 +98,9 @@ export interface Options {
   killSignal?:    NodeJS.Signals
   halt?:          boolean
 }
+
 // prettier-ignore
-export const defaults: Options = {
+export const defaults: Options = getZxDefaults({
   [CWD]:          process.cwd(),
   [SYNC]:         false,
   verbose:        false,
@@ -118,6 +120,38 @@ export const defaults: Options = {
   kill,
   killSignal:     SIGTERM,
   timeoutSignal:  SIGTERM,
+})
+
+export function getZxDefaults(
+  defs: Options,
+  prefix: string = 'ZX_',
+  env = process.env
+) {
+  const types: Record<PropertyKey, Array<'string' | 'boolean'>> = {
+    preferLocal: ['string', 'boolean'],
+    detached: ['boolean'],
+    verbose: ['boolean'],
+    quiet: ['boolean'],
+    timeout: ['string'],
+    timeoutSignal: ['string'],
+    prefix: ['string'],
+    postfix: ['string'],
+  }
+
+  const o = Object.entries(env).reduce<Record<string, string | boolean>>(
+    (m, [k, v]) => {
+      if (v && k.startsWith(prefix)) {
+        const _k = snakeToCamel(k.slice(prefix.length))
+        const _v = { true: true, false: false }[v.toLowerCase()] ?? v
+        if (_k in types && types[_k].some((type) => type === typeof _v)) {
+          m[_k] = _v
+        }
+      }
+      return m
+    },
+    {}
+  )
+  return Object.assign(defs, o)
 }
 
 // prettier-ignore
