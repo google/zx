@@ -575,6 +575,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     }
 
     if (last) yield last
+
+    if ((await this.exitCode) !== 0) throw this._output
   }
 
   // Stream-like API
