@@ -19,10 +19,34 @@ import { basename } from 'node:path'
 import { WriteStream } from 'node:fs'
 import { Readable, Transform, Writable } from 'node:stream'
 import { Socket } from 'node:net'
-import { ProcessPromise, ProcessOutput } from '../build/index.js'
+import {
+  ProcessPromise,
+  ProcessOutput,
+  resolveDefaults,
+} from '../build/index.js'
 import '../build/globals.js'
 
 describe('core', () => {
+  describe('resolveDefaults()', () => {
+    test('overrides known (allowed) opts', async () => {
+      const defaults = resolveDefaults({ verbose: false }, 'ZX_', {
+        ZX_VERBOSE: 'true',
+        ZX_PREFER_LOCAL: '/foo/bar/',
+      })
+      assert.equal(defaults.verbose, true)
+      assert.equal(defaults.preferLocal, '/foo/bar/')
+    })
+
+    test('ignores unknown', async () => {
+      const defaults = resolveDefaults({}, 'ZX_', {
+        ZX_INPUT: 'input',
+        ZX_FOO: 'test',
+      })
+      assert.equal(defaults.input, undefined)
+      assert.equal(defaults.foo, undefined)
+    })
+  })
+
   describe('$', () => {
     test('is a regular function', async () => {
       const _$ = $.bind(null)
@@ -42,12 +66,14 @@ describe('core', () => {
       process.env.ZX_TEST_FOO = 'foo'
       const foo = await $`echo $ZX_TEST_FOO`
       assert.equal(foo.stdout, 'foo\n')
+      delete process.env.ZX_TEST_FOO
     })
 
     test('env vars are safe to pass', async () => {
       process.env.ZX_TEST_BAR = 'hi; exit 1'
       const bar = await $`echo $ZX_TEST_BAR`
       assert.equal(bar.stdout, 'hi; exit 1\n')
+      delete process.env.ZX_TEST_BAR
     })
 
     test('arguments are quoted', async () => {
@@ -395,6 +421,20 @@ describe('core', () => {
         }
       })
 
+      test('accepts file', async () => {
+        const file = tempfile()
+        try {
+          await $`echo foo`.pipe(file)
+          assert.equal((await fs.readFile(file)).toString(), 'foo\n')
+
+          const r = $`cat`
+          fs.createReadStream(file).pipe(r.stdin)
+          assert.equal((await r).stdout, 'foo\n')
+        } finally {
+          await fs.rm(file)
+        }
+      })
+
       test('accepts ProcessPromise', async () => {
         const p = await $`echo foo`.pipe($`cat`)
         assert.equal(p.stdout.trim(), 'foo')
@@ -409,19 +449,6 @@ describe('core', () => {
         const p1 = $`echo pipe-to-stdout`
         const p2 = p1.pipe(process.stdout)
         assert.equal((await p1).stdout.trim(), 'pipe-to-stdout')
-      })
-
-      test('checks argument type', async () => {
-        let err
-        try {
-          $`echo 'test'`.pipe('str')
-        } catch (p) {
-          err = p
-        }
-        assert.equal(
-          err.message,
-          'The pipe() method does not take strings. Forgot $?'
-        )
       })
 
       describe('supports chaining', () => {
@@ -720,7 +747,6 @@ describe('core', () => {
     describe('[Symbol.asyncIterator]', () => {
       it('should iterate over lines from stdout', async () => {
         const process = $`echo "Line1\nLine2\nLine3"`
-
         const lines = []
         for await (const line of process) {
           lines.push(line)
@@ -734,7 +760,6 @@ describe('core', () => {
 
       it('should handle partial lines correctly', async () => {
         const process = $`node -e "process.stdout.write('PartialLine1\\nLine2\\nPartial'); setTimeout(() => process.stdout.write('Line3\\n'), 100)"`
-
         const lines = []
         for await (const line of process) {
           lines.push(line)
@@ -756,7 +781,6 @@ describe('core', () => {
 
       it('should handle empty stdout', async () => {
         const process = $`echo -n ""`
-
         const lines = []
         for await (const line of process) {
           lines.push(line)
@@ -767,7 +791,6 @@ describe('core', () => {
 
       it('should handle single line without trailing newline', async () => {
         const process = $`echo -n "SingleLine"`
-
         const lines = []
         for await (const line of process) {
           lines.push(line)
@@ -782,26 +805,42 @@ describe('core', () => {
       })
 
       it('should yield all buffered and new chunks when iterated after a delay', async () => {
-        const process = $`sleep 0.1; echo Chunk1; sleep 0.2; echo Chunk2;`
+        const process = $`sleep 0.1; echo Chunk1; sleep 0.1; echo Chunk2; sleep 0.2; echo Chunk3; sleep 0.1; echo Chunk4;`
+        const chunks = []
 
-        const collectedChunks = []
-
-        await new Promise((resolve) => setTimeout(resolve, 400))
-
+        await new Promise((resolve) => setTimeout(resolve, 250))
         for await (const chunk of process) {
-          collectedChunks.push(chunk)
+          chunks.push(chunk)
         }
 
-        assert.equal(collectedChunks.length, 2, 'Should have received 2 chunks')
+        assert.equal(chunks.length, 4, 'Should get all chunks')
+        assert.equal(chunks[0], 'Chunk1', 'First chunk should be "Chunk1"')
+        assert.equal(chunks[3], 'Chunk4', 'Second chunk should be "Chunk4"')
+      })
+
+      it('should process all output before handling a non-zero exit code', async () => {
+        const process = $`sleep 0.1; echo foo; sleep 0.1; echo bar; sleep 0.1; exit 1;`
+
+        const chunks = []
+
+        let errorCaught = null
+        try {
+          for await (const chunk of process) {
+            chunks.push(chunk)
+          }
+        } catch (err) {
+          errorCaught = err
+        }
+
+        assert.equal(chunks.length, 2, 'Should have received 2 chunks')
+        assert.equal(chunks[0], 'foo', 'First chunk should be "foo"')
+        assert.equal(chunks[1], 'bar', 'Second chunk should be "bar"')
+
+        assert.ok(errorCaught, 'An error should have been caught')
         assert.equal(
-          collectedChunks[0],
-          'Chunk1',
-          'First chunk should be "Chunk1"'
-        )
-        assert.equal(
-          collectedChunks[1],
-          'Chunk2',
-          'Second chunk should be "Chunk2"'
+          errorCaught.exitCode,
+          1,
+          'The process exit code should be 1'
         )
       })
     })

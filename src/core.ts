@@ -52,6 +52,7 @@ import {
   proxyOverride,
   quote,
   quotePowerShell,
+  snakeToCamel,
 } from './util.js'
 
 const CWD = Symbol('processCwd')
@@ -81,7 +82,7 @@ export interface Options {
   verbose:        boolean
   sync:           boolean
   env:            NodeJS.ProcessEnv
-  shell:          string | boolean
+  shell:          string | true
   nothrow:        boolean
   prefix:         string
   postfix:        string
@@ -97,8 +98,9 @@ export interface Options {
   killSignal?:    NodeJS.Signals
   halt?:          boolean
 }
+
 // prettier-ignore
-export const defaults: Options = {
+export const defaults: Options = resolveDefaults({
   [CWD]:          process.cwd(),
   [SYNC]:         false,
   verbose:        false,
@@ -118,7 +120,7 @@ export const defaults: Options = {
   kill,
   killSignal:     SIGTERM,
   timeoutSignal:  SIGTERM,
-}
+})
 
 // prettier-ignore
 export interface Shell<
@@ -333,7 +335,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   pipe<D extends Writable>(dest: D): D & PromiseLike<ProcessOutput & D>
   pipe<D extends ProcessPromise>(dest: D): D
   pipe(
-    dest: Writable | ProcessPromise | TemplateStringsArray,
+    dest: Writable | ProcessPromise | TemplateStringsArray | string,
     ...args: any[]
   ): (Writable & PromiseLike<ProcessPromise & Writable>) | ProcessPromise {
     if (isStringLiteral(dest, ...args))
@@ -344,9 +346,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           signal: this._snapshot.signal,
         })(dest as TemplateStringsArray, ...args)
       )
-
-    if (isString(dest))
-      throw new Error('The pipe() method does not take strings. Forgot $?')
 
     this._piped = true
     const ee = this._ee
@@ -369,6 +368,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       })
     }
 
+    if (isString(dest)) dest = fs.createWriteStream(dest)
+
     if (dest instanceof ProcessPromise) {
       dest._pipedFrom = this
 
@@ -380,6 +381,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       }
       return dest
     }
+
     from.once('end', () => dest.emit('end-piped-from')).pipe(dest)
     return promisifyStream(dest, this) as Writable &
       PromiseLike<ProcessPromise & Writable>
@@ -553,34 +555,28 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   // Async iterator API
   async *[Symbol.asyncIterator]() {
-    const _store = this._zurk!.store.stdout
-    let _stream
-
-    if (_store.length) {
-      _stream = VoidStream.from(_store)
-    } else {
-      _stream = this.stdout[Symbol.asyncIterator]
-        ? this.stdout
-        : VoidStream.from(this.stdout)
+    let last: string | undefined
+    const getLines = (chunk: Buffer | string) => {
+      const lines = ((last || '') + chunk.toString()).split('\n')
+      last = lines.pop()
+      return lines
     }
 
-    let buffer = ''
-
-    for await (const chunk of _stream) {
-      const chunkStr = chunk.toString()
-      buffer += chunkStr
-
-      let lines = buffer.split('\n')
-      buffer = lines.pop() || ''
-
-      for (const line of lines) {
-        yield line
-      }
+    for (const chunk of this._zurk!.store.stdout) {
+      const lines = getLines(chunk)
+      for (const line of lines) yield line
     }
 
-    if (buffer.length > 0) {
-      yield buffer
+    for await (const chunk of this.stdout[Symbol.asyncIterator]
+      ? this.stdout
+      : VoidStream.from(this.stdout)) {
+      const lines = getLines(chunk)
+      for (const line of lines) yield line
     }
+
+    if (last) yield last
+
+    if ((await this.exitCode) !== 0) throw this._output
   }
 
   // Stream-like API
@@ -934,3 +930,30 @@ const promisifyStream = <S extends Writable>(
         : promisifyStream(piped as Writable, from)
     },
   })
+
+export function resolveDefaults(
+  defs: Options,
+  prefix: string = 'ZX_',
+  env = process.env
+) {
+  const allowed = new Set([
+    'cwd',
+    'preferLocal',
+    'detached',
+    'verbose',
+    'quiet',
+    'timeout',
+    'timeoutSignal',
+    'prefix',
+    'postfix',
+  ])
+
+  return Object.entries(env).reduce<Options>((m, [k, v]) => {
+    if (v && k.startsWith(prefix)) {
+      const _k = snakeToCamel(k.slice(prefix.length))
+      const _v = { true: true, false: false }[v.toLowerCase()] ?? v
+      if (allowed.has(_k)) (m as any)[_k] = _v
+    }
+    return m
+  }, defs)
+}

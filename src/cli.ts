@@ -173,6 +173,7 @@ export async function writeAndImport(
 ) {
   await fs.writeFile(filepath, script.toString())
   try {
+    process.once('exit', () => fs.rmSync(filepath, { force: true }))
     await importPath(filepath, origin)
   } finally {
     await fs.rm(filepath)
