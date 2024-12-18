@@ -25,6 +25,7 @@ import {
 } from '../build/vendor.js'
 
 describe('vendor chalk API ', () => {
+  // prettier-ignore
   test('exports', () => {
     assert.equal(typeof chalk, 'function')
     assert.equal(typeof chalk.level, 'number', 'chalk.level')
@@ -32,12 +33,14 @@ describe('vendor chalk API ', () => {
 })
 
 describe('vendor depseek API ', () => {
+  // prettier-ignore
   test('exports', () => {
     assert.equal(typeof depseek, 'function')
   })
 })
 
 describe('vendor fs API ', () => {
+  // prettier-ignore
   test('exports', () => {
     assert.equal(typeof fs, 'object')
     assert.equal(typeof fs.default, 'object', 'fs.default')
@@ -56,11 +59,7 @@ describe('vendor fs API ', () => {
     assert.equal(typeof fs.cp, 'function', 'fs.cp')
     assert.equal(typeof fs.cpSync, 'function', 'fs.cpSync')
     assert.equal(typeof fs.createReadStream, 'function', 'fs.createReadStream')
-    assert.equal(
-      typeof fs.createWriteStream,
-      'function',
-      'fs.createWriteStream'
-    )
+    assert.equal(typeof fs.createWriteStream, 'function', 'fs.createWriteStream')
     assert.equal(typeof fs.exists, 'function', 'fs.exists')
     assert.equal(typeof fs.existsSync, 'function', 'fs.existsSync')
     assert.equal(typeof fs.fchown, 'function', 'fs.fchown')
@@ -167,17 +166,9 @@ describe('vendor fs API ', () => {
     assert.equal(typeof fs.ensureLink, 'function', 'fs.ensureLink')
     assert.equal(typeof fs.ensureLinkSync, 'function', 'fs.ensureLinkSync')
     assert.equal(typeof fs.createSymlink, 'function', 'fs.createSymlink')
-    assert.equal(
-      typeof fs.createSymlinkSync,
-      'function',
-      'fs.createSymlinkSync'
-    )
+    assert.equal(typeof fs.createSymlinkSync, 'function', 'fs.createSymlinkSync')
     assert.equal(typeof fs.ensureSymlink, 'function', 'fs.ensureSymlink')
-    assert.equal(
-      typeof fs.ensureSymlinkSync,
-      'function',
-      'fs.ensureSymlinkSync'
-    )
+    assert.equal(typeof fs.ensureSymlinkSync, 'function', 'fs.ensureSymlinkSync')
     assert.equal(typeof fs.readJson, 'function', 'fs.readJson')
     assert.equal(typeof fs.readJsonSync, 'function', 'fs.readJsonSync')
     assert.equal(typeof fs.writeJson, 'function', 'fs.writeJson')
@@ -208,12 +199,14 @@ describe('vendor fs API ', () => {
 })
 
 describe('vendor minimist API ', () => {
+  // prettier-ignore
   test('exports', () => {
     assert.equal(typeof minimist, 'function')
   })
 })
 
 describe('vendor ps API ', () => {
+  // prettier-ignore
   test('exports', () => {
     assert.equal(typeof ps, 'object')
     assert.equal(typeof ps.kill, 'function', 'ps.kill')
@@ -225,6 +218,7 @@ describe('vendor ps API ', () => {
 })
 
 describe('vendor which API ', () => {
+  // prettier-ignore
   test('exports', () => {
     assert.equal(typeof which, 'function')
     assert.equal(typeof which.sync, 'function', 'which.sync')
@@ -232,6 +226,7 @@ describe('vendor which API ', () => {
 })
 
 describe('vendor YAML API ', () => {
+  // prettier-ignore
   test('exports', () => {
     assert.equal(typeof YAML, 'object')
     assert.equal(typeof YAML.Alias, 'function', 'YAML.Alias')
@@ -259,11 +254,7 @@ describe('vendor YAML API ', () => {
     assert.equal(typeof YAML.isScalar, 'function', 'YAML.isScalar')
     assert.equal(typeof YAML.isSeq, 'function', 'YAML.isSeq')
     assert.equal(typeof YAML.parse, 'function', 'YAML.parse')
-    assert.equal(
-      typeof YAML.parseAllDocuments,
-      'function',
-      'YAML.parseAllDocuments'
-    )
+    assert.equal(typeof YAML.parseAllDocuments, 'function', 'YAML.parseAllDocuments')
     assert.equal(typeof YAML.parseDocument, 'function', 'YAML.parseDocument')
     assert.equal(typeof YAML.stringify, 'function', 'YAML.stringify')
     assert.equal(typeof YAML.visit, 'function', 'YAML.visit')
