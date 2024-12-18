@@ -17,23 +17,34 @@ import path from 'node:path'
 import { createRequire } from 'node:module'
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname)
-const file = path.join(__dirname, '../package.json')
-const pkgJson = createRequire(import.meta.url)('../package.json')
+const pkgJsonFile = path.join(__dirname, '../package.json')
 
-const blacklist = {
-  prettier: undefined,
-  devDependencies: undefined,
-  scripts: undefined,
+const whitelist = [
+  'name',
+  'version',
+  'description',
+  'type',
+  'main',
+  'types',
+  'typesVersions',
+  'exports',
+  'bin',
+  'man',
+  'files',
+  'engines',
+  'optionalDependencies',
+  'publishConfig',
+  'keywords',
+  'repository',
+  'homepage',
+  'author',
+  'license',
+]
+
+const _pkgJson = createRequire(import.meta.url)('../package.json')
+const pkgJson = {
+  ..._pkgJson,
+  ...whitelist,
 }
 
-fs.writeFileSync(
-  file,
-  JSON.stringify(
-    {
-      ...pkgJson,
-      ...blacklist,
-    },
-    null,
-    2
-  )
-)
+fs.writeFileSync(pkgJsonFile, JSON.stringify(pkgJson, null, 2))
