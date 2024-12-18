@@ -24,6 +24,7 @@ import {
   minimist,
   fs,
   path,
+  VERSION,
 } from './index.js'
 import { installDeps, parseDeps } from './deps.js'
 import { randomId } from './util.js'
@@ -44,7 +45,7 @@ isMain() &&
 export function printUsage() {
   // language=txt
   console.log(`
- ${chalk.bold('zx ' + getVersion())}
+ ${chalk.bold('zx ' + VERSION)}
    A tool for writing better scripts
 
  ${chalk.bold('Usage')}
@@ -95,7 +96,7 @@ export async function main() {
   if (argv.prefix) $.prefix = argv.prefix
   if (argv.postfix) $.postfix = argv.postfix
   if (argv.version) {
-    console.log(getVersion())
+    console.log(VERSION)
     return
   }
   if (argv.help) {
@@ -292,10 +293,6 @@ export function transformMarkdown(buf: Buffer): string {
     }
   }
   return output.join('\n')
-}
-
-export function getVersion(): string {
-  return createRequire(import.meta.url)('../package.json').version
 }
 
 export function isMain(
