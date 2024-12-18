@@ -26,4 +26,5 @@ jobs:
           AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
       - run: |
           npm version $(node --eval="process.stdout.write(require('./package.json').version)")-dev.$(git rev-parse --short HEAD) --no-git-tag-version
+          node scripts/clean-package-json.mjs
           npm publish --provenance --access=public --no-git-tag-version --tag dev
