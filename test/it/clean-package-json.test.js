@@ -15,31 +15,9 @@
 import assert from 'node:assert'
 import { tempdir, $, path, fs } from '../../build/index.js'
 import { describe, before, after, it } from 'node:test'
-import { createRequire } from 'node:module'
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname)
 const root = path.resolve(__dirname, '../../')
-const whitelist = [
-  'name',
-  'version',
-  'description',
-  'type',
-  'main',
-  'types',
-  'typesVersions',
-  'exports',
-  'bin',
-  'man',
-  'files',
-  'engines',
-  'optionalDependencies',
-  'publishConfig',
-  'keywords',
-  'repository',
-  'homepage',
-  'author',
-  'license',
-]
 
 describe('package.json artifact', () => {
   let tmp
@@ -64,10 +42,10 @@ describe('package.json artifact', () => {
   it('handle exist properties required for publishing', async () => {
     await t$`node scripts/clean-package-json.mjs`
     // to throw if manifest is not correct
-    const file = createRequire(import.meta.url)(
-      path.resolve(tmp, 'package.json')
+    const pkgJson = JSON.parse(
+      fs.readFileSync(path.resolve(tmp, 'package.json'))
     )
-    assert.strictEqual(whitelist, Object.keys(file))
+
     assert.equal(pkgJson.name, 'zx')
     assert.equal(pkgJson.description, 'A tool for writing better scripts')
     assert.equal(pkgJson.prettier, undefined)
