@@ -19,7 +19,7 @@ import { createRequire } from 'node:module'
 const __dirname = path.dirname(new URL(import.meta.url).pathname)
 const pkgJsonFile = path.join(__dirname, '../package.json')
 
-const whitelist = [
+const whitelist = new Set([
   'name',
   'version',
   'description',
@@ -39,12 +39,11 @@ const whitelist = [
   'homepage',
   'author',
   'license',
-]
+])
 
 const _pkgJson = createRequire(import.meta.url)('../package.json')
-const pkgJson = {
-  ..._pkgJson,
-  ...whitelist,
-}
+const pkgJson = Object.fromEntries(
+  Object.entries(_pkgJson).filter(([k]) => whitelist.has(k))
+)
 
 fs.writeFileSync(pkgJsonFile, JSON.stringify(pkgJson, null, 2))
