@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import { ProcessPromise } from './core.js'
+import { fs } from './vendor.js'
 
 export * from './core.js'
 export * from './goods.js'
@@ -26,6 +27,11 @@ export {
   glob,
   glob as globby,
 } from './vendor.js'
+
+export const VERSION = fs.readJsonSync(
+  new URL('../package.json', import.meta.url)
+).version
+export const version = VERSION
 
 export {
   type Duration,
