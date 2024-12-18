@@ -18,34 +18,37 @@ import fs from 'node:fs'
 import path from 'node:path'
 import * as vendor from '../build/vendor.js'
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname)
-const root = path.resolve(__dirname, '..')
+const root = path.resolve(new URL(import.meta.url).pathname, '../..')
 const apis = ['chalk', 'depseek', 'fs', 'minimist', 'ps', 'which', 'YAML']
-
 const copyright = await fs.readFileSync(
   path.resolve(root, 'test/fixtures/copyright.txt'),
   'utf8'
 )
 
-// prettier-ignore
+const filePath = path.resolve(root, `test/vendor-export.test.js`)
+let fileContents = `${copyright.replace('YEAR', new Date().getFullYear())}
+import assert from 'node:assert'
+import { test, describe } from 'node:test'
+import {
+${apis.map((v) => '  ' + v).join(',\n')},
+} from '../build/vendor.js'
+`
+
 apis.forEach((name) => {
   const api = vendor[name]
   const methods = Object.entries(api)
-  const formatAssert = (k, v, prefix = '    ') => `${prefix}assert.equal(typeof ${name}.${k}, '${typeof v}')`
+  const formatAssert = (k, v, prefix = '    ') =>
+    `${prefix}assert.equal(typeof ${name}.${k}, '${typeof v}', '${name}.${k}')`
   const methodChecks = methods.length
     ? '\n' + methods.map(([k, v]) => formatAssert(k, v)).join('\n')
     : ''
-  const filePath = path.resolve(root, `test/vendor-${name.toLowerCase()}.test.js`)
-  const fileContents = `${copyright.replace('YEAR', new Date().getFullYear())}
-import assert from 'node:assert'
-import { test, describe } from 'node:test'
-import { ${name} } from '../build/vendor.js'
-
+  fileContents += `
 describe('vendor ${name} API ', () => {
   test('exports', () => {
     assert.equal(typeof ${name}, '${typeof api}')${methodChecks}
   })
 })
 `
-  fs.writeFileSync(filePath, fileContents)
 })
+
+fs.writeFileSync(filePath, fileContents)
