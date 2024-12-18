@@ -24,9 +24,10 @@ import {
   minimist,
   fs,
   path,
+  VERSION,
 } from './index.js'
 import { installDeps, parseDeps } from './deps.js'
-import { randomId, getVersion } from './util.js'
+import { randomId } from './util.js'
 import { createRequire } from './vendor.js'
 
 const EXT = '.mjs'
@@ -44,7 +45,7 @@ isMain() &&
 export function printUsage() {
   // language=txt
   console.log(`
- ${chalk.bold('zx ' + getVersion())}
+ ${chalk.bold('zx ' + VERSION)}
    A tool for writing better scripts
 
  ${chalk.bold('Usage')}
@@ -95,7 +96,7 @@ export async function main() {
   if (argv.prefix) $.prefix = argv.prefix
   if (argv.postfix) $.postfix = argv.postfix
   if (argv.version) {
-    console.log(getVersion())
+    console.log(VERSION)
     return
   }
   if (argv.help) {
