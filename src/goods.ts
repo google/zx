@@ -175,6 +175,8 @@ export async function spinner<T>(
     callback = title
     title = ''
   }
+  if (process.env.CI) return callback!()
+
   let i = 0
   const spin = () =>
     process.stderr.write(`  ${'⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'[i++ % 10]} ${title}\r`)

@@ -44,6 +44,7 @@ apis.forEach((name) => {
     : ''
   fileContents += `
 describe('vendor ${name} API ', () => {
+  // prettier-ignore
   test('exports', () => {
     assert.equal(typeof ${name}, '${typeof api}')${methodChecks}
   })
