@@ -142,8 +142,7 @@ describe('goods', () => {
       await $\`echo hidden\`
       return $\`echo result\`
     }))
-  `,
-        { CI: '' }
+  `
       )
       assert(out.stdout.includes('result'))
       assert(out.stderr.includes('⠋'))
