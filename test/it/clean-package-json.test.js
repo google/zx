@@ -50,5 +50,6 @@ describe('package.json artifact', () => {
     assert.equal(pkgJson.description, 'A tool for writing better scripts')
     assert.equal(pkgJson.prettier, undefined)
     assert.equal(pkgJson.scripts, undefined)
+    assert.equal(pkgJson.volta, undefined)
   })
 })

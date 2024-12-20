@@ -34,6 +34,10 @@ Before proposing changes, look for similar ones in the project's [issues](https:
   * Bash is essential for running zx scripts. Linux and macOS users usually have it installed by default. Consider using [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install) or [Git Bash](https://git-scm.com/downloads) if you are on Windows.
 * Fork [the repository](https://github.com/google/zx).
 * Create a new branch.
+* Switch to the recommended version of Node.js
+  * If you are using [Node.js version manager](https://github.com/shadowspawn/node-version-usage) supported `.node_version` using it.
+  * If you are using Volta, Node.js version will be set automatically from `package.json`.
+  * In another case manually install recommended version from  `.node_version` file.
 * Make your changes.
   * If you are adding a new feature, please include additional tests. The coverage threshold is 98%.
   * Create a [conventional-commits](https://www.conventionalcommits.org/en/v1.0.0/) compliant messages.
