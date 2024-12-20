@@ -35,9 +35,9 @@ Before proposing changes, look for similar ones in the project's [issues](https:
 * Fork [the repository](https://github.com/google/zx).
 * Create a new branch.
 * Switch to the recommended version of Node.js
-  * If you are using [Node.js version manager](https://github.com/shadowspawn/node-version-usage) supported `.node_version` using it.
-  * If you are using Volta, Node.js version will be set automatically from `package.json`.
-  * In another case manually install recommended version from  `.node_version` file.
+  * Install manually `Node.js >= 22`.
+  * Delegate the routine to any version manager, that [supports .node_version config](https://stackoverflow.com/questions/27425852/what-uses-respects-the-node-version-file)
+  * Use [Volta](https://volta.sh/), the target version will be set automatically from the `package.json`
 * Make your changes.
   * If you are adding a new feature, please include additional tests. The coverage threshold is 98%.
   * Create a [conventional-commits](https://www.conventionalcommits.org/en/v1.0.0/) compliant messages.
