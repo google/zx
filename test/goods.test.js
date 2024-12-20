@@ -132,31 +132,50 @@ describe('goods', () => {
     assert.ok(Date.now() >= now + 2 + 4 + 8 + 16 + 32)
   })
 
-  test('spinner() works', async () => {
-    const out = await zx(`
+  describe('spinner()', () => {
+    test('works', async () => {
+      const out = await zx(
+        `
+    process.env.CI = ''
     echo(await spinner(async () => {
       await sleep(100)
       await $\`echo hidden\`
       return $\`echo result\`
     }))
-  `)
-    assert(out.stdout.includes('result'))
-    assert(!out.stderr.includes('result'))
-    assert(!out.stderr.includes('hidden'))
-  })
+  `
+      )
+      assert(out.stdout.includes('result'))
+      assert(out.stderr.includes('⠋'))
+      assert(!out.stderr.includes('result'))
+      assert(!out.stderr.includes('hidden'))
+    })
 
-  test('spinner() with title works', async () => {
-    const out = await zx(`
+    test('with title', async () => {
+      const out = await zx(
+        `
+    process.env.CI = ''
     await spinner('processing', () => sleep(100))
-  `)
-    assert.match(out.stderr, /processing/)
-  })
+  `
+      )
+      assert.match(out.stderr, /processing/)
+    })
 
-  test('spinner() stops on throw', async () => {
-    const out = await zx(`
+    test('disabled in CI', async () => {
+      const out = await zx(
+        `
+    process.env.CI = 'true'
+    await spinner('processing', () => sleep(100))
+  `
+      )
+      assert.doesNotMatch(out.stderr, /processing/)
+    })
+
+    test('stops on throw', async () => {
+      const out = await zx(`
     await spinner('processing', () => $\`wtf-cmd\`)
   `)
-    assert.match(out.stderr, /Error:/)
-    assert(out.exitCode !== 0)
+      assert.match(out.stderr, /Error:/)
+      assert(out.exitCode !== 0)
+    })
   })
 })
