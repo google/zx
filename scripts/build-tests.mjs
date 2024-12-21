@@ -19,7 +19,16 @@ import path from 'node:path'
 import * as vendor from '../build/vendor.js'
 
 const root = path.resolve(new URL(import.meta.url).pathname, '../..')
-const apis = ['chalk', 'depseek', 'fs', 'minimist', 'ps', 'which', 'YAML']
+const apis = [
+  'chalk',
+  'depseek',
+  'fs',
+  'glob',
+  'minimist',
+  'ps',
+  'which',
+  'YAML',
+]
 const copyright = await fs.readFileSync(
   path.resolve(root, 'test/fixtures/copyright.txt'),
   'utf8'

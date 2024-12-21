@@ -18,6 +18,7 @@ import {
   chalk,
   depseek,
   fs,
+  glob,
   minimist,
   ps,
   which,
@@ -195,6 +196,22 @@ describe('vendor fs API ', () => {
     assert.equal(typeof fs.pathExistsSync, 'function', 'fs.pathExistsSync')
     assert.equal(typeof fs.remove, 'function', 'fs.remove')
     assert.equal(typeof fs.removeSync, 'function', 'fs.removeSync')
+  })
+})
+
+describe('vendor glob API ', () => {
+  // prettier-ignore
+  test('exports', () => {
+    assert.equal(typeof glob, 'function')
+    assert.equal(typeof glob.convertPathToPattern, 'function', 'glob.convertPathToPattern')
+    assert.equal(typeof glob.globby, 'function', 'glob.globby')
+    assert.equal(typeof glob.globbySync, 'function', 'glob.globbySync')
+    assert.equal(typeof glob.globbyStream, 'function', 'glob.globbyStream')
+    assert.equal(typeof glob.generateGlobTasksSync, 'function', 'glob.generateGlobTasksSync')
+    assert.equal(typeof glob.generateGlobTasks, 'function', 'glob.generateGlobTasks')
+    assert.equal(typeof glob.isGitIgnoredSync, 'function', 'glob.isGitIgnoredSync')
+    assert.equal(typeof glob.isGitIgnored, 'function', 'glob.isGitIgnored')
+    assert.equal(typeof glob.isDynamicPattern, 'function', 'glob.isDynamicPattern')
   })
 })
 

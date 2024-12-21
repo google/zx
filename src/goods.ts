@@ -33,7 +33,7 @@ export function updateArgv(args: string[]) {
   Object.assign(argv, minimist(args))
 }
 
-export function sleep(duration: Duration): Promise<unknown> {
+export function sleep(duration: Duration): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(resolve, parseDuration(duration))
   })
@@ -58,10 +58,9 @@ export function echo(pieces: TemplateStringsArray, ...args: any[]) {
 }
 
 function stringify(arg: ProcessOutput | any) {
-  if (arg instanceof ProcessOutput) {
-    return arg.toString().replace(/\n$/, '')
-  }
-  return `${arg}`
+  return arg instanceof ProcessOutput
+    ? arg.toString().replace(/\n$/, '')
+    : `${arg}`
 }
 
 export async function question(
