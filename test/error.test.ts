@@ -92,7 +92,6 @@ describe('error', () => {
 
   test('getExitMessage()', () => {
     assert.match(formatExitMessage(2, null, '', ''), /Misuse of shell builtins/)
-
     assert.match(formatExitMessage(1, 'SIGKILL', '', ''), /SIGKILL/)
   })
 

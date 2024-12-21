@@ -8,10 +8,7 @@
     "outDir": "./build",
     "declaration": true,
     "emitDeclarationOnly": true,
-    "types": [],
-    "allowImportingTsExtensions": true,
-    "rewriteRelativeImportExtensions": true,
-    "verbatimModuleSyntax": true
+    "types": []
   },
   "include": ["./src/**/*"],
   "exclude": ["./src/globals.ts"]
