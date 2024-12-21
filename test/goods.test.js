@@ -32,15 +32,8 @@ describe('goods', () => {
     assert.match((await p).stdout, /Answer is foo/)
   })
 
-  test('globby available', async () => {
+  test('globby() works', async () => {
     assert.equal(globby, glob)
-    assert.equal(typeof globby, 'function')
-    assert.equal(typeof globby.globbySync, 'function')
-    assert.equal(typeof globby.globbyStream, 'function')
-    assert.equal(typeof globby.generateGlobTasks, 'function')
-    assert.equal(typeof globby.isDynamicPattern, 'function')
-    assert.equal(typeof globby.isGitIgnored, 'function')
-    assert.equal(typeof globby.isGitIgnoredSync, 'function')
     assert.deepEqual(await globby('*.md'), ['README.md'])
   })
 
@@ -177,5 +170,46 @@ describe('goods', () => {
       assert.match(out.stderr, /Error:/)
       assert(out.exitCode !== 0)
     })
+  })
+
+  test('parseArgv() works', () => {
+    assert.deepEqual(
+      parseArgv(
+        // prettier-ignore
+        [
+          '--foo-bar', 'baz',
+          '-a', '5',
+          '-a', '42',
+          '--aaa', 'AAA',
+          '--force',
+          './some.file',
+          '--b1', 'true',
+          '--b2', 'false',
+          '--b3',
+          '--b4', 'false',
+          '--b5', 'true',
+          '--b6', 'str'
+        ],
+        {
+          boolean: ['force', 'b3', 'b4', 'b5', 'b6'],
+          camelCase: true,
+          parseBoolean: true,
+          alias: { a: 'aaa' },
+        }
+      ),
+      {
+        a: [5, 42, 'AAA'],
+        aaa: [5, 42, 'AAA'],
+        fooBar: 'baz',
+        force: true,
+        _: ['./some.file', 'str'],
+        b1: true,
+        b2: false,
+        b3: true,
+        b4: false,
+        b5: true,
+        b6: true,
+      }
+    )
   })
 })

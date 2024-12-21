@@ -21,10 +21,10 @@ import {
   updateArgv,
   fetch,
   chalk,
-  minimist,
   fs,
   path,
   VERSION,
+  parseArgv,
 } from './index.js'
 import { installDeps, parseDeps } from './deps.js'
 import { randomId } from './util.js'
@@ -57,6 +57,7 @@ export function printUsage() {
    --shell=<path>       custom shell binary
    --prefix=<command>   prefix all commands
    --postfix=<command>  postfix all commands
+   --prefer-local, -l   prefer locally installed packages bins
    --cwd=<path>         set current directory
    --eval=<js>, -e      evaluate script
    --ext=<.mjs>         default extension
@@ -71,19 +72,14 @@ export function printUsage() {
 `)
 }
 
-export const argv: minimist.ParsedArgs = minimist(process.argv.slice(2), {
+// prettier-ignore
+export const argv = parseArgv(process.argv.slice(2), {
   string: ['shell', 'prefix', 'postfix', 'eval', 'cwd', 'ext', 'registry'],
-  boolean: [
-    'version',
-    'help',
-    'quiet',
-    'verbose',
-    'install',
-    'repl',
-    'experimental',
-  ],
-  alias: { e: 'eval', i: 'install', v: 'version', h: 'help' },
+  boolean: ['version', 'help', 'quiet', 'verbose', 'install', 'repl', 'experimental', 'prefer-local'],
+  alias: { e: 'eval', i: 'install', v: 'version', h: 'help', l: 'prefer-local' },
   stopEarly: true,
+  parseBoolean: true,
+  camelCase: true,
 })
 
 export async function main() {
@@ -95,6 +91,7 @@ export async function main() {
   if (argv.shell) $.shell = argv.shell
   if (argv.prefix) $.prefix = argv.prefix
   if (argv.postfix) $.postfix = argv.postfix
+  if (argv.preferLocal) $.preferLocal = argv.preferLocal
   if (argv.version) {
     console.log(VERSION)
     return

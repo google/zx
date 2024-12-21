@@ -39,8 +39,9 @@ import {
   quote,
   quotePowerShell,
   within,
-  argv,
   os,
+  argv,
+  parseArgv,
   updateArgv,
   globby,
   glob,
@@ -82,8 +83,9 @@ describe('index', () => {
     assert(useBash)
 
     // goods
-    assert(argv)
     assert(os)
+    assert(argv)
+    assert(parseArgv)
     assert(updateArgv)
     assert(globby)
     assert(glob)

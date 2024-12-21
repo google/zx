@@ -39,6 +39,10 @@ export function tempfile(name?: string, data?: string | Buffer): string {
 
 export function noop() {}
 
+export function identity<T>(v: T): T {
+  return v
+}
+
 export function randomId() {
   return Math.random().toString(36).slice(2)
 }
@@ -282,17 +286,16 @@ export const proxyOverride = <T extends object>(
     },
   }) as T
 
-// https://stackoverflow.com/a/7888303
 export const camelToSnake = (str: string) =>
   str
     .split(/(?=[A-Z])/)
     .map((s) => s.toUpperCase())
     .join('_')
 
-// https://stackoverflow.com/a/61375162
 export const snakeToCamel = (str: string) =>
-  str
-    .toLowerCase()
-    .replace(/([-_][a-z])/g, (group) =>
-      group.toUpperCase().replace('-', '').replace('_', '')
-    )
+  str.toLowerCase().replace(/([a-z])[_-]+([a-z])/g, (_, p1, p2) => {
+    return p1 + p2.toUpperCase()
+  })
+
+export const parseBool = (v: string): boolean | string =>
+  ({ true: true, false: false })[v] ?? v
