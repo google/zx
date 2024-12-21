@@ -26,6 +26,12 @@ import { inspect } from 'node:util'
 import { EOL as _EOL } from 'node:os'
 import { EventEmitter } from 'node:events'
 import {
+  formatErrorMessage,
+  formatExitMessage,
+  getCallerLocation,
+  getExitCodeInfo,
+} from './error.js'
+import {
   exec,
   buildCmd,
   chalk,
@@ -39,10 +45,7 @@ import {
 } from './vendor-core.js'
 import {
   type Duration,
-  errnoMessage,
-  exitCodeInfo,
   formatCmd,
-  getCallerLocation,
   isString,
   isStringLiteral,
   noop,
@@ -720,34 +723,9 @@ export class ProcessOutput extends Error {
     return this._duration
   }
 
-  static getExitMessage(
-    code: number | null,
-    signal: NodeJS.Signals | null,
-    stderr: string,
-    from: string
-  ): string {
-    let message = `exit code: ${code}`
-    if (code != 0 || signal != null) {
-      message = `${stderr || '\n'}    at ${from}`
-      message += `\n    exit code: ${code}${
-        exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : ''
-      }`
-      if (signal != null) {
-        message += `\n    signal: ${signal}`
-      }
-    }
+  static getExitMessage = formatExitMessage
 
-    return message
-  }
-
-  static getErrorMessage(err: NodeJS.ErrnoException, from: string): string {
-    return (
-      `${err.message}\n` +
-      `    errno: ${err.errno} (${errnoMessage(err.errno)})\n` +
-      `    code: ${err.code}\n` +
-      `    at ${from}`
-    )
-  }
+  static getErrorMessage = formatErrorMessage;
 
   [inspect.custom](): string {
     let stringify = (s: string, c: ChalkInstance) =>
@@ -757,8 +735,8 @@ export class ProcessOutput extends Error {
   stderr: ${stringify(this.stderr, chalk.red)},
   signal: ${inspect(this.signal)},
   exitCode: ${(this.exitCode === 0 ? chalk.green : chalk.red)(this.exitCode)}${
-    exitCodeInfo(this.exitCode)
-      ? chalk.grey(' (' + exitCodeInfo(this.exitCode) + ')')
+    getExitCodeInfo(this.exitCode)
+      ? chalk.grey(' (' + getExitCodeInfo(this.exitCode) + ')')
       : ''
   },
   duration: ${this.duration}

@@ -997,6 +997,27 @@ describe('core', () => {
       assert.throws(() => o.blob(), /Blob is not supported/)
       globalThis.Blob = Blob
     })
+
+    describe('static', () => {
+      test('getExitMessage()', () => {
+        assert.match(
+          ProcessOutput.getExitMessage(2, null, '', ''),
+          /Misuse of shell builtins/
+        )
+      })
+
+      test('getErrorMessage()', () => {
+        assert.match(
+          ProcessOutput.getErrorMessage({ errno: -2 }, ''),
+          /No such file or directory/
+        )
+        assert.match(
+          ProcessOutput.getErrorMessage({ errno: -1e9 }, ''),
+          /Unknown error/
+        )
+        assert.match(ProcessOutput.getErrorMessage({}, ''), /Unknown error/)
+      })
+    })
   })
 
   describe('cd()', () => {
