@@ -15,7 +15,14 @@
 import assert from 'node:assert'
 import { createInterface } from 'node:readline'
 import { $, within, ProcessOutput } from './core.js'
-import { type Duration, isStringLiteral, parseDuration } from './util.js'
+import {
+  type Duration,
+  identity,
+  isStringLiteral,
+  parseBool,
+  parseDuration,
+  snakeToCamel,
+} from './util.js'
 import {
   chalk,
   minimist,
@@ -27,11 +34,31 @@ import {
 export { default as path } from 'node:path'
 export * as os from 'node:os'
 
-export const argv: minimist.ParsedArgs = minimist(process.argv.slice(2))
-export function updateArgv(args: string[]) {
+type ArgvOpts = minimist.Opts & { camelCase?: boolean; parseBoolean?: boolean }
+
+export const parseArgv = (
+  args: string[] = process.argv.slice(2),
+  opts: ArgvOpts = {}
+): minimist.ParsedArgs =>
+  Object.entries(minimist(args, opts)).reduce<minimist.ParsedArgs>(
+    (m, [k, v]) => {
+      const kTrans = opts.camelCase
+        ? (k: string) => snakeToCamel(k.replace(/-/, '_'))
+        : identity
+      const vTrans = opts.parseBoolean ? parseBool : identity
+      const [_k, _v] = k === '--' || k === '_' ? [k, v] : [kTrans(k), vTrans(v)]
+      m[_k] = _v
+      return m
+    },
+    {} as minimist.ParsedArgs
+  )
+
+export function updateArgv(args?: string[], opts?: ArgvOpts) {
   for (const k in argv) delete argv[k]
-  Object.assign(argv, minimist(args))
+  Object.assign(argv, parseArgv(args, opts))
 }
+
+export const argv: minimist.ParsedArgs = parseArgv()
 
 export function sleep(duration: Duration): Promise<void> {
   return new Promise((resolve) => {

@@ -39,6 +39,10 @@ export function tempfile(name?: string, data?: string | Buffer): string {
 
 export function noop() {}
 
+export function identity<T>(v: T): T {
+  return v
+}
+
 export function randomId() {
   return Math.random().toString(36).slice(2)
 }
@@ -296,3 +300,6 @@ export const snakeToCamel = (str: string) =>
     .replace(/([-_][a-z])/g, (group) =>
       group.toUpperCase().replace('-', '').replace('_', '')
     )
+
+export const parseBool = (v: string): boolean | string =>
+  ({ true: true, false: false })[v] ?? v

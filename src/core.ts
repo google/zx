@@ -50,6 +50,7 @@ import {
   isStringLiteral,
   noop,
   once,
+  parseBool,
   parseDuration,
   preferLocalBin,
   proxyOverride,
@@ -929,7 +930,7 @@ export function resolveDefaults(
   return Object.entries(env).reduce<Options>((m, [k, v]) => {
     if (v && k.startsWith(prefix)) {
       const _k = snakeToCamel(k.slice(prefix.length))
-      const _v = { true: true, false: false }[v.toLowerCase()] ?? v
+      const _v = parseBool(v)
       if (allowed.has(_k)) (m as any)[_k] = _v
     }
     return m
