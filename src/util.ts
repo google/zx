@@ -286,13 +286,7 @@ export const proxyOverride = <T extends object>(
     },
   }) as T
 
-export const camelToSnake = (str: string) =>
-  str
-    .split(/(?=[A-Z])/)
-    .map((s) => s.toUpperCase())
-    .join('_')
-
-export const snakeToCamel = (str: string) =>
+export const toCamelCase = (str: string) =>
   str.toLowerCase().replace(/([a-z])[_-]+([a-z])/g, (_, p1, p2) => {
     return p1 + p2.toUpperCase()
   })

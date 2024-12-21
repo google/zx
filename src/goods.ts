@@ -21,7 +21,7 @@ import {
   isStringLiteral,
   parseBool,
   parseDuration,
-  snakeToCamel,
+  toCamelCase,
 } from './util.js'
 import {
   chalk,
@@ -42,7 +42,7 @@ export const parseArgv = (
 ): minimist.ParsedArgs =>
   Object.entries(minimist(args, opts)).reduce<minimist.ParsedArgs>(
     (m, [k, v]) => {
-      const kTrans = opts.camelCase ? snakeToCamel : identity
+      const kTrans = opts.camelCase ? toCamelCase : identity
       const vTrans = opts.parseBoolean ? parseBool : identity
       const [_k, _v] = k === '--' || k === '_' ? [k, v] : [kTrans(k), vTrans(v)]
       m[_k] = _v
