@@ -15,6 +15,7 @@
 import './cli.test.js'
 import './core.test.js'
 import './deps.test.js'
+import './error.test.ts'
 import './global.test.js'
 import './goods.test.js'
 import './index.test.js'
