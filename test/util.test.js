@@ -28,8 +28,7 @@ import {
   tempdir,
   tempfile,
   preferLocalBin,
-  camelToSnake,
-  snakeToCamel,
+  toCamelCase,
 } from '../build/util.js'
 
 describe('util', () => {
@@ -133,18 +132,10 @@ describe('util', () => {
     )
   })
 
-  test('camelToSnake()', () => {
-    assert.equal(camelToSnake('verbose'), 'VERBOSE')
-    assert.equal(camelToSnake('nothrow'), 'NOTHROW')
-    assert.equal(camelToSnake('preferLocal'), 'PREFER_LOCAL')
-    assert.equal(camelToSnake('someMoreBigStr'), 'SOME_MORE_BIG_STR')
-  })
-
-  test('snakeToCamel()', () => {
-    assert.equal(snakeToCamel('VERBOSE'), 'verbose')
-    assert.equal(snakeToCamel('NOTHROW'), 'nothrow')
-    assert.equal(snakeToCamel('PREFER_LOCAL'), 'preferLocal')
-    assert.equal(snakeToCamel('SOME_MORE_BIG_STR'), 'someMoreBigStr')
-    assert.equal(snakeToCamel('kebab-input-str'), 'kebabInputStr')
+  test('toCamelCase()', () => {
+    assert.equal(toCamelCase('VERBOSE'), 'verbose')
+    assert.equal(toCamelCase('PREFER_LOCAL'), 'preferLocal')
+    assert.equal(toCamelCase('SOME_MORE_BIG_STR'), 'someMoreBigStr')
+    assert.equal(toCamelCase('kebab-input-str'), 'kebabInputStr')
   })
 })

@@ -56,7 +56,7 @@ import {
   proxyOverride,
   quote,
   quotePowerShell,
-  snakeToCamel,
+  toCamelCase,
 } from './util.js'
 
 const CWD = Symbol('processCwd')
@@ -929,7 +929,7 @@ export function resolveDefaults(
 
   return Object.entries(env).reduce<Options>((m, [k, v]) => {
     if (v && k.startsWith(prefix)) {
-      const _k = snakeToCamel(k.slice(prefix.length))
+      const _k = toCamelCase(k.slice(prefix.length))
       const _v = parseBool(v)
       if (allowed.has(_k)) (m as any)[_k] = _v
     }
