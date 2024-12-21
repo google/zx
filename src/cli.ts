@@ -74,8 +74,8 @@ export function printUsage() {
 
 // prettier-ignore
 export const argv = parseArgv(process.argv.slice(2), {
-  string: ['shell', 'prefix', 'postfix', 'eval', 'cwd', 'ext', 'registry', 'prefer-local'],
-  boolean: ['version', 'help', 'quiet', 'verbose', 'install', 'repl', 'experimental'],
+  string: ['shell', 'prefix', 'postfix', 'eval', 'cwd', 'ext', 'registry'],
+  boolean: ['version', 'help', 'quiet', 'verbose', 'install', 'repl', 'experimental', 'prefer-local'],
   alias: { e: 'eval', i: 'install', v: 'version', h: 'help', l: 'prefer-local' },
   stopEarly: true,
   parseBoolean: true,

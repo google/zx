@@ -175,14 +175,40 @@ describe('goods', () => {
   test('parseArgv() works', () => {
     assert.deepEqual(
       parseArgv(
-        ['--foo-bar', 'baz', '-a', '5', '-a', '42', '--force', './some.file'],
-        { boolean: 'force', camelCase: true }
+        // prettier-ignore
+        [
+          '--foo-bar', 'baz',
+          '-a', '5',
+          '-a', '42',
+          '--aaa', 'AAA',
+          '--force',
+          './some.file',
+          '--b1', 'true',
+          '--b2', 'false',
+          '--b3',
+          '--b4', 'false',
+          '--b5', 'true',
+          '--b6', 'str'
+        ],
+        {
+          boolean: ['force', 'b3', 'b4', 'b5', 'b6'],
+          camelCase: true,
+          parseBoolean: true,
+          alias: { a: 'aaa' },
+        }
       ),
       {
-        a: [5, 42],
+        a: [5, 42, 'AAA'],
+        aaa: [5, 42, 'AAA'],
         fooBar: 'baz',
         force: true,
-        _: ['./some.file'],
+        _: ['./some.file', 'str'],
+        b1: true,
+        b2: false,
+        b3: true,
+        b4: false,
+        b5: true,
+        b6: true,
       }
     )
   })
