@@ -29,11 +29,16 @@ again.
 
 ## How to Contribute
 Before proposing changes, look for similar ones in the project's [issues](https://github.com/google/zx/issues) and [pull requests](https://github.com/google/zx/pulls). If you can't decide, create a new [discussion](https://github.com/google/zx/discussions) topic, and we will help you figure it out. When ready to move on:
+
 * Prepare your development environment.
-  * Ensure you have Node.js 20+ installed.
+  * Switch to the recommended version of Node.js
+    * Install manually `Node.js >= 22`.
+    * Delegate the routine to any version manager, that [supports .node_version config](https://stackoverflow.com/questions/27425852/what-uses-respects-the-node-version-file)
+    * Use [Volta](https://volta.sh/), the target version will be set automatically from the `package.json`
   * Bash is essential for running zx scripts. Linux and macOS users usually have it installed by default. Consider using [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install) or [Git Bash](https://git-scm.com/downloads) if you are on Windows.
 * Fork [the repository](https://github.com/google/zx).
 * Create a new branch.
+
 * Make your changes.
   * If you are adding a new feature, please include additional tests. The coverage threshold is 98%.
   * Create a [conventional-commits](https://www.conventionalcommits.org/en/v1.0.0/) compliant messages.

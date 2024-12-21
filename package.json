@@ -163,5 +163,8 @@
   },
   "homepage": "https://google.github.io/zx/",
   "author": "Anton Medvedev <anton@medv.io>",
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "volta": {
+    "node": "22.12.0"
+  }
 }
