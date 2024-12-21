@@ -145,5 +145,6 @@ describe('util', () => {
     assert.equal(snakeToCamel('NOTHROW'), 'nothrow')
     assert.equal(snakeToCamel('PREFER_LOCAL'), 'preferLocal')
     assert.equal(snakeToCamel('SOME_MORE_BIG_STR'), 'someMoreBigStr')
+    assert.equal(snakeToCamel('kebab-input-str'), 'kebabInputStr')
   })
 })

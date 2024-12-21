@@ -42,9 +42,7 @@ export const parseArgv = (
 ): minimist.ParsedArgs =>
   Object.entries(minimist(args, opts)).reduce<minimist.ParsedArgs>(
     (m, [k, v]) => {
-      const kTrans = opts.camelCase
-        ? (k: string) => snakeToCamel(k.replace(/-/, '_'))
-        : identity
+      const kTrans = opts.camelCase ? snakeToCamel : identity
       const vTrans = opts.parseBoolean ? parseBool : identity
       const [_k, _v] = k === '--' || k === '_' ? [k, v] : [kTrans(k), vTrans(v)]
       m[_k] = _v
