@@ -68,7 +68,7 @@ export async function fetch(
   url: RequestInfo,
   init?: RequestInit
 ): Promise<Response> {
-  $.log({ kind: 'fetch', url, init })
+  $.log({ kind: 'fetch', url, init, verbose: !$.quiet && $.verbose })
   return nodeFetch(url, init)
 }
 
@@ -163,10 +163,12 @@ export async function retry<T>(
       if (delayGen) delay = delayGen.next().value
       $.log({
         kind: 'retry',
-        error:
-          chalk.bgRed.white(' FAIL ') +
-          ` Attempt: ${attempt}${total == Infinity ? '' : `/${total}`}` +
-          (delay > 0 ? `; next in ${delay}ms` : ''),
+        total,
+        attempt,
+        delay,
+        exception: err,
+        verbose: !$.quiet && $.verbose,
+        error: `FAIL Attempt: ${attempt}/${total}, next: ${delay}`, // legacy
       })
       lastErr = err
       if (count == 0) break
