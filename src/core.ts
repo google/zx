@@ -39,13 +39,11 @@ import {
   ps,
   VoidStream,
   type ChalkInstance,
-  type RequestInfo,
-  type RequestInit,
   type TSpawnStore,
 } from './vendor-core.js'
 import {
   type Duration,
-  formatCmd,
+  log,
   isString,
   isStringLiteral,
   noop,
@@ -58,6 +56,8 @@ import {
   quotePowerShell,
   toCamelCase,
 } from './util.js'
+
+export { log, type LogEntry } from './util.js'
 
 const CWD = Symbol('processCwd')
 const SYNC = Symbol('syncExec')
@@ -805,7 +805,7 @@ export function cd(dir: string | ProcessOutput) {
     dir = dir.toString().trim()
   }
 
-  $.log({ kind: 'cd', dir })
+  $.log({ kind: 'cd', dir, verbose: !$.quiet && $.verbose })
   process.chdir(dir)
   $[CWD] = process.cwd()
 }
@@ -823,61 +823,6 @@ export async function kill(pid: number, signal = $.killSignal) {
     try {
       process.kill(+pid, signal)
     } catch (e) {}
-  }
-}
-
-export type LogEntry = {
-  verbose?: boolean
-} & (
-  | {
-      kind: 'cmd'
-      cmd: string
-    }
-  | {
-      kind: 'stdout' | 'stderr'
-      data: Buffer
-    }
-  | {
-      kind: 'cd'
-      dir: string
-    }
-  | {
-      kind: 'fetch'
-      url: RequestInfo
-      init?: RequestInit
-    }
-  | {
-      kind: 'retry'
-      error: string
-    }
-  | {
-      kind: 'custom'
-      data: any
-    }
-)
-
-export function log(entry: LogEntry) {
-  if (!(entry.verbose ?? $.verbose)) return
-  switch (entry.kind) {
-    case 'cmd':
-      process.stderr.write(formatCmd(entry.cmd))
-      break
-    case 'stdout':
-    case 'stderr':
-    case 'custom':
-      process.stderr.write(entry.data)
-      break
-    case 'cd':
-      process.stderr.write('$ ' + chalk.greenBright('cd') + ` ${entry.dir}\n`)
-      break
-    case 'fetch':
-      const init = entry.init ? ' ' + inspect(entry.init) : ''
-      process.stderr.write(
-        '$ ' + chalk.greenBright('fetch') + ` ${entry.url}${init}\n`
-      )
-      break
-    case 'retry':
-      process.stderr.write(entry.error + '\n')
   }
 }
 

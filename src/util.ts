@@ -15,7 +15,8 @@
 import os from 'node:os'
 import path from 'node:path'
 import fs from 'node:fs'
-import { chalk } from './vendor-core.js'
+import { chalk, type RequestInfo, type RequestInit } from './vendor-core.js'
+import { inspect } from 'node:util'
 
 export { isStringLiteral } from './vendor-core.js'
 
@@ -137,6 +138,69 @@ export function parseDuration(d: Duration) {
   if (/^\d+m$/.test(d)) return +d.slice(0, -1) * 1000 * 60
 
   throw new Error(`Unknown duration: "${d}".`)
+}
+
+export type LogEntry = {
+  verbose?: boolean
+} & (
+  | {
+      kind: 'cmd'
+      cmd: string
+    }
+  | {
+      kind: 'stdout' | 'stderr'
+      data: Buffer
+    }
+  | {
+      kind: 'cd'
+      dir: string
+    }
+  | {
+      kind: 'fetch'
+      url: RequestInfo
+      init?: RequestInit
+    }
+  | {
+      kind: 'retry'
+      attempt: number
+      total: number
+      delay: number
+      exception: unknown
+      error?: string
+    }
+  | {
+      kind: 'custom'
+      data: any
+    }
+)
+
+export function log(entry: LogEntry) {
+  if (!entry.verbose) return
+  const stream = process.stderr
+  switch (entry.kind) {
+    case 'cmd':
+      stream.write(formatCmd(entry.cmd))
+      break
+    case 'stdout':
+    case 'stderr':
+    case 'custom':
+      stream.write(entry.data)
+      break
+    case 'cd':
+      stream.write('$ ' + chalk.greenBright('cd') + ` ${entry.dir}\n`)
+      break
+    case 'fetch':
+      const init = entry.init ? ' ' + inspect(entry.init) : ''
+      stream.write('$ ' + chalk.greenBright('fetch') + ` ${entry.url}${init}\n`)
+      break
+    case 'retry':
+      stream.write(
+        chalk.bgRed.white(' FAIL ') +
+          ` Attempt: ${entry.attempt}${entry.total == Infinity ? '' : `/${entry.total}`}` +
+          (entry.delay > 0 ? `; next in ${entry.delay}ms` : '') +
+          '\n'
+      )
+  }
 }
 
 export function formatCmd(cmd?: string): string {
