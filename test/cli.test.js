@@ -18,7 +18,20 @@ import { fileURLToPath } from 'node:url'
 import net from 'node:net'
 import getPort from 'get-port'
 import '../build/globals.js'
-import { isMain, normalizeExt, transformMarkdown } from '../build/cli.js'
+import {
+  argv,
+  importPath,
+  injectGlobalRequire,
+  isMain,
+  main,
+  normalizeExt,
+  runScript,
+  printUsage,
+  scriptFromStdin,
+  scriptFromHttp,
+  transformMarkdown,
+  writeAndImport,
+} from '../build/cli.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const spawn = $.spawn
@@ -38,7 +51,7 @@ const getServer = (resp = [], log = console.log) => {
 }
 
 describe('cli', () => {
-  // Helps detect unresolved ProcessPromise.
+  // Helps to detect unresolved ProcessPromise.
   before(() => {
     const spawned = []
     $.spawn = (...args) => {

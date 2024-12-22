@@ -20,11 +20,20 @@ import { WriteStream } from 'node:fs'
 import { Readable, Transform, Writable } from 'node:stream'
 import { Socket } from 'node:net'
 import {
+  $,
   ProcessPromise,
   ProcessOutput,
   resolveDefaults,
-} from '../build/index.js'
-import '../build/globals.js'
+  cd,
+  syncProcessCwd,
+  log,
+  kill,
+  defaults,
+  within,
+  usePowerShell,
+  usePwsh,
+  useBash,
+} from '../build/core.js'
 
 describe('core', () => {
   describe('resolveDefaults()', () => {
