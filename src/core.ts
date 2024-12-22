@@ -63,6 +63,7 @@ const CWD = Symbol('processCwd')
 const SYNC = Symbol('syncExec')
 const EOL = Buffer.from(_EOL)
 const SIGTERM = 'SIGTERM'
+const ENV_PREFIX = 'ZX_'
 const storage = new AsyncLocalStorage<Options>()
 
 function getStore() {
@@ -857,7 +858,7 @@ const promisifyStream = <S extends Writable>(
 
 export function resolveDefaults(
   defs: Options,
-  prefix: string = 'ZX_',
+  prefix: string = ENV_PREFIX,
   env = process.env
 ) {
   const allowed = new Set([

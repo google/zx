@@ -108,7 +108,7 @@ export async function main() {
     await runScript(argv.eval, argv.ext)
     return
   }
-  const firstArg = argv._[0]
+  const [firstArg] = argv._
   updateArgv(argv._.slice(firstArg === undefined ? 0 : 1))
   if (!firstArg || firstArg === '-') {
     const success = await scriptFromStdin(argv.ext)

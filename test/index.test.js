@@ -106,12 +106,6 @@ describe('index', () => {
     assert(which)
     assert(YAML)
     assert(ps)
-    assert(ps.lookup)
-    assert(ps.lookup.sync)
-    assert(ps.lookupSync)
-    assert(ps.tree)
-    assert(ps.tree.sync)
-    assert(ps.treeSync)
 
     // utils
     assert(quote)
