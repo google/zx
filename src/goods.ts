@@ -140,10 +140,10 @@ export async function retry<T>(
   let callback: () => T
   let delayStatic = 0
   let delayGen: Generator<number> | undefined
-  if (typeof a == 'function') {
+  if (typeof a === 'function') {
     callback = a
   } else {
-    if (typeof a == 'object') {
+    if (typeof a === 'object') {
       delayGen = a
     } else {
       delayStatic = parseDuration(a)
@@ -199,7 +199,7 @@ export async function spinner<T>(
     callback = title
     title = ''
   }
-  if (process.env.CI) return callback!()
+  if ($.quiet || process.env.CI) return callback!()
 
   let i = 0
   const spin = () =>
