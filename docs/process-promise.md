@@ -58,7 +58,6 @@ await p.lines()       // ['foo', 'bar']
 await $`echo '{"foo": "bar"}'`.json() // {foo: 'bar'}
 ```
 
-
 ## `pipe()`
 
 Redirects the output of the process.
@@ -85,6 +84,15 @@ const p = $`echo "hello"`
   .pipe(getUpperCaseTransform())
   .pipe(fs.createWriteStream(tempfile()))  // <- stream
 const o = await p
+```
+
+And the `ProcessPromise` itself is compatible with the standard `Stream.pipe` API:
+
+```js
+const { stdout } = await fs
+  .createReadStream(await fs.writeFile(file, 'test'))
+  .pipe(getUpperCaseTransform())
+  .pipe($`cat`)
 ```
 
 Pipes can be used to show a real-time output of the process:
@@ -161,7 +169,7 @@ In short, combine anything you want:
 ```js
 const getUpperCaseTransform = () => new Transform({
   transform(chunk, encoding, callback) {
-  callback(null, String(chunk).toUpperCase())
+    callback(null, String(chunk).toUpperCase())
   },
 })
 
