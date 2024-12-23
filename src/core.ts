@@ -349,21 +349,18 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
   // prettier-ignore
   static {
-    Object.defineProperty(this.prototype, 'pipe', {
-      get() {
-        const self = this
-        const pipeStdout: PipeMethod = function (dest: PipeDest, ...args: any[]) { return self._pipe.call(self,'stdout', dest, ...args) }
-        const pipeStderr: PipeMethod = function (dest: PipeDest, ...args: any[]) { return self._pipe.call(self,'stderr', dest, ...args) }
-        return Object.assign(pipeStdout, { stderr: pipeStderr, stdout: pipeStdout })
-      },
-    })
+    Object.defineProperty(this.prototype, 'pipe', { get() {
+      const self = this
+      const pipeStdout: PipeMethod = function (dest: PipeDest, ...args: any[]) { return self._pipe.call(self, 'stdout', dest, ...args) }
+      const pipeStderr: PipeMethod = function (dest: PipeDest, ...args: any[]) { return self._pipe.call(self, 'stderr', dest, ...args) }
+      return Object.assign(pipeStdout, { stderr: pipeStderr, stdout: pipeStdout })
+    }})
   }
   private _pipe(
-    this: ProcessPromise,
     source: 'stdout' | 'stderr',
     dest: PipeDest,
     ...args: any[]
-  ): any {
+  ): (Writable & PromiseLike<ProcessPromise & Writable>) | ProcessPromise {
     if (isStringLiteral(dest, ...args))
       return this.pipe[source](
         $({
