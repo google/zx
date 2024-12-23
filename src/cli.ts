@@ -88,7 +88,7 @@ export async function main() {
   argv.ext = normalizeExt(argv.ext)
   if (argv.cwd) $.cwd = argv.cwd
   if (argv.env) {
-    const envPath = path.resolve($.cwd ?? '', argv.env)
+    const envPath = path.resolve($.cwd ?? process.cwd(), argv.env)
     $.env = readEnvFromFile(envPath, process.env)
   }
   if (argv.verbose) $.verbose = true
