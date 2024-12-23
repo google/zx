@@ -44,6 +44,9 @@ Evaluate the following argument as a script.
 cat package.json | zx --eval 'const v = JSON.parse(await stdin()).version; echo(v)'
 ```
 
+## --repl
+Starts zx in [REPL](https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop) mode.
+
 ## --install
 
 ```js
@@ -67,6 +70,14 @@ the import.
 import sh from 'tinysh' // @^1
 ```
 
+## --registry
+
+By default, `zx` uses `https://registry.npmjs.org` as a registry. Customize if needed.
+
+```bash
+zx --registry=https://registry.yarnpkg.com script.mjs
+```
+
 ## --quiet
 
 Suppress any outputs.
@@ -78,6 +89,14 @@ Enable verbose mode.
 ## --shell
 
 Specify a custom shell binary.
+
+```bash
+zx --shell=/bin/bash script.mjs
+```
+
+## --prefer-local, -l
+
+Prefer locally installed packages bins.
 
 ```bash
 zx --shell=/bin/bash script.mjs
@@ -99,13 +118,33 @@ Set the current working directory.
 zx --cwd=/foo/bar script.mjs
 ```
 
-## --version
+## --ext
 
-Print the current version of `zx`.
+Override the default (temp) script extension. Default is `.mjs`.
 
-## --help
+## --version, -v
 
-Print help.
+Print the current `zx` version.
+
+## --help, -h
+
+Print help notes.
+
+## Environment variables
+All the previously mentioned options can be set via the corresponding `ZX_`-prefixed environment variables.
+
+```bash
+ZX_VERBOSE=true ZX_SHELL='/bin/bash' zx script.mjs
+```
+    
+```yaml
+steps:
+  - name: Run script
+    run: zx script.mjs
+    env:
+      ZX_VERBOSE: true
+      ZX_SHELL: '/bin/bash'
+```
 
 ## __filename & __dirname
 
