@@ -200,6 +200,13 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
 
 type Resolve = (out: ProcessOutput) => void
 
+type PipeDest = Writable | ProcessPromise | TemplateStringsArray | string
+type PipeMethod = {
+  (dest: TemplateStringsArray, ...args: any[]): ProcessPromise
+  <D extends Writable>(dest: D): D & PromiseLike<ProcessOutput & D>
+  <D extends ProcessPromise>(dest: D): D
+}
+
 export class ProcessPromise extends Promise<ProcessOutput> {
   private _command = ''
   private _from = ''
@@ -336,15 +343,26 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   // Essentials
-  pipe(dest: TemplateStringsArray, ...args: any[]): ProcessPromise
-  pipe<D extends Writable>(dest: D): D & PromiseLike<ProcessOutput & D>
-  pipe<D extends ProcessPromise>(dest: D): D
-  pipe(
-    dest: Writable | ProcessPromise | TemplateStringsArray | string,
+  pipe!: PipeMethod & {
+    stdout: PipeMethod
+    stderr: PipeMethod
+  }
+  // prettier-ignore
+  static {
+    Object.defineProperty(this.prototype, 'pipe', { get() {
+      const self = this
+      const pipeStdout: PipeMethod = function (dest: PipeDest, ...args: any[]) { return self._pipe.call(self, 'stdout', dest, ...args) }
+      const pipeStderr: PipeMethod = function (dest: PipeDest, ...args: any[]) { return self._pipe.call(self, 'stderr', dest, ...args) }
+      return Object.assign(pipeStdout, { stderr: pipeStderr, stdout: pipeStdout })
+    }})
+  }
+  private _pipe(
+    source: 'stdout' | 'stderr',
+    dest: PipeDest,
     ...args: any[]
   ): (Writable & PromiseLike<ProcessPromise & Writable>) | ProcessPromise {
     if (isStringLiteral(dest, ...args))
-      return this.pipe(
+      return this.pipe[source](
         $({
           halt: true,
           ac: this._snapshot.ac,
@@ -356,19 +374,18 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     const ee = this._ee
     const from = new VoidStream()
     const fill = () => {
-      for (const chunk of this._zurk!.store.stdout) from.write(chunk)
+      for (const chunk of this._zurk!.store[source]) from.write(chunk)
+      return true
     }
+    const fillEnd = () => this._resolved && fill() && from.end()
 
-    if (this._resolved) {
-      fill()
-      from.end()
-    } else {
-      const onStdout = (chunk: string | Buffer) => from.write(chunk)
-      ee.once('stdout', () => {
+    if (!this._resolved) {
+      const onData = (chunk: string | Buffer) => from.write(chunk)
+      ee.once(source, () => {
         fill()
-        ee.on('stdout', onStdout)
+        ee.on(source, onData)
       }).once('end', () => {
-        ee.removeListener('stdout', onStdout)
+        ee.removeListener(source, onData)
         from.end()
       })
     }
@@ -384,10 +401,12 @@ export class ProcessPromise extends Promise<ProcessOutput> {
         this.catch((e) => (dest.isNothrow() ? noop : dest._reject(e)))
         from.pipe(dest.run()._stdin)
       }
+      fillEnd()
       return dest
     }
 
     from.once('end', () => dest.emit('end-piped-from')).pipe(dest)
+    fillEnd()
     return promisifyStream(dest, this) as Writable &
       PromiseLike<ProcessPromise & Writable>
   }
