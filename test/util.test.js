@@ -29,6 +29,8 @@ import {
   tempfile,
   preferLocalBin,
   toCamelCase,
+  parseEnvFromFile,
+  prepareEnv,
 } from '../build/util.js'
 
 describe('util', () => {
