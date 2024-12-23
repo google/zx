@@ -100,3 +100,14 @@ $.log = (entry: LogEntry) => {
   }
 }
 ```
+
+## $.timeout
+
+Specifies a timeout for the command execution.
+
+```js
+$.timeout = '1s'
+$.timeoutSignal= 'SIGKILL'
+
+await $`sleep 999`
+```

@@ -5,7 +5,7 @@
 * JavaScript Runtime:
   * Node.js 12.17.0 or later
   * Bun 1.0.0 or later
-  * Deno 1.x
+  * Deno 1.x, 2.x
 * Some kind of bash or PowerShell
 
 ## Install
@@ -74,8 +74,8 @@ const opts: Options = {
 We use [esbuild](https://dev.to/antongolub/how-and-why-do-we-bundle-zx-1ca6) to produce a static build that allows us to solve several issues at once:
 * Reduce the pkg size and install time.
 * Make npx (yarn dlx / bunx) invocations reproducible.
-* Provide support for wide range of Node.js versions: from 12 to 22.
-* Make auditing easier: complete code in one place.
+* Provide support for wide range of Node.js versions: from 12 to 23.
+* Make auditing easier: complete code is in one place.
 
 ### Composite
 
@@ -85,3 +85,8 @@ zx exports several entry points adapted for different use cases:
 * `zx/cli` – to run zx scripts from the command line.
 * `zx/core` – to use zx template spawner as part of 3rd party libraries with alternating set of utilities.
 
+### Typed
+The library is written in TypeScript 5 and provides comprehensive type definitions for TS users.
+* Libdefs are bundled via [dts-bundle-generator](https://github.com/timocov/dts-bundle-generator).
+* Compatible with TS 4.0 and later.
+* Requires `@types/node` and `@types/fs-extra` to be installed.
