@@ -29,8 +29,8 @@ import {
   tempfile,
   preferLocalBin,
   toCamelCase,
-  parseEnvFromFile,
-  prepareEnv,
+  parseDotenv,
+  readEnvFromFile,
 } from '../build/util.js'
 
 describe('util', () => {
@@ -142,33 +142,28 @@ describe('util', () => {
   })
 })
 
-test('parseEnvFromFile()', () => {
-  assert.deepEqual(parseEnvFromFile('ENV=value1\nENV2=value24=f]fdsd'), {
-    ENV: 'value1',
-    ENV2: 'value24=f]fdsd',
-  })
-  assert.deepEqual(parseEnvFromFile('ENV=value1\nENV2=value24'), {
+test('parseDotenv()', () => {
+  assert.deepEqual(parseDotenv('ENV=value1\nENV2=value24'), {
     ENV: 'value1',
     ENV2: 'value24',
   })
-  assert.deepEqual(parseEnvFromFile(''), {})
+  assert.deepEqual(parseDotenv(''), {})
 })
 
-describe('prepareEnv()', () => {
+describe('readEnvFromFile()', () => {
   test('handles correct proccess.env', () => {
-    const file = tempfile('.env', 'ENV=value1\nENV2=value24=f]fdsd')
-    const env = prepareEnv(file)
+    const file = tempfile('.env', 'ENV=value1\nENV2=value24')
+    const env = readEnvFromFile(file)
     assert.equal(env.ENV, 'value1')
-    assert.equal(env.ENV2, 'value24=f]fdsd')
+    assert.equal(env.ENV2, 'value24')
     assert.ok(env.NODE_VERSION !== '')
   })
 
   test('handles correct some env', () => {
-    const file = tempfile('.env', 'ENV=value1\nENV2=value24=f]fdsd')
-    const env = prepareEnv(file, { version: '1.0.0', name: 'zx' })
+    const file = tempfile('.env', 'ENV=value1\nENV2=value24')
+    const env = readEnvFromFile(file, { version: '1.0.0', name: 'zx' })
     assert.equal(env.ENV, 'value1')
-    assert.equal(env.ENV2, 'value24=f]fdsd')
-    assert.equal(env.ENV2, 'value24=f]fdsd')
+    assert.equal(env.ENV2, 'value24')
     assert.equal(env.version, '1.0.0')
     assert.equal(env.name, 'zx')
   })

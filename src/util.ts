@@ -359,41 +359,28 @@ export const parseBool = (v: string): boolean | string =>
   ({ true: true, false: false })[v] ?? v
 
 // prettier-ignore
-export const parseEnvFromFile = (
+export const parseDotenv = (
     content: string,
   ): NodeJS.ProcessEnv => {
     return content
       .split(/\r?\n/)
       .reduce<NodeJS.ProcessEnv>((acc, line) => {
-        const cleanedLine = line.replace(/[\r?\n]+/g, '').trim();
-        const key = cleanedLine.split("=", 1)?.[0];
-
-        if (!key) return acc;
-
-        const value = cleanedLine.slice(key.length + 1);
-
-        if (!value) return acc;
-
-        acc[key] = value;
-
+        const [k,v] = line.split(/(?<!=)=/).map(v => v.trim())
+        if (k && v) acc[k] = v
         return acc;
       }, {});
   };
 
-export const prepareEnv = (
+export const readEnvFromFile = (
   filepath: string,
   env: NodeJS.ProcessEnv = process.env
 ): NodeJS.ProcessEnv => {
-  try {
-    const content = fs.readFileSync(path.resolve(filepath), {
-      encoding: 'utf8',
-    })
+  const content = fs.readFileSync(path.resolve(filepath), {
+    encoding: 'utf8',
+  })
 
-    return {
-      ...env,
-      ...parseEnvFromFile(content),
-    }
-  } catch (e) {
-    return env
+  return {
+    ...env,
+    ...parseDotenv(content),
   }
 }

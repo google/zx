@@ -27,7 +27,7 @@ import {
   parseArgv,
 } from './index.js'
 import { installDeps, parseDeps } from './deps.js'
-import { prepareEnv, randomId } from './util.js'
+import { readEnvFromFile, randomId } from './util.js'
 import { createRequire } from './vendor.js'
 
 const EXT = '.mjs'
@@ -88,10 +88,8 @@ export async function main() {
   argv.ext = normalizeExt(argv.ext)
   if (argv.cwd) $.cwd = argv.cwd
   if (argv.env) {
-    const processRootDir =
-      argv?.cwd ?? path.dirname(new URL(import.meta.url).pathname)
-    const envPath = path.resolve(processRootDir, argv.env)
-    process.env = prepareEnv(envPath, process.env)
+    const envPath = path.resolve($.cwd ?? '', argv.env)
+    $.env = readEnvFromFile(envPath, process.env)
   }
   if (argv.verbose) $.verbose = true
   if (argv.quiet) $.quiet = true

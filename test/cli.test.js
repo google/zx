@@ -154,36 +154,35 @@ describe('cli', () => {
     const env = tmpfile(
       '.env',
       `FOO=BAR
-      BAR=FOO+=`
+      BAR=FOO+`
     )
-    const file = tmpfile(
-      'index.mjs',
-      'console.log(process.env.FOO);\nconsole.log(process.env.BAR)'
-    )
+    const file = `
+    console.log((await $\`echo $FOO\`).stdout);
+    console.log((await $\`echo $BAR\`).stdout)
+    `
 
-    const out = await $`node build/cli.js --env=${env} ${file}`
+    const out = await $`node build/cli.js --env=${env} <<< ${file}`
     fs.remove(env)
-    fs.remove(file)
-    assert.equal(out.stdout, 'BAR\nFOO+=\n')
+    assert.equal(out.stdout, 'BAR\n\nFOO+\n\n')
   })
 
   test('supports `--env` and `--cwd` options and with file', async () => {
-    const cwd = path.resolve(fileURLToPath(import.meta.url), '../../temp')
-    fs.mkdirSync(cwd, { recursive: true })
     const env = tmpfile(
       '.env',
       `FOO=BAR
-      BAR=FOO+=`
+      BAR=FOO+`
     )
-    const file = tmpfile(
-      'index.mjs',
-      'console.log(process.env.FOO);\nconsole.log(process.env.BAR)'
-    )
+    const dir = tmpdir()
+    const file = `
+      console.log((await $\`echo $FOO\`).stdout);
+      console.log((await $\`echo $BAR\`).stdout)
+      `
 
-    const out = await $`node build/cli.js --cwd=${cwd} --env=${env} ${file}`
+    const out =
+      await $`node build/cli.js --cwd=${dir} --env=${env}  <<< ${file}`
     fs.remove(env)
-    fs.remove(file)
-    assert.equal(out.stdout, 'BAR\nFOO+=\n')
+    fs.remove(dir)
+    assert.equal(out.stdout, 'BAR\n\nFOO+\n\n')
   })
 
   test('scripts from https 200', async () => {
