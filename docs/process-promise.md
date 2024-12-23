@@ -61,7 +61,7 @@ await $`echo '{"foo": "bar"}'`.json() // {foo: 'bar'}
 
 ## `pipe()`
 
-Redirects the stdout of the process.
+Redirects the output of the process.
 
 ```js
 await $`echo "Hello, stdout!"`
@@ -70,6 +70,7 @@ await $`echo "Hello, stdout!"`
 await $`cat /tmp/output.txt`
 ```
 
+`pipe()` accepts any kind `Writable`, `ProcessPromise` or a file path.
 You can pass a string to `pipe()` to implicitly create a receiving file. The previous example is equivalent to:
 
 ```js
@@ -77,11 +78,33 @@ await $`echo "Hello, stdout!"`
   .pipe('/tmp/output.txt')
 ```
 
+Chained streams becomes _thenables_, so you can `await` them:
+
+```js
+const p = $`echo "hello"`
+  .pipe(getUpperCaseTransform())
+  .pipe(fs.createWriteStream(tempfile()))  // <- stream
+const o = await p
+```
+
 Pipes can be used to show a real-time output of the process:
 
 ```js
 await $`echo 1; sleep 1; echo 2; sleep 1; echo 3;`
   .pipe(process.stdout)
+```
+
+And the time machine is in stock! You can pipe the process at any phase: on start, in the middle, or even after the end. All chunks will be buffered and processed in the right order.
+
+```js
+const result = $`echo 1; sleep 1; echo 2; sleep 1; echo 3`
+const piped1 = result.pipe`cat`
+let piped2
+
+setTimeout(() => { piped2 = result.pipe`cat` }, 1500)
+  
+(await piped1).toString()  // '1\n2\n3\n'
+(await piped2).toString()  // '1\n2\n3\n'
 ```
 
 The `pipe()` method can combine `$` processes. Same as `|` in bash:
@@ -100,6 +123,64 @@ Use combinations of `pipe()` and [`nothrow()`](#nothrow):
 await $`find ./examples -type f -print0`
   .pipe($`xargs -0 grep ${'missing' + 'part'}`.nothrow())
   .pipe($`wc -l`)
+```
+
+And literals! Pipe does support them too:
+
+```js
+await $`printf "hello"`
+  .pipe`awk '{printf $1", world!"}'`
+  .pipe`tr '[a-z]' '[A-Z]'`
+```
+
+By default, `pipe()` API operates with `stdout` stream, but you can specify `stderr` as well:
+
+```js
+const p = $`echo foo >&2; echo bar`
+const o1 = (await p.pipe.stderr`cat`).toString()  // 'foo\n'
+const o2 = (await p.pipe.stdout`cat`).toString()  // 'bar\n'
+```
+
+Btw, the signal, if specified, will be transmitted through pipeline.
+
+```js
+const ac = new AbortController()
+const { signal } = ac
+const p = $({ signal, nothrow: true })`echo test`.pipe`sleep 999`
+setTimeout(() => ac.abort(), 50)
+
+try {
+  await p
+} catch ({ message }) {
+  message // The operation was aborted
+}
+```
+
+In short, combine anything you want:
+
+```js
+const getUpperCaseTransform = () => new Transform({
+  transform(chunk, encoding, callback) {
+  callback(null, String(chunk).toUpperCase())
+  },
+})
+
+// $ > stream (promisified) > $
+const o1 = await $`echo "hello"`
+  .pipe(getUpperCaseTransform())
+  .pipe($`cat`)
+
+o1.stdout //  'HELLO\n'
+
+// stream > $
+const file = tempfile()
+await fs.writeFile(file, 'test')
+const o2 = await fs
+  .createReadStream(file)
+  .pipe(getUpperCaseTransform())
+  .pipe($`cat`)
+
+o2.stdout //  'TEST'
 ```
 
 ## `kill()`
