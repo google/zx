@@ -200,6 +200,13 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
 
 type Resolve = (out: ProcessOutput) => void
 
+type PipeDest = Writable | ProcessPromise | TemplateStringsArray | string
+type PipeMethod = {
+  (dest: TemplateStringsArray, ...args: any[]): ProcessPromise
+  <D extends Writable>(dest: D): D & PromiseLike<ProcessOutput & D>
+  <D extends ProcessPromise>(dest: D): D
+}
+
 export class ProcessPromise extends Promise<ProcessOutput> {
   private _command = ''
   private _from = ''
@@ -336,70 +343,76 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   // Essentials
-  pipe = (() => {
-    // prettier-ignore
-    function pipe (dest: TemplateStringsArray, ...args: any[]): ProcessPromise
-    function pipe<D extends Writable>(
-      dest: D
-    ): D & PromiseLike<ProcessOutput & D>
-    function pipe<D extends ProcessPromise>(dest: D): D
-    function pipe(
-      this: ProcessPromise,
-      dest: Writable | ProcessPromise | TemplateStringsArray | string,
-      ...args: any[]
-    ): (Writable & PromiseLike<ProcessPromise & Writable>) | ProcessPromise {
-      if (isStringLiteral(dest, ...args))
-        return this.pipe(
-          $({
-            halt: true,
-            ac: this._snapshot.ac,
-            signal: this._snapshot.signal,
-          })(dest as TemplateStringsArray, ...args)
-        )
+  pipe!: PipeMethod & {
+    stdout: PipeMethod
+    stderr: PipeMethod
+  }
+  // prettier-ignore
+  static {
+    Object.defineProperty(this.prototype, 'pipe', {
+      get() {
+        const self = this
+        const pipeStdout: PipeMethod = function (dest: PipeDest, ...args: any[]) { return self._pipe.call(self,'stdout', dest, ...args) }
+        const pipeStderr: PipeMethod = function (dest: PipeDest, ...args: any[]) { return self._pipe.call(self,'stderr', dest, ...args) }
+        return Object.assign(pipeStdout, { stderr: pipeStderr, stdout: pipeStdout })
+      },
+    })
+  }
+  private _pipe(
+    this: ProcessPromise,
+    source: 'stdout' | 'stderr',
+    dest: PipeDest,
+    ...args: any[]
+  ): any {
+    if (isStringLiteral(dest, ...args))
+      return this.pipe[source](
+        $({
+          halt: true,
+          ac: this._snapshot.ac,
+          signal: this._snapshot.signal,
+        })(dest as TemplateStringsArray, ...args)
+      )
 
-      this._piped = true
-      const ee = this._ee
-      const from = new VoidStream()
-      const fill = () => {
-        for (const chunk of this._zurk!.store.stdout) from.write(chunk)
-      }
-
-      if (this._resolved) {
-        fill()
-        from.end()
-      } else {
-        const onStdout = (chunk: string | Buffer) => from.write(chunk)
-        ee.once('stdout', () => {
-          fill()
-          ee.on('stdout', onStdout)
-        }).once('end', () => {
-          ee.removeListener('stdout', onStdout)
-          from.end()
-        })
-      }
-
-      if (isString(dest)) dest = fs.createWriteStream(dest)
-
-      if (dest instanceof ProcessPromise) {
-        dest._pipedFrom = this
-
-        if (dest.isHalted() && this.isHalted()) {
-          ee.once('start', () => from.pipe(dest.run()._stdin))
-        } else {
-          this.catch((e) => (dest.isNothrow() ? noop : dest._reject(e)))
-          from.pipe(dest.run()._stdin)
-        }
-        return dest
-      }
-
-      from.once('end', () => dest.emit('end-piped-from')).pipe(dest)
-      return promisifyStream(dest, this) as Writable &
-        PromiseLike<ProcessPromise & Writable>
+    this._piped = true
+    const ee = this._ee
+    const from = new VoidStream()
+    const fill = () => {
+      for (const chunk of this._zurk!.store[source]) from.write(chunk)
+      return true
     }
-    pipe.stdout = 'pipe'
+    const fillEnd = () => this._resolved && fill() && from.end()
 
-    return pipe
-  })()
+    if (!this._resolved) {
+      const onData = (chunk: string | Buffer) => from.write(chunk)
+      ee.once(source, () => {
+        fill()
+        ee.on(source, onData)
+      }).once('end', () => {
+        ee.removeListener(source, onData)
+        from.end()
+      })
+    }
+
+    if (isString(dest)) dest = fs.createWriteStream(dest)
+
+    if (dest instanceof ProcessPromise) {
+      dest._pipedFrom = this
+
+      if (dest.isHalted() && this.isHalted()) {
+        ee.once('start', () => from.pipe(dest.run()._stdin))
+      } else {
+        this.catch((e) => (dest.isNothrow() ? noop : dest._reject(e)))
+        from.pipe(dest.run()._stdin)
+      }
+      fillEnd()
+      return dest
+    }
+
+    from.once('end', () => dest.emit('end-piped-from')).pipe(dest)
+    fillEnd()
+    return promisifyStream(dest, this) as Writable &
+      PromiseLike<ProcessPromise & Writable>
+  }
 
   abort(reason?: string) {
     if (this.signal !== this._snapshot.ac?.signal)
