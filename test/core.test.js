@@ -34,6 +34,7 @@ import {
   usePwsh,
   useBash,
 } from '../build/core.js'
+import { which } from '../build/vendor.js'
 
 describe('core', () => {
   describe('resolveDefaults()', () => {
@@ -613,6 +614,15 @@ describe('core', () => {
         assert.equal(r1.value.exitCode, 0)
         assert.equal(r2.reason.stdout, 'foo\n')
         assert.equal(r2.reason.exitCode, 1)
+      })
+
+      test('pipes particular stream: stdout ot stderr', async () => {
+        const p = $`echo foo >&2; echo bar`
+        const o1 = (await p.pipe.stderr`cat`).toString()
+        const o2 = (await p.pipe.stdout`cat`).toString()
+
+        assert.equal(o1, 'foo\n')
+        assert.equal(o2, 'bar\n')
       })
     })
 
