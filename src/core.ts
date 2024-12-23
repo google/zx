@@ -890,6 +890,7 @@ export function resolveDefaults(
     'timeoutSignal',
     'prefix',
     'postfix',
+    'shell',
   ])
 
   return Object.entries(env).reduce<Options>((m, [k, v]) => {
