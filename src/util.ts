@@ -365,7 +365,7 @@ export const parseDotenv = (
     return content
       .split(/\r?\n/)
       .reduce<NodeJS.ProcessEnv>((acc, line) => {
-        const [k,v] = line.split(/(?<!=)=/).map(v => v.trim())
+        const [k,v] = line.trim().split('=', 2)
         if (k && v) acc[k] = v
         return acc;
       }, {});
