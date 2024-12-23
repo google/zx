@@ -139,3 +139,35 @@ describe('util', () => {
     assert.equal(toCamelCase('kebab-input-str'), 'kebabInputStr')
   })
 })
+
+test('parseEnvFromFile()', () => {
+  assert.deepEqual(parseEnvFromFile('ENV=value1\nENV2=value24=f]fdsd'), {
+    ENV: 'value1',
+    ENV2: 'value24=f]fdsd',
+  })
+  assert.deepEqual(parseEnvFromFile('ENV=value1\nENV2=value24'), {
+    ENV: 'value1',
+    ENV2: 'value24',
+  })
+  assert.deepEqual(parseEnvFromFile(''), {})
+})
+
+describe('prepareEnv()', () => {
+  test('handles correct proccess.env', () => {
+    const file = tempfile('.env', 'ENV=value1\nENV2=value24=f]fdsd')
+    const env = prepareEnv(file)
+    assert.equal(env.ENV, 'value1')
+    assert.equal(env.ENV2, 'value24=f]fdsd')
+    assert.ok(env.NODE_VERSION !== '')
+  })
+
+  test('handles correct some env', () => {
+    const file = tempfile('.env', 'ENV=value1\nENV2=value24=f]fdsd')
+    const env = prepareEnv(file, { version: '1.0.0', name: 'zx' })
+    assert.equal(env.ENV, 'value1')
+    assert.equal(env.ENV2, 'value24=f]fdsd')
+    assert.equal(env.ENV2, 'value24=f]fdsd')
+    assert.equal(env.version, '1.0.0')
+    assert.equal(env.name, 'zx')
+  })
+})

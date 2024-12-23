@@ -150,6 +150,42 @@ describe('cli', () => {
     assert.ok(p.stderr.endsWith(cwd + '\n'))
   })
 
+  test('supports `--env` options with file', async () => {
+    const env = tmpfile(
+      '.env',
+      `FOO=BAR
+      BAR=FOO+=`
+    )
+    const file = tmpfile(
+      'index.mjs',
+      'console.log(process.env.FOO);\nconsole.log(process.env.BAR)'
+    )
+
+    const out = await $`node build/cli.js --env=${env} ${file}`
+    fs.remove(env)
+    fs.remove(file)
+    assert.equal(out.stdout, 'BAR\nFOO+=\n')
+  })
+
+  test('supports `--env` and `--cwd` options and with file', async () => {
+    const cwd = path.resolve(fileURLToPath(import.meta.url), '../../temp')
+    fs.mkdirSync(cwd, { recursive: true })
+    const env = tmpfile(
+      '.env',
+      `FOO=BAR
+      BAR=FOO+=`
+    )
+    const file = tmpfile(
+      'index.mjs',
+      'console.log(process.env.FOO);\nconsole.log(process.env.BAR)'
+    )
+
+    const out = await $`node build/cli.js --cwd=${cwd} --env=${env} ${file}`
+    fs.remove(env)
+    fs.remove(file)
+    assert.equal(out.stdout, 'BAR\nFOO+=\n')
+  })
+
   test('scripts from https 200', async () => {
     const resp = await fs.readFile(path.resolve('test/fixtures/echo.http'))
     const port = await getPort()
