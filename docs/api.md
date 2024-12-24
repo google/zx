@@ -230,6 +230,8 @@ await spinner(() => $`long-running command`)
 await spinner('working...', () => $`sleep 99`)
 ```
 
+And it's disabled for `CI` by default.
+
 ## glob()
 
 The [globby](https://github.com/sindresorhus/globby) package.
