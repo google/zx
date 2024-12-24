@@ -15,7 +15,12 @@
 import os from 'node:os'
 import path from 'node:path'
 import fs from 'node:fs'
-import { chalk, type RequestInfo, type RequestInit, parseDotenv } from './vendor-core.js'
+import {
+  chalk,
+  type RequestInfo,
+  type RequestInit,
+  parseDotenv,
+} from './vendor-core.js'
 import { inspect } from 'node:util'
 
 export { isStringLiteral, parseDotenv } from './vendor-core.js'

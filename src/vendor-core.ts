@@ -26,4 +26,4 @@ export type RequestInit = Parameters<typeof globalThis.fetch>[1]
 export { default as chalk, type ChalkInstance } from 'chalk'
 export { default as which } from 'which'
 export { default as ps } from '@webpod/ps'
-export { parse as parseDotenv }  from 'envapi'
+export { parse as parseDotenv } from 'envapi'
