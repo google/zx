@@ -366,7 +366,7 @@ export const parseDotenv = (content: string): NodeJS.ProcessEnv => {
   let k = ''
   let b = ''
   let q = ''
-  let i = false
+  let i = 0
   const cap = () => { if (b && k) {
     if (!kr.test(k)) throw new Error(`Invalid identifier: ${k}`)
     e[k] = b; b = ''; k = ''
@@ -374,16 +374,15 @@ export const parseDotenv = (content: string): NodeJS.ProcessEnv => {
 
   for (const c of content.replace(/\r\n?/mg, '\n')) {
     if (i) {
-      if (c === '\n') i = false
+      if (c === '\n') i = 0
       continue
     }
     if (!q) {
       if (c === '#') {
-        i = true
+        i = 1
         continue
       }
       if (c === '\n') {
-        i = false
         cap()
         continue
       }
