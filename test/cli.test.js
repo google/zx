@@ -166,7 +166,7 @@ describe('cli', () => {
     assert.equal(out.stdout, 'BAR\n\nFOO+\n\n')
   })
 
-  test('supports `--env` and `--cwd` options and with file', async () => {
+  test('supports `--env` and `--cwd` options with file', async () => {
     const env = tmpfile(
       '.env',
       `FOO=BAR
@@ -185,7 +185,7 @@ describe('cli', () => {
     assert.equal(out.stdout, 'BAR\n\nFOO+\n\n')
   })
 
-  test('supports handling errors with the `--env` option.', async () => {
+  test('supports handling errors with the `--env` option', async () => {
     const file = `
       console.log((await $\`echo $FOO\`).stdout);
       console.log((await $\`echo $BAR\`).stdout)
