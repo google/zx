@@ -15,10 +15,15 @@
 import os from 'node:os'
 import path from 'node:path'
 import fs from 'node:fs'
-import { chalk, type RequestInfo, type RequestInit } from './vendor-core.js'
+import {
+  chalk,
+  type RequestInfo,
+  type RequestInit,
+  parseDotenv,
+} from './vendor-core.js'
 import { inspect } from 'node:util'
 
-export { isStringLiteral } from './vendor-core.js'
+export { isStringLiteral, parseDotenv } from './vendor-core.js'
 
 export function tempdir(prefix: string = `zx-${randomId()}`): string {
   const dirpath = path.join(os.tmpdir(), prefix)
@@ -357,16 +362,6 @@ export const toCamelCase = (str: string) =>
 
 export const parseBool = (v: string): boolean | string =>
   ({ true: true, false: false })[v] ?? v
-
-export const parseDotenv = (content: string): NodeJS.ProcessEnv =>
-  content.split(/\r?\n/).reduce<NodeJS.ProcessEnv>((r, line) => {
-    if (line.startsWith('export ')) line = line.slice(7)
-    const i = line.indexOf('=')
-    const k = line.slice(0, i).trim()
-    const v = line.slice(i + 1).trim()
-    if (k && v) r[k] = v
-    return r
-  }, {})
 
 export const readEnvFromFile = (
   filepath: string,

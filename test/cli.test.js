@@ -150,7 +150,7 @@ describe('cli', () => {
     assert.ok(p.stderr.endsWith(cwd + '\n'))
   })
 
-  test('supports `--env` options with file', async () => {
+  test('supports `--env` option', async () => {
     const env = tmpfile(
       '.env',
       `FOO=BAR
