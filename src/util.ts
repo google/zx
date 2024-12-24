@@ -360,16 +360,16 @@ export const parseBool = (v: string): boolean | string =>
 
 // prettier-ignore
 export const parseDotenv = (content: string): NodeJS.ProcessEnv => {
-  const e: Record<string, string> = {}
-  const kr = /^[a-zA-Z_]+[a-zA-Z0-9_]*$/
+  const kr = /^[a-zA-Z_]+\w*$/
   const sr = /\s/
+  const e: Record<string, string> = {}
   let k = ''
   let b = ''
   let q = ''
   let i = 0
   const cap = () => { if (b && k) {
     if (!kr.test(k)) throw new Error(`Invalid identifier: ${k}`)
-    e[k] = b; b = ''; k = ''
+    e[k] = b; b = k = ''
   }}
 
   for (const c of content.replace(/\r\n?/mg, '\n')) {
