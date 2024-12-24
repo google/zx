@@ -15,10 +15,10 @@
 import os from 'node:os'
 import path from 'node:path'
 import fs from 'node:fs'
-import { chalk, type RequestInfo, type RequestInit } from './vendor-core.js'
+import { chalk, type RequestInfo, type RequestInit, parseDotenv } from './vendor-core.js'
 import { inspect } from 'node:util'
 
-export { isStringLiteral } from './vendor-core.js'
+export { isStringLiteral, parseDotenv } from './vendor-core.js'
 
 export function tempdir(prefix: string = `zx-${randomId()}`): string {
   const dirpath = path.join(os.tmpdir(), prefix)
@@ -357,61 +357,6 @@ export const toCamelCase = (str: string) =>
 
 export const parseBool = (v: string): boolean | string =>
   ({ true: true, false: false })[v] ?? v
-
-// prettier-ignore
-export const parseDotenv = (content: string): NodeJS.ProcessEnv => {
-  const kr = /^[a-zA-Z_]+\w*$/
-  const sr = /\s/
-  const e: Record<string, string> = {}
-  let k = ''
-  let b = ''
-  let q = ''
-  let i = 0
-  const cap = () => { if (b && k) {
-    if (!kr.test(k)) throw new Error(`Invalid identifier: ${k}`)
-    e[k] = b; b = k = ''
-  }}
-
-  for (const c of content.replace(/\r\n?/mg, '\n')) {
-    if (i) {
-      if (c === '\n') i = 0
-      continue
-    }
-    if (!q) {
-      if (c === '#') {
-        i = 1
-        continue
-      }
-      if (c === '\n') {
-        cap()
-        continue
-      }
-      if (sr.test(c)) {
-        if (!k && b === 'export') b = ''
-        continue
-      }
-      if (c === '=') {
-        if (!k) { k = b; b = ''; continue }
-      }
-    }
-
-    if (c === '"' || c === "'" || c === '`') {
-      if (!q) {
-        q = c
-        continue
-      }
-      if (q === c) {
-        q = ''
-        cap()
-        continue
-      }
-    }
-    b += c
-  }
-  cap()
-
-  return e
-}
 
 export const readEnvFromFile = (
   filepath: string,

@@ -60,6 +60,7 @@ const entries = [
         '@webpod/ingrid',
         'chalk',
         'zurk',
+        'envapi'
       ], // args['external-inlines'],
     },
     output,

@@ -156,7 +156,7 @@ ENV5=v5 # comment
     assert.deepEqual(parseDotenv(multiline), {
       SIMPLE: 'xyz123',
       NON_INTERPOLATED: 'raw text without variable interpolation',
-      MULTILINE: '\nlong text here, # not-comment\ne.g. a private SSH key\n',
+      MULTILINE: 'long text here, # not-comment\ne.g. a private SSH key',
       ENV: 'v1',
       ENV2: 'v2',
       ENV3: 'v3',
