@@ -359,11 +359,11 @@ export const parseBool = (v: string): boolean | string =>
   ({ true: true, false: false })[v] ?? v
 
 export const parseDotenv = (content: string): NodeJS.ProcessEnv => {
-  return content.split(/\r?\n/).reduce<NodeJS.ProcessEnv>((acc, line) => {
-    const [k] = line.split('=', 1)
-    const v = line.slice(k.length + 1)
-    if (k && v) acc[k] = v
-    return acc
+  return content.split(/\r?\n/).reduce<NodeJS.ProcessEnv>((r, line) => {
+    const [k] = line.trim().split('=', 1)
+    const v = line.trim().slice(k.length + 1)
+    if (k && v) r[k] = v
+    return r
   }, {})
 }
 
@@ -371,9 +371,7 @@ export const readEnvFromFile = (
   filepath: string,
   env: NodeJS.ProcessEnv = process.env
 ): NodeJS.ProcessEnv => {
-  const content = fs.readFileSync(path.resolve(filepath), {
-    encoding: 'utf8',
-  })
+  const content = fs.readFileSync(path.resolve(filepath), 'utf8')
 
   return {
     ...env,
