@@ -27,7 +27,7 @@ import {
   parseArgv,
 } from './index.js'
 import { installDeps, parseDeps } from './deps.js'
-import { randomId } from './util.js'
+import { readEnvFromFile, randomId } from './util.js'
 import { createRequire } from './vendor.js'
 
 const EXT = '.mjs'
@@ -66,6 +66,7 @@ export function printUsage() {
    --version, -v        print current zx version
    --help, -h           print help
    --repl               start repl
+   --env=<path>         path to env file
    --experimental       enables experimental features (deprecated)
 
  ${chalk.italic('Full documentation:')} ${chalk.underline('https://google.github.io/zx/')}
@@ -74,7 +75,7 @@ export function printUsage() {
 
 // prettier-ignore
 export const argv = parseArgv(process.argv.slice(2), {
-  string: ['shell', 'prefix', 'postfix', 'eval', 'cwd', 'ext', 'registry'],
+  string: ['shell', 'prefix', 'postfix', 'eval', 'cwd', 'ext', 'registry', 'env'],
   boolean: ['version', 'help', 'quiet', 'verbose', 'install', 'repl', 'experimental', 'prefer-local'],
   alias: { e: 'eval', i: 'install', v: 'version', h: 'help', l: 'prefer-local' },
   stopEarly: true,
@@ -86,6 +87,10 @@ export async function main() {
   await import('./globals.js')
   argv.ext = normalizeExt(argv.ext)
   if (argv.cwd) $.cwd = argv.cwd
+  if (argv.env) {
+    const envPath = path.resolve($.cwd ?? process.cwd(), argv.env)
+    $.env = readEnvFromFile(envPath, process.env)
+  }
   if (argv.verbose) $.verbose = true
   if (argv.quiet) $.quiet = true
   if (argv.shell) $.shell = argv.shell

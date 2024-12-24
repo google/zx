@@ -29,6 +29,8 @@ import {
   tempfile,
   preferLocalBin,
   toCamelCase,
+  parseDotenv,
+  readEnvFromFile,
 } from '../build/util.js'
 
 describe('util', () => {
@@ -137,5 +139,32 @@ describe('util', () => {
     assert.equal(toCamelCase('PREFER_LOCAL'), 'preferLocal')
     assert.equal(toCamelCase('SOME_MORE_BIG_STR'), 'someMoreBigStr')
     assert.equal(toCamelCase('kebab-input-str'), 'kebabInputStr')
+  })
+})
+
+test('parseDotenv()', () => {
+  assert.deepEqual(parseDotenv('ENV=value1\nENV2=value24'), {
+    ENV: 'value1',
+    ENV2: 'value24',
+  })
+  assert.deepEqual(parseDotenv(''), {})
+})
+
+describe('readEnvFromFile()', () => {
+  test('handles correct proccess.env', () => {
+    const file = tempfile('.env', 'ENV=value1\nENV2=value24')
+    const env = readEnvFromFile(file)
+    assert.equal(env.ENV, 'value1')
+    assert.equal(env.ENV2, 'value24')
+    assert.ok(env.NODE_VERSION !== '')
+  })
+
+  test('handles correct some env', () => {
+    const file = tempfile('.env', 'ENV=value1\nENV2=value24')
+    const env = readEnvFromFile(file, { version: '1.0.0', name: 'zx' })
+    assert.equal(env.ENV, 'value1')
+    assert.equal(env.ENV2, 'value24')
+    assert.equal(env.version, '1.0.0')
+    assert.equal(env.name, 'zx')
   })
 })

@@ -150,6 +150,55 @@ describe('cli', () => {
     assert.ok(p.stderr.endsWith(cwd + '\n'))
   })
 
+  test('supports `--env` options with file', async () => {
+    const env = tmpfile(
+      '.env',
+      `FOO=BAR
+      BAR=FOO+`
+    )
+    const file = `
+    console.log((await $\`echo $FOO\`).stdout);
+    console.log((await $\`echo $BAR\`).stdout)
+    `
+
+    const out = await $`node build/cli.js --env=${env} <<< ${file}`
+    fs.remove(env)
+    assert.equal(out.stdout, 'BAR\n\nFOO+\n\n')
+  })
+
+  test('supports `--env` and `--cwd` options with file', async () => {
+    const env = tmpfile(
+      '.env',
+      `FOO=BAR
+      BAR=FOO+`
+    )
+    const dir = tmpdir()
+    const file = `
+      console.log((await $\`echo $FOO\`).stdout);
+      console.log((await $\`echo $BAR\`).stdout)
+      `
+
+    const out =
+      await $`node build/cli.js --cwd=${dir} --env=${env}  <<< ${file}`
+    fs.remove(env)
+    fs.remove(dir)
+    assert.equal(out.stdout, 'BAR\n\nFOO+\n\n')
+  })
+
+  test('supports handling errors with the `--env` option', async () => {
+    const file = `
+      console.log((await $\`echo $FOO\`).stdout);
+      console.log((await $\`echo $BAR\`).stdout)
+      `
+    try {
+      await $`node build/cli.js --env=./env <<< ${file}`
+      fs.remove(env)
+      assert.throw()
+    } catch (e) {
+      assert.equal(e.exitCode, 1)
+    }
+  })
+
   test('scripts from https 200', async () => {
     const resp = await fs.readFile(path.resolve('test/fixtures/echo.http'))
     const port = await getPort()
