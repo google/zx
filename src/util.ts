@@ -361,50 +361,51 @@ export const parseBool = (v: string): boolean | string =>
 // prettier-ignore
 export const parseDotenv = (content: string): NodeJS.ProcessEnv => {
   const e: Record<string, string> = {}
-  const r = /^[a-zA-Z_]+[a-zA-Z0-9_]*$/
+  const kr = /^[a-zA-Z_]+[a-zA-Z0-9_]*$/
+  const sr = /\s/
   let k = ''
-  let c = ''
+  let b = ''
   let q = ''
   let i = false
-  const cap = () => { if (c && k) {
-    if (!r.test(k)) throw new Error(`Invalid identifier: ${k}`)
-    e[k] = c; c = ''; k = ''
+  const cap = () => { if (b && k) {
+    if (!kr.test(k)) throw new Error(`Invalid identifier: ${k}`)
+    e[k] = b; b = ''; k = ''
   }}
 
-  for (const s of content) {
+  for (const c of content.replace(/\r\n?/mg, '\n')) {
     if (i) {
-      if (s === '\n') i = false
+      if (c === '\n') i = false
       continue
     }
     if (!q) {
-      if (s === '#') {
+      if (c === '#') {
         i = true
         continue
       }
-      if (s === ' ') {
-        if (!k && c === 'export') c = ''
-        continue
-      }
-      if (s === '=') {
-        if (!k) { k = c; c = ''; continue }
-      }
-      if (s === '\n') {
+      if (c === '\n') {
         i = false
         cap()
         continue
       }
+      if (sr.test(c)) {
+        if (!k && b === 'export') b = ''
+        continue
+      }
+      if (c === '=') {
+        if (!k) { k = b; b = ''; continue }
+      }
     }
 
-    if (s === '"' || s === "'") {
-      if (q === s) {
+    if (c === '"' || c === "'") {
+      if (q === c) {
         q = ''
         cap()
         continue
       }
-      q = s
+      q = c
       continue
     }
-    c += s
+    b += c
   }
   cap()
 

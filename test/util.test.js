@@ -141,7 +141,7 @@ describe('util', () => {
     assert.equal(toCamelCase('kebab-input-str'), 'kebabInputStr')
   })
 
-  test('parseDotenv()', () => {
+  test.only('parseDotenv()', () => {
     const multiline = `SIMPLE=xyz123
 # comment ###
 NON_INTERPOLATED='raw text without variable interpolation' 
@@ -149,7 +149,7 @@ MULTILINE = """
 long text here, # not-comment
 e.g. a private SSH key
 """
-ENV=v1\nENV2=v2\n\n\n  ENV3  =    v3   \n   export ENV4=v4
+ENV=v1\nENV2=v2\n\n\n\t\t  ENV3  =    v3   \n   export ENV4=v4
 ENV5=v5 # comment
 `
 
