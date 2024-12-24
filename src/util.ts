@@ -358,14 +358,15 @@ export const toCamelCase = (str: string) =>
 export const parseBool = (v: string): boolean | string =>
   ({ true: true, false: false })[v] ?? v
 
-export const parseDotenv = (content: string): NodeJS.ProcessEnv => {
-  return content.split(/\r?\n/).reduce<NodeJS.ProcessEnv>((r, line) => {
-    const [k] = line.trim().split('=', 1)
-    const v = line.trim().slice(k.length + 1)
+export const parseDotenv = (content: string): NodeJS.ProcessEnv =>
+  content.split(/\r?\n/).reduce<NodeJS.ProcessEnv>((r, line) => {
+    if (line.startsWith('export ')) line = line.slice(7)
+    const i = line.indexOf('=')
+    const k = line.slice(0, i).trim()
+    const v = line.slice(i + 1).trim()
     if (k && v) r[k] = v
     return r
   }, {})
-}
 
 export const readEnvFromFile = (
   filepath: string,
