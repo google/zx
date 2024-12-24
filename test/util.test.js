@@ -143,11 +143,24 @@ describe('util', () => {
 })
 
 test('parseDotenv()', () => {
-  assert.deepEqual(parseDotenv('ENV=value1\nENV2=value24'), {
-    ENV: 'value1',
-    ENV2: 'value24',
-  })
+  assert.deepEqual(
+    parseDotenv('ENV=v1\nENV2=v2\n\n\n  ENV3  =    v3   \nexport ENV4=v4'),
+    {
+      ENV: 'v1',
+      ENV2: 'v2',
+      ENV3: 'v3',
+      ENV4: 'v4',
+    }
+  )
   assert.deepEqual(parseDotenv(''), {})
+
+  // TBD: multiline
+  const multiline = `SIMPLE=xyz123
+NON_INTERPOLATED='raw text without variable interpolation'
+MULTILINE = """
+long text here,
+e.g. a private SSH key
+"""`
 })
 
 describe('readEnvFromFile()', () => {

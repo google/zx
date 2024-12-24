@@ -119,17 +119,14 @@ zx --cwd=/foo/bar script.mjs
 ```
 
 ## --env
-Specify a env file.
+Specify an env file.
 
 ```bash
 zx --env=/path/to/some.env script.mjs
 ```
 
-When cwd option is specified, it will used as base path: `--cwd='/foo/bar' --env='../.env'` → `/foo/.env`
-
-```bash
-zx --cwd=/foo/bar --env=/path/to/some.env script.mjs
-```
+When `cwd` option is specified, it will be used as base path:  
+`--cwd='/foo/bar' --env='../.env'` → `/foo/.env`
 
 ## --ext
 
