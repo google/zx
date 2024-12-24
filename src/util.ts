@@ -396,7 +396,7 @@ export const parseDotenv = (content: string): NodeJS.ProcessEnv => {
       }
     }
 
-    if (c === '"' || c === "'") {
+    if (c === '"' || c === "'" || c === '`') {
       if (q === c) {
         q = ''
         cap()
