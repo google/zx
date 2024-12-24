@@ -140,10 +140,9 @@ describe('util', () => {
     assert.equal(toCamelCase('SOME_MORE_BIG_STR'), 'someMoreBigStr')
     assert.equal(toCamelCase('kebab-input-str'), 'kebabInputStr')
   })
-})
 
-test('parseDotenv()', () => {
-  const multiline = `SIMPLE=xyz123
+  test('parseDotenv()', () => {
+    const multiline = `SIMPLE=xyz123
 NON_INTERPOLATED='raw text without variable interpolation'
 MULTILINE = """
 long text here,
@@ -152,32 +151,39 @@ e.g. a private SSH key
 ENV=v1\nENV2=v2\n\n\n  ENV3  =    v3   \n   export ENV4=v4
 `
 
-  assert.deepEqual(parseDotenv(multiline), {
-    SIMPLE: 'xyz123',
-    NON_INTERPOLATED: 'raw text without variable interpolation',
-    MULTILINE: '\nlong text here,\ne.g. a private SSH key\n',
-    ENV: 'v1',
-    ENV2: 'v2',
-    ENV3: 'v3',
-    ENV4: 'v4',
-  })
-})
+    assert.deepEqual(parseDotenv(multiline), {
+      SIMPLE: 'xyz123',
+      NON_INTERPOLATED: 'raw text without variable interpolation',
+      MULTILINE: '\nlong text here,\ne.g. a private SSH key\n',
+      ENV: 'v1',
+      ENV2: 'v2',
+      ENV3: 'v3',
+      ENV4: 'v4',
+    })
 
-describe('readEnvFromFile()', () => {
-  test('handles correct proccess.env', () => {
-    const file = tempfile('.env', 'ENV=value1\nENV2=value24')
-    const env = readEnvFromFile(file)
-    assert.equal(env.ENV, 'value1')
-    assert.equal(env.ENV2, 'value24')
-    assert.ok(env.NODE_VERSION !== '')
+    assert.deepEqual(
+      parseDotenv(`FOO=BAR
+      BAR=FOO+`),
+      { FOO: 'BAR', BAR: 'FOO+' }
+    )
   })
 
-  test('handles correct some env', () => {
-    const file = tempfile('.env', 'ENV=value1\nENV2=value24')
-    const env = readEnvFromFile(file, { version: '1.0.0', name: 'zx' })
-    assert.equal(env.ENV, 'value1')
-    assert.equal(env.ENV2, 'value24')
-    assert.equal(env.version, '1.0.0')
-    assert.equal(env.name, 'zx')
+  describe('readEnvFromFile()', () => {
+    test('handles correct proccess.env', () => {
+      const file = tempfile('.env', 'ENV=value1\nENV2=value24')
+      const env = readEnvFromFile(file)
+      assert.equal(env.ENV, 'value1')
+      assert.equal(env.ENV2, 'value24')
+      assert.ok(env.NODE_VERSION !== '')
+    })
+
+    test('handles correct some env', () => {
+      const file = tempfile('.env', 'ENV=value1\nENV2=value24')
+      const env = readEnvFromFile(file, { version: '1.0.0', name: 'zx' })
+      assert.equal(env.ENV, 'value1')
+      assert.equal(env.ENV2, 'value24')
+      assert.equal(env.version, '1.0.0')
+      assert.equal(env.name, 'zx')
+    })
   })
 })
