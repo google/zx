@@ -166,8 +166,6 @@ describe('cli', () => {
     assert.equal(out.stdout, 'BAR\n\nFOO+\n\n')
   })
 
-
-
   test('supports `--env` and `--cwd` options and with file', async () => {
     const env = tmpfile(
       '.env',
@@ -193,11 +191,11 @@ describe('cli', () => {
       console.log((await $\`echo $BAR\`).stdout)
       `
     try {
-        await $`node build/cli.js --env=./env <<< ${file}`
-        fs.remove(env)
-        assert.throw()
+      await $`node build/cli.js --env=./env <<< ${file}`
+      fs.remove(env)
+      assert.throw()
     } catch (e) {
-        assert.equal(e.exitCode, 1)
+      assert.equal(e.exitCode, 1)
     }
   })
 
