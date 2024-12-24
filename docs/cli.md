@@ -118,6 +118,19 @@ Set the current working directory.
 zx --cwd=/foo/bar script.mjs
 ```
 
+## --env
+Specify a env file.
+
+```bash
+zx --env=/path/to/some.env script.mjs
+```
+
+Also works with `--cwd` options.
+
+```bash
+zx --cwd=/foo/bar --env=/path/to/some.env script.mjs
+```
+
 ## --ext
 
 Override the default (temp) script extension. Default is `.mjs`.
