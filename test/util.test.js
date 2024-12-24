@@ -143,22 +143,25 @@ describe('util', () => {
 
   test('parseDotenv()', () => {
     const multiline = `SIMPLE=xyz123
-NON_INTERPOLATED='raw text without variable interpolation'
+# comment ###
+NON_INTERPOLATED='raw text without variable interpolation' 
 MULTILINE = """
-long text here,
+long text here, # not-comment
 e.g. a private SSH key
 """
 ENV=v1\nENV2=v2\n\n\n  ENV3  =    v3   \n   export ENV4=v4
+ENV5=v5 # comment
 `
 
     assert.deepEqual(parseDotenv(multiline), {
       SIMPLE: 'xyz123',
       NON_INTERPOLATED: 'raw text without variable interpolation',
-      MULTILINE: '\nlong text here,\ne.g. a private SSH key\n',
+      MULTILINE: '\nlong text here, # not-comment\ne.g. a private SSH key\n',
       ENV: 'v1',
       ENV2: 'v2',
       ENV3: 'v3',
       ENV4: 'v4',
+      ENV5: 'v5',
     })
 
     assert.deepEqual(

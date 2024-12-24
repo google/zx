@@ -365,23 +365,36 @@ export const parseDotenv = (content: string): NodeJS.ProcessEnv => {
   let k = ''
   let c = ''
   let q = ''
+  let i = false
   const cap = () => { if (c && k) {
     if (!r.test(k)) throw new Error(`Invalid identifier: ${k}`)
     e[k] = c; c = ''; k = ''
   }}
 
   for (const s of content) {
-    if (s === ' ' && !q) {
-      if (!k && c === 'export') c = ''
+    if (i) {
+      if (s === '\n') i = false
       continue
     }
-    if (s === '=' && !q) {
-      if (!k) { k = c; c = ''; continue }
+    if (!q) {
+      if (s === '#') {
+        i = true
+        continue
+      }
+      if (s === ' ') {
+        if (!k && c === 'export') c = ''
+        continue
+      }
+      if (s === '=') {
+        if (!k) { k = c; c = ''; continue }
+      }
+      if (s === '\n') {
+        i = false
+        cap()
+        continue
+      }
     }
-    if (s === '\n' && !q) {
-      cap()
-      continue
-    }
+
     if (s === '"' || s === "'") {
       if (q === s) {
         q = ''
