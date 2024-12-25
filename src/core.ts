@@ -56,6 +56,7 @@ import {
   quote,
   quotePowerShell,
   toCamelCase,
+  randomId,
 } from './util.js'
 
 export { log, type LogEntry } from './util.js'
@@ -209,6 +210,7 @@ type PipeMethod = {
 }
 
 export class ProcessPromise extends Promise<ProcessOutput> {
+  private _id = randomId()
   private _command = ''
   private _from = ''
   private _snapshot = getStore()
@@ -251,9 +253,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     this._run = true
     this._pipedFrom?.run()
 
-    const $ = this._snapshot
     const self = this
-    const input = ($.input as ProcessPromise | ProcessOutput)?.stdout ?? $.input
+    const $ = this._snapshot
 
     if ($.timeout) this.timeout($.timeout, $.timeoutSignal)
     if ($.preferLocal) {
@@ -268,22 +269,24 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       verbose: self.isVerbose(),
     })
 
+    // prettier-ignore
     this._zurk = exec({
-      input,
-      cmd: $.prefix + self._command + $.postfix,
-      cwd: $.cwd ?? $[CWD],
-      ac: $.ac,
-      signal: $.signal,
-      shell: isString($.shell) ? $.shell : true,
-      env: $.env,
-      spawn: $.spawn,
-      spawnSync: $.spawnSync,
-      store: $.store,
-      stdin: self._stdin,
-      stdio: self._stdio ?? $.stdio,
-      sync: $[SYNC],
+      id:       self.id,
+      cmd:      self.fullCmd,
+      cwd:      $.cwd ?? $[CWD],
+      input:    ($.input as ProcessPromise | ProcessOutput)?.stdout ?? $.input,
+      ac:       $.ac,
+      signal:   $.signal,
+      shell:    isString($.shell) ? $.shell : true,
+      env:      $.env,
+      spawn:    $.spawn,
+      spawnSync:$.spawnSync,
+      store:    $.store,
+      stdin:    self._stdin,
+      stdio:    self._stdio ?? $.stdio,
+      sync:     $[SYNC],
       detached: $.detached,
-      ee: self._ee,
+      ee:       self._ee,
       run: (cb) => cb(),
       on: {
         start: () => {
@@ -298,13 +301,11 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           // Stderr should be printed regardless of piping.
           $.log({ kind: 'stderr', data, verbose: !self.isQuiet() })
         },
-        // prettier-ignore
         end: (data, c) => {
           self._resolved = true
           const { error, status, signal, duration, ctx } = data
           const { stdout, stderr, stdall } = ctx.store
           const dto: ProcessOutputLazyDto = {
-            // Lazy getters
             code: () => status,
             signal: () => signal,
             duration: () => duration,
@@ -439,12 +440,20 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   // Getters
+  get id() {
+    return this._id
+  }
+
   get pid(): number | undefined {
     return this.child?.pid
   }
 
   get cmd(): string {
     return this._command
+  }
+
+  get fullCmd(): string {
+    return this._snapshot.prefix + this.cmd + this._snapshot.postfix
   }
 
   get child(): ChildProcess | undefined {

@@ -392,11 +392,13 @@ describe('core', () => {
       const baz = 1
       const p = $`echo ${foo} --t ${baz}`
       assert.equal(p.cmd, "echo $'#bar' --t 1")
+      assert.equal(p.fullCmd, "set -euo pipefail;echo $'#bar' --t 1")
     })
 
-    test('exposes pid', () => {
+    test('exposes pid & id', () => {
       const p = $`echo foo`
       assert.ok(p.pid > 0)
+      assert.ok(typeof p.id === 'string')
     })
 
     test('stdio() works', async () => {
