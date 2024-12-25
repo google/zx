@@ -1127,11 +1127,11 @@ describe('core', () => {
 
     test('accepts ProcessOutput in addition to string', async () => {
       await within(async () => {
-        const tempdir = await $`mktemp -d`
-        cd(tempdir)
+        const tmp = await $`mktemp -d`
+        cd(tmp)
         assert.equal(
           basename(process.cwd()),
-          basename(tempdir.toString().trimEnd())
+          basename(tmp.toString().trimEnd())
         )
       })
     })
