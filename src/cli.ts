@@ -187,14 +187,12 @@ export async function importPath(
   filepath: string,
   origin = filepath
 ): Promise<void> {
-  const ext = path.extname(filepath)
-  const base = path.basename(filepath)
-  const dir = path.dirname(filepath)
+  const { ext, base, dir } = path.parse(filepath)
 
   if (ext === '') {
-    const tmpFilename = fs.existsSync(`${filepath}.mjs`)
-      ? `${base}-${randomId()}.mjs`
-      : `${base}.mjs`
+    const tmpFilename = fs.existsSync(filepath + EXT)
+      ? base + '-' + randomId() + EXT
+      : base + EXT
 
     return writeAndImport(
       await fs.readFile(filepath),
@@ -205,7 +203,7 @@ export async function importPath(
   if (ext === '.md') {
     return writeAndImport(
       transformMarkdown(await fs.readFile(filepath)),
-      path.join(dir, base + '.mjs'),
+      path.join(dir, base + EXT),
       origin
     )
   }
