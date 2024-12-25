@@ -625,8 +625,8 @@ describe('core', () => {
         assert.equal(r2.reason.exitCode, 1)
       })
 
-      test('pipes particular stream: stdout ot stderr', async () => {
-        const p = $`echo foo >&2; echo bar`
+      test('pipes particular stream: stdout, stderr, stdall', async () => {
+        const p = $`echo foo >&2; sleep 0.01 && echo bar`
         const o1 = (await p.pipe.stderr`cat`).toString()
         const o2 = (await p.pipe.stdout`cat`).toString()
         const o3 = (await p.pipe.stdall`cat`).toString()
