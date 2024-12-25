@@ -17,7 +17,6 @@ import { test, describe, before, after } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import net from 'node:net'
 import getPort from 'get-port'
-import '../build/globals.js'
 import {
   argv,
   importPath,
@@ -32,6 +31,7 @@ import {
   transformMarkdown,
   writeAndImport,
 } from '../build/cli.js'
+import { $, path, fs, tmpfile, tmpdir } from '../build/index.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const spawn = $.spawn
