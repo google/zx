@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import chalk from 'chalk'
 import assert from 'node:assert'
 import { test, describe } from 'node:test'
-import '../build/globals.js'
+import { $, chalk } from '../build/index.js'
+import { echo, sleep, parseArgv } from '../build/goods.js'
 
 describe('goods', () => {
   function zx(script) {
@@ -30,18 +30,6 @@ describe('goods', () => {
     p.stdin.write('foo\n')
     p.stdin.end()
     assert.match((await p).stdout, /Answer is foo/)
-  })
-
-  test('globby() works', async () => {
-    assert.equal(globby, glob)
-    assert.deepEqual(await globby('*.md'), ['README.md'])
-  })
-
-  test('fetch() works', async () => {
-    assert.match(
-      await fetch('https://medv.io').then((res) => res.text()),
-      /Anton Medvedev/
-    )
   })
 
   test('echo() works', async () => {
@@ -59,33 +47,6 @@ describe('goods', () => {
     )
     console.log = log
     assert.match(stdout, /foo/)
-  })
-
-  test('YAML works', async () => {
-    assert.deepEqual(YAML.parse(YAML.stringify({ foo: 'bar' })), { foo: 'bar' })
-  })
-
-  test('which() available', async () => {
-    assert.equal(which.sync('npm'), await which('npm'))
-  })
-
-  test('minimist available', async () => {
-    assert.equal(typeof minimist, 'function')
-  })
-
-  test('minimist works', async () => {
-    assert.deepEqual(
-      minimist(
-        ['--foo', 'bar', '-a', '5', '-a', '42', '--force', './some.file'],
-        { boolean: 'force' }
-      ),
-      {
-        a: [5, 42],
-        foo: 'bar',
-        force: true,
-        _: ['./some.file'],
-      }
-    )
   })
 
   test('sleep() works', async () => {

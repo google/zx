@@ -14,7 +14,7 @@
 
 import assert from 'node:assert'
 import { test, describe, after, before } from 'node:test'
-import '../build/globals.js'
+import { $, within, path, glob } from '../build/index.js'
 
 const __dirname = new URL('.', import.meta.url).pathname
 const root = path.resolve(__dirname, '..')
