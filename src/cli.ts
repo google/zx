@@ -77,7 +77,7 @@ export function printUsage() {
 export const argv = parseArgv(process.argv.slice(2), {
   string: ['shell', 'prefix', 'postfix', 'eval', 'cwd', 'ext', 'registry', 'env'],
   boolean: ['version', 'help', 'quiet', 'verbose', 'install', 'repl', 'experimental', 'prefer-local'],
-  alias: { e: 'eval', i: 'install', v: 'version', h: 'help', l: 'prefer-local' },
+  alias: { e: 'eval', i: 'install', v: 'version', h: 'help', l: 'prefer-local', 'env-file': 'env' },
   stopEarly: true,
   parseBoolean: true,
   camelCase: true,
