@@ -43,10 +43,7 @@ import {
   tempdir,
   which,
 } from '../build/index.js'
-import {
-  quote,
-  quotePowerShell
-} from '../build/util.js'
+import { quote, quotePowerShell } from '../build/util.js'
 
 describe('core', () => {
   describe('resolveDefaults()', () => {
