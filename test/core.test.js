@@ -34,7 +34,19 @@ import {
   usePwsh,
   useBash,
 } from '../build/core.js'
-import { which } from '../build/vendor.js'
+import {
+  fs,
+  nothrow,
+  quiet,
+  sleep,
+  tempfile,
+  tempdir,
+  which,
+} from '../build/index.js'
+import {
+  quote,
+  quotePowerShell
+} from '../build/util.js'
 
 describe('core', () => {
   describe('resolveDefaults()', () => {
@@ -270,11 +282,11 @@ describe('core', () => {
         ]
 
         for (const [preferLocal, expected] of cases) {
-          const path = await $({
+          const PATH = await $({
             preferLocal,
             env: { PATH: process.env.PATH },
           })`echo $PATH`
-          assert(path.stdout.startsWith(expected))
+          assert(PATH.stdout.startsWith(expected))
         }
       })
 
@@ -620,9 +632,11 @@ describe('core', () => {
         const p = $`echo foo >&2; echo bar`
         const o1 = (await p.pipe.stderr`cat`).toString()
         const o2 = (await p.pipe.stdout`cat`).toString()
+        const o3 = (await p.pipe.stdall`cat`).toString()
 
         assert.equal(o1, 'foo\n')
         assert.equal(o2, 'bar\n')
+        assert.equal(o3, 'foo\nbar\n')
       })
     })
 
@@ -668,7 +682,7 @@ describe('core', () => {
 
       describe('handles halt option', () => {
         test('just works', async () => {
-          const filepath = `${tmpdir()}/${Math.random().toString()}`
+          const filepath = `${tempdir()}/${Math.random().toString()}`
           const p = $({ halt: true })`touch ${filepath}`
           await sleep(1)
           assert.ok(
@@ -1060,7 +1074,7 @@ describe('core', () => {
         assert.ok(process.cwd().endsWith('/tmp/zx-cd-test'))
 
         const results = (await Promise.all([p1, p2, p3])).map((p) =>
-          path.basename(p.stdout.trim())
+          basename(p.stdout.trim())
         )
         assert.deepEqual(results, ['two', 'one', 'zx-cd-test'])
       } catch (e) {
@@ -1116,11 +1130,11 @@ describe('core', () => {
 
     test('accepts ProcessOutput in addition to string', async () => {
       await within(async () => {
-        const tmpDir = await $`mktemp -d`
-        cd(tmpDir)
+        const tempdir = await $`mktemp -d`
+        cd(tempdir)
         assert.equal(
           basename(process.cwd()),
-          basename(tmpDir.toString().trimEnd())
+          basename(tempdir.toString().trimEnd())
         )
       })
     })
