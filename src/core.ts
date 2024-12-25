@@ -22,6 +22,7 @@ import {
 import { type Encoding } from 'node:crypto'
 import { type AsyncHook, AsyncLocalStorage, createHook } from 'node:async_hooks'
 import { type Readable, type Writable } from 'node:stream'
+import fs from 'node:fs'
 import { inspect } from 'node:util'
 import { EOL as _EOL } from 'node:os'
 import { EventEmitter } from 'node:events'
@@ -344,16 +345,17 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   // Essentials
   pipe!: PipeMethod & {
-    stdout: PipeMethod
-    stderr: PipeMethod
+    [key in keyof TSpawnStore]: PipeMethod
   }
   // prettier-ignore
   static {
     Object.defineProperty(this.prototype, 'pipe', { get() {
       const self = this
-      const pipeStdout: PipeMethod = function (dest: PipeDest, ...args: any[]) { return self._pipe.call(self, 'stdout', dest, ...args) }
-      const pipeStderr: PipeMethod = function (dest: PipeDest, ...args: any[]) { return self._pipe.call(self, 'stderr', dest, ...args) }
-      return Object.assign(pipeStdout, { stderr: pipeStderr, stdout: pipeStdout })
+      const getPipeMethod = (kind: keyof TSpawnStore): PipeMethod => function (dest: PipeDest, ...args: any[]) { return self._pipe.call(self, kind, dest, ...args) }
+      const stdout = getPipeMethod('stdout')
+      const stderr = getPipeMethod('stderr')
+      const stdall = getPipeMethod('stdall')
+      return Object.assign(stdout, { stderr, stdout, stdall })
     }})
   }
   private _pipe(

@@ -24,7 +24,6 @@ import {
   toCamelCase,
 } from './util.js'
 import {
-  chalk,
   minimist,
   nodeFetch,
   type RequestInfo,
