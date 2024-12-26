@@ -133,8 +133,8 @@ export async function main() {
   await importPath(filepath)
 }
 
-export async function runScript(script: string, ext = EXT) {
-  const filepath = path.join($.cwd ?? process.cwd(), `zx-${randomId()}${ext}`)
+export async function runScript(script: string, ext?: string) {
+  const filepath = getFilepath($.cwd, 'zx', ext)
   await writeAndImport(script, filepath)
 }
 
@@ -154,7 +154,7 @@ export async function scriptFromStdin(ext?: string): Promise<boolean> {
   return false
 }
 
-export async function scriptFromHttp(remote: string, _ext = EXT) {
+export async function scriptFromHttp(remote: string, _ext?: string) {
   const res = await fetch(remote)
   if (!res.ok) {
     console.error(`Error: Can't get ${remote}`)
@@ -162,10 +162,8 @@ export async function scriptFromHttp(remote: string, _ext = EXT) {
   }
   const script = await res.text()
   const pathname = new URL(remote).pathname
-  const name = path.basename(pathname)
-  const ext = path.extname(pathname) || _ext
-  const cwd = $.cwd ?? process.cwd()
-  const filepath = path.join(cwd, `${name}-${randomId()}${ext}`)
+  const { name, ext } = path.parse(pathname)
+  const filepath = getFilepath($.cwd, name, _ext || ext)
   await writeAndImport(script, filepath)
 }
 
@@ -188,22 +186,15 @@ export async function importPath(
   origin = filepath
 ): Promise<void> {
   const { ext, base, dir } = path.parse(filepath)
+  const tempFilename = getFilepath(dir, base)
 
   if (ext === '') {
-    const tmpFilename = fs.existsSync(filepath + EXT)
-      ? base + '-' + randomId() + EXT
-      : base + EXT
-
-    return writeAndImport(
-      await fs.readFile(filepath),
-      path.join(dir, tmpFilename),
-      origin
-    )
+    return writeAndImport(await fs.readFile(filepath), tempFilename, origin)
   }
   if (ext === '.md') {
     return writeAndImport(
       transformMarkdown(await fs.readFile(filepath)),
-      path.join(dir, base + EXT),
+      tempFilename,
       origin
     )
   }
@@ -310,4 +301,15 @@ export function isMain(
 
 export function normalizeExt(ext?: string): string | undefined {
   return ext ? path.parse(`foo.${ext}`).ext : ext
+}
+
+// prettier-ignore
+function getFilepath(cwd = '.', name = 'zx', _ext?: string): string {
+  const ext = _ext || argv.ext || EXT
+  return [
+    name + ext,
+    name + '-' + randomId() + ext,
+  ]
+    .map(f => path.resolve(process.cwd(), cwd, f))
+    .find(f => !fs.existsSync(f))!
 }
