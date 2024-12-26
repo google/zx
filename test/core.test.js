@@ -38,7 +38,7 @@ import {
   quotePowerShell,
   sleep,
   quiet,
-  which
+  which,
 } from '../build/index.js'
 
 describe('core', () => {
