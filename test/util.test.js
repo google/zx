@@ -176,7 +176,6 @@ describe('readEnvFromFile()', () => {
   })
 
   test('handles correct some env', () => {
-    const file = tempfile('.env', 'ENV=value1\nENV2=value24')
     const env = readEnvFromFile(file, { version: '1.0.0', name: 'zx' })
     assert.equal(env.ENV, 'value1')
     assert.equal(env.ENV2, 'value24')
