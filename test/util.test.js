@@ -14,7 +14,8 @@
 
 import assert from 'node:assert'
 import fs from 'node:fs'
-import { test, describe } from 'node:test'
+import { test, describe, after } from 'node:test'
+import { fs as fsCore } from '../build/index.js'
 import {
   formatCmd,
   isString,
@@ -164,8 +165,10 @@ e.g. a private SSH key
 })
 
 describe('readEnvFromFile()', () => {
+  const file = tempfile('.env', 'ENV=value1\nENV2=value24')
+  after(() => fsCore.remove(file))
+
   test('handles correct proccess.env', () => {
-    const file = tempfile('.env', 'ENV=value1\nENV2=value24')
     const env = readEnvFromFile(file)
     assert.equal(env.ENV, 'value1')
     assert.equal(env.ENV2, 'value24')

@@ -26,24 +26,20 @@ import {
   resolveDefaults,
   cd,
   syncProcessCwd,
-  log,
-  kill,
-  defaults,
   within,
   usePowerShell,
   usePwsh,
   useBash,
 } from '../build/core.js'
 import {
-  fs,
-  nothrow,
-  quiet,
-  sleep,
   tempfile,
-  tempdir,
-  which,
+  fs,
+  quote,
+  quotePowerShell,
+  sleep,
+  quiet,
+  which
 } from '../build/index.js'
-import { quote, quotePowerShell } from '../build/util.js'
 
 describe('core', () => {
   describe('resolveDefaults()', () => {
