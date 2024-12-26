@@ -331,6 +331,7 @@ describe('index', () => {
     assert.equal(typeof index.globby.isGitIgnored, 'function', 'index.globby.isGitIgnored')
     assert.equal(typeof index.globby.isGitIgnoredSync, 'function', 'index.globby.isGitIgnoredSync')
     assert.equal(typeof index.kill, 'function', 'index.kill')
+    assert.equal(typeof index.loadDotenv, 'function', 'index.loadDotenv')
     assert.equal(typeof index.log, 'function', 'index.log')
     assert.equal(typeof index.minimist, 'function', 'index.minimist')
     assert.equal(typeof index.nothrow, 'function', 'index.nothrow')
