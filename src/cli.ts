@@ -304,11 +304,11 @@ export function normalizeExt(ext?: string): string | undefined {
 }
 
 // prettier-ignore
-function getFilepath(cwd = '.', base = 'zx', _ext?: string): string {
+function getFilepath(cwd = '.', name = 'zx', _ext?: string): string {
   const ext = _ext || argv.ext || EXT
   return [
-    base + ext,
-    base + '-' + randomId() + ext,
+    name + ext,
+    name + '-' + randomId() + ext,
   ]
     .map(f => path.resolve(process.cwd(), cwd, f))
     .find(f => !fs.existsSync(f))!
