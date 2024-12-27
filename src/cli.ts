@@ -172,7 +172,7 @@ export async function writeAndImport(
   filepath: string,
   origin = filepath
 ) {
-  await fs.writeFile(filepath, script.toString())
+  await fs.writeFile(filepath, script)
   try {
     process.once('exit', () => fs.rmSync(filepath, { force: true }))
     await importPath(filepath, origin)
@@ -185,21 +185,18 @@ export async function importPath(
   filepath: string,
   origin = filepath
 ): Promise<void> {
+  const contents = await fs.readFile(filepath)
   const { ext, base, dir } = path.parse(filepath)
   const tempFilename = getFilepath(dir, base)
 
   if (ext === '') {
-    return writeAndImport(await fs.readFile(filepath), tempFilename, origin)
+    return writeAndImport(contents, tempFilename, origin)
   }
   if (ext === '.md') {
-    return writeAndImport(
-      transformMarkdown(await fs.readFile(filepath)),
-      tempFilename,
-      origin
-    )
+    return writeAndImport(transformMarkdown(contents), tempFilename, origin)
   }
   if (argv.install) {
-    const deps = parseDeps(await fs.readFile(filepath))
+    const deps = parseDeps(contents)
     await installDeps(deps, dir, argv.registry)
   }
 
@@ -215,13 +212,13 @@ export function injectGlobalRequire(origin: string) {
   Object.assign(globalThis, { __filename, __dirname, require })
 }
 
-export function transformMarkdown(buf: Buffer): string {
+export function transformMarkdown(buf: Buffer | string): string {
   const source = buf.toString()
   const output = []
   let state = 'root'
   let codeBlockEnd = ''
   let prevLineIsEmpty = true
-  const jsCodeBlock = /^(```{1,20}|~~~{1,20})(js|javascript)$/
+  const jsCodeBlock = /^(```{1,20}|~~~{1,20})(js|javascript|ts|typescript)$/
   const shCodeBlock = /^(```{1,20}|~~~{1,20})(sh|shell|bash)$/
   const otherCodeBlock = /^(```{1,20}|~~~{1,20})(.*)$/
   for (const line of source.split(/\r?\n/)) {

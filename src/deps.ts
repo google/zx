@@ -102,7 +102,7 @@ const nameRe =
   /^(?<name>(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*)\/?.*$/i
 const versionRe = /^@(?<version>[~^]?(v?[\dx*]+([-.][\d*a-z-]+)*))/i
 
-export function parseDeps(content: Buffer): Record<string, string> {
+export function parseDeps(content: Buffer | string): Record<string, string> {
   return depseek(content.toString() + '\n', { comments: true }).reduce<
     Record<string, string>
   >((m, { type, value }, i, list) => {
