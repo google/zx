@@ -20,11 +20,26 @@ import { WriteStream } from 'node:fs'
 import { Readable, Transform, Writable } from 'node:stream'
 import { Socket } from 'node:net'
 import {
+  $,
   ProcessPromise,
   ProcessOutput,
   resolveDefaults,
+  cd,
+  syncProcessCwd,
+  within,
+  usePowerShell,
+  usePwsh,
+  useBash,
+} from '../build/core.js'
+import {
+  tempfile,
+  fs,
+  quote,
+  quotePowerShell,
+  sleep,
+  quiet,
+  which,
 } from '../build/index.js'
-import '../build/globals.js'
 
 describe('core', () => {
   describe('resolveDefaults()', () => {
@@ -260,11 +275,11 @@ describe('core', () => {
         ]
 
         for (const [preferLocal, expected] of cases) {
-          const path = await $({
+          const PATH = await $({
             preferLocal,
             env: { PATH: process.env.PATH },
           })`echo $PATH`
-          assert(path.stdout.startsWith(expected))
+          assert(PATH.stdout.startsWith(expected))
         }
       })
 
@@ -373,11 +388,13 @@ describe('core', () => {
       const baz = 1
       const p = $`echo ${foo} --t ${baz}`
       assert.equal(p.cmd, "echo $'#bar' --t 1")
+      assert.equal(p.fullCmd, "set -euo pipefail;echo $'#bar' --t 1")
     })
 
-    test('exposes pid', () => {
+    test('exposes pid & id', () => {
       const p = $`echo foo`
       assert.ok(p.pid > 0)
+      assert.ok(typeof p.id === 'string')
     })
 
     test('stdio() works', async () => {
@@ -605,6 +622,17 @@ describe('core', () => {
         assert.equal(r2.reason.stdout, 'foo\n')
         assert.equal(r2.reason.exitCode, 1)
       })
+
+      test('pipes particular stream: stdout, stderr, stdall', async () => {
+        const p = $`echo foo >&2; sleep 0.01 && echo bar`
+        const o1 = (await p.pipe.stderr`cat`).toString()
+        const o2 = (await p.pipe.stdout`cat`).toString()
+        const o3 = (await p.pipe.stdall`cat`).toString()
+
+        assert.equal(o1, 'foo\n')
+        assert.equal(o2, 'bar\n')
+        assert.equal(o3, 'foo\nbar\n')
+      })
     })
 
     describe('abort()', () => {
@@ -649,7 +677,7 @@ describe('core', () => {
 
       describe('handles halt option', () => {
         test('just works', async () => {
-          const filepath = `${tmpdir()}/${Math.random().toString()}`
+          const filepath = `${tempdir()}/${Math.random().toString()}`
           const p = $({ halt: true })`touch ${filepath}`
           await sleep(1)
           assert.ok(
@@ -997,6 +1025,27 @@ describe('core', () => {
       assert.throws(() => o.blob(), /Blob is not supported/)
       globalThis.Blob = Blob
     })
+
+    describe('static', () => {
+      test('getExitMessage()', () => {
+        assert.match(
+          ProcessOutput.getExitMessage(2, null, '', ''),
+          /Misuse of shell builtins/
+        )
+      })
+
+      test('getErrorMessage()', () => {
+        assert.match(
+          ProcessOutput.getErrorMessage({ errno: -2 }, ''),
+          /No such file or directory/
+        )
+        assert.match(
+          ProcessOutput.getErrorMessage({ errno: -1e9 }, ''),
+          /Unknown error/
+        )
+        assert.match(ProcessOutput.getErrorMessage({}, ''), /Unknown error/)
+      })
+    })
   })
 
   describe('cd()', () => {
@@ -1020,7 +1069,7 @@ describe('core', () => {
         assert.ok(process.cwd().endsWith('/tmp/zx-cd-test'))
 
         const results = (await Promise.all([p1, p2, p3])).map((p) =>
-          path.basename(p.stdout.trim())
+          basename(p.stdout.trim())
         )
         assert.deepEqual(results, ['two', 'one', 'zx-cd-test'])
       } catch (e) {
@@ -1076,11 +1125,11 @@ describe('core', () => {
 
     test('accepts ProcessOutput in addition to string', async () => {
       await within(async () => {
-        const tmpDir = await $`mktemp -d`
-        cd(tmpDir)
+        const tmp = await $`mktemp -d`
+        cd(tmp)
         assert.equal(
           basename(process.cwd()),
-          basename(tmpDir.toString().trimEnd())
+          basename(tmp.toString().trimEnd())
         )
       })
     })

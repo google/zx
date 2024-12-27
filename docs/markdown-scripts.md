@@ -14,6 +14,10 @@ await $`whoami`
 await $`echo ${__dirname}`
 ```
 
+```ts
+await $`pwd`
+```
+
 The `__filename` will be pointed to **markdown.md**:
 
 ```js

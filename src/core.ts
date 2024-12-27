@@ -22,9 +22,16 @@ import {
 import { type Encoding } from 'node:crypto'
 import { type AsyncHook, AsyncLocalStorage, createHook } from 'node:async_hooks'
 import { type Readable, type Writable } from 'node:stream'
+import fs from 'node:fs'
 import { inspect } from 'node:util'
 import { EOL as _EOL } from 'node:os'
 import { EventEmitter } from 'node:events'
+import {
+  formatErrorMessage,
+  formatExitMessage,
+  getCallerLocation,
+  getExitCodeInfo,
+} from './error.js'
 import {
   exec,
   buildCmd,
@@ -33,32 +40,32 @@ import {
   ps,
   VoidStream,
   type ChalkInstance,
-  type RequestInfo,
-  type RequestInit,
   type TSpawnStore,
 } from './vendor-core.js'
 import {
   type Duration,
-  errnoMessage,
-  exitCodeInfo,
-  formatCmd,
-  getCallerLocation,
+  log,
   isString,
   isStringLiteral,
   noop,
   once,
+  parseBool,
   parseDuration,
   preferLocalBin,
   proxyOverride,
   quote,
   quotePowerShell,
-  snakeToCamel,
+  toCamelCase,
+  randomId,
 } from './util.js'
+
+export { log, type LogEntry } from './util.js'
 
 const CWD = Symbol('processCwd')
 const SYNC = Symbol('syncExec')
 const EOL = Buffer.from(_EOL)
 const SIGTERM = 'SIGTERM'
+const ENV_PREFIX = 'ZX_'
 const storage = new AsyncLocalStorage<Options>()
 
 function getStore() {
@@ -195,7 +202,15 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
 
 type Resolve = (out: ProcessOutput) => void
 
+type PipeDest = Writable | ProcessPromise | TemplateStringsArray | string
+type PipeMethod = {
+  (dest: TemplateStringsArray, ...args: any[]): ProcessPromise
+  <D extends Writable>(dest: D): D & PromiseLike<ProcessOutput & D>
+  <D extends ProcessPromise>(dest: D): D
+}
+
 export class ProcessPromise extends Promise<ProcessOutput> {
+  private _id = randomId()
   private _command = ''
   private _from = ''
   private _snapshot = getStore()
@@ -238,9 +253,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     this._run = true
     this._pipedFrom?.run()
 
-    const $ = this._snapshot
     const self = this
-    const input = ($.input as ProcessPromise | ProcessOutput)?.stdout ?? $.input
+    const $ = this._snapshot
 
     if ($.timeout) this.timeout($.timeout, $.timeoutSignal)
     if ($.preferLocal) {
@@ -255,22 +269,24 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       verbose: self.isVerbose(),
     })
 
+    // prettier-ignore
     this._zurk = exec({
-      input,
-      cmd: $.prefix + self._command + $.postfix,
-      cwd: $.cwd ?? $[CWD],
-      ac: $.ac,
-      signal: $.signal,
-      shell: isString($.shell) ? $.shell : true,
-      env: $.env,
-      spawn: $.spawn,
-      spawnSync: $.spawnSync,
-      store: $.store,
-      stdin: self._stdin,
-      stdio: self._stdio ?? $.stdio,
-      sync: $[SYNC],
+      id:       self.id,
+      cmd:      self.fullCmd,
+      cwd:      $.cwd ?? $[CWD],
+      input:    ($.input as ProcessPromise | ProcessOutput)?.stdout ?? $.input,
+      ac:       $.ac,
+      signal:   $.signal,
+      shell:    isString($.shell) ? $.shell : true,
+      env:      $.env,
+      spawn:    $.spawn,
+      spawnSync:$.spawnSync,
+      store:    $.store,
+      stdin:    self._stdin,
+      stdio:    self._stdio ?? $.stdio,
+      sync:     $[SYNC],
       detached: $.detached,
-      ee: self._ee,
+      ee:       self._ee,
       run: (cb) => cb(),
       on: {
         start: () => {
@@ -285,13 +301,11 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           // Stderr should be printed regardless of piping.
           $.log({ kind: 'stderr', data, verbose: !self.isQuiet() })
         },
-        // prettier-ignore
         end: (data, c) => {
           self._resolved = true
           const { error, status, signal, duration, ctx } = data
           const { stdout, stderr, stdall } = ctx.store
           const dto: ProcessOutputLazyDto = {
-            // Lazy getters
             code: () => status,
             signal: () => signal,
             duration: () => duration,
@@ -331,15 +345,27 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   // Essentials
-  pipe(dest: TemplateStringsArray, ...args: any[]): ProcessPromise
-  pipe<D extends Writable>(dest: D): D & PromiseLike<ProcessOutput & D>
-  pipe<D extends ProcessPromise>(dest: D): D
-  pipe(
-    dest: Writable | ProcessPromise | TemplateStringsArray | string,
+  pipe!: PipeMethod & {
+    [key in keyof TSpawnStore]: PipeMethod
+  }
+  // prettier-ignore
+  static {
+    Object.defineProperty(this.prototype, 'pipe', { get() {
+      const self = this
+      const getPipeMethod = (kind: keyof TSpawnStore): PipeMethod => function (dest: PipeDest, ...args: any[]) { return self._pipe.call(self, kind, dest, ...args) }
+      const stdout = getPipeMethod('stdout')
+      const stderr = getPipeMethod('stderr')
+      const stdall = getPipeMethod('stdall')
+      return Object.assign(stdout, { stderr, stdout, stdall })
+    }})
+  }
+  private _pipe(
+    source: 'stdout' | 'stderr',
+    dest: PipeDest,
     ...args: any[]
   ): (Writable & PromiseLike<ProcessPromise & Writable>) | ProcessPromise {
     if (isStringLiteral(dest, ...args))
-      return this.pipe(
+      return this.pipe[source](
         $({
           halt: true,
           ac: this._snapshot.ac,
@@ -351,19 +377,18 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     const ee = this._ee
     const from = new VoidStream()
     const fill = () => {
-      for (const chunk of this._zurk!.store.stdout) from.write(chunk)
+      for (const chunk of this._zurk!.store[source]) from.write(chunk)
+      return true
     }
+    const fillEnd = () => this._resolved && fill() && from.end()
 
-    if (this._resolved) {
-      fill()
-      from.end()
-    } else {
-      const onStdout = (chunk: string | Buffer) => from.write(chunk)
-      ee.once('stdout', () => {
+    if (!this._resolved) {
+      const onData = (chunk: string | Buffer) => from.write(chunk)
+      ee.once(source, () => {
         fill()
-        ee.on('stdout', onStdout)
+        ee.on(source, onData)
       }).once('end', () => {
-        ee.removeListener('stdout', onStdout)
+        ee.removeListener(source, onData)
         from.end()
       })
     }
@@ -379,10 +404,12 @@ export class ProcessPromise extends Promise<ProcessOutput> {
         this.catch((e) => (dest.isNothrow() ? noop : dest._reject(e)))
         from.pipe(dest.run()._stdin)
       }
+      fillEnd()
       return dest
     }
 
     from.once('end', () => dest.emit('end-piped-from')).pipe(dest)
+    fillEnd()
     return promisifyStream(dest, this) as Writable &
       PromiseLike<ProcessPromise & Writable>
   }
@@ -413,12 +440,20 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   // Getters
+  get id() {
+    return this._id
+  }
+
   get pid(): number | undefined {
     return this.child?.pid
   }
 
   get cmd(): string {
     return this._command
+  }
+
+  get fullCmd(): string {
+    return this._snapshot.prefix + this.cmd + this._snapshot.postfix
   }
 
   get child(): ChildProcess | undefined {
@@ -720,34 +755,9 @@ export class ProcessOutput extends Error {
     return this._duration
   }
 
-  static getExitMessage(
-    code: number | null,
-    signal: NodeJS.Signals | null,
-    stderr: string,
-    from: string
-  ): string {
-    let message = `exit code: ${code}`
-    if (code != 0 || signal != null) {
-      message = `${stderr || '\n'}    at ${from}`
-      message += `\n    exit code: ${code}${
-        exitCodeInfo(code) ? ' (' + exitCodeInfo(code) + ')' : ''
-      }`
-      if (signal != null) {
-        message += `\n    signal: ${signal}`
-      }
-    }
+  static getExitMessage = formatExitMessage
 
-    return message
-  }
-
-  static getErrorMessage(err: NodeJS.ErrnoException, from: string): string {
-    return (
-      `${err.message}\n` +
-      `    errno: ${err.errno} (${errnoMessage(err.errno)})\n` +
-      `    code: ${err.code}\n` +
-      `    at ${from}`
-    )
-  }
+  static getErrorMessage = formatErrorMessage;
 
   [inspect.custom](): string {
     let stringify = (s: string, c: ChalkInstance) =>
@@ -757,8 +767,8 @@ export class ProcessOutput extends Error {
   stderr: ${stringify(this.stderr, chalk.red)},
   signal: ${inspect(this.signal)},
   exitCode: ${(this.exitCode === 0 ? chalk.green : chalk.red)(this.exitCode)}${
-    exitCodeInfo(this.exitCode)
-      ? chalk.grey(' (' + exitCodeInfo(this.exitCode) + ')')
+    getExitCodeInfo(this.exitCode)
+      ? chalk.grey(' (' + getExitCodeInfo(this.exitCode) + ')')
       : ''
   },
   duration: ${this.duration}
@@ -826,7 +836,7 @@ export function cd(dir: string | ProcessOutput) {
     dir = dir.toString().trim()
   }
 
-  $.log({ kind: 'cd', dir })
+  $.log({ kind: 'cd', dir, verbose: !$.quiet && $.verbose })
   process.chdir(dir)
   $[CWD] = process.cwd()
 }
@@ -844,61 +854,6 @@ export async function kill(pid: number, signal = $.killSignal) {
     try {
       process.kill(+pid, signal)
     } catch (e) {}
-  }
-}
-
-export type LogEntry = {
-  verbose?: boolean
-} & (
-  | {
-      kind: 'cmd'
-      cmd: string
-    }
-  | {
-      kind: 'stdout' | 'stderr'
-      data: Buffer
-    }
-  | {
-      kind: 'cd'
-      dir: string
-    }
-  | {
-      kind: 'fetch'
-      url: RequestInfo
-      init?: RequestInit
-    }
-  | {
-      kind: 'retry'
-      error: string
-    }
-  | {
-      kind: 'custom'
-      data: any
-    }
-)
-
-export function log(entry: LogEntry) {
-  if (!(entry.verbose ?? $.verbose)) return
-  switch (entry.kind) {
-    case 'cmd':
-      process.stderr.write(formatCmd(entry.cmd))
-      break
-    case 'stdout':
-    case 'stderr':
-    case 'custom':
-      process.stderr.write(entry.data)
-      break
-    case 'cd':
-      process.stderr.write('$ ' + chalk.greenBright('cd') + ` ${entry.dir}\n`)
-      break
-    case 'fetch':
-      const init = entry.init ? ' ' + inspect(entry.init) : ''
-      process.stderr.write(
-        '$ ' + chalk.greenBright('fetch') + ` ${entry.url}${init}\n`
-      )
-      break
-    case 'retry':
-      process.stderr.write(entry.error + '\n')
   }
 }
 
@@ -933,7 +888,7 @@ const promisifyStream = <S extends Writable>(
 
 export function resolveDefaults(
   defs: Options,
-  prefix: string = 'ZX_',
+  prefix: string = ENV_PREFIX,
   env = process.env
 ) {
   const allowed = new Set([
@@ -946,12 +901,13 @@ export function resolveDefaults(
     'timeoutSignal',
     'prefix',
     'postfix',
+    'shell',
   ])
 
   return Object.entries(env).reduce<Options>((m, [k, v]) => {
     if (v && k.startsWith(prefix)) {
-      const _k = snakeToCamel(k.slice(prefix.length))
-      const _v = { true: true, false: false }[v.toLowerCase()] ?? v
+      const _k = toCamelCase(k.slice(prefix.length))
+      const _v = parseBool(v)
       if (allowed.has(_k)) (m as any)[_k] = _v
     }
     return m

@@ -14,10 +14,9 @@
 
 import assert from 'node:assert'
 import fs from 'node:fs'
-import { test, describe } from 'node:test'
+import { test, describe, after } from 'node:test'
+import { fs as fsCore } from '../build/index.js'
 import {
-  exitCodeInfo,
-  errnoMessage,
   formatCmd,
   isString,
   isStringLiteral,
@@ -27,25 +26,15 @@ import {
   quotePowerShell,
   randomId,
   // normalizeMultilinePieces,
-  getCallerLocationFromString,
   tempdir,
   tempfile,
   preferLocalBin,
-  camelToSnake,
-  snakeToCamel,
+  toCamelCase,
+  parseDotenv,
+  readEnvFromFile,
 } from '../build/util.js'
 
 describe('util', () => {
-  test('exitCodeInfo()', () => {
-    assert.equal(exitCodeInfo(2), 'Misuse of shell builtins')
-  })
-
-  test('errnoMessage()', () => {
-    assert.equal(errnoMessage(-2), 'No such file or directory')
-    assert.equal(errnoMessage(1e9), 'Unknown error')
-    assert.equal(errnoMessage(undefined), 'Unknown error')
-  })
-
   test('randomId()', () => {
     assert.ok(/^[a-z0-9]+$/.test(randomId()))
     assert.ok(
@@ -120,90 +109,77 @@ describe('util', () => {
   //     ' a ,b c d, e'
   //   )
   // })
+
+  test('tempdir() creates temporary folders', () => {
+    assert.match(tempdir(), /\/zx-/)
+    assert.match(tempdir('foo'), /\/foo$/)
+  })
+
+  test('tempfile() creates temporary files', () => {
+    assert.match(tempfile(), /\/zx-.+/)
+    assert.match(tempfile('foo.txt'), /\/zx-.+\/foo\.txt$/)
+
+    const tf = tempfile('bar.txt', 'bar')
+    assert.match(tf, /\/zx-.+\/bar\.txt$/)
+    assert.equal(fs.readFileSync(tf, 'utf-8'), 'bar')
+  })
+
+  test('preferLocalBin()', () => {
+    const env = {
+      PATH: '/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/local/sbin',
+    }
+    const _env = preferLocalBin(env, process.cwd())
+    assert.equal(
+      _env.PATH,
+      `${process.cwd()}/node_modules/.bin:${process.cwd()}:${env.PATH}`
+    )
+  })
+
+  test('toCamelCase()', () => {
+    assert.equal(toCamelCase('VERBOSE'), 'verbose')
+    assert.equal(toCamelCase('PREFER_LOCAL'), 'preferLocal')
+    assert.equal(toCamelCase('SOME_MORE_BIG_STR'), 'someMoreBigStr')
+    assert.equal(toCamelCase('kebab-input-str'), 'kebabInputStr')
+  })
 })
 
-test('getCallerLocation: empty', () => {
-  assert.equal(getCallerLocationFromString(), 'unknown')
-})
-
-test('getCallerLocation: no-match', () => {
-  assert.equal(getCallerLocationFromString('stack\nstring'), 'stack\nstring')
-})
-
-test(`getCallerLocationFromString-v8`, () => {
-  const stack = `
-    Error
-      at getCallerLocation (/Users/user/test.js:22:17)
-      at e (/Users/user/test.js:34:13)
-      at d (/Users/user/test.js:11:5)
-      at c (/Users/user/test.js:8:5)
-      at b (/Users/user/test.js:5:5)
-      at a (/Users/user/test.js:2:5)
-      at Object.<anonymous> (/Users/user/test.js:37:1)
-      at Module._compile (node:internal/modules/cjs/loader:1254:14)
-      at Module._extensions..js (node:internal/modules/cjs/loader:1308:10)
-      at Module.load (node:internal/modules/cjs/loader:1117:32)
-      at Module._load (node:internal/modules/cjs/loader:958:12)
-    `
-  assert.match(getCallerLocationFromString(stack), /^.*:11:5.*$/)
-})
-
-test(`getCallerLocationFromString-JSC`, () => {
-  const stack = `
-    getCallerLocation@/Users/user/test.js:22:17
-    e@/Users/user/test.js:34:13
-    d@/Users/user/test.js:11:5
-    c@/Users/user/test.js:8:5
-    b@/Users/user/test.js:5:5
-    a@/Users/user/test.js:2:5
-    module code@/Users/user/test.js:37:1
-    evaluate@[native code]
-    moduleEvaluation@[native code]
-    moduleEvaluation@[native code]
-    @[native code]
-    asyncFunctionResume@[native code]
-    promiseReactionJobWithoutPromise@[native code]
-    promiseReactionJob@[native code]
-    d@/Users/user/test.js:11:5
-  `
-  assert.match(getCallerLocationFromString(stack), /^.*:11:5.*$/)
-})
-
-test('tempdir() creates temporary folders', () => {
-  assert.match(tempdir(), /\/zx-/)
-  assert.match(tempdir('foo'), /\/foo$/)
-})
-
-test('tempfile() creates temporary files', () => {
-  assert.match(tempfile(), /\/zx-.+/)
-  assert.match(tempfile('foo.txt'), /\/zx-.+\/foo\.txt$/)
-
-  const tf = tempfile('bar.txt', 'bar')
-  assert.match(tf, /\/zx-.+\/bar\.txt$/)
-  assert.equal(fs.readFileSync(tf, 'utf-8'), 'bar')
-})
-
-test('preferLocalBin()', () => {
-  const env = {
-    PATH: '/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/local/sbin',
-  }
-  const _env = preferLocalBin(env, process.cwd())
-  assert.equal(
-    _env.PATH,
-    `${process.cwd()}/node_modules/.bin:${process.cwd()}:${env.PATH}`
+test('parseDotenv()', () => {
+  assert.deepEqual(
+    parseDotenv('ENV=v1\nENV2=v2\n\n\n  ENV3  =    v3   \nexport ENV4=v4'),
+    {
+      ENV: 'v1',
+      ENV2: 'v2',
+      ENV3: 'v3',
+      ENV4: 'v4',
+    }
   )
+  assert.deepEqual(parseDotenv(''), {})
+
+  // TBD: multiline
+  const multiline = `SIMPLE=xyz123
+NON_INTERPOLATED='raw text without variable interpolation'
+MULTILINE = """
+long text here,
+e.g. a private SSH key
+"""`
 })
 
-test('camelToSnake()', () => {
-  assert.equal(camelToSnake('verbose'), 'VERBOSE')
-  assert.equal(camelToSnake('nothrow'), 'NOTHROW')
-  assert.equal(camelToSnake('preferLocal'), 'PREFER_LOCAL')
-  assert.equal(camelToSnake('someMoreBigStr'), 'SOME_MORE_BIG_STR')
-})
+describe('readEnvFromFile()', () => {
+  const file = tempfile('.env', 'ENV=value1\nENV2=value24')
+  after(() => fsCore.remove(file))
 
-test('snakeToCamel()', () => {
-  assert.equal(snakeToCamel('VERBOSE'), 'verbose')
-  assert.equal(snakeToCamel('NOTHROW'), 'nothrow')
-  assert.equal(snakeToCamel('PREFER_LOCAL'), 'preferLocal')
-  assert.equal(snakeToCamel('SOME_MORE_BIG_STR'), 'someMoreBigStr')
+  test('handles correct proccess.env', () => {
+    const env = readEnvFromFile(file)
+    assert.equal(env.ENV, 'value1')
+    assert.equal(env.ENV2, 'value24')
+    assert.ok(env.NODE_VERSION !== '')
+  })
+
+  test('handles correct some env', () => {
+    const env = readEnvFromFile(file, { version: '1.0.0', name: 'zx' })
+    assert.equal(env.ENV, 'value1')
+    assert.equal(env.ENV2, 'value24')
+    assert.equal(env.version, '1.0.0')
+    assert.equal(env.name, 'zx')
+  })
 })

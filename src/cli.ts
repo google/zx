@@ -21,13 +21,13 @@ import {
   updateArgv,
   fetch,
   chalk,
-  minimist,
   fs,
   path,
   VERSION,
+  parseArgv,
 } from './index.js'
 import { installDeps, parseDeps } from './deps.js'
-import { randomId } from './util.js'
+import { readEnvFromFile, randomId } from './util.js'
 import { createRequire } from './vendor.js'
 
 const EXT = '.mjs'
@@ -57,6 +57,7 @@ export function printUsage() {
    --shell=<path>       custom shell binary
    --prefix=<command>   prefix all commands
    --postfix=<command>  postfix all commands
+   --prefer-local, -l   prefer locally installed packages bins
    --cwd=<path>         set current directory
    --eval=<js>, -e      evaluate script
    --ext=<.mjs>         default extension
@@ -65,36 +66,37 @@ export function printUsage() {
    --version, -v        print current zx version
    --help, -h           print help
    --repl               start repl
+   --env=<path>         path to env file
    --experimental       enables experimental features (deprecated)
 
  ${chalk.italic('Full documentation:')} ${chalk.underline('https://google.github.io/zx/')}
 `)
 }
 
-export const argv: minimist.ParsedArgs = minimist(process.argv.slice(2), {
-  string: ['shell', 'prefix', 'postfix', 'eval', 'cwd', 'ext', 'registry'],
-  boolean: [
-    'version',
-    'help',
-    'quiet',
-    'verbose',
-    'install',
-    'repl',
-    'experimental',
-  ],
-  alias: { e: 'eval', i: 'install', v: 'version', h: 'help' },
+// prettier-ignore
+export const argv = parseArgv(process.argv.slice(2), {
+  string: ['shell', 'prefix', 'postfix', 'eval', 'cwd', 'ext', 'registry', 'env'],
+  boolean: ['version', 'help', 'quiet', 'verbose', 'install', 'repl', 'experimental', 'prefer-local'],
+  alias: { e: 'eval', i: 'install', v: 'version', h: 'help', l: 'prefer-local', 'env-file': 'env' },
   stopEarly: true,
+  parseBoolean: true,
+  camelCase: true,
 })
 
 export async function main() {
   await import('./globals.js')
   argv.ext = normalizeExt(argv.ext)
   if (argv.cwd) $.cwd = argv.cwd
+  if (argv.env) {
+    const envPath = path.resolve($.cwd ?? process.cwd(), argv.env)
+    $.env = readEnvFromFile(envPath, process.env)
+  }
   if (argv.verbose) $.verbose = true
   if (argv.quiet) $.quiet = true
   if (argv.shell) $.shell = argv.shell
   if (argv.prefix) $.prefix = argv.prefix
   if (argv.postfix) $.postfix = argv.postfix
+  if (argv.preferLocal) $.preferLocal = argv.preferLocal
   if (argv.version) {
     console.log(VERSION)
     return
@@ -111,7 +113,7 @@ export async function main() {
     await runScript(argv.eval, argv.ext)
     return
   }
-  const firstArg = argv._[0]
+  const [firstArg] = argv._
   updateArgv(argv._.slice(firstArg === undefined ? 0 : 1))
   if (!firstArg || firstArg === '-') {
     const success = await scriptFromStdin(argv.ext)
@@ -131,8 +133,8 @@ export async function main() {
   await importPath(filepath)
 }
 
-export async function runScript(script: string, ext = EXT) {
-  const filepath = path.join($.cwd ?? process.cwd(), `zx-${randomId()}${ext}`)
+export async function runScript(script: string, ext?: string) {
+  const filepath = getFilepath($.cwd, 'zx', ext)
   await writeAndImport(script, filepath)
 }
 
@@ -152,7 +154,7 @@ export async function scriptFromStdin(ext?: string): Promise<boolean> {
   return false
 }
 
-export async function scriptFromHttp(remote: string, _ext = EXT) {
+export async function scriptFromHttp(remote: string, _ext?: string) {
   const res = await fetch(remote)
   if (!res.ok) {
     console.error(`Error: Can't get ${remote}`)
@@ -160,10 +162,8 @@ export async function scriptFromHttp(remote: string, _ext = EXT) {
   }
   const script = await res.text()
   const pathname = new URL(remote).pathname
-  const name = path.basename(pathname)
-  const ext = path.extname(pathname) || _ext
-  const cwd = $.cwd ?? process.cwd()
-  const filepath = path.join(cwd, `${name}-${randomId()}${ext}`)
+  const { name, ext } = path.parse(pathname)
+  const filepath = getFilepath($.cwd, name, _ext || ext)
   await writeAndImport(script, filepath)
 }
 
@@ -172,7 +172,7 @@ export async function writeAndImport(
   filepath: string,
   origin = filepath
 ) {
-  await fs.writeFile(filepath, script.toString())
+  await fs.writeFile(filepath, script)
   try {
     process.once('exit', () => fs.rmSync(filepath, { force: true }))
     await importPath(filepath, origin)
@@ -185,30 +185,18 @@ export async function importPath(
   filepath: string,
   origin = filepath
 ): Promise<void> {
-  const ext = path.extname(filepath)
-  const base = path.basename(filepath)
-  const dir = path.dirname(filepath)
+  const contents = await fs.readFile(filepath)
+  const { ext, base, dir } = path.parse(filepath)
+  const tempFilename = getFilepath(dir, base)
 
   if (ext === '') {
-    const tmpFilename = fs.existsSync(`${filepath}.mjs`)
-      ? `${base}-${randomId()}.mjs`
-      : `${base}.mjs`
-
-    return writeAndImport(
-      await fs.readFile(filepath),
-      path.join(dir, tmpFilename),
-      origin
-    )
+    return writeAndImport(contents, tempFilename, origin)
   }
   if (ext === '.md') {
-    return writeAndImport(
-      transformMarkdown(await fs.readFile(filepath)),
-      path.join(dir, base + '.mjs'),
-      origin
-    )
+    return writeAndImport(transformMarkdown(contents), tempFilename, origin)
   }
   if (argv.install) {
-    const deps = parseDeps(await fs.readFile(filepath))
+    const deps = parseDeps(contents)
     await installDeps(deps, dir, argv.registry)
   }
 
@@ -224,13 +212,13 @@ export function injectGlobalRequire(origin: string) {
   Object.assign(globalThis, { __filename, __dirname, require })
 }
 
-export function transformMarkdown(buf: Buffer): string {
+export function transformMarkdown(buf: Buffer | string): string {
   const source = buf.toString()
   const output = []
   let state = 'root'
   let codeBlockEnd = ''
   let prevLineIsEmpty = true
-  const jsCodeBlock = /^(```{1,20}|~~~{1,20})(js|javascript)$/
+  const jsCodeBlock = /^(```{1,20}|~~~{1,20})(js|javascript|ts|typescript)$/
   const shCodeBlock = /^(```{1,20}|~~~{1,20})(sh|shell|bash)$/
   const otherCodeBlock = /^(```{1,20}|~~~{1,20})(.*)$/
   for (const line of source.split(/\r?\n/)) {
@@ -310,4 +298,15 @@ export function isMain(
 
 export function normalizeExt(ext?: string): string | undefined {
   return ext ? path.parse(`foo.${ext}`).ext : ext
+}
+
+// prettier-ignore
+function getFilepath(cwd = '.', name = 'zx', _ext?: string): string {
+  const ext = _ext || argv.ext || EXT
+  return [
+    name + ext,
+    name + '-' + randomId() + ext,
+  ]
+    .map(f => path.resolve(process.cwd(), cwd, f))
+    .find(f => !fs.existsSync(f))!
 }

@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import chalk from 'chalk'
 import assert from 'node:assert'
-import { test, describe } from 'node:test'
-import '../build/globals.js'
+import { test, describe, after } from 'node:test'
+import { $, chalk, fs, tempfile } from '../build/index.js'
+import { echo, sleep, parseArgv, loadDotenv } from '../build/goods.js'
 
 describe('goods', () => {
   function zx(script) {
@@ -30,25 +30,6 @@ describe('goods', () => {
     p.stdin.write('foo\n')
     p.stdin.end()
     assert.match((await p).stdout, /Answer is foo/)
-  })
-
-  test('globby available', async () => {
-    assert.equal(globby, glob)
-    assert.equal(typeof globby, 'function')
-    assert.equal(typeof globby.globbySync, 'function')
-    assert.equal(typeof globby.globbyStream, 'function')
-    assert.equal(typeof globby.generateGlobTasks, 'function')
-    assert.equal(typeof globby.isDynamicPattern, 'function')
-    assert.equal(typeof globby.isGitIgnored, 'function')
-    assert.equal(typeof globby.isGitIgnoredSync, 'function')
-    assert.deepEqual(await globby('*.md'), ['README.md'])
-  })
-
-  test('fetch() works', async () => {
-    assert.match(
-      await fetch('https://medv.io').then((res) => res.text()),
-      /Anton Medvedev/
-    )
   })
 
   test('echo() works', async () => {
@@ -66,33 +47,6 @@ describe('goods', () => {
     )
     console.log = log
     assert.match(stdout, /foo/)
-  })
-
-  test('YAML works', async () => {
-    assert.deepEqual(YAML.parse(YAML.stringify({ foo: 'bar' })), { foo: 'bar' })
-  })
-
-  test('which() available', async () => {
-    assert.equal(which.sync('npm'), await which('npm'))
-  })
-
-  test('minimist available', async () => {
-    assert.equal(typeof minimist, 'function')
-  })
-
-  test('minimist works', async () => {
-    assert.deepEqual(
-      minimist(
-        ['--foo', 'bar', '-a', '5', '-a', '42', '--force', './some.file'],
-        { boolean: 'force' }
-      ),
-      {
-        a: [5, 42],
-        foo: 'bar',
-        force: true,
-        _: ['./some.file'],
-      }
-    )
   })
 
   test('sleep() works', async () => {
@@ -132,31 +86,132 @@ describe('goods', () => {
     assert.ok(Date.now() >= now + 2 + 4 + 8 + 16 + 32)
   })
 
-  test('spinner() works', async () => {
-    const out = await zx(`
+  describe('spinner()', () => {
+    test('works', async () => {
+      const out = await zx(
+        `
+    process.env.CI = ''
     echo(await spinner(async () => {
       await sleep(100)
       await $\`echo hidden\`
       return $\`echo result\`
     }))
-  `)
-    assert(out.stdout.includes('result'))
-    assert(!out.stderr.includes('result'))
-    assert(!out.stderr.includes('hidden'))
-  })
+  `
+      )
+      assert(out.stdout.includes('result'))
+      assert(out.stderr.includes('⠋'))
+      assert(!out.stderr.includes('result'))
+      assert(!out.stderr.includes('hidden'))
+    })
 
-  test('spinner() with title works', async () => {
-    const out = await zx(`
+    test('with title', async () => {
+      const out = await zx(
+        `
+    process.env.CI = ''
     await spinner('processing', () => sleep(100))
-  `)
-    assert.match(out.stderr, /processing/)
-  })
+  `
+      )
+      assert.match(out.stderr, /processing/)
+    })
 
-  test('spinner() stops on throw', async () => {
-    const out = await zx(`
+    test('disabled in CI', async () => {
+      const out = await zx(
+        `
+    process.env.CI = 'true'
+    await spinner('processing', () => sleep(100))
+  `
+      )
+      assert.doesNotMatch(out.stderr, /processing/)
+    })
+
+    test('stops on throw', async () => {
+      const out = await zx(`
     await spinner('processing', () => $\`wtf-cmd\`)
   `)
-    assert.match(out.stderr, /Error:/)
-    assert(out.exitCode !== 0)
+      assert.match(out.stderr, /Error:/)
+      assert(out.exitCode !== 0)
+    })
+  })
+
+  test('parseArgv() works', () => {
+    assert.deepEqual(
+      parseArgv(
+        // prettier-ignore
+        [
+          '--foo-bar', 'baz',
+          '-a', '5',
+          '-a', '42',
+          '--aaa', 'AAA',
+          '--force',
+          './some.file',
+          '--b1', 'true',
+          '--b2', 'false',
+          '--b3',
+          '--b4', 'false',
+          '--b5', 'true',
+          '--b6', 'str'
+        ],
+        {
+          boolean: ['force', 'b3', 'b4', 'b5', 'b6'],
+          camelCase: true,
+          parseBoolean: true,
+          alias: { a: 'aaa' },
+        }
+      ),
+      {
+        a: [5, 42, 'AAA'],
+        aaa: [5, 42, 'AAA'],
+        fooBar: 'baz',
+        force: true,
+        _: ['./some.file', 'str'],
+        b1: true,
+        b2: false,
+        b3: true,
+        b4: false,
+        b5: true,
+        b6: true,
+      }
+    )
+  })
+
+  describe('loadDotenv()', () => {
+    const env1 = tempfile(
+      '.env',
+      `FOO=BAR
+            BAR=FOO+`
+    )
+    const env2 = tempfile('.env.default', `BAR2=FOO2`)
+
+    after(() => {
+      fs.remove(env1)
+      fs.remove(env2)
+    })
+
+    test('handles multiple dotenv files', async () => {
+      const env = loadDotenv(env1, env2)
+
+      assert.equal((await $({ env })`echo $FOO`).stdout, 'BAR\n')
+      assert.equal((await $({ env })`echo $BAR`).stdout, 'FOO+\n')
+      assert.equal((await $({ env })`echo $BAR2`).stdout, 'FOO2\n')
+    })
+
+    test('handles replace evn', async () => {
+      const env = loadDotenv(env1)
+      $.env = env
+      assert.equal((await $`echo $FOO`).stdout, 'BAR\n')
+      assert.equal((await $`echo $BAR`).stdout, 'FOO+\n')
+      $.env = process.env
+    })
+
+    test('handle error', async () => {
+      try {
+        loadDotenv('./.env')
+
+        assert.throw()
+      } catch (e) {
+        assert.equal(e.code, 'ENOENT')
+        assert.equal(e.errno, -2)
+      }
+    })
   })
 })

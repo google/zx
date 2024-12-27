@@ -17,8 +17,8 @@ import { test, describe, before, after } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import net from 'node:net'
 import getPort from 'get-port'
-import '../build/globals.js'
-import { isMain, normalizeExt } from '../build/cli.js'
+import { $, path, tmpfile, tmpdir, fs } from '../build/index.js'
+import { isMain, normalizeExt, transformMarkdown } from '../build/cli.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const spawn = $.spawn
@@ -38,7 +38,7 @@ const getServer = (resp = [], log = console.log) => {
 }
 
 describe('cli', () => {
-  // Helps detect unresolved ProcessPromise.
+  // Helps to detect unresolved ProcessPromise.
   before(() => {
     const spawned = []
     $.spawn = (...args) => {
@@ -135,6 +135,55 @@ describe('cli', () => {
     const p =
       await $`node build/cli.js --verbose --cwd=${cwd} <<< '$\`echo \${$.cwd}\`'`
     assert.ok(p.stderr.endsWith(cwd + '\n'))
+  })
+
+  test('supports `--env` options with file', async () => {
+    const env = tmpfile(
+      '.env',
+      `FOO=BAR
+      BAR=FOO+`
+    )
+    const file = `
+    console.log((await $\`echo $FOO\`).stdout);
+    console.log((await $\`echo $BAR\`).stdout)
+    `
+
+    const out = await $`node build/cli.js --env=${env} <<< ${file}`
+    fs.remove(env)
+    assert.equal(out.stdout, 'BAR\n\nFOO+\n\n')
+  })
+
+  test('supports `--env` and `--cwd` options with file', async () => {
+    const env = tmpfile(
+      '.env',
+      `FOO=BAR
+      BAR=FOO+`
+    )
+    const dir = tmpdir()
+    const file = `
+      console.log((await $\`echo $FOO\`).stdout);
+      console.log((await $\`echo $BAR\`).stdout)
+      `
+
+    const out =
+      await $`node build/cli.js --cwd=${dir} --env=${env}  <<< ${file}`
+    fs.remove(env)
+    fs.remove(dir)
+    assert.equal(out.stdout, 'BAR\n\nFOO+\n\n')
+  })
+
+  test('supports handling errors with the `--env` option', async () => {
+    const file = `
+      console.log((await $\`echo $FOO\`).stdout);
+      console.log((await $\`echo $BAR\`).stdout)
+      `
+    try {
+      await $`node build/cli.js --env=./env <<< ${file}`
+      fs.remove(env)
+      assert.throw()
+    } catch (e) {
+      assert.equal(e.exitCode, 1)
+    }
   })
 
   test('scripts from https 200', async () => {
@@ -283,12 +332,31 @@ describe('cli', () => {
         assert.ok(['EACCES', 'ENOENT'].includes(e.code))
       }
     })
-  })
 
-  test('normalizeExt()', () => {
-    assert.equal(normalizeExt('.ts'), '.ts')
-    assert.equal(normalizeExt('ts'), '.ts')
-    assert.equal(normalizeExt('.'), '.')
-    assert.equal(normalizeExt(), undefined)
+    test('transformMarkdown()', () => {
+      // prettier-ignore
+      assert.equal(transformMarkdown(`
+# Title
+    
+~~~js
+await $\`echo "tilde"\`
+~~~
+
+`), `// 
+// # Title
+//     
+
+await $\`echo "tilde"\`
+
+// 
+// `)
+    })
+
+    test('normalizeExt()', () => {
+      assert.equal(normalizeExt('.ts'), '.ts')
+      assert.equal(normalizeExt('ts'), '.ts')
+      assert.equal(normalizeExt('.'), '.')
+      assert.equal(normalizeExt(), undefined)
+    })
   })
 })

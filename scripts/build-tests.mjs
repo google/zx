@@ -17,38 +17,47 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import * as vendor from '../build/vendor.js'
+import * as core from '../build/core.js'
+import * as cli from '../build/cli.js'
+import * as index from '../build/index.js'
 
+// prettier-ignore
+const modules = [
+  ['core', core],
+  ['cli', cli],
+  ['index', index],
+  ['vendor', vendor, ['chalk', 'depseek', 'fs', 'glob', 'minimist', 'ps', 'which', 'YAML',]],
+]
 const root = path.resolve(new URL(import.meta.url).pathname, '../..')
-const apis = ['chalk', 'depseek', 'fs', 'minimist', 'ps', 'which', 'YAML']
+const filePath = path.resolve(root, `test/export.test.js`)
+
 const copyright = await fs.readFileSync(
   path.resolve(root, 'test/fixtures/copyright.txt'),
   'utf8'
 )
 
-const filePath = path.resolve(root, `test/vendor-export.test.js`)
-let fileContents = `${copyright.replace('YEAR', new Date().getFullYear())}
+let head = `${copyright.replace('YEAR', new Date().getFullYear())}
 import assert from 'node:assert'
-import { test, describe } from 'node:test'
-import {
-${apis.map((v) => '  ' + v).join(',\n')},
-} from '../build/vendor.js'
-`
+import { test, describe } from 'node:test'`
+let body = '\n'
 
-apis.forEach((name) => {
-  const api = vendor[name]
-  const methods = Object.entries(api)
-  const formatAssert = (k, v, prefix = '    ') =>
-    `${prefix}assert.equal(typeof ${name}.${k}, '${typeof v}', '${name}.${k}')`
-  const methodChecks = methods.length
-    ? '\n' + methods.map(([k, v]) => formatAssert(k, v)).join('\n')
-    : ''
-  fileContents += `
-describe('vendor ${name} API ', () => {
-  test('exports', () => {
-    assert.equal(typeof ${name}, '${typeof api}')${methodChecks}
-  })
-})
-`
-})
+for (const [name, ref, apis = Object.keys(ref).sort()] of modules) {
+  head += `\nimport * as ${name} from '../build/${name}.js'`
+  body += `\n//prettier-ignore\ndescribe('${name}', () => {\n`
+  body += `  test('exports', () => {\n`
+  for (const r of apis) {
+    const api = ref[r]
+    body += `    assert.equal(typeof ${name}.${r}, '${typeof api}', '${name}.${r}')\n`
+    if (typeof api !== 'function' && typeof api !== 'object') continue
+    for (const k of Object.keys(api).sort()) {
+      const v = api[k]
+      body += `    assert.equal(typeof ${name}.${r}.${k}, '${typeof v}', '${name}.${r}.${k}')\n`
+    }
+  }
+  body += '  })\n'
+  body += '})\n'
+}
 
-fs.writeFileSync(filePath, fileContents)
+const contents = head + body
+
+fs.writeFileSync(filePath, contents)

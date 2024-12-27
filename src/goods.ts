@@ -15,9 +15,16 @@
 import assert from 'node:assert'
 import { createInterface } from 'node:readline'
 import { $, within, ProcessOutput } from './core.js'
-import { type Duration, isStringLiteral, parseDuration } from './util.js'
 import {
-  chalk,
+  type Duration,
+  identity,
+  isStringLiteral,
+  parseBool,
+  parseDuration,
+  readEnvFromFile,
+  toCamelCase,
+} from './util.js'
+import {
   minimist,
   nodeFetch,
   type RequestInfo,
@@ -27,13 +34,31 @@ import {
 export { default as path } from 'node:path'
 export * as os from 'node:os'
 
-export const argv: minimist.ParsedArgs = minimist(process.argv.slice(2))
-export function updateArgv(args: string[]) {
+type ArgvOpts = minimist.Opts & { camelCase?: boolean; parseBoolean?: boolean }
+
+export const parseArgv = (
+  args: string[] = process.argv.slice(2),
+  opts: ArgvOpts = {}
+): minimist.ParsedArgs =>
+  Object.entries(minimist(args, opts)).reduce<minimist.ParsedArgs>(
+    (m, [k, v]) => {
+      const kTrans = opts.camelCase ? toCamelCase : identity
+      const vTrans = opts.parseBoolean ? parseBool : identity
+      const [_k, _v] = k === '--' || k === '_' ? [k, v] : [kTrans(k), vTrans(v)]
+      m[_k] = _v
+      return m
+    },
+    {} as minimist.ParsedArgs
+  )
+
+export function updateArgv(args?: string[], opts?: ArgvOpts) {
   for (const k in argv) delete argv[k]
-  Object.assign(argv, minimist(args))
+  Object.assign(argv, parseArgv(args, opts))
 }
 
-export function sleep(duration: Duration): Promise<unknown> {
+export const argv: minimist.ParsedArgs = parseArgv()
+
+export function sleep(duration: Duration): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(resolve, parseDuration(duration))
   })
@@ -43,7 +68,7 @@ export async function fetch(
   url: RequestInfo,
   init?: RequestInit
 ): Promise<Response> {
-  $.log({ kind: 'fetch', url, init })
+  $.log({ kind: 'fetch', url, init, verbose: !$.quiet && $.verbose })
   return nodeFetch(url, init)
 }
 
@@ -58,10 +83,9 @@ export function echo(pieces: TemplateStringsArray, ...args: any[]) {
 }
 
 function stringify(arg: ProcessOutput | any) {
-  if (arg instanceof ProcessOutput) {
-    return arg.toString().replace(/\n$/, '')
-  }
-  return `${arg}`
+  return arg instanceof ProcessOutput
+    ? arg.toString().replace(/\n$/, '')
+    : `${arg}`
 }
 
 export async function question(
@@ -116,10 +140,10 @@ export async function retry<T>(
   let callback: () => T
   let delayStatic = 0
   let delayGen: Generator<number> | undefined
-  if (typeof a == 'function') {
+  if (typeof a === 'function') {
     callback = a
   } else {
-    if (typeof a == 'object') {
+    if (typeof a === 'object') {
       delayGen = a
     } else {
       delayStatic = parseDuration(a)
@@ -139,10 +163,12 @@ export async function retry<T>(
       if (delayGen) delay = delayGen.next().value
       $.log({
         kind: 'retry',
-        error:
-          chalk.bgRed.white(' FAIL ') +
-          ` Attempt: ${attempt}${total == Infinity ? '' : `/${total}`}` +
-          (delay > 0 ? `; next in ${delay}ms` : ''),
+        total,
+        attempt,
+        delay,
+        exception: err,
+        verbose: !$.quiet && $.verbose,
+        error: `FAIL Attempt: ${attempt}/${total}, next: ${delay}`, // legacy
       })
       lastErr = err
       if (count == 0) break
@@ -175,6 +201,8 @@ export async function spinner<T>(
     callback = title
     title = ''
   }
+  if ($.quiet || process.env.CI) return callback!()
+
   let i = 0
   const spin = () =>
     process.stderr.write(`  ${'⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'[i++ % 10]} ${title}\r`)
@@ -190,3 +218,10 @@ export async function spinner<T>(
     }
   })
 }
+
+/**
+ *
+ * Read env files and collects it into environment variables
+ */
+export const loadDotenv = (...files: string[]): NodeJS.ProcessEnv =>
+  files.reduce<NodeJS.ProcessEnv>((m, f) => readEnvFromFile(f, m), {})
