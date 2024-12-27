@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import assert from 'node:assert'
-import { test, describe } from 'node:test'
-import { $, chalk } from '../build/index.js'
-import { echo, sleep, parseArgv } from '../build/goods.js'
+import { test, describe, after } from 'node:test'
+import { $, chalk, fs, tempfile } from '../build/index.js'
+import { echo, sleep, parseArgv, loadDotenv } from '../build/goods.js'
 
 describe('goods', () => {
   function zx(script) {
@@ -172,5 +172,46 @@ describe('goods', () => {
         b6: true,
       }
     )
+  })
+
+  describe('loadDotenv()', () => {
+    const env1 = tempfile(
+      '.env',
+      `FOO=BAR
+            BAR=FOO+`
+    )
+    const env2 = tempfile('.env.default', `BAR2=FOO2`)
+
+    after(() => {
+      fs.remove(env1)
+      fs.remove(env2)
+    })
+
+    test('handles multiple dotenv files', async () => {
+      const env = loadDotenv(env1, env2)
+
+      assert.equal((await $({ env })`echo $FOO`).stdout, 'BAR\n')
+      assert.equal((await $({ env })`echo $BAR`).stdout, 'FOO+\n')
+      assert.equal((await $({ env })`echo $BAR2`).stdout, 'FOO2\n')
+    })
+
+    test('handles replace evn', async () => {
+      const env = loadDotenv(env1)
+      $.env = env
+      assert.equal((await $`echo $FOO`).stdout, 'BAR\n')
+      assert.equal((await $`echo $BAR`).stdout, 'FOO+\n')
+      $.env = process.env
+    })
+
+    test('handle error', async () => {
+      try {
+        loadDotenv('./.env')
+
+        assert.throw()
+      } catch (e) {
+        assert.equal(e.code, 'ENOENT')
+        assert.equal(e.errno, -2)
+      }
+    })
   })
 })

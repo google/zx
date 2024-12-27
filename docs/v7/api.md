@@ -204,3 +204,17 @@ The [yaml](https://www.npmjs.com/package/yaml) package.
 ```js
 console.log(YAML.parse('foo: bar').foo)
 ```
+
+
+## loadDotenv
+
+Read env files and collects it into environment variables.
+
+```js
+const env = loadDotenv(env1, env2)
+console.log((await $({ env })`echo $FOO`).stdout)
+---
+const env = loadDotenv(env1)
+$.env = env
+console.log((await $`echo $FOO`).stdout)
+```

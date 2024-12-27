@@ -21,6 +21,7 @@ import {
   isStringLiteral,
   parseBool,
   parseDuration,
+  readEnvFromFile,
   toCamelCase,
 } from './util.js'
 import {
@@ -217,3 +218,10 @@ export async function spinner<T>(
     }
   })
 }
+
+/**
+ *
+ * Read env files and collects it into environment variables
+ */
+export const loadDotenv = (...files: string[]): NodeJS.ProcessEnv =>
+  files.reduce<NodeJS.ProcessEnv>((m, f) => readEnvFromFile(f, m), {})
