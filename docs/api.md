@@ -364,3 +364,21 @@ The [yaml](https://www.npmjs.com/package/yaml) package.
 ```js
 console.log(YAML.parse('foo: bar').foo)
 ```
+
+## dotenv
+[dotenv](https://www.npmjs.com/package/dotenv)-like environment variables loading API
+
+```js
+// parse
+const raw = 'FOO=BAR\nBAZ=QUX'
+const data = dotenv.parse(raw) // {FOO: 'BAR', BAZ: 'QUX'}
+await fs.writeFile('.env', raw)
+
+// load
+const env = dotenv.load('.env')
+await $({ env })`echo $FOO`.stdout // BAR
+
+// config
+dotenv.config('.env')
+process.env.FOO // BAR
+```

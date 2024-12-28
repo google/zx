@@ -30,8 +30,6 @@ import {
   tempfile,
   preferLocalBin,
   toCamelCase,
-  parseDotenv,
-  readEnvFromFile,
 } from '../build/util.js'
 
 describe('util', () => {
@@ -140,46 +138,5 @@ describe('util', () => {
     assert.equal(toCamelCase('PREFER_LOCAL'), 'preferLocal')
     assert.equal(toCamelCase('SOME_MORE_BIG_STR'), 'someMoreBigStr')
     assert.equal(toCamelCase('kebab-input-str'), 'kebabInputStr')
-  })
-})
-
-test('parseDotenv()', () => {
-  assert.deepEqual(
-    parseDotenv('ENV=v1\nENV2=v2\n\n\n  ENV3  =    v3   \nexport ENV4=v4'),
-    {
-      ENV: 'v1',
-      ENV2: 'v2',
-      ENV3: 'v3',
-      ENV4: 'v4',
-    }
-  )
-  assert.deepEqual(parseDotenv(''), {})
-
-  // TBD: multiline
-  const multiline = `SIMPLE=xyz123
-NON_INTERPOLATED='raw text without variable interpolation'
-MULTILINE = """
-long text here,
-e.g. a private SSH key
-"""`
-})
-
-describe('readEnvFromFile()', () => {
-  const file = tempfile('.env', 'ENV=value1\nENV2=value24')
-  after(() => fsCore.remove(file))
-
-  test('handles correct proccess.env', () => {
-    const env = readEnvFromFile(file)
-    assert.equal(env.ENV, 'value1')
-    assert.equal(env.ENV2, 'value24')
-    assert.ok(env.NODE_VERSION !== '')
-  })
-
-  test('handles correct some env', () => {
-    const env = readEnvFromFile(file, { version: '1.0.0', name: 'zx' })
-    assert.equal(env.ENV, 'value1')
-    assert.equal(env.ENV2, 'value24')
-    assert.equal(env.version, '1.0.0')
-    assert.equal(env.name, 'zx')
   })
 })

@@ -18,16 +18,17 @@ import url from 'node:url'
 import {
   $,
   ProcessOutput,
+  parseArgv,
   updateArgv,
-  fetch,
   chalk,
+  dotenv,
+  fetch,
   fs,
   path,
   VERSION,
-  parseArgv,
 } from './index.js'
 import { installDeps, parseDeps } from './deps.js'
-import { readEnvFromFile, randomId } from './util.js'
+import { randomId } from './util.js'
 import { createRequire } from './vendor.js'
 
 const EXT = '.mjs'
@@ -89,7 +90,7 @@ export async function main() {
   if (argv.cwd) $.cwd = argv.cwd
   if (argv.env) {
     const envPath = path.resolve($.cwd ?? process.cwd(), argv.env)
-    $.env = readEnvFromFile(envPath, process.env)
+    $.env = { ...process.env, ...dotenv.load(envPath) }
   }
   if (argv.verbose) $.verbose = true
   if (argv.quiet) $.quiet = true
