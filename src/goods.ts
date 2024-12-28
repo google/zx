@@ -28,6 +28,7 @@ import {
   fs,
   minimist,
   nodeFetch,
+  parseDotenv,
   type RequestInfo,
   type RequestInit,
 } from './vendor.js'
@@ -224,18 +225,7 @@ export async function spinner<T>(
  * Read env files and collects it into environment variables
  */
 export const dotenv = (() => {
-  const parse = (content: string | Buffer): NodeJS.ProcessEnv =>
-    content
-      .toString()
-      .split(/\r?\n/)
-      .reduce<NodeJS.ProcessEnv>((r, line) => {
-        if (line.startsWith('export ')) line = line.slice(7)
-        const i = line.indexOf('=')
-        const k = line.slice(0, i).trim()
-        const v = line.slice(i + 1).trim()
-        if (k && v) r[k] = v
-        return r
-      }, {})
+  const parse = parseDotenv
 
   const _load = (
     read: (file: string) => string,
