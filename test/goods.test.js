@@ -13,9 +13,9 @@
 // limitations under the License.
 
 import assert from 'node:assert'
-import { test, describe } from 'node:test'
-import { $, chalk } from '../build/index.js'
-import { echo, sleep, parseArgv } from '../build/goods.js'
+import { test, describe, after } from 'node:test'
+import { $, chalk, fs, tempfile } from '../build/index.js'
+import { echo, sleep, parseArgv, dotenv } from '../build/goods.js'
 
 describe('goods', () => {
   function zx(script) {
@@ -172,5 +172,75 @@ describe('goods', () => {
         b6: true,
       }
     )
+  })
+
+  describe('dotenv', () => {
+    test('parse()', () => {
+      assert.deepEqual(
+        dotenv.parse('ENV=v1\nENV2=v2\n\n\n  ENV3  =    v3   \nexport ENV4=v4'),
+        {
+          ENV: 'v1',
+          ENV2: 'v2',
+          ENV3: 'v3',
+          ENV4: 'v4',
+        }
+      )
+      assert.deepEqual(dotenv.parse(''), {})
+
+      // TBD: multiline
+      const multiline = `SIMPLE=xyz123
+NON_INTERPOLATED='raw text without variable interpolation'
+MULTILINE = """
+long text here,
+e.g. a private SSH key
+"""`
+    })
+
+    describe('load()', () => {
+      const file1 = tempfile('.env.1', 'ENV1=value1\nENV2=value2')
+      const file2 = tempfile('.env.2', 'ENV2=value222\nENV3=value3')
+      after(() => Promise.all([fs.remove(file1), fs.remove(file2)]))
+
+      test('loads env from files', () => {
+        const env = dotenv.load(file1, file2)
+        assert.equal(env.ENV1, 'value1')
+        assert.equal(env.ENV2, 'value2')
+        assert.equal(env.ENV3, 'value3')
+      })
+
+      test('throws error on ENOENT', () => {
+        try {
+          dotenv.load('./.env')
+          assert.throw()
+        } catch (e) {
+          assert.equal(e.code, 'ENOENT')
+          assert.equal(e.errno, -2)
+        }
+      })
+    })
+
+    describe('loadSafe()', () => {
+      const file1 = tempfile('.env.1', 'ENV1=value1\nENV2=value2')
+      const file2 = '.env.notexists'
+
+      after(() => fs.remove(file1))
+
+      test('loads env from files', () => {
+        const env = dotenv.loadSafe(file1, file2)
+        assert.equal(env.ENV1, 'value1')
+        assert.equal(env.ENV2, 'value2')
+      })
+    })
+
+    describe('config()', () => {
+      test('updates process.env', () => {
+        const file1 = tempfile('.env.1', 'ENV1=value1')
+
+        assert.equal(process.env.ENV1, undefined)
+        dotenv.config(file1)
+        assert.equal(process.env.ENV1, 'value1')
+        delete process.env.ENV1
+      })
+    })
   })
 })

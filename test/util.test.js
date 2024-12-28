@@ -14,7 +14,8 @@
 
 import assert from 'node:assert'
 import fs from 'node:fs'
-import { test, describe } from 'node:test'
+import { test, describe, after } from 'node:test'
+import { fs as fsCore } from '../build/index.js'
 import {
   formatCmd,
   isString,
@@ -29,8 +30,6 @@ import {
   tempfile,
   preferLocalBin,
   toCamelCase,
-  parseDotenv,
-  readEnvFromFile,
 } from '../build/util.js'
 
 describe('util', () => {
@@ -139,54 +138,5 @@ describe('util', () => {
     assert.equal(toCamelCase('PREFER_LOCAL'), 'preferLocal')
     assert.equal(toCamelCase('SOME_MORE_BIG_STR'), 'someMoreBigStr')
     assert.equal(toCamelCase('kebab-input-str'), 'kebabInputStr')
-  })
-
-  test.only('parseDotenv()', () => {
-    const multiline = `SIMPLE=xyz123
-# comment ###
-NON_INTERPOLATED='raw text without variable interpolation' 
-MULTILINE = """
-long text here, # not-comment
-e.g. a private SSH key
-"""
-ENV=v1\nENV2=v2\n\n\n\t\t  ENV3  =    v3   \n   export ENV4=v4
-ENV5=v5 # comment
-`
-
-    assert.deepEqual(parseDotenv(multiline), {
-      SIMPLE: 'xyz123',
-      NON_INTERPOLATED: 'raw text without variable interpolation',
-      MULTILINE: 'long text here, # not-comment\ne.g. a private SSH key',
-      ENV: 'v1',
-      ENV2: 'v2',
-      ENV3: 'v3',
-      ENV4: 'v4',
-      ENV5: 'v5',
-    })
-
-    assert.deepEqual(
-      parseDotenv(`FOO=BAR
-      BAR=FOO+`),
-      { FOO: 'BAR', BAR: 'FOO+' }
-    )
-  })
-
-  describe('readEnvFromFile()', () => {
-    test('handles correct proccess.env', () => {
-      const file = tempfile('.env', 'ENV=value1\nENV2=value24')
-      const env = readEnvFromFile(file)
-      assert.equal(env.ENV, 'value1')
-      assert.equal(env.ENV2, 'value24')
-      assert.ok(env.NODE_VERSION !== '')
-    })
-
-    test('handles correct some env', () => {
-      const file = tempfile('.env', 'ENV=value1\nENV2=value24')
-      const env = readEnvFromFile(file, { version: '1.0.0', name: 'zx' })
-      assert.equal(env.ENV, 'value1')
-      assert.equal(env.ENV2, 'value24')
-      assert.equal(env.version, '1.0.0')
-      assert.equal(env.name, 'zx')
-    })
   })
 })

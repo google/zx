@@ -14,6 +14,7 @@
 
 import assert from 'node:assert'
 import { createInterface } from 'node:readline'
+import { default as path } from 'node:path'
 import { $, within, ProcessOutput } from './core.js'
 import {
   type Duration,
@@ -24,6 +25,7 @@ import {
   toCamelCase,
 } from './util.js'
 import {
+  fs,
   minimist,
   nodeFetch,
   type RequestInfo,
@@ -217,3 +219,47 @@ export async function spinner<T>(
     }
   })
 }
+
+/**
+ * Read env files and collects it into environment variables
+ */
+export const dotenv = (() => {
+  const parse = (content: string | Buffer): NodeJS.ProcessEnv =>
+    content
+      .toString()
+      .split(/\r?\n/)
+      .reduce<NodeJS.ProcessEnv>((r, line) => {
+        if (line.startsWith('export ')) line = line.slice(7)
+        const i = line.indexOf('=')
+        const k = line.slice(0, i).trim()
+        const v = line.slice(i + 1).trim()
+        if (k && v) r[k] = v
+        return r
+      }, {})
+
+  const _load = (
+    read: (file: string) => string,
+    ...files: string[]
+  ): NodeJS.ProcessEnv =>
+    files
+      .reverse()
+      .reduce((m, f) => Object.assign(m, parse(read(path.resolve(f)))), {})
+  const load = (...files: string[]): NodeJS.ProcessEnv =>
+    _load((file) => fs.readFileSync(file, 'utf8'), ...files)
+  const loadSafe = (...files: string[]): NodeJS.ProcessEnv =>
+    _load(
+      (file: string): string =>
+        fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '',
+      ...files
+    )
+
+  const config = (def = '.env', ...files: string[]): NodeJS.ProcessEnv =>
+    Object.assign(process.env, loadSafe(def, ...files))
+
+  return {
+    parse,
+    load,
+    loadSafe,
+    config,
+  }
+})()

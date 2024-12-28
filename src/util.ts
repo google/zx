@@ -363,14 +363,3 @@ export const toCamelCase = (str: string) =>
 export const parseBool = (v: string): boolean | string =>
   ({ true: true, false: false })[v] ?? v
 
-export const readEnvFromFile = (
-  filepath: string,
-  env: NodeJS.ProcessEnv = process.env
-): NodeJS.ProcessEnv => {
-  const content = fs.readFileSync(path.resolve(filepath), 'utf8')
-
-  return {
-    ...env,
-    ...parseDotenv(content),
-  }
-}
