@@ -30,6 +30,7 @@ import {
   ProcessOutput,
   ProcessPromise,
   defaults,
+  dotenv,
   minimist,
   chalk,
   fs,
@@ -106,6 +107,7 @@ describe('index', () => {
     assert(which)
     assert(YAML)
     assert(ps)
+    assert(dotenv)
 
     // utils
     assert(quote)

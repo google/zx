@@ -45,6 +45,7 @@ const entries = [
         // '@webpod/ps',
         '@webpod/ingrid',
         'depseek',
+        'envapi',
       ], // args['external-inlines'],
     },
     output,
