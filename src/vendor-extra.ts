@@ -116,3 +116,4 @@ export const fs: typeof import('fs-extra') = _fs
 
 export { depseekSync as depseek } from 'depseek'
 export { default as minimist } from 'minimist'
+export { default as dotenv } from 'envapi'
