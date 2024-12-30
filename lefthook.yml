@@ -1,14 +1,6 @@
 pre-push:
   parallel: true
   commands:
-    coverage:
-      run: npm run test:coverage
-    audit:
-      run: npm run test:audit
-
-pre-commit:
-  parallel: true
-  commands:
     format:
       glob: '*.{js,ts,md,yml}'
       run: npm run fmt:check
