@@ -18,7 +18,7 @@ import fs from 'node:fs'
 import { chalk, type RequestInfo, type RequestInit } from './vendor-core.js'
 import { inspect } from 'node:util'
 
-export { isStringLiteral, parseDotenv } from './vendor-core.js'
+export { isStringLiteral } from './vendor-core.js'
 
 export function tempdir(prefix: string = `zx-${randomId()}`): string {
   const dirpath = path.join(os.tmpdir(), prefix)

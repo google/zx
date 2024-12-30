@@ -14,8 +14,8 @@
 
 import assert from 'node:assert'
 import { test, describe, after } from 'node:test'
-import { $, chalk, fs, tempfile } from '../build/index.js'
-import { echo, sleep, parseArgv, dotenv } from '../build/goods.js'
+import { $, chalk, fs, tempfile, dotenv } from '../build/index.js'
+import { echo, sleep, parseArgv } from '../build/goods.js'
 
 describe('goods', () => {
   function zx(script) {

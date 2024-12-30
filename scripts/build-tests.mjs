@@ -26,7 +26,7 @@ const modules = [
   ['core', core],
   ['cli', cli],
   ['index', index],
-  ['vendor', vendor, ['chalk', 'depseek', 'fs', 'glob', 'minimist', 'ps', 'which', 'YAML',]],
+  ['vendor', vendor, ['chalk', 'depseek', 'dotenv', 'fs', 'glob', 'minimist', 'ps', 'which', 'YAML',]],
 ]
 const root = path.resolve(new URL(import.meta.url).pathname, '../..')
 const filePath = path.resolve(root, `test/export.test.js`)

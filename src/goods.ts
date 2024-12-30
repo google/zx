@@ -28,7 +28,6 @@ import {
   fs,
   minimist,
   nodeFetch,
-  parseDotenv,
   type RequestInfo,
   type RequestInit,
 } from './vendor.js'
@@ -220,36 +219,3 @@ export async function spinner<T>(
     }
   })
 }
-
-/**
- * Read env files and collects it into environment variables
- */
-export const dotenv = (() => {
-  const parse = parseDotenv
-
-  const _load = (
-    read: (file: string) => string,
-    ...files: string[]
-  ): NodeJS.ProcessEnv =>
-    files
-      .reverse()
-      .reduce((m, f) => Object.assign(m, parse(read(path.resolve(f)))), {})
-  const load = (...files: string[]): NodeJS.ProcessEnv =>
-    _load((file) => fs.readFileSync(file, 'utf8'), ...files)
-  const loadSafe = (...files: string[]): NodeJS.ProcessEnv =>
-    _load(
-      (file: string): string =>
-        fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '',
-      ...files
-    )
-
-  const config = (def = '.env', ...files: string[]): NodeJS.ProcessEnv =>
-    Object.assign(process.env, loadSafe(def, ...files))
-
-  return {
-    parse,
-    load,
-    loadSafe,
-    config,
-  }
-})()
