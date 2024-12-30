@@ -14,8 +14,8 @@
 
 import assert from 'node:assert'
 import { test, describe, after } from 'node:test'
-import { $, chalk, fs, tempfile } from '../build/index.js'
-import { echo, sleep, parseArgv, dotenv } from '../build/goods.js'
+import { $, chalk, fs, tempfile, dotenv } from '../build/index.js'
+import { echo, sleep, parseArgv } from '../build/goods.js'
 
 describe('goods', () => {
   function zx(script) {
@@ -176,6 +176,7 @@ describe('goods', () => {
 
   describe('dotenv', () => {
     test('parse()', () => {
+      assert.deepEqual(dotenv.parse(''), {})
       assert.deepEqual(
         dotenv.parse('ENV=v1\nENV2=v2\n\n\n  ENV3  =    v3   \nexport ENV4=v4'),
         {
@@ -185,15 +186,27 @@ describe('goods', () => {
           ENV4: 'v4',
         }
       )
-      assert.deepEqual(dotenv.parse(''), {})
 
-      // TBD: multiline
       const multiline = `SIMPLE=xyz123
-NON_INTERPOLATED='raw text without variable interpolation'
+# comment ###
+NON_INTERPOLATED='raw text without variable interpolation' 
 MULTILINE = """
-long text here,
+long text here, # not-comment
 e.g. a private SSH key
-"""`
+"""
+ENV=v1\nENV2=v2\n\n\n\t\t  ENV3  =    v3   \n   export ENV4=v4
+ENV5=v5 # comment
+`
+      assert.deepEqual(dotenv.parse(multiline), {
+        SIMPLE: 'xyz123',
+        NON_INTERPOLATED: 'raw text without variable interpolation',
+        MULTILINE: 'long text here, # not-comment\ne.g. a private SSH key',
+        ENV: 'v1',
+        ENV2: 'v2',
+        ENV3: 'v3',
+        ENV4: 'v4',
+        ENV5: 'v5',
+      })
     })
 
     describe('load()', () => {

@@ -20,6 +20,7 @@ export * from './goods.js'
 export {
   minimist,
   chalk,
+  dotenv,
   fs,
   which,
   YAML,

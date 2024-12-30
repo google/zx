@@ -366,7 +366,8 @@ console.log(YAML.parse('foo: bar').foo)
 ```
 
 ## dotenv
-[dotenv](https://www.npmjs.com/package/dotenv)-like environment variables loading API
+The [envapi](https://www.npmjs.com/package/envapi) package.  
+An API to interact with environment vars in [dotenv](https://www.npmjs.com/package/dotenv) format.
 
 ```js
 // parse
