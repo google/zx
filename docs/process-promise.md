@@ -4,8 +4,14 @@ The `$` returns a `ProcessPromise` instance. When resolved, it becomes a [`Proce
 
 ```js
 const p = $`command` // ProcessPromise
-
 const o = await p    // ProcessOutput
+```
+
+By default, `$` spawns a new process immediately, but you can delay the start to trigger in manually.
+
+```ts
+const p = $({halt: true})`command`
+const o = await p.run()
 ```
 
 ## `stdin`
