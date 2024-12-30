@@ -1,0 +1,12 @@
+pre-push:
+  parallel: true
+  commands:
+    format:
+      glob: '*.{js,ts,md,yml}'
+      run: npm run fmt:check
+    license:
+      run: npm run test:license
+    size:
+      run: npm run test:size
+    circular:
+      run: npm run test:circular
