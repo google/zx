@@ -255,8 +255,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
     const self = this
     const $ = this._snapshot
+    const sync = $[SYNC]
+    const timeout = self._timeout ?? $.timeout
+    const timeoutSignal = self._timeoutSignal ?? $.timeoutSignal
 
-    if ($.timeout) this.timeout($.timeout, $.timeoutSignal)
     if ($.preferLocal) {
       const dirs =
         $.preferLocal === true ? [$.cwd, $[CWD]] : [$.preferLocal].flat()
@@ -265,12 +267,13 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
     $.log({
       kind: 'cmd',
-      cmd: this._command,
+      cmd: self.cmd,
       verbose: self.isVerbose(),
     })
 
     // prettier-ignore
     this._zurk = exec({
+      sync,
       id:       self.id,
       cmd:      self.fullCmd,
       cwd:      $.cwd ?? $[CWD],
@@ -284,13 +287,12 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       store:    $.store,
       stdin:    self._stdin,
       stdio:    self._stdio ?? $.stdio,
-      sync:     $[SYNC],
       detached: $.detached,
       ee:       self._ee,
       run: (cb) => cb(),
       on: {
         start: () => {
-          self._timeout && self.timeout(self._timeout, self._timeoutSignal)
+          !sync && timeout && self.timeout(timeout, timeoutSignal)
         },
         stdout: (data) => {
           // If process is piped, don't print output.
@@ -360,7 +362,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     }})
   }
   private _pipe(
-    source: 'stdout' | 'stderr',
+    source: keyof TSpawnStore,
     dest: PipeDest,
     ...args: any[]
   ): (Writable & PromiseLike<ProcessPromise & Writable>) | ProcessPromise {
@@ -513,11 +515,13 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   timeout(d: Duration, signal = $.timeoutSignal): ProcessPromise {
+    if (this._resolved) return this
+
     this._timeout = parseDuration(d)
     this._timeoutSignal = signal
 
     if (this._timeoutId) clearTimeout(this._timeoutId)
-    if (this._timeout) {
+    if (this._timeout && this._run) {
       this._timeoutId = setTimeout(
         () => this.kill(this._timeoutSignal),
         this._timeout
