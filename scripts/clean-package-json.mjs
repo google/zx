@@ -14,10 +14,11 @@
 
 import fs from 'node:fs'
 import path from 'node:path'
-import { createRequire } from 'node:module'
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname)
-const pkgJsonFile = path.join(__dirname, '../package.json')
+const root = path.resolve(__dirname, '..')
+const pkgJsonFile = path.join(root, 'package.json')
+const _pkgJson = JSON.parse(fs.readFileSync(pkgJsonFile, 'utf-8'))
 
 const whitelist = new Set([
   'name',
@@ -41,9 +42,7 @@ const whitelist = new Set([
   'license',
 ])
 
-const _pkgJson = createRequire(import.meta.url)('../package.json')
 const pkgJson = Object.fromEntries(
   Object.entries(_pkgJson).filter(([k]) => whitelist.has(k))
 )
-
 fs.writeFileSync(pkgJsonFile, JSON.stringify(pkgJson, null, 2))
