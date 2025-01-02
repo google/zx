@@ -75,22 +75,26 @@ interface Options {
   signal:         AbortSignal
   input:          string | Buffer | Readable | ProcessOutput | ProcessPromise
   timeout:        Duration
-  timeoutSignal:  string
+  timeoutSignal:  NodeJS.Signals
   stdio:          StdioOptions
   verbose:        boolean
   sync:           boolean
   env:            NodeJS.ProcessEnv
-  shell:          string | boolean
+  shell:          string | true
   nothrow:        boolean
   prefix:         string
   postfix:        string
   quote:          typeof quote
   quiet:          boolean
   detached:       boolean
+  preferLocal:    boolean | string | string[]
   spawn:          typeof spawn
   spawnSync:      typeof spawnSync
+  store:          TSpawnStore
   log:            typeof log
   kill:           typeof kill
+  killSignal:     NodeJS.Signals
+  halt:           boolean
 }
 ```
 
