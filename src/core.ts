@@ -902,6 +902,7 @@ export function resolveDefaults(
     'quiet',
     'timeout',
     'timeoutSignal',
+    'killSignal',
     'prefix',
     'postfix',
     'shell',
