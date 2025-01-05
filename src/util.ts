@@ -265,7 +265,7 @@ export function formatCmd(cmd?: string): string {
   }
 
   function word() {
-    if (/[0-9a-z/_.]/i.test(ch)) return word
+    if (/[\w/.]/i.test(ch)) return word
     return root
   }
 
