@@ -64,6 +64,7 @@ const builtins = new Set([
   'constants',
   'crypto',
   'dgram',
+  'diagnostics_channel',
   'dns',
   'domain',
   'events',
