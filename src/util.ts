@@ -146,10 +146,12 @@ export type LogEntry = {
   | {
       kind: 'cmd'
       cmd: string
+      id: string
     }
   | {
       kind: 'stdout' | 'stderr'
       data: Buffer
+      id: string
     }
   | {
       kind: 'cd'
