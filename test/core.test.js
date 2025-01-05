@@ -356,6 +356,28 @@ describe('core', () => {
         assert.equal((await fs.readFile(file)).toString(), 'foo\n')
       })
     })
+
+    it('uses custom `log` if specified', async () => {
+      const entries = []
+      const log = (entry) => entries.push(entry)
+      const p = $({ log })`echo foo`
+      const { id } = p
+      await p
+
+      assert.equal(entries.length, 2)
+      assert.deepEqual(entries[0], {
+        kind: 'cmd',
+        cmd: 'echo foo',
+        verbose: false,
+        id,
+      })
+      assert.deepEqual(entries[1], {
+        kind: 'stdout',
+        data: Buffer.from('foo\n'),
+        verbose: false,
+        id,
+      })
+    })
   })
 
   describe('ProcessPromise', () => {

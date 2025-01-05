@@ -254,7 +254,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     this._pipedFrom?.run()
 
     const self = this
-    const $ = this._snapshot
+    const $ = self._snapshot
+    const id = self.id
     const sync = $[SYNC]
     const timeout = self._timeout ?? $.timeout
     const timeoutSignal = self._timeoutSignal ?? $.timeoutSignal
@@ -269,12 +270,13 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       kind: 'cmd',
       cmd: self.cmd,
       verbose: self.isVerbose(),
+      id,
     })
 
     // prettier-ignore
     this._zurk = exec({
       sync,
-      id:       self.id,
+      id,
       cmd:      self.fullCmd,
       cwd:      $.cwd ?? $[CWD],
       input:    ($.input as ProcessPromise | ProcessOutput)?.stdout ?? $.input,
@@ -297,11 +299,11 @@ export class ProcessPromise extends Promise<ProcessOutput> {
         stdout: (data) => {
           // If process is piped, don't print output.
           if (self._piped) return
-          $.log({ kind: 'stdout', data, verbose: self.isVerbose() })
+          $.log({ kind: 'stdout', data, verbose: self.isVerbose(), id })
         },
         stderr: (data) => {
           // Stderr should be printed regardless of piping.
-          $.log({ kind: 'stderr', data, verbose: !self.isQuiet() })
+          $.log({ kind: 'stderr', data, verbose: !self.isQuiet(), id })
         },
         end: (data, c) => {
           self._resolved = true
