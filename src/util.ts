@@ -154,6 +154,14 @@ export type LogEntry = {
       id: string
     }
   | {
+      kind: 'end'
+      exitCode: number | null
+      signal: NodeJS.Signals | null
+      duration: number
+      error: null | Error
+      id: string
+    }
+  | {
       kind: 'cd'
       dir: string
     }

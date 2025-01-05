@@ -362,9 +362,9 @@ describe('core', () => {
       const log = (entry) => entries.push(entry)
       const p = $({ log })`echo foo`
       const { id } = p
-      await p
+      const { duration } = await p
 
-      assert.equal(entries.length, 2)
+      assert.equal(entries.length, 3)
       assert.deepEqual(entries[0], {
         kind: 'cmd',
         cmd: 'echo foo',
@@ -374,6 +374,15 @@ describe('core', () => {
       assert.deepEqual(entries[1], {
         kind: 'stdout',
         data: Buffer.from('foo\n'),
+        verbose: false,
+        id,
+      })
+      assert.deepEqual(entries[2], {
+        kind: 'end',
+        duration,
+        exitCode: 0,
+        signal: null,
+        error: null,
         verbose: false,
         id,
       })
