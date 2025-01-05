@@ -333,6 +333,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           if (stdout.length && !stdout[stdout.length - 1]!.toString().endsWith('\n')) c.on.stdout!(EOL, c)
           if (stderr.length && !stderr[stderr.length - 1]!.toString().endsWith('\n')) c.on.stderr!(EOL, c)
 
+          $.log({ kind: 'end', signal, exitCode: status, duration, error, verbose: self.isVerbose(), id })
           const output = self._output = new ProcessOutput(dto)
 
           if (error || status !== 0 && !self.isNothrow()) {
