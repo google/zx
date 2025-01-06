@@ -893,7 +893,7 @@ const promisifyStream = <S extends Writable>(
   })
 
 export function resolveDefaults(
-  defs: Options,
+  defs: Options = defaults,
   prefix: string = ENV_PREFIX,
   env = process.env
 ) {
