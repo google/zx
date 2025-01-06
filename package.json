@@ -108,7 +108,7 @@
     "create-require": "^1.1.1",
     "depseek": "^0.4.1",
     "dts-bundle-generator": "^9.5.1",
-    "envapi": "^0.1.0",
+    "envapi": "^0.2.0",
     "esbuild": "^0.24.2",
     "esbuild-node-externals": "^1.16.0",
     "esbuild-plugin-entry-chunks": "^0.1.15",
