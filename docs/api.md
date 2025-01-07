@@ -293,8 +293,9 @@ Temp file factory.
 
 ```js
 f1 = tmpfile()         // /os/based/tmp/zx-1ra1iofojgg
-f2 = tmpfile('f.txt')  // /os/based/tmp/zx-1ra1iofojgg/foo.txt
-f3 = tmpfile('f.txt', 'string or buffer')
+f2 = tmpfile('f2.txt')  // /os/based/tmp/zx-1ra1iofojgg/foo.txt
+f3 = tmpfile('f3.txt', 'string or buffer')
+f4 = tmpfile('f4.sh', 'echo "foo"', 0o744) // executable
 ```
 
 ## minimist

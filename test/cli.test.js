@@ -272,9 +272,8 @@ describe('cli', () => {
     const zxLocation = isWindows ? toPOSIXPath(zxPath) : zxPath
     const scriptCode = `#!/usr/bin/env ${zxLocation}\nconsole.log('The script from path runs.')`
     const scriptName = 'script-from-path'
-    const scriptFile = tmpfile(scriptName, scriptCode)
+    const scriptFile = tmpfile(scriptName, scriptCode, 0o744)
     const scriptDir = path.dirname(scriptFile)
-    fs.chmodSync(scriptFile, 0o744)
 
     const envPathSeparator = isWindows ? ';' : ':'
     process.env.PATH += envPathSeparator + scriptDir
