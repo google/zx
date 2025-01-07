@@ -11,6 +11,7 @@ if (globalThis.Deno) {
   globalThis.__dirname = __dirname
   globalThis.module = new Proxy({}, { set() { return true } })
   globalThis.process = {
+    versions: { node: '18.0.0' },
     env: globalThis.Deno.env.toObject(),
     argv: [globalThis.Deno.execPath(), globalThis.Deno.mainModule.replace('file://', ''), ...globalThis.Deno.args]
   }
