@@ -501,8 +501,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this
   }
 
-  nothrow(): ProcessPromise {
-    this._nothrow = true
+  nothrow(v = true): ProcessPromise {
+    this._nothrow = v
     return this
   }
 
