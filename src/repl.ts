@@ -19,7 +19,8 @@ import { inspect } from 'node:util'
 import { ProcessOutput, defaults } from './core.js'
 import { chalk } from './vendor-core.js'
 
-const HISTORY = path.join(os.homedir(), '.zx_repl_history')
+const HISTORY =
+  process.env.ZX_REPL_HISTORY ?? path.join(os.homedir(), '.zx_repl_history')
 
 export async function startRepl(history = HISTORY) {
   defaults.verbose = false
@@ -28,10 +29,9 @@ export async function startRepl(history = HISTORY) {
     useGlobal: true,
     preview: false,
     writer(output: any) {
-      if (output instanceof ProcessOutput) {
-        return output.toString().replace(/\n$/, '')
-      }
-      return inspect(output, { colors: true })
+      return output instanceof ProcessOutput
+        ? output.toString().replace(/\n$/, '')
+        : inspect(output, { colors: true })
     },
   })
   r.setupHistory(history, () => {})
