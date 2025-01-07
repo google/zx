@@ -14,7 +14,7 @@
 
 import assert from 'node:assert'
 import { createInterface } from 'node:readline'
-import { default as path } from 'node:path'
+import process from 'node:process'
 import { $, within, ProcessOutput } from './core.js'
 import {
   type Duration,
@@ -25,7 +25,6 @@ import {
   toCamelCase,
 } from './util.js'
 import {
-  fs,
   minimist,
   nodeFetch,
   type RequestInfo,

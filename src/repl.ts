@@ -14,13 +14,14 @@
 
 import os from 'node:os'
 import path from 'node:path'
+import repl from 'node:repl'
 import { inspect } from 'node:util'
 import { ProcessOutput, defaults } from './core.js'
 import { chalk } from './vendor-core.js'
 
 export async function startRepl() {
   defaults.verbose = false
-  const r = (await import('node:repl')).start({
+  const r = repl.start({
     prompt: chalk.greenBright.bold('❯ '),
     useGlobal: true,
     preview: false,

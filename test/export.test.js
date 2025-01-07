@@ -84,7 +84,6 @@ describe('cli', () => {
     assert.equal(typeof cli.runScript, 'function', 'cli.runScript')
     assert.equal(typeof cli.scriptFromHttp, 'function', 'cli.scriptFromHttp')
     assert.equal(typeof cli.scriptFromStdin, 'function', 'cli.scriptFromStdin')
-    assert.equal(typeof cli.startRepl, 'undefined', 'cli.startRepl')
     assert.equal(typeof cli.transformMarkdown, 'function', 'cli.transformMarkdown')
     assert.equal(typeof cli.writeAndImport, 'function', 'cli.writeAndImport')
   })

@@ -99,8 +99,15 @@ plugins.push(
         on: 'end',
         if: !hybrid,
         pattern: /\.js$/,
-        transform(contents) {
-          return injectCode(contents, `import './deno.js'`)
+        transform(contents, file) {
+          const { name } = path.parse(file)
+          const _contents = contents
+            .toString()
+            .replace(
+              '} = __module__',
+              `} = globalThis.Deno ? globalThis.require("./${name}.cjs") : __module__`
+            )
+          return injectCode(_contents, `import "./deno.js"`)
         },
       },
       {
