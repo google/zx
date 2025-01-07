@@ -19,7 +19,9 @@ import { inspect } from 'node:util'
 import { ProcessOutput, defaults } from './core.js'
 import { chalk } from './vendor-core.js'
 
-export async function startRepl() {
+const HISTORY = path.join(os.homedir(), '.zx_repl_history')
+
+export async function startRepl(history = HISTORY) {
   defaults.verbose = false
   const r = repl.start({
     prompt: chalk.greenBright.bold('❯ '),
@@ -32,5 +34,5 @@ export async function startRepl() {
       return inspect(output, { colors: true })
     },
   })
-  r.setupHistory(path.join(os.homedir(), '.zx_repl_history'), () => {})
+  r.setupHistory(history, () => {})
 }
