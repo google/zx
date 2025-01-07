@@ -103,7 +103,7 @@ plugins.push(
           const { name } = path.parse(file)
           const _contents = contents
             .toString()
-            .replaceAll(
+            .replace(
               '} = __module__',
               `} = globalThis.Deno ? globalThis.require("./${name}.cjs") : __module__`
             )
