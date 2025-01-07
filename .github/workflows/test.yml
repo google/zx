@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Use Node.js 22.x
         uses: actions/setup-node@v4
@@ -39,6 +41,8 @@ jobs:
       FORCE_COLOR: 3
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Use Node.js 22.x
         uses: actions/setup-node@v4
@@ -73,6 +77,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Use Node.js 22.x
         uses: actions/setup-node@v4
@@ -96,6 +102,9 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
       - name: Use Node.js 16.x
         uses: actions/setup-node@v4
         with:
@@ -115,6 +124,9 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
       - name: Setup Bun
         uses: antongolub/action-setup-bun@v1
       - uses: actions/download-artifact@v4
@@ -135,6 +147,8 @@ jobs:
         deno-version: [v1.x, v2.x]
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Setup Deno
         uses: denoland/setup-deno@v2
         with:
@@ -156,6 +170,8 @@ jobs:
         node-version: [12, 14, 16, 18, 20, 22, 22-nightly, 23]
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
@@ -179,6 +195,8 @@ jobs:
         ts: [4, 5, rc]
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Use Node.js 22.x
         uses: actions/setup-node@v4
         with:

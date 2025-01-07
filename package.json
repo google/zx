@@ -89,7 +89,8 @@
     "test:smoke:win32": "node ./test/smoke/win32.test.js",
     "test:smoke:cjs": "node ./test/smoke/node.test.cjs",
     "test:smoke:mjs": "node ./test/smoke/node.test.mjs",
-    "test:smoke:deno": "deno test ./test/smoke/deno.test.js --allow-read --allow-sys --allow-env --allow-run"
+    "test:smoke:deno": "deno test ./test/smoke/deno.test.js --allow-read --allow-sys --allow-env --allow-run",
+    "test:workflow": "zizmor .github/workflows -v -p"
   },
   "optionalDependencies": {
     "@types/fs-extra": ">=11",
