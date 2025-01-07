@@ -14,7 +14,6 @@
 
 import os from 'node:os'
 import path from 'node:path'
-import process from 'node:process'
 import fs from 'node:fs'
 import { chalk, type RequestInfo, type RequestInit } from './vendor-core.js'
 import { inspect } from 'node:util'

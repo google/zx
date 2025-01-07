@@ -26,7 +26,6 @@ import fs from 'node:fs'
 import { inspect } from 'node:util'
 import { EOL as _EOL } from 'node:os'
 import { EventEmitter } from 'node:events'
-import process from 'node:process'
 import {
   formatErrorMessage,
   formatExitMessage,
