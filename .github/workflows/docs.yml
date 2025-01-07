@@ -4,17 +4,16 @@ on:
   release:
     types: [created]
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 concurrency:
   group: 'pages'
   cancel-in-progress: false
 
 jobs:
   deploy:
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -23,6 +22,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          persist-credentials: false
           ref: main
       - name: Setup Pages
         uses: actions/configure-pages@v3
