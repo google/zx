@@ -105,7 +105,7 @@ plugins.push(
             .toString()
             .replaceAll(
               '} = __module__',
-              `} = globalThis.require?.("./${name}.cjs") || __module__`
+              `} = globalThis.Deno ? globalThis.require("./${name}.cjs") : __module__`
             )
           return injectCode(_contents, `import "./deno.js"`)
         },
