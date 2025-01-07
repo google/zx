@@ -14,26 +14,33 @@
 
 import os from 'node:os'
 import path from 'node:path'
-import fs from 'node:fs'
+import fs, { type Mode } from 'node:fs'
 import { chalk, type RequestInfo, type RequestInit } from './vendor-core.js'
 import { inspect } from 'node:util'
 
 export { isStringLiteral } from './vendor-core.js'
 
-export function tempdir(prefix: string = `zx-${randomId()}`): string {
+export function tempdir(
+  prefix: string = `zx-${randomId()}`,
+  mode?: Mode
+): string {
   const dirpath = path.join(os.tmpdir(), prefix)
-  fs.mkdirSync(dirpath, { recursive: true })
+  fs.mkdirSync(dirpath, { recursive: true, mode })
 
   return dirpath
 }
 
-export function tempfile(name?: string, data?: string | Buffer): string {
+export function tempfile(
+  name?: string,
+  data?: string | Buffer,
+  mode?: Mode
+): string {
   const filepath = name
     ? path.join(tempdir(), name)
     : path.join(os.tmpdir(), `zx-${randomId()}`)
 
-  if (data === undefined) fs.closeSync(fs.openSync(filepath, 'w'))
-  else fs.writeFileSync(filepath, data)
+  if (data === undefined) fs.closeSync(fs.openSync(filepath, 'w', mode))
+  else fs.writeFileSync(filepath, data, { mode })
 
   return filepath
 }
