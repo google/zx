@@ -266,28 +266,25 @@ describe('cli', () => {
   test('executes a script from $PATH', async () => {
     const isWindows = process.platform === 'win32'
     const oldPath = process.env.PATH
-
-    const envPathSeparator = isWindows ? ';' : ':'
-    const dir = tmpdir()
-    process.env.PATH += envPathSeparator + dir
-
     const toPOSIXPath = (_path) => _path.split(path.sep).join(path.posix.sep)
 
     const zxPath = path.resolve('./build/cli.js')
     const zxLocation = isWindows ? toPOSIXPath(zxPath) : zxPath
-    const scriptName = 'script-from-path'
     const scriptCode = `#!/usr/bin/env ${zxLocation}\nconsole.log('The script from path runs.')`
-    const scriptPath = path.join(dir, scriptName)
+    const scriptName = 'script-from-path'
+    const scriptFile = tmpfile(scriptName, scriptCode)
+    const scriptDir = path.dirname(scriptFile)
+    fs.chmodSync(scriptFile, 0o744)
+
+    const envPathSeparator = isWindows ? ';' : ':'
+    process.env.PATH += envPathSeparator + scriptDir
 
     try {
       await $`chmod +x ${zxLocation}`
-      await $`echo ${scriptCode}`.pipe(
-        fs.createWriteStream(scriptPath, { mode: 0o744 })
-      )
       await $`${scriptName}`
     } finally {
       process.env.PATH = oldPath
-      fs.rmSync(scriptPath)
+      await fs.rm(scriptFile)
     }
   })
 
