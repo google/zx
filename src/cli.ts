@@ -29,6 +29,7 @@ import {
   VERSION,
 } from './index.js'
 import { installDeps, parseDeps } from './deps.js'
+import { startRepl } from './repl.js'
 import { randomId } from './util.js'
 import { createRequire } from './vendor.js'
 
@@ -109,7 +110,7 @@ export async function main() {
     return
   }
   if (argv.repl) {
-    await (await import('./repl.js')).startRepl()
+    await startRepl()
     return
   }
   if (argv.eval) {

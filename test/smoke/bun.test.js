@@ -15,6 +15,7 @@
 import assert from 'node:assert'
 import { test, describe } from 'bun:test'
 import '../../build/globals.js'
+import '../../build/cli.js'
 
 describe('bun', () => {
   test('smoke test', async () => {

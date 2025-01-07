@@ -14,6 +14,7 @@
 
 import { assert } from 'https://deno.land/std@0.224.0/assert/assert.ts'
 import '../../build/globals.js'
+import '../../build/cli.js'
 
 Deno.test('deno smoke test', async () => {
   // smoke test
