@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module'
+import * as process from 'node:process'
 
 const require = createRequire(import.meta.url)
 const __filename = new URL(import.meta.url).pathname
@@ -10,7 +11,7 @@ if (globalThis.Deno) {
   globalThis.__filename = __filename
   globalThis.__dirname = __dirname
   globalThis.module = new Proxy({}, { set() { return true } })
-  Object.assign(globalThis.process, {
+  Object.assign(process, {
     version: 'v18.0.0',
     versions: { node: '18.0.0' },
     env: globalThis.Deno.env.toObject(),

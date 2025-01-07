@@ -15,6 +15,7 @@
 // limitations under the License.
 
 import url from 'node:url'
+import process from 'node:process'
 import {
   $,
   ProcessOutput,

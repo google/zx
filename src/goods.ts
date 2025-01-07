@@ -14,6 +14,7 @@
 
 import assert from 'node:assert'
 import { createInterface } from 'node:readline'
+import process from 'node:process'
 import { $, within, ProcessOutput } from './core.js'
 import {
   type Duration,
