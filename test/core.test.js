@@ -33,12 +33,14 @@ import {
 } from '../build/core.js'
 import {
   tempfile,
+  tempdir,
   fs,
   quote,
   quotePowerShell,
   sleep,
   quiet,
   which,
+  nothrow,
 } from '../build/index.js'
 
 describe('core', () => {
@@ -939,6 +941,15 @@ describe('core', () => {
     test('nothrow() does not throw', async () => {
       const { exitCode } = await $`exit 42`.nothrow()
       assert.equal(exitCode, 42)
+      {
+        // Toggle
+        try {
+          const p = $`exit 42`.nothrow()
+          await p.nothrow(false)
+        } catch ({ exitCode }) {
+          assert.equal(exitCode, 42)
+        }
+      }
       {
         // Deprecated.
         const { exitCode } = await nothrow($`exit 42`)
