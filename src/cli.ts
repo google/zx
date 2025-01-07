@@ -131,7 +131,7 @@ export async function main() {
     await scriptFromHttp(firstArg, argv.ext)
     return
   }
-  const filepath = firstArg.startsWith('file:///')
+  const filepath = firstArg.startsWith('file://')
     ? url.fileURLToPath(firstArg)
     : path.resolve(firstArg)
   await importPath(filepath)
