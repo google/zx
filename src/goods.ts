@@ -14,7 +14,6 @@
 
 import assert from 'node:assert'
 import { createInterface } from 'node:readline'
-import process from 'node:process'
 import { $, within, ProcessOutput } from './core.js'
 import {
   type Duration,
@@ -25,10 +24,10 @@ import {
   toCamelCase,
 } from './util.js'
 import {
-  minimist,
-  nodeFetch,
   type RequestInfo,
   type RequestInit,
+  nodeFetch,
+  minimist,
 } from './vendor.js'
 
 export { default as path } from 'node:path'
@@ -83,9 +82,7 @@ export function echo(pieces: TemplateStringsArray, ...args: any[]) {
 }
 
 function stringify(arg: ProcessOutput | any) {
-  return arg instanceof ProcessOutput
-    ? arg.toString().replace(/\n$/, '')
-    : `${arg}`
+  return arg instanceof ProcessOutput ? arg.toString().trimEnd() : `${arg}`
 }
 
 export async function question(
