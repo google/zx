@@ -30,7 +30,7 @@ export async function startRepl(history = HISTORY) {
     preview: false,
     writer(output: any) {
       return output instanceof ProcessOutput
-        ? output.toString().replace(/\n$/, '')
+        ? output.toString().trimEnd()
         : inspect(output, { colors: true })
     },
   })
