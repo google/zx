@@ -338,14 +338,32 @@ describe('cli', () => {
 # Title
     
 ~~~js
-await $\`echo "tilde"\`
+await $\`echo "js"\`
+~~~
+
+typescript code block
+~~~~~ts
+await $\`echo "ts"\`
+~~~~~
+
+~~~
+unknown code block
 ~~~
 
 `), `// 
 // # Title
 //     
 
-await $\`echo "tilde"\`
+await $\`echo "js"\`
+
+// 
+// typescript code block
+
+await $\`echo "ts"\`
+
+// 
+
+// unknown code block
 
 // 
 // `)

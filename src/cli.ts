@@ -219,39 +219,42 @@ export function injectGlobalRequire(origin: string) {
 export function transformMarkdown(buf: Buffer | string): string {
   const source = buf.toString()
   const output = []
+  const tabRe = /^(  +|\t)/
+  const codeBlockRe =
+    /^(?<fence>(`{3,20}|~{3,20}))(?:(?<js>(js|javascript|ts|typescript))|(?<bash>(sh|shell|bash))|.*)$/
   let state = 'root'
   let codeBlockEnd = ''
   let prevLineIsEmpty = true
-  const jsCodeBlock = /^(```{1,20}|~~~{1,20})(js|javascript|ts|typescript)$/
-  const shCodeBlock = /^(```{1,20}|~~~{1,20})(sh|shell|bash)$/
-  const otherCodeBlock = /^(```{1,20}|~~~{1,20})(.*)$/
   for (const line of source.split(/\r?\n/)) {
     switch (state) {
       case 'root':
-        if (/^( {4}|\t)/.test(line) && prevLineIsEmpty) {
+        if (tabRe.test(line) && prevLineIsEmpty) {
           output.push(line)
           state = 'tab'
-        } else if (jsCodeBlock.test(line)) {
-          output.push('')
-          state = 'js'
-          codeBlockEnd = line.match(jsCodeBlock)![1]
-        } else if (shCodeBlock.test(line)) {
-          output.push('await $`')
-          state = 'bash'
-          codeBlockEnd = line.match(shCodeBlock)![1]
-        } else if (otherCodeBlock.test(line)) {
-          output.push('')
-          state = 'other'
-          codeBlockEnd = line.match(otherCodeBlock)![1]
-        } else {
+          continue
+        }
+        const { fence, js, bash } = line.match(codeBlockRe)?.groups || {}
+        if (!fence) {
           prevLineIsEmpty = line === ''
           output.push('// ' + line)
+          continue
+        }
+        codeBlockEnd = fence
+        if (js) {
+          state = 'js'
+          output.push('')
+        } else if (bash) {
+          state = 'bash'
+          output.push('await $`')
+        } else {
+          state = 'other'
+          output.push('')
         }
         break
       case 'tab':
         if (line === '') {
           output.push('')
-        } else if (/^( +|\t)/.test(line)) {
+        } else if (tabRe.test(line)) {
           output.push(line)
         } else {
           output.push('// ' + line)

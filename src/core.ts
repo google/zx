@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import {
-  type StdioOptions,
+  type ChildProcess,
   type IOType,
+  type StdioOptions,
   spawn,
   spawnSync,
-  type ChildProcess,
 } from 'node:child_process'
 import { type Encoding } from 'node:crypto'
 import { type AsyncHook, AsyncLocalStorage, createHook } from 'node:async_hooks'
