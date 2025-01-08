@@ -277,23 +277,19 @@ export function formatCmd(cmd?: string): string {
   }
 
   function space() {
-    if (/\s/.test(ch)) return space
-    return root
+    return /\s/.test(ch) ? space : root
   }
 
   function word() {
-    if (/[\w/.]/i.test(ch)) return word
-    return root
+    return /[\w/.]/i.test(ch) ? word : root
   }
 
   function syntax() {
-    if (isSyntax(ch)) return syntax
-    return root
+    return isSyntax(ch) ? syntax : root
   }
 
   function dollar() {
-    if (ch === "'") return str
-    return root
+    return ch === "'" ? str : root
   }
 
   function str() {
@@ -311,13 +307,11 @@ export function formatCmd(cmd?: string): string {
   }
 
   function strDouble() {
-    if (ch === '"') return strEnd
-    return strDouble
+    return ch === '"' ? strEnd : strDouble
   }
 
   function strSingle() {
-    if (ch === "'") return strEnd
-    return strSingle
+    return ch === "'" ? strEnd : strSingle
   }
 
   function strEnd() {

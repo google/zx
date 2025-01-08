@@ -217,7 +217,6 @@ export function injectGlobalRequire(origin: string) {
 }
 
 export function transformMarkdown(buf: Buffer | string): string {
-  const source = buf.toString()
   const output = []
   const tabRe = /^(  +|\t)/
   const codeBlockRe =
@@ -225,7 +224,7 @@ export function transformMarkdown(buf: Buffer | string): string {
   let state = 'root'
   let codeBlockEnd = ''
   let prevLineIsEmpty = true
-  for (const line of source.split(/\r?\n/)) {
+  for (const line of buf.toString().split(/\r?\n/)) {
     switch (state) {
       case 'root':
         if (tabRe.test(line) && prevLineIsEmpty) {
