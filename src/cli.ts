@@ -30,7 +30,7 @@ import {
 } from './index.js'
 import { installDeps, parseDeps } from './deps.js'
 import { startRepl } from './repl.js'
-import { randomId } from './util.js'
+import { randomId, bufToString } from './util.js'
 import { createRequire } from './vendor.js'
 
 const EXT = '.mjs'
@@ -189,7 +189,7 @@ export async function importPath(
   filepath: string,
   origin = filepath
 ): Promise<void> {
-  const contents = await fs.readFile(filepath)
+  const contents = await fs.readFile(filepath, 'utf8')
   const { ext, base, dir } = path.parse(filepath)
   const tempFilename = getFilepath(dir, base)
 
@@ -224,7 +224,7 @@ export function transformMarkdown(buf: Buffer | string): string {
   let state = 'root'
   let codeBlockEnd = ''
   let prevLineIsEmpty = true
-  for (const line of buf.toString().split(/\r?\n/)) {
+  for (const line of bufToString(buf).split(/\r?\n/)) {
     switch (state) {
       case 'root':
         if (tabRe.test(line) && prevLineIsEmpty) {

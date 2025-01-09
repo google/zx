@@ -59,6 +59,13 @@ export function isString(obj: any) {
   return typeof obj === 'string'
 }
 
+const utf8Decoder = new TextDecoder('utf-8')
+export const bufToString = (buf: Buffer | string): string =>
+  isString(buf) ? buf : utf8Decoder.decode(buf)
+
+export const getLast = <T>(arr: { length: number; [i: number]: any }): T =>
+  arr[arr.length - 1]
+
 const pad = (v: string) => (v === ' ' ? ' ' : '')
 
 export function preferLocalBin(
