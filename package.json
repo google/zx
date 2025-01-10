@@ -136,7 +136,7 @@
     "vitepress": "^1.5.0",
     "which": "^5.0.0",
     "yaml": "~2.7.0",
-    "zurk": "^0.10.0"
+    "zurk": "^0.10.1"
   },
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"
