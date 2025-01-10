@@ -13,10 +13,11 @@
 // limitations under the License.
 
 export {
+  type TSpawnStore,
+  type TSpawnStoreChunks,
   exec,
   buildCmd,
   isStringLiteral,
-  type TSpawnStore,
   VoidStream,
 } from 'zurk/spawn'
 

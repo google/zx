@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import {
-  type StdioOptions,
+  type ChildProcess,
   type IOType,
+  type StdioOptions,
   spawn,
   spawnSync,
-  type ChildProcess,
 } from 'node:child_process'
 import { type Encoding } from 'node:crypto'
 import { type AsyncHook, AsyncLocalStorage, createHook } from 'node:async_hooks'
@@ -47,6 +47,8 @@ import {
   log,
   isString,
   isStringLiteral,
+  bufToString,
+  getLast,
   noop,
   once,
   parseBool,
@@ -57,6 +59,7 @@ import {
   quotePowerShell,
   toCamelCase,
   randomId,
+  bufArrJoin,
 } from './util.js'
 
 export { log, type LogEntry } from './util.js'
@@ -64,6 +67,7 @@ export { log, type LogEntry } from './util.js'
 const CWD = Symbol('processCwd')
 const SYNC = Symbol('syncExec')
 const EOL = Buffer.from(_EOL)
+const BR_CC = '\n'.charCodeAt(0)
 const SIGTERM = 'SIGTERM'
 const ENV_PREFIX = 'ZX_'
 const storage = new AsyncLocalStorage<Options>()
@@ -254,9 +258,12 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     this._pipedFrom?.run()
 
     const self = this
-    const $ = this._snapshot
+    const $ = self._snapshot
+    const id = self.id
+    const sync = $[SYNC]
+    const timeout = self._timeout ?? $.timeout
+    const timeoutSignal = self._timeoutSignal ?? $.timeoutSignal
 
-    if ($.timeout) this.timeout($.timeout, $.timeoutSignal)
     if ($.preferLocal) {
       const dirs =
         $.preferLocal === true ? [$.cwd, $[CWD]] : [$.preferLocal].flat()
@@ -265,13 +272,15 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
     $.log({
       kind: 'cmd',
-      cmd: this._command,
+      cmd: self.cmd,
       verbose: self.isVerbose(),
+      id,
     })
 
     // prettier-ignore
     this._zurk = exec({
-      id:       self.id,
+      sync,
+      id,
       cmd:      self.fullCmd,
       cwd:      $.cwd ?? $[CWD],
       input:    ($.input as ProcessPromise | ProcessOutput)?.stdout ?? $.input,
@@ -284,22 +293,21 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       store:    $.store,
       stdin:    self._stdin,
       stdio:    self._stdio ?? $.stdio,
-      sync:     $[SYNC],
       detached: $.detached,
       ee:       self._ee,
       run: (cb) => cb(),
       on: {
         start: () => {
-          self._timeout && self.timeout(self._timeout, self._timeoutSignal)
+          !sync && timeout && self.timeout(timeout, timeoutSignal)
         },
         stdout: (data) => {
           // If process is piped, don't print output.
           if (self._piped) return
-          $.log({ kind: 'stdout', data, verbose: self.isVerbose() })
+          $.log({ kind: 'stdout', data, verbose: self.isVerbose(), id })
         },
         stderr: (data) => {
           // Stderr should be printed regardless of piping.
-          $.log({ kind: 'stderr', data, verbose: !self.isQuiet() })
+          $.log({ kind: 'stderr', data, verbose: !self.isQuiet(), id })
         },
         end: (data, c) => {
           self._resolved = true
@@ -309,9 +317,9 @@ export class ProcessPromise extends Promise<ProcessOutput> {
             code: () => status,
             signal: () => signal,
             duration: () => duration,
-            stdout: once(() => stdout.join('')),
-            stderr: once(() => stderr.join('')),
-            stdall: once(() => stdall.join('')),
+            stdout: once(() => bufArrJoin(stdout)),
+            stderr: once(() => bufArrJoin(stderr)),
+            stdall: once(() => bufArrJoin(stdall)),
             message: once(() => ProcessOutput.getExitMessage(
               status,
               signal,
@@ -326,11 +334,11 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           }
 
           // Ensures EOL
-          if (stdout.length && !stdout[stdout.length - 1]!.toString().endsWith('\n')) c.on.stdout!(EOL, c)
-          if (stderr.length && !stderr[stderr.length - 1]!.toString().endsWith('\n')) c.on.stderr!(EOL, c)
+          if (stdout.length && getLast(getLast(stdout)) !== BR_CC) c.on.stdout!(EOL, c)
+          if (stderr.length && getLast(getLast(stderr)) !== BR_CC) c.on.stderr!(EOL, c)
 
-          const output = new ProcessOutput(dto)
-          self._output = output
+          $.log({ kind: 'end', signal, exitCode: status, duration, error, verbose: self.isVerbose(), id })
+          const output = self._output = new ProcessOutput(dto)
 
           if (error || status !== 0 && !self.isNothrow()) {
             self._reject(output)
@@ -360,7 +368,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     }})
   }
   private _pipe(
-    source: 'stdout' | 'stderr',
+    source: keyof TSpawnStore,
     dest: PipeDest,
     ...args: any[]
   ): (Writable & PromiseLike<ProcessPromise & Writable>) | ProcessPromise {
@@ -497,8 +505,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this
   }
 
-  nothrow(): ProcessPromise {
-    this._nothrow = true
+  nothrow(v = true): ProcessPromise {
+    this._nothrow = v
     return this
   }
 
@@ -513,11 +521,13 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   timeout(d: Duration, signal = $.timeoutSignal): ProcessPromise {
+    if (this._resolved) return this
+
     this._timeout = parseDuration(d)
     this._timeoutSignal = signal
 
     if (this._timeoutId) clearTimeout(this._timeoutId)
-    if (this._timeout) {
+    if (this._timeout && this._run) {
       this._timeoutId = setTimeout(
         () => this.kill(this._timeoutSignal),
         this._timeout
@@ -592,7 +602,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   async *[Symbol.asyncIterator]() {
     let last: string | undefined
     const getLines = (chunk: Buffer | string) => {
-      const lines = ((last || '') + chunk.toString()).split('\n')
+      const lines = ((last || '') + bufToString(chunk)).split('\n')
       last = lines.pop()
       return lines
     }
@@ -887,7 +897,7 @@ const promisifyStream = <S extends Writable>(
   })
 
 export function resolveDefaults(
-  defs: Options,
+  defs: Options = defaults,
   prefix: string = ENV_PREFIX,
   env = process.env
 ) {
@@ -899,6 +909,7 @@ export function resolveDefaults(
     'quiet',
     'timeout',
     'timeoutSignal',
+    'killSignal',
     'prefix',
     'postfix',
     'shell',

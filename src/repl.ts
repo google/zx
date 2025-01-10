@@ -14,22 +14,25 @@
 
 import os from 'node:os'
 import path from 'node:path'
+import repl from 'node:repl'
 import { inspect } from 'node:util'
 import { ProcessOutput, defaults } from './core.js'
 import { chalk } from './vendor-core.js'
 
-export async function startRepl() {
+const HISTORY =
+  process.env.ZX_REPL_HISTORY ?? path.join(os.homedir(), '.zx_repl_history')
+
+export async function startRepl(history = HISTORY) {
   defaults.verbose = false
-  const r = (await import('node:repl')).start({
+  const r = repl.start({
     prompt: chalk.greenBright.bold('❯ '),
     useGlobal: true,
     preview: false,
     writer(output: any) {
-      if (output instanceof ProcessOutput) {
-        return output.toString().replace(/\n$/, '')
-      }
-      return inspect(output, { colors: true })
+      return output instanceof ProcessOutput
+        ? output.toString().trimEnd()
+        : inspect(output, { colors: true })
     },
   })
-  r.setupHistory(path.join(os.homedir(), '.zx_repl_history'), () => {})
+  r.setupHistory(history, () => {})
 }

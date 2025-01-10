@@ -13,7 +13,8 @@
 // limitations under the License.
 
 import { assert } from 'https://deno.land/std@0.224.0/assert/assert.ts'
-import '../../build/globals.js'
+import { $ } from '../../build/index.js'
+import '../../build/cli.js'
 
 Deno.test('deno smoke test', async () => {
   // smoke test
