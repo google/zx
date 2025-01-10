@@ -27,10 +27,22 @@ cronometro({
   buf_arr_reduce_decode() {
     BUF_ARR.reduce((acc, buf) => acc + decoder.decode(buf), '')
   },
+  buf_arr_reduce_to_string() {
+    BUF_ARR.reduce((acc, buf) => acc + buf.toString('utf8'), '')
+  },
   buf_arr_for_decode() {
     let res = ''
     for (const buf of BUF_ARR) {
       res += decoder.decode(buf)
+    }
+  },
+  buf_arr_while_decode() {
+    let res = ''
+    let i = 0
+    const bl = BUF_ARR.length
+    while (i < bl) {
+      res += decoder.decode(BUF_ARR[i])
+      i++
     }
   },
   buf_arr_join() {
