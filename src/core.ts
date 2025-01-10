@@ -184,7 +184,7 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
       snapshot
     )
 
-    if (process.stage !== 'halted' || sync) process.run()
+    if (!process.isHalted() || sync) process.run()
 
     return sync ? process.output : process
   } as Shell & Options,
@@ -204,6 +204,7 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
   }
 )
 
+type ProcessStage = 'initial' | 'halted' | 'running' | 'fulfilled' | 'rejected'
 type Resolve = (out: ProcessOutput) => void
 
 type PipeDest = Writable | ProcessPromise | TemplateStringsArray | string
@@ -213,9 +214,8 @@ type PipeMethod = {
   <D extends ProcessPromise>(dest: D): D
 }
 
-type ProcessStage = 'halted' | 'pending' | 'fulfilled' | 'rejected'
-
 export class ProcessPromise extends Promise<ProcessOutput> {
+  private _stage: ProcessStage = 'initial'
   private _id = randomId()
   private _command = ''
   private _from = ''
@@ -227,13 +227,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _timeout?: number
   private _timeoutSignal?: NodeJS.Signals
   private _timeoutId?: NodeJS.Timeout
-  private _halted?: boolean
   private _piped = false
   private _pipedFrom?: ProcessPromise
-  private _run = false
   private _ee = new EventEmitter()
   private _stdin = new VoidStream()
-  #stage: ProcessStage = 'pending'
   private _zurk: ReturnType<typeof exec> | null = null
   private _output: ProcessOutput | null = null
   private _reject: Resolve = noop
@@ -248,21 +245,15 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   ) {
     this._command = cmd
     this._from = from
-    this._resolve = (out) => {
-      resolve(out)
-      this.#stage = 'fulfilled'
-    }
-    this._reject = (out) => {
-      reject(out)
-      this.#stage = 'rejected'
-    }
+    this._resolve = resolve
+    this._reject = reject
     this._snapshot = { ac: new AbortController(), ...options }
+    if (this._snapshot.halt) this._stage = 'halted'
   }
 
   run(): ProcessPromise {
-    if (this._run) return this // The _run() can be called from a few places.
-    this._halted = false
-    this._run = true
+    if (this._stage === 'running' || this.isSettled()) return this // The _run() can be called from a few places.
+    this._stage = 'running'
     this._pipedFrom?.run()
 
     const self = this
@@ -348,8 +339,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           const output = self._output = new ProcessOutput(dto)
 
           if (error || status !== 0 && !self.isNothrow()) {
+            self._stage = 'rejected'
             self._reject(output)
           } else {
+            self._stage = 'fulfilled'
             self._resolve(output)
           }
         },
@@ -389,16 +382,15 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       )
 
     this._piped = true
-
     const ee = this._ee
     const from = new VoidStream()
     const fill = () => {
       for (const chunk of this._zurk!.store[source]) from.write(chunk)
       return true
     }
-    const fillEnd = () => this.stage === 'fulfilled' && fill() && from.end()
+    const fillEnd = () => this.isSettled() && fill() && from.end()
 
-    if (this.stage !== 'fulfilled') {
+    if (!this.isSettled()) {
       const onData = (chunk: string | Buffer) => from.write(chunk)
       ee.once(source, () => {
         fill()
@@ -414,7 +406,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     if (dest instanceof ProcessPromise) {
       dest._pipedFrom = this
 
-      if (dest.stage === 'halted' && this.stage === 'halted') {
+      if (dest.isHalted() && this.isHalted()) {
         ee.once('start', () => from.pipe(dest.run()._stdin))
       } else {
         this.catch((e) => (dest.isNothrow() ? noop : dest._reject(e)))
@@ -453,14 +445,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
    */
   halt(): this {
     return this
-  }
-
-  get stage(): ProcessStage {
-    if (this._halted ?? this._snapshot.halt) {
-      return 'halted'
-    }
-
-    return this.#stage
   }
 
   // Getters
@@ -511,6 +495,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this._output
   }
 
+  get stage(): ProcessStage {
+    return this._stage
+  }
+
   // Configurators
   stdio(
     stdin: IOType,
@@ -540,13 +528,13 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     d: Duration,
     signal = this._timeoutSignal || $.timeoutSignal
   ): ProcessPromise {
-    if (this.stage === 'fulfilled') return this
+    if (this.isSettled()) return this
 
     this._timeout = parseDuration(d)
     this._timeoutSignal = signal
 
     if (this._timeoutId) clearTimeout(this._timeoutId)
-    if (this._timeout && this._run) {
+    if (this._timeout && this.stage === 'running') {
       this._timeoutId = setTimeout(
         () => this.kill(this._timeoutSignal),
         this._timeout
@@ -577,6 +565,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this.then((p) => p.blob(type))
   }
 
+  // Status checkers
   isQuiet(): boolean {
     return this._quiet ?? this._snapshot.quiet
   }
@@ -587,6 +576,14 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   isNothrow(): boolean {
     return this._nothrow ?? this._snapshot.nothrow
+  }
+
+  isHalted(): boolean {
+    return this.stage === 'halted'
+  }
+
+  private isSettled(): boolean {
+    return !!this.output
   }
 
   // Promise API
