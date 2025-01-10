@@ -184,7 +184,7 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
       snapshot
     )
 
-    if (!process.isHalted() || sync) process.run()
+    if (process.stage !== 'halted' || sync) process.run()
 
     return sync ? process.output : process
   } as Shell & Options,
@@ -213,6 +213,8 @@ type PipeMethod = {
   <D extends ProcessPromise>(dest: D): D
 }
 
+type ProcessStage = 'halted' | 'pending' | 'fulfilled' | 'rejected'
+
 export class ProcessPromise extends Promise<ProcessOutput> {
   private _id = randomId()
   private _command = ''
@@ -225,13 +227,13 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _timeout?: number
   private _timeoutSignal?: NodeJS.Signals
   private _timeoutId?: NodeJS.Timeout
-  private _resolved = false
   private _halted?: boolean
   private _piped = false
   private _pipedFrom?: ProcessPromise
   private _run = false
   private _ee = new EventEmitter()
   private _stdin = new VoidStream()
+  #stage: ProcessStage = 'pending'
   private _zurk: ReturnType<typeof exec> | null = null
   private _output: ProcessOutput | null = null
   private _reject: Resolve = noop
@@ -246,8 +248,14 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   ) {
     this._command = cmd
     this._from = from
-    this._resolve = resolve
-    this._reject = reject
+    this._resolve = (out) => {
+      resolve(out)
+      this.#stage = 'fulfilled'
+    }
+    this._reject = (out) => {
+      reject(out)
+      this.#stage = 'rejected'
+    }
     this._snapshot = { ac: new AbortController(), ...options }
   }
 
@@ -310,7 +318,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           $.log({ kind: 'stderr', data, verbose: !self.isQuiet(), id })
         },
         end: (data, c) => {
-          self._resolved = true
           const { error, status, signal, duration, ctx } = data
           const { stdout, stderr, stdall } = ctx.store
           const dto: ProcessOutputLazyDto = {
@@ -382,15 +389,16 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       )
 
     this._piped = true
+
     const ee = this._ee
     const from = new VoidStream()
     const fill = () => {
       for (const chunk of this._zurk!.store[source]) from.write(chunk)
       return true
     }
-    const fillEnd = () => this._resolved && fill() && from.end()
+    const fillEnd = () => this.stage === 'fulfilled' && fill() && from.end()
 
-    if (!this._resolved) {
+    if (this.stage !== 'fulfilled') {
       const onData = (chunk: string | Buffer) => from.write(chunk)
       ee.once(source, () => {
         fill()
@@ -406,7 +414,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     if (dest instanceof ProcessPromise) {
       dest._pipedFrom = this
 
-      if (dest.isHalted() && this.isHalted()) {
+      if (dest.stage === 'halted' && this.stage === 'halted') {
         ee.once('start', () => from.pipe(dest.run()._stdin))
       } else {
         this.catch((e) => (dest.isNothrow() ? noop : dest._reject(e)))
@@ -445,6 +453,14 @@ export class ProcessPromise extends Promise<ProcessOutput> {
    */
   halt(): this {
     return this
+  }
+
+  get stage(): ProcessStage {
+    if (this._halted ?? this._snapshot.halt ?? false) {
+      return 'halted'
+    }
+
+    return this.#stage
   }
 
   // Getters
@@ -521,7 +537,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   timeout(d: Duration, signal = $.timeoutSignal): ProcessPromise {
-    if (this._resolved) return this
+    if (this.stage === 'fulfilled') return this
 
     this._timeout = parseDuration(d)
     this._timeoutSignal = signal
@@ -556,11 +572,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   blob(type?: string): Promise<Blob> {
     return this.then((p) => p.blob(type))
-  }
-
-  // Status checkers
-  isHalted(): boolean {
-    return this._halted ?? this._snapshot.halt ?? false
   }
 
   isQuiet(): boolean {
