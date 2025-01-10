@@ -1,4 +1,4 @@
-// Copyright 2024 Google LLC
+// Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -84,7 +84,6 @@ describe('cli', () => {
     assert.equal(typeof cli.runScript, 'function', 'cli.runScript')
     assert.equal(typeof cli.scriptFromHttp, 'function', 'cli.scriptFromHttp')
     assert.equal(typeof cli.scriptFromStdin, 'function', 'cli.scriptFromStdin')
-    assert.equal(typeof cli.startRepl, 'undefined', 'cli.startRepl')
     assert.equal(typeof cli.transformMarkdown, 'function', 'cli.transformMarkdown')
     assert.equal(typeof cli.writeAndImport, 'function', 'cli.writeAndImport')
   })

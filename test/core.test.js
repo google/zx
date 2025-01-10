@@ -33,12 +33,14 @@ import {
 } from '../build/core.js'
 import {
   tempfile,
+  tempdir,
   fs,
   quote,
   quotePowerShell,
   sleep,
   quiet,
   which,
+  nothrow,
 } from '../build/index.js'
 
 describe('core', () => {
@@ -354,6 +356,37 @@ describe('core', () => {
 
         await p
         assert.equal((await fs.readFile(file)).toString(), 'foo\n')
+      })
+    })
+
+    it('uses custom `log` if specified', async () => {
+      const entries = []
+      const log = (entry) => entries.push(entry)
+      const p = $({ log })`echo foo`
+      const { id } = p
+      const { duration } = await p
+
+      assert.equal(entries.length, 3)
+      assert.deepEqual(entries[0], {
+        kind: 'cmd',
+        cmd: 'echo foo',
+        verbose: false,
+        id,
+      })
+      assert.deepEqual(entries[1], {
+        kind: 'stdout',
+        data: Buffer.from('foo\n'),
+        verbose: false,
+        id,
+      })
+      assert.deepEqual(entries[2], {
+        kind: 'end',
+        duration,
+        exitCode: 0,
+        signal: null,
+        error: null,
+        verbose: false,
+        id,
       })
     })
   })
@@ -908,6 +941,15 @@ describe('core', () => {
     test('nothrow() does not throw', async () => {
       const { exitCode } = await $`exit 42`.nothrow()
       assert.equal(exitCode, 42)
+      {
+        // Toggle
+        try {
+          const p = $`exit 42`.nothrow()
+          await p.nothrow(false)
+        } catch ({ exitCode }) {
+          assert.equal(exitCode, 42)
+        }
+      }
       {
         // Deprecated.
         const { exitCode } = await nothrow($`exit 42`)

@@ -266,25 +266,24 @@ describe('cli', () => {
   test('executes a script from $PATH', async () => {
     const isWindows = process.platform === 'win32'
     const oldPath = process.env.PATH
-
-    const envPathSeparator = isWindows ? ';' : ':'
-    process.env.PATH += envPathSeparator + path.resolve('/tmp/')
-
     const toPOSIXPath = (_path) => _path.split(path.sep).join(path.posix.sep)
 
     const zxPath = path.resolve('./build/cli.js')
     const zxLocation = isWindows ? toPOSIXPath(zxPath) : zxPath
     const scriptCode = `#!/usr/bin/env ${zxLocation}\nconsole.log('The script from path runs.')`
+    const scriptName = 'script-from-path'
+    const scriptFile = tmpfile(scriptName, scriptCode, 0o744)
+    const scriptDir = path.dirname(scriptFile)
+
+    const envPathSeparator = isWindows ? ';' : ':'
+    process.env.PATH += envPathSeparator + scriptDir
 
     try {
       await $`chmod +x ${zxLocation}`
-      await $({ stdio: ['inherit', 'pipe', 'pipe'] })`echo ${scriptCode}`.pipe(
-        fs.createWriteStream('/tmp/script-from-path', { mode: 0o744 })
-      )
-      await $`script-from-path`
+      await $`${scriptName}`
     } finally {
       process.env.PATH = oldPath
-      fs.rmSync('/tmp/script-from-path')
+      await fs.rm(scriptFile)
     }
   })
 
@@ -339,14 +338,32 @@ describe('cli', () => {
 # Title
     
 ~~~js
-await $\`echo "tilde"\`
+await $\`echo "js"\`
+~~~
+
+typescript code block
+~~~~~ts
+await $\`echo "ts"\`
+~~~~~
+
+~~~
+unknown code block
 ~~~
 
 `), `// 
 // # Title
 //     
 
-await $\`echo "tilde"\`
+await $\`echo "js"\`
+
+// 
+// typescript code block
+
+await $\`echo "ts"\`
+
+// 
+
+// unknown code block
 
 // 
 // `)

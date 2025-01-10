@@ -1,6 +1,6 @@
 {
   "name": "zx",
-  "version": "8.3.0",
+  "version": "8.3.1",
   "description": "A tool for writing better scripts",
   "type": "module",
   "main": "./build/index.cjs",
@@ -89,7 +89,8 @@
     "test:smoke:win32": "node ./test/smoke/win32.test.js",
     "test:smoke:cjs": "node ./test/smoke/node.test.cjs",
     "test:smoke:mjs": "node ./test/smoke/node.test.mjs",
-    "test:smoke:deno": "deno test ./test/smoke/deno.test.js --allow-read --allow-sys --allow-env --allow-run"
+    "test:smoke:deno": "deno test ./test/smoke/deno.test.js --allow-read --allow-sys --allow-env --allow-run",
+    "test:workflow": "zizmor .github/workflows -v -p"
   },
   "optionalDependencies": {
     "@types/fs-extra": ">=11",
@@ -106,9 +107,10 @@
     "c8": "^10.1.3",
     "chalk": "^5.4.1",
     "create-require": "^1.1.1",
+    "cronometro": "^4.0.1",
     "depseek": "^0.4.1",
     "dts-bundle-generator": "^9.5.1",
-    "envapi": "^0.1.0",
+    "envapi": "^0.2.0",
     "esbuild": "^0.24.2",
     "esbuild-node-externals": "^1.16.0",
     "esbuild-plugin-entry-chunks": "^0.1.15",
@@ -133,8 +135,8 @@
     "typescript": "^5.7.2",
     "vitepress": "^1.5.0",
     "which": "^5.0.0",
-    "yaml": "~2.5.1",
-    "zurk": "^0.10.0"
+    "yaml": "~2.7.0",
+    "zurk": "^0.10.1"
   },
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"

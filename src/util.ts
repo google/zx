@@ -14,26 +14,38 @@
 
 import os from 'node:os'
 import path from 'node:path'
-import fs from 'node:fs'
-import { chalk, type RequestInfo, type RequestInit } from './vendor-core.js'
+import fs, { type Mode } from 'node:fs'
+import {
+  chalk,
+  type RequestInfo,
+  type RequestInit,
+  type TSpawnStoreChunks,
+} from './vendor-core.js'
 import { inspect } from 'node:util'
 
 export { isStringLiteral } from './vendor-core.js'
 
-export function tempdir(prefix: string = `zx-${randomId()}`): string {
+export function tempdir(
+  prefix: string = `zx-${randomId()}`,
+  mode?: Mode
+): string {
   const dirpath = path.join(os.tmpdir(), prefix)
-  fs.mkdirSync(dirpath, { recursive: true })
+  fs.mkdirSync(dirpath, { recursive: true, mode })
 
   return dirpath
 }
 
-export function tempfile(name?: string, data?: string | Buffer): string {
+export function tempfile(
+  name?: string,
+  data?: string | Buffer,
+  mode?: Mode
+): string {
   const filepath = name
     ? path.join(tempdir(), name)
     : path.join(os.tmpdir(), `zx-${randomId()}`)
 
-  if (data === undefined) fs.closeSync(fs.openSync(filepath, 'w'))
-  else fs.writeFileSync(filepath, data)
+  if (data === undefined) fs.closeSync(fs.openSync(filepath, 'w', mode))
+  else fs.writeFileSync(filepath, data, { mode })
 
   return filepath
 }
@@ -51,6 +63,16 @@ export function randomId() {
 export function isString(obj: any) {
   return typeof obj === 'string'
 }
+
+const utf8Decoder = new TextDecoder('utf-8')
+export const bufToString = (buf: Buffer | string): string =>
+  isString(buf) ? buf : utf8Decoder.decode(buf)
+
+export const bufArrJoin = (arr: TSpawnStoreChunks) =>
+  arr.reduce((acc, buf) => acc + bufToString(buf), '')
+
+export const getLast = <T>(arr: { length: number; [i: number]: any }): T =>
+  arr[arr.length - 1]
 
 const pad = (v: string) => (v === ' ' ? ' ' : '')
 
@@ -146,10 +168,20 @@ export type LogEntry = {
   | {
       kind: 'cmd'
       cmd: string
+      id: string
     }
   | {
       kind: 'stdout' | 'stderr'
       data: Buffer
+      id: string
+    }
+  | {
+      kind: 'end'
+      exitCode: number | null
+      signal: NodeJS.Signals | null
+      duration: number
+      error: null | Error
+      id: string
     }
   | {
       kind: 'cd'
@@ -260,23 +292,19 @@ export function formatCmd(cmd?: string): string {
   }
 
   function space() {
-    if (/\s/.test(ch)) return space
-    return root
+    return /\s/.test(ch) ? space : root
   }
 
   function word() {
-    if (/[0-9a-z/_.]/i.test(ch)) return word
-    return root
+    return /[\w/.]/i.test(ch) ? word : root
   }
 
   function syntax() {
-    if (isSyntax(ch)) return syntax
-    return root
+    return isSyntax(ch) ? syntax : root
   }
 
   function dollar() {
-    if (ch === "'") return str
-    return root
+    return ch === "'" ? str : root
   }
 
   function str() {
@@ -294,13 +322,11 @@ export function formatCmd(cmd?: string): string {
   }
 
   function strDouble() {
-    if (ch === '"') return strEnd
-    return strDouble
+    return ch === '"' ? strEnd : strDouble
   }
 
   function strSingle() {
-    if (ch === "'") return strEnd
-    return strSingle
+    return ch === "'" ? strEnd : strSingle
   }
 
   function strEnd() {
