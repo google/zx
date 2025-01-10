@@ -107,6 +107,7 @@
     "c8": "^10.1.3",
     "chalk": "^5.4.1",
     "create-require": "^1.1.1",
+    "cronometro": "^4.0.1",
     "depseek": "^0.4.1",
     "dts-bundle-generator": "^9.5.1",
     "envapi": "^0.2.0",
@@ -135,7 +136,7 @@
     "vitepress": "^1.5.0",
     "which": "^5.0.0",
     "yaml": "~2.7.0",
-    "zurk": "^0.10.0"
+    "zurk": "^0.10.1"
   },
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"

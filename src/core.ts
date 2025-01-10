@@ -47,6 +47,8 @@ import {
   log,
   isString,
   isStringLiteral,
+  bufToString,
+  getLast,
   noop,
   once,
   parseBool,
@@ -57,6 +59,7 @@ import {
   quotePowerShell,
   toCamelCase,
   randomId,
+  bufArrJoin,
 } from './util.js'
 
 export { log, type LogEntry } from './util.js'
@@ -64,6 +67,7 @@ export { log, type LogEntry } from './util.js'
 const CWD = Symbol('processCwd')
 const SYNC = Symbol('syncExec')
 const EOL = Buffer.from(_EOL)
+const BR_CC = '\n'.charCodeAt(0)
 const SIGTERM = 'SIGTERM'
 const ENV_PREFIX = 'ZX_'
 const storage = new AsyncLocalStorage<Options>()
@@ -313,9 +317,9 @@ export class ProcessPromise extends Promise<ProcessOutput> {
             code: () => status,
             signal: () => signal,
             duration: () => duration,
-            stdout: once(() => stdout.join('')),
-            stderr: once(() => stderr.join('')),
-            stdall: once(() => stdall.join('')),
+            stdout: once(() => bufArrJoin(stdout)),
+            stderr: once(() => bufArrJoin(stderr)),
+            stdall: once(() => bufArrJoin(stdall)),
             message: once(() => ProcessOutput.getExitMessage(
               status,
               signal,
@@ -330,8 +334,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           }
 
           // Ensures EOL
-          if (stdout.length && !stdout[stdout.length - 1]!.toString().endsWith('\n')) c.on.stdout!(EOL, c)
-          if (stderr.length && !stderr[stderr.length - 1]!.toString().endsWith('\n')) c.on.stderr!(EOL, c)
+          if (stdout.length && getLast(getLast(stdout)) !== BR_CC) c.on.stdout!(EOL, c)
+          if (stderr.length && getLast(getLast(stderr)) !== BR_CC) c.on.stderr!(EOL, c)
 
           $.log({ kind: 'end', signal, exitCode: status, duration, error, verbose: self.isVerbose(), id })
           const output = self._output = new ProcessOutput(dto)
@@ -598,7 +602,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   async *[Symbol.asyncIterator]() {
     let last: string | undefined
     const getLines = (chunk: Buffer | string) => {
-      const lines = ((last || '') + chunk.toString()).split('\n')
+      const lines = ((last || '') + bufToString(chunk)).split('\n')
       last = lines.pop()
       return lines
     }

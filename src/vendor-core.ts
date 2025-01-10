@@ -14,6 +14,7 @@
 
 export {
   type TSpawnStore,
+  type TSpawnStoreChunks,
   exec,
   buildCmd,
   isStringLiteral,
