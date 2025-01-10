@@ -456,7 +456,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   get stage(): ProcessStage {
-    if (this._halted ?? this._snapshot.halt ?? false) {
+    if (this._halted ?? this._snapshot.halt) {
       return 'halted'
     }
 
