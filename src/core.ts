@@ -59,6 +59,7 @@ import {
   quotePowerShell,
   toCamelCase,
   randomId,
+  bufArrJoin,
 } from './util.js'
 
 export { log, type LogEntry } from './util.js'
@@ -316,9 +317,9 @@ export class ProcessPromise extends Promise<ProcessOutput> {
             code: () => status,
             signal: () => signal,
             duration: () => duration,
-            stdout: once(() => stdout.join('')),
-            stderr: once(() => stderr.join('')),
-            stdall: once(() => stdall.join('')),
+            stdout: once(() => bufArrJoin(stdout)),
+            stderr: once(() => bufArrJoin(stderr)),
+            stdall: once(() => bufArrJoin(stdall)),
             message: once(() => ProcessOutput.getExitMessage(
               status,
               signal,

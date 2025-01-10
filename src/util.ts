@@ -15,7 +15,12 @@
 import os from 'node:os'
 import path from 'node:path'
 import fs, { type Mode } from 'node:fs'
-import { chalk, type RequestInfo, type RequestInit } from './vendor-core.js'
+import {
+  chalk,
+  type RequestInfo,
+  type RequestInit,
+  type TSpawnStoreChunks,
+} from './vendor-core.js'
 import { inspect } from 'node:util'
 
 export { isStringLiteral } from './vendor-core.js'
@@ -62,6 +67,9 @@ export function isString(obj: any) {
 const utf8Decoder = new TextDecoder('utf-8')
 export const bufToString = (buf: Buffer | string): string =>
   isString(buf) ? buf : utf8Decoder.decode(buf)
+
+export const bufArrJoin = (arr: TSpawnStoreChunks) =>
+  arr.reduce((acc, buf) => acc + bufToString(buf), '')
 
 export const getLast = <T>(arr: { length: number; [i: number]: any }): T =>
   arr[arr.length - 1]
