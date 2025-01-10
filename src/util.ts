@@ -15,6 +15,7 @@
 import os from 'node:os'
 import path from 'node:path'
 import fs, { type Mode } from 'node:fs'
+import crypto from 'node:crypto'
 import {
   chalk,
   type RequestInfo,
@@ -57,7 +58,7 @@ export function identity<T>(v: T): T {
 }
 
 export function randomId() {
-  return Math.random().toString(36).slice(2)
+  return crypto.randomBytes(5).toString('hex')
 }
 
 export function isString(obj: any) {
@@ -74,7 +75,7 @@ export const bufArrJoin = (arr: TSpawnStoreChunks) =>
 export const getLast = <T>(arr: { length: number; [i: number]: any }): T =>
   arr[arr.length - 1]
 
-const pad = (v: string) => (v === ' ' ? ' ' : '')
+// const pad = (v: string) => (v === ' ' ? ' ' : '')
 
 export function preferLocalBin(
   env: NodeJS.ProcessEnv,
