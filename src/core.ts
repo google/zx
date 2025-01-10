@@ -520,7 +520,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this
   }
 
-  timeout(d: Duration, signal = $.timeoutSignal): ProcessPromise {
+  timeout(d: Duration, signal = this._timeoutSignal || $.timeoutSignal): ProcessPromise {
     if (this._resolved) return this
 
     this._timeout = parseDuration(d)
