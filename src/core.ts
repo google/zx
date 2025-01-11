@@ -498,16 +498,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this._output
   }
 
-  /**
-   * Returns current internal state machine stage
-   *
-   * Active stages:
-   * * Initial — when creating the instance
-   * * Halted — when called by the instance of $({ halt: true })
-   * * Running — when starting the instance process
-   * * Fulfilled — upon successful completion of the instance process
-   * * Rejected — when the instance process has failed
-   */
   get stage(): ProcessStage {
     return this._stage
   }

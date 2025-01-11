@@ -16,18 +16,13 @@ const o = await p.run()
 
 ## `stage`
 
-Returns current internal state machine stage
-
-Active stages:
-* Initial — when creating the instance
-* Halted — when called by the instance of `$({ halt: true })`
-* Running — when starting the instance process
-* Fulfilled — upon successful completion of the instance process
-* Rejected — when the instance process has failed
+Shows the current process stage: `initial` | `halted` | `running` | `fulfilled` | `rejected`
 
 ```ts
-const p = $`command`;
-console.log(p.stage);  
+const p = $`echo foo`
+p.stage // 'running'
+await p
+p.stage // 'fulfilled'
 ```
 
 
