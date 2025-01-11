@@ -1282,4 +1282,71 @@ describe('core', () => {
       assert.equal($.quote, quote)
     })
   })
+
+  describe('stage machine stage', () => {
+    it(`handle the transition 'running' -> 'fulfilled'`, async () => {
+      const $p = $`echo foo`
+
+      assert.equal($p.stage, 'running')
+
+      const { stdout } = await $p
+
+      assert.equal($p.stage, 'fulfilled')
+      assert.equal(stdout, 'foo\n')
+    })
+
+    it(`handle the transition 'running' -> 'rejected'`, async () => {
+      const $p = $`wft`
+      assert.equal($p.stage, 'running')
+      let err
+      try {
+        await $p
+      } catch (e) {
+        err = e
+      }
+      assert.equal($p.stage, 'rejected')
+      assert.notEqual($p.exitCode, 0)
+      assert.ok(err.stderr.includes('wtf: command not found'))
+    })
+
+    it(`handle the transition 'halted' -> 'running' -> 'fulfilled'`, async () => {
+      const $p = $({ halt: true })`echo foo`
+
+      assert.equal($p.stage, 'halted')
+
+      $p.run()
+      assert.equal($p.stage, 'running')
+
+      const { stdout } = await $p
+
+      assert.equal($p.stage, 'fulfilled')
+      assert.equal(stdout, 'foo\n')
+    })
+
+    it('handle all transition', async () => {
+      const { promise, resolve, reject } = Promise.withResolvers()
+      const process = new ProcessPromise(
+        () => {},
+        () => {}
+      )
+
+      assert.equal(process.stage, 'initial')
+
+      process._bind('echo foo', 'test', resolve, reject, {
+        ...resolveDefaults(),
+        halt: true,
+      })
+
+      assert.equal(process.stage, 'halted')
+
+      process.run()
+
+      assert.equal(process.stage, 'running')
+
+      await promise
+
+      assert.equal(process.stage, 'fulfilled')
+      assert.equal(process.output?.stdout, 'foo\n')
+    })
+  })
 })
