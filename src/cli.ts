@@ -151,13 +151,13 @@ async function runScript(
 
 async function readScript() {
   const [firstArg] = argv._
-  updateArgv(argv._.slice(firstArg === undefined ? 0 : 1))
-
   let script = ''
   let scriptPath = ''
   let tempPath = ''
+  let argSlice = 1
 
   if (argv.eval) {
+    argSlice = 0
     script = argv.eval
     tempPath = getFilepath($.cwd, 'zx', argv.ext)
   } else if (!firstArg || firstArg === '-') {
@@ -169,8 +169,8 @@ async function readScript() {
       throw new Error('No script provided')
     }
   } else if (/^https?:/.test(firstArg)) {
-    script = await readScriptFromHttp(firstArg)
     const { name, ext = argv.ext } = path.parse(new URL(firstArg).pathname)
+    script = await readScriptFromHttp(firstArg)
     tempPath = getFilepath($.cwd, name, ext)
   } else {
     script = await fs.readFile(firstArg, 'utf8')
@@ -187,6 +187,7 @@ async function readScript() {
     script = transformMarkdown(script)
     tempPath = getFilepath(dir, base)
   }
+  if (argSlice) updateArgv(argv._.slice(argSlice))
 
   return { script, scriptPath, tempPath }
 }
