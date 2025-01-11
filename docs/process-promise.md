@@ -14,6 +14,18 @@ const p = $({halt: true})`command`
 const o = await p.run()
 ```
 
+## `stage`
+
+Shows the current process stage: `initial` | `halted` | `running` | `fulfilled` | `rejected`
+
+```ts
+const p = $`echo foo`
+p.stage // 'running'
+await p
+p.stage // 'fulfilled'
+```
+
+
 ## `stdin`
 
 Returns a writable stream of the stdin process. Accessing

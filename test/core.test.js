@@ -19,6 +19,7 @@ import { basename } from 'node:path'
 import { WriteStream } from 'node:fs'
 import { Readable, Transform, Writable } from 'node:stream'
 import { Socket } from 'node:net'
+import { ChildProcess } from 'node:child_process'
 import {
   $,
   ProcessPromise,
@@ -42,6 +43,7 @@ import {
   which,
   nothrow,
 } from '../build/index.js'
+import { noop } from '../build/util.js'
 
 describe('core', () => {
   describe('resolveDefaults()', () => {
@@ -392,6 +394,72 @@ describe('core', () => {
   })
 
   describe('ProcessPromise', () => {
+    test('getters', async () => {
+      const p = $`echo foo`
+      assert.ok(p.pid > 0)
+      assert.ok(typeof p.id === 'string')
+      assert.ok(typeof p.cmd === 'string')
+      assert.ok(typeof p.fullCmd === 'string')
+      assert.ok(typeof p.stage === 'string')
+      assert.ok(p.child instanceof ChildProcess)
+      assert.ok(p.stdout instanceof Socket)
+      assert.ok(p.stderr instanceof Socket)
+      assert.ok(p.exitCode instanceof Promise)
+      assert.ok(p.signal instanceof AbortSignal)
+      assert.equal(p.output, null)
+
+      await p
+      assert.ok(p.output instanceof ProcessOutput)
+    })
+
+    describe('state machine transitions', () => {
+      it('running > fulfilled', async () => {
+        const p = $`echo foo`
+        assert.equal(p.stage, 'running')
+        await p
+        assert.equal(p.stage, 'fulfilled')
+      })
+
+      it('running > rejected', async () => {
+        const p = $`foo`
+        assert.equal(p.stage, 'running')
+
+        try {
+          await p
+        } catch {}
+        assert.equal(p.stage, 'rejected')
+      })
+
+      it('halted > running > fulfilled', async () => {
+        const p = $({ halt: true })`echo foo`
+        assert.equal(p.stage, 'halted')
+        p.run()
+        assert.equal(p.stage, 'running')
+        await p
+        assert.equal(p.stage, 'fulfilled')
+      })
+
+      it('all transition', async () => {
+        const { promise, resolve, reject } = Promise.withResolvers()
+        const process = new ProcessPromise(noop, noop)
+
+        assert.equal(process.stage, 'initial')
+        process._bind('echo foo', 'test', resolve, reject, {
+          ...resolveDefaults(),
+          halt: true,
+        })
+
+        assert.equal(process.stage, 'halted')
+        process.run()
+
+        assert.equal(process.stage, 'running')
+        await promise
+
+        assert.equal(process.stage, 'fulfilled')
+        assert.equal(process.output?.stdout, 'foo\n')
+      })
+    })
+
     test('inherits native Promise', async () => {
       const p1 = $`echo 1`
       const p2 = p1.then((v) => v)
@@ -422,12 +490,6 @@ describe('core', () => {
       const p = $`echo ${foo} --t ${baz}`
       assert.equal(p.cmd, "echo $'#bar' --t 1")
       assert.equal(p.fullCmd, "set -euo pipefail;echo $'#bar' --t 1")
-    })
-
-    test('exposes pid & id', () => {
-      const p = $`echo foo`
-      assert.ok(p.pid > 0)
-      assert.ok(typeof p.id === 'string')
     })
 
     test('stdio() works', async () => {
