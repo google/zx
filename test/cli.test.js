@@ -191,7 +191,7 @@ describe('cli', () => {
     const port = await getPort()
     const server = await getServer([resp]).start(port)
     const out =
-      await $`node build/cli.js --verbose http://127.0.0.1:${port}/echo.mjs`
+      await $`node build/cli.js --verbose http://127.0.0.1:${port}/script.mjs`
     assert.match(out.stderr, /test/)
     await server.stop()
   })
@@ -201,6 +201,16 @@ describe('cli', () => {
     const server = await getServer(['HTTP/1.1 500\n\n']).listen(port)
     const out = await $`node build/cli.js http://127.0.0.1:${port}`.nothrow()
     assert.match(out.stderr, /Error: Can't get/)
+    await server.stop()
+  })
+
+  test('scripts (md) from https', async () => {
+    const resp = await fs.readFile(path.resolve('test/fixtures/md.http'))
+    const port = await getPort()
+    const server = await getServer([resp]).start(port)
+    const out =
+      await $`node build/cli.js --verbose http://127.0.0.1:${port}/script.md`
+    assert.match(out.stderr, /md/)
     await server.stop()
   })
 
@@ -231,10 +241,6 @@ describe('cli', () => {
 
   test('__filename & __dirname are defined', async () => {
     await $`node build/cli.js test/fixtures/filename-dirname.mjs`
-  })
-
-  test('markdown scripts are working', async () => {
-    await $`node build/cli.js test/fixtures/markdown.md`
   })
 
   test('markdown scripts are working', async () => {

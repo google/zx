@@ -26,6 +26,7 @@ import {
   fetch,
   fs,
   path,
+  stdin,
   VERSION,
 } from './index.js'
 import { installDeps, parseDeps } from './deps.js'
@@ -113,100 +114,95 @@ export async function main() {
     await startRepl()
     return
   }
-  if (argv.eval) {
-    await runScript(argv.eval, argv.ext)
-    return
+
+  const { script, scriptPath, tempPath } = await readScript()
+  await runScript(script, scriptPath, tempPath)
+}
+
+async function runScript(
+  script: string,
+  scriptPath: string,
+  tempPath: string
+): Promise<void> {
+  const rmTemp = () => fs.rmSync(tempPath, { force: true })
+  try {
+    if (tempPath) {
+      scriptPath = tempPath
+      await fs.writeFile(tempPath, script)
+    }
+
+    if (argv.install) {
+      await installDeps(
+        parseDeps(script),
+        path.dirname(scriptPath),
+        argv.registry
+      )
+    }
+
+    injectGlobalRequire(scriptPath)
+    process.once('exit', rmTemp)
+
+    // TODO: fix unanalyzable-dynamic-import to work correctly with jsr.io
+    await import(url.pathToFileURL(scriptPath).toString())
+  } finally {
+    rmTemp()
   }
+}
+
+async function readScript() {
   const [firstArg] = argv._
-  updateArgv(argv._.slice(firstArg === undefined ? 0 : 1))
-  if (!firstArg || firstArg === '-') {
-    const success = await scriptFromStdin(argv.ext)
-    if (!success) {
+  let script = ''
+  let scriptPath = ''
+  let tempPath = ''
+  let argSlice = 1
+
+  if (argv.eval) {
+    argSlice = 0
+    script = argv.eval
+    tempPath = getFilepath($.cwd, 'zx', argv.ext)
+  } else if (!firstArg || firstArg === '-') {
+    script = await readScriptFromStdin()
+    tempPath = getFilepath($.cwd, 'zx', argv.ext)
+    if (script.length === 0) {
       printUsage()
       process.exitCode = 1
+      throw new Error('No script provided')
     }
-    return
+  } else if (/^https?:/.test(firstArg)) {
+    const { name, ext = argv.ext } = path.parse(new URL(firstArg).pathname)
+    script = await readScriptFromHttp(firstArg)
+    tempPath = getFilepath($.cwd, name, ext)
+  } else {
+    script = await fs.readFile(firstArg, 'utf8')
+    scriptPath = firstArg.startsWith('file:')
+      ? url.fileURLToPath(firstArg)
+      : path.resolve(firstArg)
   }
-  if (/^https?:/.test(firstArg)) {
-    await scriptFromHttp(firstArg, argv.ext)
-    return
+
+  const { ext, base, dir } = path.parse(tempPath || scriptPath)
+  if (ext === '') {
+    tempPath = getFilepath(dir, base)
   }
-  const filepath = firstArg.startsWith('file:')
-    ? url.fileURLToPath(firstArg)
-    : path.resolve(firstArg)
-  await importPath(filepath)
+  if (ext === '.md') {
+    script = transformMarkdown(script)
+    tempPath = getFilepath(dir, base)
+  }
+  if (argSlice) updateArgv(argv._.slice(argSlice))
+
+  return { script, scriptPath, tempPath }
 }
 
-export async function runScript(script: string, ext?: string) {
-  const filepath = getFilepath($.cwd, 'zx', ext)
-  await writeAndImport(script, filepath)
+async function readScriptFromStdin(): Promise<string> {
+  return !process.stdin.isTTY ? stdin() : ''
 }
 
-export async function scriptFromStdin(ext?: string): Promise<boolean> {
-  let script = ''
-  if (!process.stdin.isTTY) {
-    process.stdin.setEncoding('utf8')
-    for await (const chunk of process.stdin) {
-      script += chunk
-    }
-
-    if (script.length > 0) {
-      await runScript(script, ext)
-      return true
-    }
-  }
-  return false
-}
-
-export async function scriptFromHttp(remote: string, _ext?: string) {
+async function readScriptFromHttp(remote: string): Promise<string> {
   const res = await fetch(remote)
   if (!res.ok) {
     console.error(`Error: Can't get ${remote}`)
     process.exit(1)
   }
-  const script = await res.text()
-  const pathname = new URL(remote).pathname
-  const { name, ext } = path.parse(pathname)
-  const filepath = getFilepath($.cwd, name, _ext || ext)
-  await writeAndImport(script, filepath)
-}
-
-export async function writeAndImport(
-  script: string | Buffer,
-  filepath: string,
-  origin = filepath
-) {
-  await fs.writeFile(filepath, script)
-  try {
-    process.once('exit', () => fs.rmSync(filepath, { force: true }))
-    await importPath(filepath, origin)
-  } finally {
-    await fs.rm(filepath)
-  }
-}
-
-export async function importPath(
-  filepath: string,
-  origin = filepath
-): Promise<void> {
-  const contents = await fs.readFile(filepath, 'utf8')
-  const { ext, base, dir } = path.parse(filepath)
-  const tempFilename = getFilepath(dir, base)
-
-  if (ext === '') {
-    return writeAndImport(contents, tempFilename, origin)
-  }
-  if (ext === '.md') {
-    return writeAndImport(transformMarkdown(contents), tempFilename, origin)
-  }
-  if (argv.install) {
-    const deps = parseDeps(contents)
-    await installDeps(deps, dir, argv.registry)
-  }
-
-  injectGlobalRequire(origin)
-  // TODO: fix unanalyzable-dynamic-import to work correctly with jsr.io
-  await import(url.pathToFileURL(filepath).toString())
+  return res.text()
 }
 
 export function injectGlobalRequire(origin: string) {
