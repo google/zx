@@ -14,6 +14,23 @@ const p = $({halt: true})`command`
 const o = await p.run()
 ```
 
+## `stage`
+
+Returns current internal state machine stage
+
+Active stages:
+* Initial — when creating the instance
+* Halted — when called by the instance of `$({ halt: true })`
+* Running — when starting the instance process
+* Fulfilled — upon successful completion of the instance process
+* Rejected — when the instance process has failed
+
+```ts
+const p = $`command`;
+console.log(p.stage);  
+```
+
+
 ## `stdin`
 
 Returns a writable stream of the stdin process. Accessing
