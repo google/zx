@@ -203,8 +203,11 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
     },
   }
 )
-
+/**
+ * State machine stages
+ */
 type ProcessStage = 'initial' | 'halted' | 'running' | 'fulfilled' | 'rejected'
+
 type Resolve = (out: ProcessOutput) => void
 
 type PipeDest = Writable | ProcessPromise | TemplateStringsArray | string
@@ -252,7 +255,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   run(): ProcessPromise {
-    if (this._stage === 'running' || this.isSettled()) return this // The _run() can be called from a few places.
+    if (this.isRunning() || this.isSettled()) return this // The _run() can be called from a few places.
     this._stage = 'running'
     this._pipedFrom?.run()
 
@@ -495,6 +498,16 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this._output
   }
 
+  /**
+   * Returns current internal state machine stage
+   *
+   * Active stages:
+   * * Initial — when creating the instance
+   * * Halted — when called by the instance of $({ halt: true })
+   * * Running — when starting the instance process
+   * * Fulfilled — upon successful completion of the instance process
+   * * Rejected — when the instance process has failed
+   */
   get stage(): ProcessStage {
     return this._stage
   }
@@ -534,7 +547,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     this._timeoutSignal = signal
 
     if (this._timeoutId) clearTimeout(this._timeoutId)
-    if (this._timeout && this.stage === 'running') {
+    if (this._timeout && this.isRunning()) {
       this._timeoutId = setTimeout(
         () => this.kill(this._timeoutSignal),
         this._timeout
@@ -584,6 +597,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   private isSettled(): boolean {
     return !!this.output
+  }
+
+  private isRunning(): boolean {
+    return this.stage === 'running'
   }
 
   // Promise API
