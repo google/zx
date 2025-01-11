@@ -203,6 +203,10 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
     },
   }
 )
+/**
+ * State machine stages
+ */
+type ProcessStage = 'initial' | 'halted' | 'running' | 'fulfilled' | 'rejected'
 
 type Resolve = (out: ProcessOutput) => void
 
@@ -214,6 +218,7 @@ type PipeMethod = {
 }
 
 export class ProcessPromise extends Promise<ProcessOutput> {
+  private _stage: ProcessStage = 'initial'
   private _id = randomId()
   private _command = ''
   private _from = ''
@@ -225,11 +230,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _timeout?: number
   private _timeoutSignal?: NodeJS.Signals
   private _timeoutId?: NodeJS.Timeout
-  private _resolved = false
-  private _halted?: boolean
   private _piped = false
   private _pipedFrom?: ProcessPromise
-  private _run = false
   private _ee = new EventEmitter()
   private _stdin = new VoidStream()
   private _zurk: ReturnType<typeof exec> | null = null
@@ -249,12 +251,12 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     this._resolve = resolve
     this._reject = reject
     this._snapshot = { ac: new AbortController(), ...options }
+    if (this._snapshot.halt) this._stage = 'halted'
   }
 
   run(): ProcessPromise {
-    if (this._run) return this // The _run() can be called from a few places.
-    this._halted = false
-    this._run = true
+    if (this.isRunning() || this.isSettled()) return this // The _run() can be called from a few places.
+    this._stage = 'running'
     this._pipedFrom?.run()
 
     const self = this
@@ -310,7 +312,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           $.log({ kind: 'stderr', data, verbose: !self.isQuiet(), id })
         },
         end: (data, c) => {
-          self._resolved = true
           const { error, status, signal, duration, ctx } = data
           const { stdout, stderr, stdall } = ctx.store
           const dto: ProcessOutputLazyDto = {
@@ -341,8 +342,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           const output = self._output = new ProcessOutput(dto)
 
           if (error || status !== 0 && !self.isNothrow()) {
+            self._stage = 'rejected'
             self._reject(output)
           } else {
+            self._stage = 'fulfilled'
             self._resolve(output)
           }
         },
@@ -388,9 +391,9 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       for (const chunk of this._zurk!.store[source]) from.write(chunk)
       return true
     }
-    const fillEnd = () => this._resolved && fill() && from.end()
+    const fillEnd = () => this.isSettled() && fill() && from.end()
 
-    if (!this._resolved) {
+    if (!this.isSettled()) {
       const onData = (chunk: string | Buffer) => from.write(chunk)
       ee.once(source, () => {
         fill()
@@ -495,6 +498,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this._output
   }
 
+  get stage(): ProcessStage {
+    return this._stage
+  }
+
   // Configurators
   stdio(
     stdin: IOType,
@@ -524,13 +531,13 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     d: Duration,
     signal = this._timeoutSignal || $.timeoutSignal
   ): ProcessPromise {
-    if (this._resolved) return this
+    if (this.isSettled()) return this
 
     this._timeout = parseDuration(d)
     this._timeoutSignal = signal
 
     if (this._timeoutId) clearTimeout(this._timeoutId)
-    if (this._timeout && this._run) {
+    if (this._timeout && this.isRunning()) {
       this._timeoutId = setTimeout(
         () => this.kill(this._timeoutSignal),
         this._timeout
@@ -562,10 +569,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   // Status checkers
-  isHalted(): boolean {
-    return this._halted ?? this._snapshot.halt ?? false
-  }
-
   isQuiet(): boolean {
     return this._quiet ?? this._snapshot.quiet
   }
@@ -576,6 +579,18 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   isNothrow(): boolean {
     return this._nothrow ?? this._snapshot.nothrow
+  }
+
+  isHalted(): boolean {
+    return this.stage === 'halted'
+  }
+
+  private isSettled(): boolean {
+    return !!this.output
+  }
+
+  private isRunning(): boolean {
+    return this.stage === 'running'
   }
 
   // Promise API
