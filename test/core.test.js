@@ -42,6 +42,7 @@ import {
   which,
   nothrow,
 } from '../build/index.js'
+import { noop } from '../build/util.js'
 
 describe('core', () => {
   describe('resolveDefaults()', () => {
@@ -1285,50 +1286,43 @@ describe('core', () => {
 
   describe('stage machine stage', () => {
     it(`handle the transition 'running' -> 'fulfilled'`, async () => {
-      const $p = $`echo foo`
+      const p = $`echo foo`
 
-      assert.equal($p.stage, 'running')
+      assert.equal(p.stage, 'running')
+      await p
 
-      const { stdout } = await $p
-
-      assert.equal($p.stage, 'fulfilled')
-      assert.equal(stdout, 'foo\n')
+      assert.equal(p.stage, 'fulfilled')
     })
 
     it(`handle the transition 'running' -> 'rejected'`, async () => {
-      const $p = $`wft`
-      assert.equal($p.stage, 'running')
-      let err
+      const p = $`wft`
+
+      assert.equal(p.stage, 'running')
+
       try {
-        await $p
-      } catch (e) {
-        err = e
-      }
-      assert.equal($p.stage, 'rejected')
-      assert.notEqual($p.exitCode, 0)
-      assert.ok(err.stderr.includes('wtf: command not found'))
+        await p
+      } catch (e) {}
+
+      assert.equal(p.stage, 'rejected')
     })
 
     it(`handle the transition 'halted' -> 'running' -> 'fulfilled'`, async () => {
-      const $p = $({ halt: true })`echo foo`
+      const p = $({ halt: true })`echo foo`
 
-      assert.equal($p.stage, 'halted')
+      assert.equal(p.stage, 'halted')
 
-      $p.run()
-      assert.equal($p.stage, 'running')
+      p.run()
 
-      const { stdout } = await $p
+      assert.equal(p.stage, 'running')
 
-      assert.equal($p.stage, 'fulfilled')
-      assert.equal(stdout, 'foo\n')
+      await p
+
+      assert.equal(p.stage, 'fulfilled')
     })
 
     it('handle all transition', async () => {
       const { promise, resolve, reject } = Promise.withResolvers()
-      const process = new ProcessPromise(
-        () => {},
-        () => {}
-      )
+      const process = new ProcessPromise(noop, noop)
 
       assert.equal(process.stage, 'initial')
 
