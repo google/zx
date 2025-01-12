@@ -37,8 +37,8 @@ describe('vendor API', () => {
 
   test('fetch() works', async () => {
     assert.match(
-      await fetch('https://medv.io').then((res) => res.text()),
-      /Anton Medvedev/
+      await fetch('https://example.com').then((res) => res.text()),
+      /Example Domain/
     )
   })
 

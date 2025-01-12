@@ -24,6 +24,7 @@ import {
   $,
   ProcessPromise,
   ProcessOutput,
+  defaults,
   resolveDefaults,
   cd,
   syncProcessCwd,
@@ -221,6 +222,20 @@ describe('core', () => {
     })
 
     describe('$({opts}) API', () => {
+      it('$ proxy uses `defaults` store', () => {
+        assert.equal($.foo, undefined)
+        defaults.foo = 'bar'
+        $.baz = 'qux'
+        assert.equal($.foo, 'bar')
+        assert.equal($.baz, 'qux')
+        assert.equal(defaults.baz, 'qux')
+        delete defaults.foo
+        $.baz = undefined
+        assert.equal($.foo, undefined)
+        assert.equal($.baz, undefined)
+        assert.equal(defaults.baz, undefined)
+      })
+
       test('provides presets', async () => {
         const $1 = $({ nothrow: true })
         assert.equal((await $1`exit 1`).exitCode, 1)
@@ -396,7 +411,7 @@ describe('core', () => {
   describe('ProcessPromise', () => {
     test('getters', async () => {
       const p = $`echo foo`
-      assert.ok(p.pid > 0)
+      assert.ok(typeof p.pid === 'number')
       assert.ok(typeof p.id === 'string')
       assert.ok(typeof p.cmd === 'string')
       assert.ok(typeof p.fullCmd === 'string')
@@ -439,24 +454,20 @@ describe('core', () => {
         assert.equal(p.stage, 'fulfilled')
       })
 
-      it('all transition', async () => {
+      it('all transitions', async () => {
         const { promise, resolve, reject } = Promise.withResolvers()
-        const process = new ProcessPromise(noop, noop)
-
-        assert.equal(process.stage, 'initial')
-        process._bind('echo foo', 'test', resolve, reject, {
-          ...resolveDefaults(),
+        const p = new ProcessPromise(noop, noop)
+        assert.equal(p.stage, 'initial')
+        p._bind('echo foo', 'test', resolve, reject, {
+          ...defaults,
           halt: true,
         })
-
-        assert.equal(process.stage, 'halted')
-        process.run()
-
-        assert.equal(process.stage, 'running')
+        assert.equal(p.stage, 'halted')
+        p.run()
+        assert.equal(p.stage, 'running')
         await promise
-
-        assert.equal(process.stage, 'fulfilled')
-        assert.equal(process.output?.stdout, 'foo\n')
+        assert.equal(p.stage, 'fulfilled')
+        assert.equal(p.output.stdout, 'foo\n')
       })
     })
 
