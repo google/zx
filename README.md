@@ -31,6 +31,11 @@ gives sensible defaults.
 npm install zx
 ```
 
+## Has Inspired
+
+* [Bun's built-in $ Shell Support](https://bun.sh/docs/runtime/shell)
+* <https://github.com/dsherret/dax>
+
 ## Documentation
 
 Read documentation on [google.github.io/zx](https://google.github.io/zx/).
