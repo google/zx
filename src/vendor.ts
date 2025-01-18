@@ -12,5 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { wrap } from './vendor-core.js'
+import {
+  depseek as _depseek,
+  dotenv as _dotenv,
+  type minimist as TMinimistNamespace,
+  minimist as _minimist,
+  fs as _fs,
+  YAML as _YAML,
+  glob as _glob,
+  nodeFetch as _nodeFetch,
+} from './vendor-extra.js'
+
 export * from './vendor-core.js'
-export * from './vendor-extra.js'
+export { createRequire } from './vendor-extra.js'
+
+export const depseek: typeof _depseek = wrap('depseek', _depseek)
+export const dotenv: typeof _dotenv = wrap('dotenv', _dotenv)
+export const fs: typeof _fs = wrap('fs', _fs)
+export const YAML: typeof _YAML = wrap('YAML', _YAML)
+export const glob: typeof _glob = wrap('glob', _glob)
+export const nodeFetch: typeof _nodeFetch = wrap('nodeFetch', _nodeFetch)
+
+export const minimist: typeof _minimist = wrap('minimist', _minimist)
+export namespace minimist {
+  export type Opts = TMinimistNamespace.Opts
+  export type ParsedArgs = TMinimistNamespace.ParsedArgs
+}

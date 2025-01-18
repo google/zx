@@ -12,6 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { default as _chalk } from 'chalk'
+import { default as _which } from 'which'
+import { default as _ps } from '@webpod/ps'
+
+type TCallable = (...args: any[]) => any
+const store = new Map<string, any>()
+
+export const override = store.set.bind(store)
+
+export const wrap = <T extends object>(name: string, api: T): T => {
+  override(name, api)
+  return new Proxy<T>(api, {
+    get(_, key) {
+      return store.get(name)[key]
+    },
+    apply(_, self, args) {
+      return (store.get(name) as TCallable).apply(self, args)
+    },
+  })
+}
+
 export {
   type TSpawnStore,
   type TSpawnStoreChunks,
@@ -24,6 +45,7 @@ export {
 export type RequestInfo = Parameters<typeof globalThis.fetch>[0]
 export type RequestInit = Parameters<typeof globalThis.fetch>[1]
 
-export { default as chalk, type ChalkInstance } from 'chalk'
-export { default as which } from 'which'
-export { default as ps } from '@webpod/ps'
+export { type ChalkInstance } from 'chalk'
+export const chalk = wrap('chalk', _chalk)
+export const which = wrap('which', _which)
+export const ps = wrap('ps', _ps)
