@@ -18,10 +18,8 @@ import { default as _ps } from '@webpod/ps'
 
 type TCallable = (...args: any[]) => any
 const store = new Map<string, any>()
-
-export const override = store.set.bind(store)
-
-export const wrap = <T extends object>(name: string, api: T): T => {
+const override = store.set.bind(store)
+const wrap = <T extends object>(name: string, api: T): T => {
   override(name, api)
   return new Proxy<T>(api, {
     get(_, key) {
@@ -31,6 +29,11 @@ export const wrap = <T extends object>(name: string, api: T): T => {
       return (store.get(name) as TCallable).apply(self, args)
     },
   })
+}
+export const bus = {
+  override,
+  store,
+  wrap,
 }
 
 export {

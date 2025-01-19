@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { wrap } from './vendor-core.js'
+import { bus } from './vendor-core.js'
 import {
   depseek as _depseek,
   dotenv as _dotenv,
@@ -27,6 +27,7 @@ import {
 export * from './vendor-core.js'
 export { createRequire } from './vendor-extra.js'
 
+const { wrap } = bus
 export const depseek: typeof _depseek = wrap('depseek', _depseek)
 export const dotenv: typeof _dotenv = wrap('dotenv', _dotenv)
 export const fs: typeof _fs = wrap('fs', _fs)
