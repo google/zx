@@ -45,8 +45,8 @@ describe('jsr artifact', () => {
   })
   after(() => fs.remove(tmp))
 
-  it('publish --dry-run --allow-dirty`', async () => {
+  it('publish --dry-run`', async () => {
     await t$`node scripts/build-jsr.mjs`
-    await t$({ quiet: false })`jsr publish --dry-run --allow-dirty`
+    await t$({ quiet: false })`jsr publish --dry-run`
   })
 })
