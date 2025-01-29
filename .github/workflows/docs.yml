@@ -31,6 +31,9 @@ jobs:
       - name: Install deps
         run: npm i
 
+      - name: Add additional deps
+        run: npm i @rollup/rollup-linux-x64-gnu@4.32.1
+
       - name: Build docs
         run: npm run docs:build
 
