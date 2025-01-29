@@ -802,6 +802,13 @@ export class ProcessOutput extends Error {
   duration: ${this.duration}
 }`
   }
+
+  /**
+   * Synchronous iterator to allow iterating over stdout lines.
+   */
+  [Symbol.iterator](): IterableIterator<string> {
+    return this.stdout.split(/\r?\n/)[Symbol.iterator]();
+  }
 }
 
 export function usePowerShell() {

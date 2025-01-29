@@ -1161,6 +1161,12 @@ describe('core', () => {
         assert.match(ProcessOutput.getErrorMessage({}, ''), /Unknown error/)
       })
     })
+
+    test('synchronous iterator', () => {
+      const output = new ProcessOutput(0, null, 'line1\nline2\r\nline3\n', '', '', '');
+      const lines = Array.from(output);
+      assert.deepEqual(lines, ['line1', 'line2', 'line3']);
+    });
   })
 
   describe('cd()', () => {
