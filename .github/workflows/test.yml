@@ -73,6 +73,9 @@ jobs:
         run: npm run test:it
         timeout-minutes: 1
 
+      - name: JSR dry-run
+        run: npm run test:jsr
+
   test:
     needs: build
     runs-on: ubuntu-latest
@@ -167,30 +170,6 @@ jobs:
         timeout-minutes: 1
         env:
           FORCE_COLOR: 3
-
-  smoke-jsr:
-    needs: build
-    runs-on: ubuntu-latest
-    env:
-      FORCE_COLOR: 3
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: Use Node.js 22.x
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22.x
-          cache: 'npm'
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: build
-      - run: npm ci
-
-      - name: JSR dry-run
-        run: npm run test:jsr
 
   smoke-node:
     runs-on: ubuntu-latest
