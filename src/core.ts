@@ -451,7 +451,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   // Getters
-  get id() {
+  get id(): string {
     return this._id
   }
 
@@ -617,7 +617,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   // Async iterator API
-  async *[Symbol.asyncIterator]() {
+  async *[Symbol.asyncIterator](): AsyncIterator<string> {
     let last: string | undefined
     const getLines = (chunk: Buffer | string) => {
       const lines = ((last || '') + bufToString(chunk)).split('\n')
@@ -918,7 +918,7 @@ export function resolveDefaults(
   defs: Options = defaults,
   prefix: string = ENV_PREFIX,
   env = process.env
-) {
+): Options {
   const allowed = new Set([
     'cwd',
     'preferLocal',
