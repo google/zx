@@ -24,16 +24,21 @@ jobs:
         with:
           persist-credentials: false
           ref: main
+
       - name: Setup Pages
         uses: actions/configure-pages@v3
+
       - name: Install deps
-        run: npm ci
+        run: npm i
+
       - name: Build docs
         run: npm run docs:build
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
           path: 'docs/build'
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
