@@ -76,6 +76,17 @@ await p.lines()       // ['foo', 'bar']
 await $`echo '{"foo": "bar"}'`.json() // {foo: 'bar'}
 ```
 
+## `[Symbol.asyncIterator]`
+
+Returns an async iterator of the stdout process.
+
+```js
+const p = $`echo "Line1\nLine2\nLine3"`
+for await (const line of p) {
+  console.log()
+}
+```
+
 ## `pipe()`
 
 Redirects the output of the process.
@@ -245,13 +256,18 @@ p.abort('reason')
 ```
 
 ## `stdio()`
-
-Specifies a stdio for the process.
-
-Default is `.stdio('inherit', 'pipe', 'pipe')`.
+Specifies a standard input-output for the process.
 
 ```js
-const p = $`read`.stdio('pipe')
+const h$ = $({halt: true})
+const p1 = h$`read`.stdio('inherit', 'pipe', null).run()
+const p2 = h$`read`.stdio('pipe').run() // sets ['pipe', 'pipe', 'pipe']
+```
+
+Keep in mind, `stdio` should be set before the process is started, so the preset syntax might be preferable:
+
+```js
+await $({stdio: ['pipe', 'pipe', 'pipe']})`read`
 ```
 
 ## `nothrow()`
