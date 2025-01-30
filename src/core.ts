@@ -787,6 +787,10 @@ export class ProcessOutput extends Error {
 
   static getErrorMessage = formatErrorMessage;
 
+  [Symbol.iterator](): Iterator<string> {
+    return this.lines()[Symbol.iterator]()
+  }
+
   [inspect.custom](): string {
     let stringify = (s: string, c: ChalkInstance) =>
       s.length === 0 ? "''" : c(inspect(s))
@@ -801,13 +805,6 @@ export class ProcessOutput extends Error {
   },
   duration: ${this.duration}
 }`
-  }
-
-  /**
-   * Synchronous iterator to allow iterating over stdout lines.
-   */
-  [Symbol.iterator](): IterableIterator<string> {
-    return this.stdout.split(/\r?\n/)[Symbol.iterator]();
   }
 }
 

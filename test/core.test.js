@@ -1162,11 +1162,14 @@ describe('core', () => {
       })
     })
 
-    test('synchronous iterator', () => {
-      const output = new ProcessOutput(0, null, 'line1\nline2\r\nline3\n', '', '', '');
-      const lines = Array.from(output);
-      assert.deepEqual(lines, ['line1', 'line2', 'line3']);
-    });
+    test('[Symbol.iterator] should yield lines correctly', () => {
+      const output = new ProcessOutput(null, null, '', '', 'Line1\nLine2\nLine3\n')
+      const lines = [...output]
+      assert.equal(lines.length, 3, 'Should have 3 lines')
+      assert.equal(lines[0], 'Line1', 'First line should be "Line1"')
+      assert.equal(lines[1], 'Line2', 'Second line should be "Line2"')
+      assert.equal(lines[2], 'Line3', 'Third line should be "Line3"')
+    })
   })
 
   describe('cd()', () => {
