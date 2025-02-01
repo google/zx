@@ -1,6 +1,6 @@
 # Configuration
 
-## $.shell
+## `$.shell`
 
 Specifies what shell is used. Default is `which bash`.
 
@@ -10,13 +10,13 @@ $.shell = '/usr/bin/bash'
 
 Or use a CLI argument: `--shell=/bin/bash`
 
-## $.spawn
+## `$.spawn`
 
 Specifies a `spawn` api. Defaults to `require('child_process').spawn`.
 
 To override a sync API implementation, set `$.spawnSync` correspondingly.
 
-## $.prefix
+## `$.prefix`
 
 Specifies the command that will be prefixed to all commands run.
 
@@ -24,7 +24,7 @@ Default is `set -euo pipefail;`.
 
 Or use a CLI argument: `--prefix='set -e;'`
 
-## $.postfix
+## `$.postfix`
 
 Like a `$.prefix`, but for the end of the command.
 
@@ -32,7 +32,7 @@ Like a `$.prefix`, but for the end of the command.
 $.postfix = '; exit $LastExitCode' // for PowerShell compatibility
 ```
 
-## $.preferLocal
+## `$.preferLocal`
 
 Specifies whether to prefer `node_modules/.bin` located binaries over globally system installed ones.
 
@@ -49,12 +49,12 @@ $.preferLocal = '/some/to/bin'
 $.preferLocal = ['/path/to/bin', '/another/path/bin']
 ```
 
-## $.quote
+## `$.quote`
 
 Specifies a function for escaping special characters during
 command substitution.
 
-## $.verbose
+## `$.verbose`
 
 Specifies verbosity. Default is `false`.
 
@@ -63,26 +63,26 @@ outputs.
 
 Or use the CLI argument: `--verbose` to set `true`.
 
-## $.quiet
+## `$.quiet`
 
 Suppresses all output. Default is `false`.
 
 Via CLI argument: `--quiet` sets `$.quiet = true`.
 
-## $.env
+## `$.env`
 
 Specifies an environment variables map.
 
 Defaults to `process.env`.
 
-## $.cwd
+## `$.cwd`
 
 Specifies a current working directory of all processes created with the `$`.
 
 The [cd()](#cd) func changes only `process.cwd()` and if no `$.cwd` specified,
 all `$` processes use `process.cwd()` by default (same as `spawn` behavior).
 
-## $.log
+## `$.log`
 
 Specifies a [logging function](src/core.ts).
 
@@ -101,7 +101,7 @@ $.log = (entry: LogEntry) => {
 }
 ```
 
-## $.timeout
+## `$.timeout`
 
 Specifies a timeout for the command execution.
 
@@ -110,4 +110,31 @@ $.timeout = '1s'
 $.timeoutSignal= 'SIGKILL'
 
 await $`sleep 999`
+```
+
+## `$.defaults`
+
+Holds the default configuration values. They will be used if the corresponding
+`$` options are not specified.
+
+```ts
+$.defaults = {
+  cwd:            process.cwd(),
+  env:            process.env,
+  verbose:        false,
+  quiet:          false,
+  sync:           false,
+  shell:          true,
+  prefix:         'set -euo pipefail;',   // for bash
+  postfix:        '; exit $LastExitCode', // for powershell
+  nothrow:        false,
+  stdio:          'pipe', // equivalent to ['pipe', 'pipe', 'pipe']
+  detached:       false,
+  preferLocal:    false,
+  spawn:          childProcess.spawn,
+  spawnSync:      childProcess.spawnSync,
+  log:            $.log,
+  killSignal:     'SIGTERM',
+  timeoutSignal:  'SIGTERM'
+}
 ```
