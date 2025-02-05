@@ -1165,10 +1165,7 @@ describe('core', () => {
     test('[Symbol.iterator] should yield lines correctly', () => {
       const output = new ProcessOutput(null, null, '', '', 'Line1\nLine2\nLine3\n')
       const lines = [...output]
-      assert.equal(lines.length, 3, 'Should have 3 lines')
-      assert.equal(lines[0], 'Line1', 'First line should be "Line1"')
-      assert.equal(lines[1], 'Line2', 'Second line should be "Line2"')
-      assert.equal(lines[2], 'Line3', 'Third line should be "Line3"')
+      assert.deepEqual(lines, ['Line1', 'Line2', 'Line3'])
     })
   })
 
