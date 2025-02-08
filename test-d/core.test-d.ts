@@ -48,11 +48,7 @@ expectType<NodeJS.Signals | null>(o.signal)
 expectType<ProcessOutput>(new ProcessOutput({
   code: null,
   signal: null,
-  stdall: '',
-  stderr: '',
-  stdout: '',
   duration: 0,
-  message: '',
   store: { stdout: [], stderr: [], stdall: [] },
   error: null,
   from: ''
