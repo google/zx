@@ -312,22 +312,34 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           $.log({ kind: 'stderr', data, verbose: !self.isQuiet(), id })
         },
         end: (data, c) => {
-          const { error, status, signal, duration, ctx: {store} } = data
-          const { stdout, stderr } = store
-          const output = self._output = new ProcessOutput({
-            code: status,
-            signal,
-            error,
-            duration,
-            store,
-            from: self._from,
-          })
-
-          $.log({ kind: 'end', signal, exitCode: status, duration, error, verbose: self.isVerbose(), id })
+          const { error, status, signal, duration, ctx } = data
+          const { stdout, stderr, stdall } = ctx.store
+          const dto: ProcessOutputLazyDto = {
+            code: () => status,
+            signal: () => signal,
+            duration: () => duration,
+            stdout: once(() => bufArrJoin(stdout)),
+            stderr: once(() => bufArrJoin(stderr)),
+            stdall: once(() => bufArrJoin(stdall)),
+            message: once(() => ProcessOutput.getExitMessage(
+              status,
+              signal,
+              dto.stderr(),
+              self._from
+            )),
+            ...error && {
+              code: () => null,
+              signal: () => null,
+              message: () => ProcessOutput.getErrorMessage(error, self._from)
+            }
+          }
 
           // Ensures EOL
           if (stdout.length && getLast(getLast(stdout)) !== BR_CC) c.on.stdout!(EOL, c)
           if (stderr.length && getLast(getLast(stderr)) !== BR_CC) c.on.stderr!(EOL, c)
+
+          $.log({ kind: 'end', signal, exitCode: status, duration, error, verbose: self.isVerbose(), id })
+          const output = self._output = new ProcessOutput(dto)
 
           if (error || status !== 0 && !self.isNothrow()) {
             self._stage = 'rejected'
@@ -657,76 +669,76 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 }
 
+type GettersRecord<T extends Record<any, any>> = { [K in keyof T]: () => T[K] }
 
-
-type ProcessDto = {
-  code: number | null
-  signal: NodeJS.Signals | null
-  duration: number
-  error: any
-  from: string
-  store: TSpawnStore
-}
-
-type ProcessOutputDto = ProcessDto & {
+type ProcessOutputLazyDto = GettersRecord<{
   code: number | null
   signal: NodeJS.Signals | null
   stdout: string
   stderr: string
   stdall: string
   message: string
-}
+  duration: number
+}>
 
 export class ProcessOutput extends Error {
-  private readonly _dto: ProcessOutputDto
-  constructor(dto: ProcessDto)
+  private readonly _code: number | null = null
+  private readonly _signal: NodeJS.Signals | null
+  private readonly _stdout: string
+  private readonly _stderr: string
+  private readonly _combined: string
+  private readonly _duration: number
+
+  constructor(dto: ProcessOutputLazyDto)
   constructor(
     code: number | null,
     signal: NodeJS.Signals | null,
     stdout: string,
     stderr: string,
-    stdall: string,
+    combined: string,
     message: string,
     duration?: number
   )
   constructor(
-    code: number | null | ProcessDto,
+    code: number | null | ProcessOutputLazyDto,
     signal: NodeJS.Signals | null = null,
     stdout: string = '',
     stderr: string = '',
-    stdall: string = '',
+    combined: string = '',
     message: string = '',
     duration: number = 0
   ) {
     super(message)
-    Reflect.deleteProperty(this, 'message')
-    this._dto =
-      code !== null && typeof code === 'object'
-        ? ProcessOutput.createLazyDto(code)
-        : {
-            code,
-            signal,
-            duration,
-            stdout,
-            stderr,
-            stdall,
-            error: null,
-            from: '',
-            message,
-            store: { stdout: [], stderr: [], stdall: [] },
-          }
+    this._signal = signal
+    this._stdout = stdout
+    this._stderr = stderr
+    this._combined = combined
+    this._duration = duration
+    if (code !== null && typeof code === 'object') {
+      Object.defineProperties(this, {
+        _code: { get: code.code },
+        _signal: { get: code.signal },
+        _duration: { get: code.duration },
+        _stdout: { get: code.stdout },
+        _stderr: { get: code.stderr },
+        _combined: { get: code.stdall },
+        message: { get: code.message },
+      })
+    } else {
+      this._code = code
+    }
   }
 
   toString(): string {
-    return this._dto.stdall
+    return this._combined
   }
 
   json<T = any>(): T {
-    return JSON.parse(this._dto.stdall)
+    return JSON.parse(this._combined)
   }
 
   buffer(): Buffer {
-    return Buffer.from(this._dto.stdall)
+    return Buffer.from(this._combined)
   }
 
   blob(type = 'text/plain'): Blob {
@@ -744,72 +756,43 @@ export class ProcessOutput extends Error {
   }
 
   lines(): string[] {
-    return [...this];
-  }
-
-  valueOf(): string {
-    return this._dto.stdall.trim()
+    return [...this]
   }
 
   *[Symbol.iterator](): Iterator<string> {
-    const trimmed = this._combined.trim();
-    yield* trimmed.split(/\r?\n/);
-  }
-
-  get stdout(): string {
-    return this._dto.stdout
-  }
-
-  get stderr(): string {
-    return this._dto.stderr
-  }
-
-  get exitCode(): number | null {
-    return this._dto.code
-  }
-
-  get signal(): NodeJS.Signals | null {
-    return this._dto.signal
-  }
-
-  get duration(): number {
-    return this._dto.duration
-  }
-
-  get message(): string {
-    return this._dto.message
-  }
-
-  private static createLazyDto({
-    code,
-    signal,
-    duration,
-    store: { stdout, stderr, stdall },
-    from,
-    error,
-  }: ProcessDto): ProcessOutputDto {
-    const dto = Object.defineProperties(
-      {
-        code,
-        signal,
-        duration,
-      },
-      {
-        stdout: { get: once(() => bufArrJoin(stdout)) },
-        stderr: { get: once(() => bufArrJoin(stderr)) },
-        stdall: { get: once(() => bufArrJoin(stdall)) },
-        message: {
-          get: once(() =>
-            ProcessOutput.getExitMessage(code, signal, dto.stderr, from)
-          ),
-        },
-        ...(error && {
-          message: { get: () => ProcessOutput.getErrorMessage(error, from) },
-        }),
+    const buffers = this._dto.store.stdall;
+    let carryover = '';
+    const lines: string[] = [];
+    
+    // Process each buffer incrementally
+    for (const buffer of buffers) {
+      const chunk = buffer.toString();
+      const combined = carryover + chunk;
+      const splitIndex = combined.lastIndexOf('\n') + 1;
+      
+      if (splitIndex > 0) {
+        lines.push(...combined.slice(0, splitIndex).split(/\r?\n/));
+        carryover = combined.slice(splitIndex);
+      } else {
+        carryover = combined;
       }
-    ) as ProcessOutputDto
+    }
 
-    return dto
+    // Add final carryover if exists
+    if (carryover) {
+      lines.push(carryover);
+    }
+
+    // Trim empty lines only from start/end
+    let first = 0;
+    let last = lines.length - 1;
+    while (first <= last && lines[first].trim() === '') first++;
+    while (last >= first && lines[last].trim() === '') last--;
+
+    // Yield non-empty lines preserving original order
+    for (let i = first; i <= last; i++) {
+      yield lines[i];
+    }
   }
 
   static getExitMessage = formatExitMessage

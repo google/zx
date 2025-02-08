@@ -1164,14 +1164,75 @@ describe('core', () => {
 
     test('[Symbol.iterator] handles edge cases', () => {
       const testCases = [
-        { input: 'Line1\r\nLine2\nLine3\r', expected: ['Line1', 'Line2', 'Line3'] },
-        { input: 'NoNewlines', expected: ['NoNewlines'] },
-        { input: '\n\n', expected: [] }, // Trims entirely
+        { 
+          input: [Buffer.from('Line1\r\nLine'), Buffer.from('2\nLine3\r')],
+          expected: ['Line1', 'Line2', 'Line3'] 
+        },
+        { 
+          input: [Buffer.from('NoNew')], 
+          expected: ['NoNew'] 
+        },
+        { 
+          input: [Buffer.from('\n\n'), Buffer.from('\n')], 
+          expected: [] 
+        },
+        { 
+          input: [Buffer.from('  \n'), Buffer.from(' \n')], 
+          expected: [] 
+        },
+        { 
+          input: [Buffer.from('\nHello\n'), Buffer.from('\nWorld\n\n')], 
+          expected: ['Hello', 'World'] 
+        }
       ];
 
       for (const { input, expected } of testCases) {
-        const output = new ProcessOutput(null, null, '', '', input);
+        const output = new ProcessOutput({
+          code: 0,
+          signal: null,
+          duration: 0,
+          store: { stdout: [], stderr: [], stdall: input },
+          error: null,
+          from: ''
+        });
         assert.deepEqual([...output], expected);
+      }
+    });
+
+    test('lines() handles edge cases', () => {
+      const testCases = [
+        { 
+          input: [Buffer.from('Line1\r\nLine'), Buffer.from('2\nLine3\r')],
+          expected: ['Line1', 'Line2', 'Line3'] 
+        },
+        { 
+          input: [Buffer.from('NoNew')], 
+          expected: ['NoNew'] 
+        },
+        { 
+          input: [Buffer.from('\n\n'), Buffer.from('\n')], 
+          expected: [] 
+        },
+        { 
+          input: [Buffer.from('  \n'), Buffer.from(' \n')], 
+          expected: [] 
+        },
+        { 
+          input: [Buffer.from('\nHello\n'), Buffer.from('\nWorld\n\n')], 
+          expected: ['Hello', 'World'] 
+        }
+      ];
+
+      for (const { input, expected } of testCases) {
+        const output = new ProcessOutput({
+          code: 0,
+          signal: null,
+          duration: 0,
+          store: { stdout: [], stderr: [], stdall: input },
+          error: null,
+          from: ''
+        });
+        assert.deepEqual(output.lines(), expected);
       }
     });
   })
