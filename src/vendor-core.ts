@@ -49,6 +49,6 @@ export type RequestInfo = Parameters<typeof globalThis.fetch>[0]
 export type RequestInit = Parameters<typeof globalThis.fetch>[1]
 
 export { type ChalkInstance } from 'chalk'
-export const chalk = wrap('chalk', _chalk)
-export const which = wrap('which', _which)
-export const ps = wrap('ps', _ps)
+export const chalk: typeof _chalk = wrap('chalk', _chalk)
+export const which: typeof _which = wrap('which', _which)
+export const ps: typeof _ps = wrap('ps', _ps)
