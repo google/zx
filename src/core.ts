@@ -312,14 +312,14 @@ export class ProcessPromise extends Promise<ProcessOutput> {
         end: (data, c) => {
           const { error, status, signal, duration, ctx: {store} } = data
           const { stdout, stderr } = store
-          const output = self._output = new ProcessOutput(ProcessOutput.createLazyDto({
+          const output = self._output = new ProcessOutput({
             code: status,
-            store,
             signal,
-            duration,
             error,
+            duration,
+            store,
             from: self._from,
-          }))
+          })
 
           $.log({ kind: 'end', signal, exitCode: status, duration, error, verbose: self.isVerbose(), id })
 
@@ -655,7 +655,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 }
 
-type ZurkDto = {
+type ProcessDto = {
   code: number | null
   signal: NodeJS.Signals | null
   duration: number
@@ -664,7 +664,7 @@ type ZurkDto = {
   store: TSpawnStore
 }
 
-type ProcessOutputDto = ZurkDto & {
+type ProcessOutputDto = ProcessDto & {
   stdout: string
   stderr: string
   stdall: string
@@ -673,7 +673,7 @@ type ProcessOutputDto = ZurkDto & {
 
 export class ProcessOutput extends Error {
   private readonly _dto: ProcessOutputDto
-  constructor(dto: ProcessOutputDto)
+  constructor(dto: ProcessDto)
   constructor(
     code: number | null,
     signal: NodeJS.Signals | null,
@@ -681,12 +681,10 @@ export class ProcessOutput extends Error {
     stderr: string,
     stdall: string,
     message: string,
-    duration?: number,
-    error?: string | null,
-    store?: TSpawnStore
+    duration?: number
   )
   constructor(
-    code: number | null | ProcessOutputDto,
+    code: number | null | ProcessDto,
     signal: NodeJS.Signals | null = null,
     stdout: string = '',
     stderr: string = '',
@@ -698,7 +696,7 @@ export class ProcessOutput extends Error {
     Reflect.deleteProperty(this, 'message')
     this._dto =
       code !== null && typeof code === 'object'
-        ? code
+        ? ProcessOutput.createLazyDto(code)
         : {
             code,
             signal,
@@ -771,14 +769,14 @@ export class ProcessOutput extends Error {
     return this._dto.message
   }
 
-  static createLazyDto({
+  private static createLazyDto({
     code,
     signal,
     duration,
     store: { stdout, stderr, stdall },
     from,
     error,
-  }: ZurkDto): ProcessOutputDto {
+  }: ProcessDto): ProcessOutputDto {
     const dto = Object.defineProperties(
       {
         code,
