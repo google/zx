@@ -756,11 +756,16 @@ export class ProcessOutput extends Error {
   }
 
   lines(): string[] {
-    return this.valueOf().split(/\r?\n/)
+    return [...this];
   }
 
   valueOf(): string {
     return this._combined.trim()
+  }
+
+  *[Symbol.iterator](): Iterator<string> {
+    const trimmed = this._combined.trim();
+    yield* trimmed.split(/\r?\n/);
   }
 
   get stdout(): string {
@@ -786,10 +791,6 @@ export class ProcessOutput extends Error {
   static getExitMessage = formatExitMessage
 
   static getErrorMessage = formatErrorMessage;
-
-  [Symbol.iterator](): Iterator<string> {
-    return this.lines()[Symbol.iterator]()
-  }
 
   [inspect.custom](): string {
     let stringify = (s: string, c: ChalkInstance) =>

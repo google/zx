@@ -1162,11 +1162,18 @@ describe('core', () => {
       })
     })
 
-    test('[Symbol.iterator] should yield lines correctly', () => {
-      const output = new ProcessOutput(null, null, '', '', 'Line1\nLine2\nLine3\n')
-      const lines = [...output]
-      assert.deepEqual(lines, ['Line1', 'Line2', 'Line3'])
-    })
+    test('[Symbol.iterator] handles edge cases', () => {
+      const testCases = [
+        { input: 'Line1\r\nLine2\nLine3\r', expected: ['Line1', 'Line2', 'Line3'] },
+        { input: 'NoNewlines', expected: ['NoNewlines'] },
+        { input: '\n\n', expected: [] }, // Trims entirely
+      ];
+
+      for (const { input, expected } of testCases) {
+        const output = new ProcessOutput(null, null, '', '', input);
+        assert.deepEqual([...output], expected);
+      }
+    });
   })
 
   describe('cd()', () => {
