@@ -53,13 +53,6 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Docs', link: '/getting-started' },
-      {
-        text: 'v8',
-        items: [
-          { text: 'v8', link: '/migration-from-v7' },
-          { text: 'v7', link: '/v7/api' },
-        ],
-      },
     ],
 
     sidebar: {

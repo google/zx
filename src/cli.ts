@@ -32,7 +32,7 @@ import {
 import { installDeps, parseDeps } from './deps.js'
 import { startRepl } from './repl.js'
 import { randomId, bufToString } from './util.js'
-import { createRequire } from './vendor.js'
+import { createRequire, type minimist } from './vendor.js'
 
 const EXT = '.mjs'
 
@@ -78,7 +78,7 @@ export function printUsage() {
 }
 
 // prettier-ignore
-export const argv = parseArgv(process.argv.slice(2), {
+export const argv: minimist.ParsedArgs = parseArgv(process.argv.slice(2), {
   string: ['shell', 'prefix', 'postfix', 'eval', 'cwd', 'ext', 'registry', 'env'],
   boolean: ['version', 'help', 'quiet', 'verbose', 'install', 'repl', 'experimental', 'prefer-local'],
   alias: { e: 'eval', i: 'install', v: 'version', h: 'help', l: 'prefer-local', 'env-file': 'env' },
@@ -87,7 +87,7 @@ export const argv = parseArgv(process.argv.slice(2), {
   camelCase: true,
 })
 
-export async function main() {
+export async function main(): Promise<void> {
   await import('./globals.js')
   argv.ext = normalizeExt(argv.ext)
   if (argv.cwd) $.cwd = argv.cwd
@@ -205,7 +205,7 @@ async function readScriptFromHttp(remote: string): Promise<string> {
   return res.text()
 }
 
-export function injectGlobalRequire(origin: string) {
+export function injectGlobalRequire(origin: string): void {
   const __filename = path.resolve(origin)
   const __dirname = path.dirname(__filename)
   const require = createRequire(origin)

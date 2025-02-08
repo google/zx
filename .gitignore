@@ -3,5 +3,6 @@ build/
 coverage/
 package/
 reports/
+docs/.vitepress/cache/
 yarn.lock
 temp

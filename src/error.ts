@@ -185,7 +185,7 @@ export const formatExitMessage = (
   signal: NodeJS.Signals | null,
   stderr: string,
   from: string
-) => {
+): string => {
   let message = `exit code: ${code}`
   if (code != 0 || signal != null) {
     message = `${stderr || '\n'}    at ${from}`
@@ -203,7 +203,7 @@ export const formatExitMessage = (
 export const formatErrorMessage = (
   err: NodeJS.ErrnoException,
   from: string
-) => {
+): string => {
   return (
     `${err.message}\n` +
     `    errno: ${err.errno} (${getErrnoMessage(err.errno)})\n` +
@@ -212,11 +212,11 @@ export const formatErrorMessage = (
   )
 }
 
-export function getCallerLocation(err = new Error('zx error')) {
+export function getCallerLocation(err = new Error('zx error')): string {
   return getCallerLocationFromString(err.stack)
 }
 
-export function getCallerLocationFromString(stackString = 'unknown') {
+export function getCallerLocationFromString(stackString = 'unknown'): string {
   return (
     stackString
       .split(/^\s*(at\s)?/m)
