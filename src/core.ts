@@ -664,15 +664,8 @@ type ProcessDto = {
   store: TSpawnStore
 }
 
-type ProcessOutputDto = ProcessDto & {
-  stdout: string
-  stderr: string
-  stdall: string
-  message: string
-}
-
 export class ProcessOutput extends Error {
-  private readonly _dto: ProcessOutputDto
+  private readonly _dto: ProcessDto
   constructor(dto: ProcessDto)
   constructor(
     code: number | null,
@@ -683,6 +676,7 @@ export class ProcessOutput extends Error {
     message: string,
     duration?: number
   )
+  // prettier-ignore
   constructor(
     code: number | null | ProcessDto,
     signal: NodeJS.Signals | null = null,
@@ -690,37 +684,55 @@ export class ProcessOutput extends Error {
     stderr: string = '',
     stdall: string = '',
     message: string = '',
-    duration: number = 0
+    duration: number = 0,
+    error: any = null,
+    from: string = '',
+    store: TSpawnStore = { stdout: [stdout], stderr: [stderr], stdall: [stdall], }
   ) {
     super(message)
-    Reflect.deleteProperty(this, 'message')
-    this._dto =
-      code !== null && typeof code === 'object'
-        ? ProcessOutput.createLazyDto(code)
-        : {
-            code,
-            signal,
-            duration,
-            stdout,
-            stderr,
-            stdall,
-            error: null,
-            from: '',
-            message,
-            store: { stdout: [], stderr: [], stdall: [] },
-          }
+    const dto = this._dto = code !== null && typeof code === 'object'
+      ? code
+      : { code, signal, duration, error, from, store }
+
+    Object.defineProperties(this, {
+      stdout: { get: once(() => bufArrJoin(dto.store.stdout)) },
+      stderr: { get: once(() => bufArrJoin(dto.store.stderr)) },
+      stdall: { get: once(() => bufArrJoin(dto.store.stdall)) },
+      message: { get: once(() =>
+          message || dto.error
+            ? ProcessOutput.getErrorMessage(dto.error, dto.from)
+            : ProcessOutput.getExitMessage(dto.code, dto.signal, this.stderr, dto.from)
+        ),
+      },
+    })
+  }
+  message!: string
+  stdout!: string
+  stderr!: string
+  stdall!: string
+
+  get exitCode(): number | null {
+    return this._dto.code
+  }
+
+  get signal(): NodeJS.Signals | null {
+    return this._dto.signal
+  }
+
+  get duration(): number {
+    return this._dto.duration
   }
 
   toString(): string {
-    return this._dto.stdall
+    return this.stdall
   }
 
   json<T = any>(): T {
-    return JSON.parse(this._dto.stdall)
+    return JSON.parse(this.stdall)
   }
 
   buffer(): Buffer {
-    return Buffer.from(this._dto.stdall)
+    return Buffer.from(this.stdall)
   }
 
   blob(type = 'text/plain'): Blob {
@@ -742,63 +754,7 @@ export class ProcessOutput extends Error {
   }
 
   valueOf(): string {
-    return this._dto.stdall.trim()
-  }
-
-  get stdout(): string {
-    return this._dto.stdout
-  }
-
-  get stderr(): string {
-    return this._dto.stderr
-  }
-
-  get exitCode(): number | null {
-    return this._dto.code
-  }
-
-  get signal(): NodeJS.Signals | null {
-    return this._dto.signal
-  }
-
-  get duration(): number {
-    return this._dto.duration
-  }
-
-  get message(): string {
-    return this._dto.message
-  }
-
-  private static createLazyDto({
-    code,
-    signal,
-    duration,
-    store: { stdout, stderr, stdall },
-    from,
-    error,
-  }: ProcessDto): ProcessOutputDto {
-    const dto = Object.defineProperties(
-      {
-        code,
-        signal,
-        duration,
-      },
-      {
-        stdout: { get: once(() => bufArrJoin(stdout)) },
-        stderr: { get: once(() => bufArrJoin(stderr)) },
-        stdall: { get: once(() => bufArrJoin(stdall)) },
-        message: {
-          get: once(() =>
-            ProcessOutput.getExitMessage(code, signal, dto.stderr, from)
-          ),
-        },
-        ...(error && {
-          message: { get: () => ProcessOutput.getErrorMessage(error, from) },
-        }),
-      }
-    ) as ProcessOutputDto
-
-    return dto
+    return this.stdall.trim()
   }
 
   static getExitMessage = formatExitMessage
