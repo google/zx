@@ -694,19 +694,17 @@ export class ProcessOutput extends Error {
       ? code
       : { code, signal, duration, error, from, store }
 
-    Object.defineProperties(this,
-      {
-        stdout: { get: once(() => bufArrJoin(dto.store.stdout)) },
-        stderr: { get: once(() => bufArrJoin(dto.store.stderr)) },
-        stdall: { get: once(() => bufArrJoin(dto.store.stdall)) },
-        message: { get: once(() =>
-            message || dto.error
-              ? ProcessOutput.getErrorMessage(dto.error, dto.from)
-              : ProcessOutput.getExitMessage(dto.code, dto.signal, this.stderr, dto.from)
-          ),
-        },
-      }
-    )
+    Object.defineProperties(this, {
+      stdout: { get: once(() => bufArrJoin(dto.store.stdout)) },
+      stderr: { get: once(() => bufArrJoin(dto.store.stderr)) },
+      stdall: { get: once(() => bufArrJoin(dto.store.stdall)) },
+      message: { get: once(() =>
+          message || dto.error
+            ? ProcessOutput.getErrorMessage(dto.error, dto.from)
+            : ProcessOutput.getExitMessage(dto.code, dto.signal, this.stderr, dto.from)
+        ),
+      },
+    })
   }
   message!: string
   stdout!: string
