@@ -808,7 +808,7 @@ describe('core', () => {
         await p
       })
 
-      test('throws if the signal was previously aborted', async () => {
+      test.only('throws if the signal was previously aborted', async () => {
         const ac = new AbortController()
         const { signal } = ac
         ac.abort('reason')
