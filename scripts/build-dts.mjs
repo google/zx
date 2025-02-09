@@ -68,7 +68,7 @@ const entries = [
 ]
 
 const compilationOptions = {
-  preferredConfigPath: './tsconfig.prod.json', // args.project,
+  preferredConfigPath: './tsconfig.json', // args.project,
   followSymlinks: true,
 }
 
