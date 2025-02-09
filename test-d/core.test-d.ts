@@ -46,12 +46,13 @@ expectType<number | null>(o.exitCode)
 expectType<NodeJS.Signals | null>(o.signal)
 // prettier-ignore
 expectType<ProcessOutput>(new ProcessOutput({
-  code: null,
-  signal: null,
-  duration: 0,
-  store: { stdout: [], stderr: [], stdall: [] },
-  error: null,
-  from: ''
+  code() { return null },
+  signal() { return null },
+  stdall() { return '' },
+  stderr() { return '' },
+  stdout() { return '' },
+  duration() { return 0 },
+  message() { return '' },
 }))
 
 expectType<ProcessOutput>(new ProcessOutput(null, null, '', '', '', '', 1))

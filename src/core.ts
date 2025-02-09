@@ -756,43 +756,36 @@ export class ProcessOutput extends Error {
   }
 
   lines(): string[] {
-    return [...this]
+    return [...this];
+  }
+
+  valueOf(): string {
+    return this._combined.trim()
   }
 
   *[Symbol.iterator](): Iterator<string> {
-    const buffers = this._dto.store.stdall;
-    let carryover = '';
-    const lines: string[] = [];
-    
-    // Process each buffer incrementally
-    for (const buffer of buffers) {
-      const chunk = buffer.toString();
-      const combined = carryover + chunk;
-      const splitIndex = combined.lastIndexOf('\n') + 1;
-      
-      if (splitIndex > 0) {
-        lines.push(...combined.slice(0, splitIndex).split(/\r?\n/));
-        carryover = combined.slice(splitIndex);
-      } else {
-        carryover = combined;
-      }
-    }
+    const trimmed = this._combined.trim();
+    yield* trimmed.split(/\r?\n/);
+  }
 
-    // Add final carryover if exists
-    if (carryover) {
-      lines.push(carryover);
-    }
+  get stdout(): string {
+    return this._stdout
+  }
 
-    // Trim empty lines only from start/end
-    let first = 0;
-    let last = lines.length - 1;
-    while (first <= last && lines[first].trim() === '') first++;
-    while (last >= first && lines[last].trim() === '') last--;
+  get stderr(): string {
+    return this._stderr
+  }
 
-    // Yield non-empty lines preserving original order
-    for (let i = first; i <= last; i++) {
-      yield lines[i];
-    }
+  get exitCode(): number | null {
+    return this._code
+  }
+
+  get signal(): NodeJS.Signals | null {
+    return this._signal
+  }
+
+  get duration(): number {
+    return this._duration
   }
 
   static getExitMessage = formatExitMessage
