@@ -456,12 +456,17 @@ describe('core', () => {
 
       it('all transitions', async () => {
         const { promise, resolve, reject } = Promise.withResolvers()
-        const p = new ProcessPromise(noop, noop)
+        const p = new ProcessPromise(noop)
+        ProcessPromise.disarm(p, false)
         assert.equal(p.stage, 'initial')
-        p._bind('echo foo', 'test', resolve, reject, {
-          ...defaults,
-          halt: true,
-        })
+
+        p._command = 'echo foo'
+        p._from = 'test'
+        p._resolve = resolve
+        p._reject = reject
+        p._snapshot = { ...defaults }
+        p._stage = 'halted'
+
         assert.equal(p.stage, 'halted')
         p.run()
         assert.equal(p.stage, 'running')
@@ -488,6 +493,13 @@ describe('core', () => {
       assert.ok(p2 !== p3)
       assert.ok(p3 !== p4)
       assert.ok(p5 !== p1)
+    })
+
+    test('asserts self instantiation', async () => {
+      const p = new ProcessPromise(() => {})
+
+      assert(typeof p.then === 'function')
+      assert.throws(() => p.stage, /Inappropriate usage/)
     })
 
     test('resolves with ProcessOutput', async () => {
