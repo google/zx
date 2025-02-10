@@ -145,6 +145,7 @@ export interface Shell<
     (opts: Partial<Omit<Options, 'sync'>>): Shell<true>
   }
 }
+const bound: [boolean, string, string, Options][] = []
 
 export const $: Shell & Options = new Proxy<Shell & Options>(
   function (pieces: TemplateStringsArray | Partial<Options>, ...args: any) {
@@ -164,25 +165,14 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
     checkShell()
     checkQuote()
 
-    let resolve: Resolve, reject: Resolve
-    const process = new ProcessPromise((...args) => ([resolve, reject] = args))
     const cmd = buildCmd(
       $.quote as typeof quote,
       pieces as TemplateStringsArray,
       args
     ) as string
     const sync = snapshot[SYNC]
-
-    process._bind(
-      cmd,
-      from,
-      resolve!,
-      (v: ProcessOutput) => {
-        reject!(v)
-        if (sync) throw v
-      },
-      snapshot
-    )
+    bound.push([sync, cmd, from, snapshot])
+    const process = new ProcessPromise(noop)
 
     if (!process.isHalted() || sync) process.run()
 
@@ -237,19 +227,26 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _reject: Resolve = noop
   private _resolve: Resolve = noop
 
-  _bind(
-    cmd: string,
-    from: string,
-    resolve: Resolve,
-    reject: Resolve,
-    options: Options
-  ) {
-    this._command = cmd
-    this._from = from
-    this._resolve = resolve
-    this._reject = reject
-    this._snapshot = { ac: new AbortController(), ...options }
-    if (this._snapshot.halt) this._stage = 'halted'
+  constructor(executor: (resolve: Resolve, reject: Resolve) => void) {
+    let resolve: Resolve
+    let reject: Resolve
+    super((...args) => {
+      ;[resolve, reject] = args
+      executor?.(...args)
+    })
+
+    if (executor === noop) {
+      const [sync, cmd, from, snapshot] = bound.pop()!
+      this._command = cmd
+      this._from = from
+      this._resolve = resolve!
+      this._reject = (v: ProcessOutput) => {
+        reject!(v)
+        if (sync) throw v
+      }
+      this._snapshot = { ac: new AbortController(), ...snapshot }
+      if (this._snapshot.halt) this._stage = 'halted'
+    } else ProcessPromise.disarm(this)
   }
 
   run(): ProcessPromise {
@@ -652,6 +649,17 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private removeListener(event: string, cb: any) {
     this._stdin.removeListener(event, cb)
     return this
+  }
+
+  // prettier-ignore
+  private static disarm(p: ProcessPromise, toggle = true): void {
+    Object.getOwnPropertyNames(ProcessPromise.prototype).forEach(k => {
+      if (k in Promise.prototype) return
+      if (!toggle) { Reflect.deleteProperty(p, k); return }
+      Object.defineProperty(p, k, { configurable: true, get() {
+        throw new Error('Inappropriate usage. Apply $ instead of direct instantiation.')
+      }})
+    })
   }
 }
 
