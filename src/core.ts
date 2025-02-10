@@ -145,7 +145,7 @@ export interface Shell<
     (opts: Partial<Omit<Options, 'sync'>>): Shell<true>
   }
 }
-const bound: [boolean, string, string, Options][] = []
+const bound: [string, string, Options][] = []
 
 export const $: Shell & Options = new Proxy<Shell & Options>(
   function (pieces: TemplateStringsArray | Partial<Options>, ...args: any) {
@@ -171,7 +171,7 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
       args
     ) as string
     const sync = snapshot[SYNC]
-    bound.push([sync, cmd, from, snapshot])
+    bound.push([cmd, from, snapshot])
     const process = new ProcessPromise(noop)
 
     if (!process.isHalted() || sync) process.run()
@@ -235,14 +235,14 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       executor?.(...args)
     })
 
-    if (executor === noop) {
-      const [sync, cmd, from, snapshot] = bound.pop()!
+    if (bound.length) {
+      const [cmd, from, snapshot] = bound.pop()!
       this._command = cmd
       this._from = from
       this._resolve = resolve!
       this._reject = (v: ProcessOutput) => {
         reject!(v)
-        if (sync) throw v
+        if (snapshot[SYNC]) throw v
       }
       this._snapshot = { ac: new AbortController(), ...snapshot }
       if (this._snapshot.halt) this._stage = 'halted'

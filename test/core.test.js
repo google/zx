@@ -456,7 +456,7 @@ describe('core', () => {
 
       it('all transitions', async () => {
         const { promise, resolve, reject } = Promise.withResolvers()
-        const p = new ProcessPromise(() => {})
+        const p = new ProcessPromise(noop)
         ProcessPromise.disarm(p, false)
         assert.equal(p.stage, 'initial')
 
