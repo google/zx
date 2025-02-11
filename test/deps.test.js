@@ -14,18 +14,34 @@
 
 import assert from 'node:assert'
 import { test, describe } from 'node:test'
-import { $, tmpfile, fs } from '../build/index.js'
+import { $, tmpfile, tmpdir, fs, path } from '../build/index.js'
 import { installDeps, parseDeps } from '../build/deps.js'
+
+const __dirname = new URL('.', import.meta.url).pathname
+const root = path.resolve(__dirname, '..')
+const cli = path.resolve(root, 'build/cli.js')
 
 describe('deps', () => {
   describe('installDeps()', () => {
+    const pkgjson = tmpfile(
+      'package.json',
+      '{"name": "temp", "version": "0.0.0"}'
+    )
+    const cwd = path.dirname(pkgjson)
+    const t$ = $({ cwd })
+    const load = (dep) =>
+      fs.readJsonSync(path.join(cwd, 'node_modules', dep, 'package.json'))
+
     test('loader works via JS API', async () => {
-      await installDeps({
-        cpy: '9.0.1',
-        'lodash-es': '4.17.21',
-      })
-      assert((await import('cpy')).default instanceof Function)
-      assert((await import('lodash-es')).pick instanceof Function)
+      await installDeps(
+        {
+          cpy: '9.0.1',
+          'lodash-es': '4.17.21',
+        },
+        cwd
+      )
+      assert(load('cpy').name === 'cpy')
+      assert(load('lodash-es').name === 'lodash-es')
     })
 
     test('loader works via JS API with custom npm registry URL', async () => {
@@ -33,16 +49,16 @@ describe('deps', () => {
         {
           '@jsr/std__internal': '1.0.5',
         },
-        undefined,
+        cwd,
         'https://npm.jsr.io'
       )
 
-      assert((await import('@jsr/std__internal')).diff instanceof Function)
+      assert(load('@jsr/std__internal').name === '@jsr/std__internal')
     })
 
     test('loader works via CLI', async () => {
       const out =
-        await $`node build/cli.js --install <<< 'import _ from "lodash" /* @4.17.15 */; console.log(_.VERSION)'`
+        await t$`node ${cli} --install <<< 'import _ from "lodash" /* @4.17.15 */; console.log(_.VERSION)'`
       assert.match(out.stdout, /4.17.15/)
     })
 
@@ -51,13 +67,11 @@ describe('deps', () => {
         'import { diff } from "@jsr/std__internal";console.log(diff instanceof Function)'
       const file = tmpfile('index.mjs', code)
 
-      let out =
-        await $`node build/cli.js --i --registry=https://npm.jsr.io ${file}`
+      let out = await t$`node ${cli} --i --registry=https://npm.jsr.io ${file}`
       fs.remove(file)
       assert.match(out.stdout, /true/)
 
-      out =
-        await $`node build/cli.js  -i --registry=https://npm.jsr.io <<< ${code}`
+      out = await t$`node ${cli}  -i --registry=https://npm.jsr.io <<< ${code}`
       assert.match(out.stdout, /true/)
     })
   })
