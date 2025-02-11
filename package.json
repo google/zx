@@ -138,6 +138,14 @@
     "yaml": "~2.7.0",
     "zurk": "^0.10.2"
   },
+  "overrides": {
+    "tsx": {
+      "esbuild": "$esbuild"
+    },
+    "vite": {
+      "esbuild": "$esbuild"
+    }
+  },
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"
   },
