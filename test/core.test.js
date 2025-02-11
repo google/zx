@@ -575,6 +575,15 @@ describe('core', () => {
         assert.equal(p.stdout.trim(), 'foo')
       })
 
+      test('detects inappropriate ProcessPromise', async () => {
+        const foo = $`echo foo`
+        const p1 = $`cat`
+        const p2 = p1.then((v) => v)
+
+        assert.throws(() => foo.pipe(p2), /Inappropriate usage/)
+        await foo.pipe(p1)
+      })
+
       test('accepts $ template literal', async () => {
         const p = await $`echo foo`.pipe`cat`
         assert.equal(p.stdout.trim(), 'foo')
