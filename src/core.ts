@@ -232,7 +232,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     let reject: Resolve
     super((...args) => {
       ;[resolve, reject] = args
-      executor?.(...args)
+      executor(...args)
     })
 
     if (bound.length) {
