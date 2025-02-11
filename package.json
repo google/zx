@@ -139,6 +139,9 @@
     "zurk": "0.10.2"
   },
   "overrides": {
+    "globby": {
+      "fast-glob": "3.3.3"
+    },
     "tsx": {
       "esbuild": "$esbuild"
     },
