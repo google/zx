@@ -1162,6 +1162,21 @@ describe('core', () => {
       globalThis.Blob = Blob
     })
 
+    test('[Symbol.Iterator]', () => {
+      const o = new ProcessOutput({
+        store: {
+          stdall: ['foo\nba', 'r\nbaz'],
+        },
+      })
+      const lines = []
+      const expected = ['foo', 'bar', 'baz']
+      for (const line of o) {
+        lines.push(line)
+      }
+      assert.deepEqual(lines, expected)
+      assert.deepEqual(o.lines(), expected)
+    })
+
     describe('static', () => {
       test('getExitMessage()', () => {
         assert.match(
