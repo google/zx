@@ -383,3 +383,12 @@ export const toCamelCase = (str: string) =>
 
 export const parseBool = (v: string): boolean | string =>
   ({ true: true, false: false })[v] ?? v
+
+export const getLines = (
+  chunk: Buffer | string,
+  next: (string | undefined)[]
+) => {
+  const lines = ((next.pop() || '') + bufToString(chunk)).split(/\r?\n/)
+  next.push(lines.pop())
+  return lines
+}

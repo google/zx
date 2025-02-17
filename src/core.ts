@@ -47,8 +47,8 @@ import {
   log,
   isString,
   isStringLiteral,
-  bufToString,
   getLast,
+  getLines,
   noop,
   once,
   parseBool,
@@ -601,26 +601,19 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   // Async iterator API
   async *[Symbol.asyncIterator](): AsyncIterator<string> {
-    let last: string | undefined
-    const getLines = (chunk: Buffer | string) => {
-      const lines = ((last || '') + bufToString(chunk)).split('\n')
-      last = lines.pop()
-      return lines
-    }
+    const memo: (string | undefined)[] = []
 
     for (const chunk of this._zurk!.store.stdout) {
-      const lines = getLines(chunk)
-      for (const line of lines) yield line
+      yield* getLines(chunk, memo)
     }
 
     for await (const chunk of this.stdout[Symbol.asyncIterator]
       ? this.stdout
       : VoidStream.from(this.stdout)) {
-      const lines = getLines(chunk)
-      for (const line of lines) yield line
+      yield* getLines(chunk, memo)
     }
 
-    if (last) yield last
+    if (memo[0]) yield memo[0]
 
     if ((await this.exitCode) !== 0) throw this._output
   }
@@ -766,16 +759,13 @@ export class ProcessOutput extends Error {
   }
 
   *[Symbol.iterator](): Iterator<string> {
-    let buffer = ''
+    const memo: (string | undefined)[] = []
 
     for (const chunk of this._dto.store.stdall) {
-      buffer += chunk.toString()
-      const lines = buffer.split(/\r?\n/)
-      buffer = lines.pop() ?? ''
-      yield* lines
+      yield* getLines(chunk, memo)
     }
 
-    if (buffer) yield buffer
+    if (memo[0]) yield memo[0]
   }
 
   static getExitMessage = formatExitMessage
