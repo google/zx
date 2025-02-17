@@ -19,6 +19,7 @@ import 'zx/globals'
   {
     const p = await $`echo foo`
     assert.match(p.stdout, /foo/)
+    assert.deepEqual(p.lines(), ['foo'])
   }
 
   // captures err stack

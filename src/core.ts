@@ -758,11 +758,24 @@ export class ProcessOutput extends Error {
   }
 
   lines(): string[] {
-    return this.valueOf().split(/\r?\n/)
+    return [...this]
   }
 
   valueOf(): string {
     return this.stdall.trim()
+  }
+
+  *[Symbol.iterator](): Iterator<string> {
+    let buffer = ''
+
+    for (const chunk of this._dto.store.stdall) {
+      buffer += chunk.toString()
+      const lines = buffer.split(/\r?\n/)
+      buffer = lines.pop() ?? ''
+      yield* lines
+    }
+
+    if (buffer) yield buffer
   }
 
   static getExitMessage = formatExitMessage
