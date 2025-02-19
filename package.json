@@ -1,6 +1,6 @@
 {
   "name": "zx",
-  "version": "8.3.2",
+  "version": "8.4.0",
   "description": "A tool for writing better scripts",
   "type": "module",
   "main": "./build/index.cjs",
@@ -91,10 +91,6 @@
     "test:smoke:mjs": "node ./test/smoke/node.test.mjs",
     "test:smoke:deno": "deno test ./test/smoke/deno.test.js --allow-read --allow-sys --allow-env --allow-run",
     "test:workflow": "zizmor .github/workflows -v -p"
-  },
-  "optionalDependencies": {
-    "@types/fs-extra": ">=11",
-    "@types/node": ">=20"
   },
   "devDependencies": {
     "@size-limit/file": "11.1.6",
