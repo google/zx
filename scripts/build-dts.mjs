@@ -99,12 +99,20 @@ for (const i in results) {
   await fs.writeFile(entry.outFile, result, 'utf8')
 }
 
-// Replaces redundant triple-slash directives
+// Properly formats triple-slash directives
+const pkgEntries = ['core', 'index', 'vendor']
+const prefix = `/// <reference types="node" />
+/// <reference types="fs-extra" />
+
+`
+
 for (const dts of await glob(['build/**/*.d.ts', '!build/vendor-*.d.ts'])) {
-  const contents = (await fs.readFile(dts, 'utf8'))
-    .split('\n')
-    .filter((line) => !line.startsWith('/// <reference types'))
-    .join('\n')
+  const contents =
+    (pkgEntries.some((e) => dts.includes(e)) ? prefix : '') +
+    (await fs.readFile(dts, 'utf8'))
+      .split('\n')
+      .filter((line) => !line.startsWith('/// <reference types'))
+      .join('\n')
 
   await fs.writeFile(dts, contents, 'utf8')
 }
