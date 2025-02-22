@@ -35,6 +35,7 @@ import { randomId, bufToString } from './util.js'
 import { createRequire, type minimist } from './vendor.js'
 
 const EXT = '.mjs'
+const EXT_RE = /^\.[mc]?[jt]sx?$/
 
 isMain() &&
   main().catch((err) => {
@@ -64,8 +65,7 @@ export function printUsage() {
    --prefer-local, -l   prefer locally installed packages bins
    --cwd=<path>         set current directory
    --eval=<js>, -e      evaluate script
-   --ext=<.mjs>         default extension
-   --ext-override       override script extensions
+   --ext=<.mjs>         script extension
    --install, -i        install dependencies
    --registry=<URL>     npm registry, defaults to https://registry.npmjs.org/
    --version, -v        print current zx version
@@ -81,7 +81,7 @@ export function printUsage() {
 // prettier-ignore
 export const argv: minimist.ParsedArgs = parseArgv(process.argv.slice(2), {
   string: ['shell', 'prefix', 'postfix', 'eval', 'cwd', 'ext', 'registry', 'env'],
-  boolean: ['version', 'help', 'quiet', 'verbose', 'install', 'repl', 'experimental', 'prefer-local', 'ext-override'],
+  boolean: ['version', 'help', 'quiet', 'verbose', 'install', 'repl', 'experimental', 'prefer-local'],
   alias: { e: 'eval', i: 'install', v: 'version', h: 'help', l: 'prefer-local', 'env-file': 'env' },
   stopEarly: true,
   parseBoolean: true,
@@ -181,7 +181,7 @@ async function readScript() {
   }
 
   const { ext, base, dir } = path.parse(tempPath || scriptPath)
-  if (ext === '' || argv.extOverride) {
+  if (ext === '' || (argv.ext && !EXT_RE.test(ext))) {
     tempPath = getFilepath(dir, base)
   }
   if (ext === '.md') {

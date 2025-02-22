@@ -223,10 +223,15 @@ describe('cli', () => {
     )
   })
 
-  test('scripts with non standard extension (override)', async () => {
+  test('scripts with non standard extension', async () => {
     const o =
-      await $`node build/cli.js --ext-override test/fixtures/non-std-ext.zx`
+      await $`node build/cli.js --ext='.mjs' test/fixtures/non-std-ext.zx`
     assert.ok(o.stdout.trim().endsWith('zx/test/fixtures/non-std-ext.zx.mjs'))
+
+    await assert.rejects(
+      $`node build/cli.js test/fixtures/non-std-ext.zx`,
+      /Unknown file extension "\.zx"/
+    )
   })
 
   test22('scripts from stdin with explicit extension', async () => {
