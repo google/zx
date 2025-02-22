@@ -64,6 +64,7 @@ describe('cli', () => {
     assert.equal(typeof cli.argv, 'object', 'cli.argv')
     assert.equal(typeof cli.argv._, 'object', 'cli.argv._')
     assert.equal(typeof cli.argv.experimental, 'boolean', 'cli.argv.experimental')
+    assert.equal(typeof cli.argv.extOverride, 'boolean', 'cli.argv.extOverride')
     assert.equal(typeof cli.argv.h, 'boolean', 'cli.argv.h')
     assert.equal(typeof cli.argv.help, 'boolean', 'cli.argv.help')
     assert.equal(typeof cli.argv.i, 'boolean', 'cli.argv.i')

@@ -223,6 +223,12 @@ describe('cli', () => {
     )
   })
 
+  test('scripts with non standard extension (override)', async () => {
+    const o =
+      await $`node build/cli.js --ext-override test/fixtures/non-std-ext.zx`
+    assert.ok(o.stdout.trim().endsWith('zx/test/fixtures/non-std-ext.zx.mjs'))
+  })
+
   test22('scripts from stdin with explicit extension', async () => {
     const out =
       await $`node --experimental-strip-types build/cli.js --ext='.ts' <<< 'const foo: string = "bar"; console.log(foo)'`
