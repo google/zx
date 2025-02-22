@@ -4,7 +4,31 @@ on:
   workflow_dispatch:
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+      - run: npm ci
+      - run: npm test
+        env:
+          FORCE_COLOR: 3
+      - run: node scripts/clean-package-json.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ github.run_id }}
+          path: |
+            build
+            package.json
+          retention-days: 1
+
   publish:
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       checks: read
@@ -20,14 +44,12 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
-      - run: npm ci
-      - run: npm test
-        env:
-          FORCE_COLOR: 3
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-${{ github.run_id }}
       - run: echo "//wombat-dressing-room.appspot.com/:_authToken=$AUTH_TOKEN" >> .npmrc
         env:
           AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
       - run: |
           npm version $(node --eval="process.stdout.write(require('./package.json').version)")-dev.$(git rev-parse --short HEAD) --no-git-tag-version
-          node scripts/clean-package-json.mjs
           npm publish --provenance --access=public --no-git-tag-version --tag dev
