@@ -13,7 +13,16 @@ assumes that it is
 an [ESM](https://nodejs.org/api/modules.html#modules_module_createrequire_filename)
 module unless the `--ext` option is specified.
 
+## Non-standard extension
+`zx` internally loads scripts via `import` API, so you can use any extension supported by the runtime (nodejs, deno, bun) or apply a [custom loader](https://nodejs.org/api/cli.html#--experimental-loadermodule).
+However, if the script has a non-js-like extension (`/^\.[mc]?[jt]sx?$/`) and the `--ext` is specified, it will be used.
 
+```bash
+zx script.zx           # Unknown file extension "\.zx"
+zx --ext=mjs script.zx # OK
+```
+
+## Markdown
 ```bash
 zx docs/markdown.md
 ```
@@ -89,10 +98,10 @@ Enable verbose mode.
 
 ## `--shell`
 
-Specify a custom shell binary.
+Specify a custom shell binary path. By default, zx refers to `bash`.
 
 ```bash
-zx --shell=/bin/bash script.mjs
+zx --shell=/bin/another/sh script.mjs
 ```
 
 ## `--prefer-local, -l`
@@ -131,7 +140,7 @@ When `cwd` option is specified, it will be used as base path:
 
 ## `--ext`
 
-Override the default (temp) script extension. Default is `.mjs`.
+Overrides the default script extension (`.mjs`).
 
 ## `--version, -v`
 

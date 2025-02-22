@@ -35,6 +35,7 @@ import { randomId, bufToString } from './util.js'
 import { createRequire, type minimist } from './vendor.js'
 
 const EXT = '.mjs'
+const EXT_RE = /^\.[mc]?[jt]sx?$/
 
 isMain() &&
   main().catch((err) => {
@@ -64,7 +65,7 @@ export function printUsage() {
    --prefer-local, -l   prefer locally installed packages bins
    --cwd=<path>         set current directory
    --eval=<js>, -e      evaluate script
-   --ext=<.mjs>         default extension
+   --ext=<.mjs>         script extension
    --install, -i        install dependencies
    --registry=<URL>     npm registry, defaults to https://registry.npmjs.org/
    --version, -v        print current zx version
@@ -180,7 +181,7 @@ async function readScript() {
   }
 
   const { ext, base, dir } = path.parse(tempPath || scriptPath)
-  if (ext === '') {
+  if (ext === '' || (argv.ext && !EXT_RE.test(ext))) {
     tempPath = getFilepath(dir, base)
   }
   if (ext === '.md') {
