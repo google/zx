@@ -324,7 +324,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           if (stdout.length && getLast(getLast(stdout)) !== BR_CC) c.on.stdout!(EOL, c)
           if (stderr.length && getLast(getLast(stderr)) !== BR_CC) c.on.stderr!(EOL, c)
 
-          if (error || status !== 0 && !self.isNothrow()) {
+          if (!output.ok && !self.isNothrow()) {
             self._stage = 'rejected'
             self._reject(output)
           } else {
@@ -734,6 +734,10 @@ export class ProcessOutput extends Error {
 
   get [Symbol.toStringTag](): string {
     return 'ProcessOutput'
+  }
+
+  get ok(): boolean {
+    return !this._dto.error && this.exitCode === 0
   }
 
   [Symbol.toPrimitive](): string {
