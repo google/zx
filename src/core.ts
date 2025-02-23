@@ -485,6 +485,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this._stage
   }
 
+  get [Symbol.toStringTag]() {
+    return 'ProcessPromise'
+  }
+
   // Configurators
   stdio(
     stdin: IOType,
@@ -722,6 +726,10 @@ export class ProcessOutput extends Error {
 
   get duration(): number {
     return this._dto.duration
+  }
+
+  get [Symbol.toStringTag]() {
+    return 'ProcessOutput'
   }
 
   toString(): string {
