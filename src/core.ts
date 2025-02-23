@@ -485,8 +485,12 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this._stage
   }
 
-  get [Symbol.toStringTag]() {
+  get [Symbol.toStringTag](): string {
     return 'ProcessPromise'
+  }
+
+  [Symbol.toPrimitive](): string {
+    return this.toString()
   }
 
   // Configurators
@@ -728,8 +732,12 @@ export class ProcessOutput extends Error {
     return this._dto.duration
   }
 
-  get [Symbol.toStringTag]() {
+  get [Symbol.toStringTag](): string {
     return 'ProcessOutput'
+  }
+
+  [Symbol.toPrimitive](): string {
+    return this.valueOf()
   }
 
   toString(): string {

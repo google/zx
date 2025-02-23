@@ -423,6 +423,9 @@ describe('core', () => {
       assert.ok(p.signal instanceof AbortSignal)
       assert.equal(p.output, null)
       assert.equal(Object.prototype.toString.call(p), '[object ProcessPromise]')
+      assert.equal('' + p, '[object ProcessPromise]')
+      assert.equal(`${p}`, '[object ProcessPromise]')
+      assert.equal(+p, NaN)
 
       await p
       assert.ok(p.output instanceof ProcessOutput)
@@ -1101,6 +1104,13 @@ describe('core', () => {
       assert.equal(o.exitCode, -1)
       assert.equal(o.duration, 20)
       assert.equal(Object.prototype.toString.call(o), '[object ProcessOutput]')
+    })
+
+    test('[Symbol.toPrimitive]', () => {
+      const o = new ProcessOutput(-1, 'SIGTERM', '', '', 'foo\n', 'msg', 20)
+      assert.equal('' + o, 'foo')
+      assert.equal(`${o}`, 'foo')
+      assert.equal(+o, NaN)
     })
 
     test('toString()', async () => {
