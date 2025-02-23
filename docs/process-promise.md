@@ -272,7 +272,7 @@ await $({stdio: ['pipe', 'pipe', 'pipe']})`read`
 
 ## `nothrow()`
 
-Changes behavior of `$` to not throw an exception on non-zero exit codes.
+Changes behavior of `$` to not throw an exception on non-zero exit codes. Equivalent to [`$({nothrow: true})` option](./api#nothrow).
 
 ```js
 await $`grep something from-file`.nothrow()

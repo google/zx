@@ -247,6 +247,23 @@ describe('core', () => {
         assert.equal($3`exit 3`.exitCode, 3)
       })
 
+      test('handles `nothrow` option', async () => {
+        const o1 = await $({ nothrow: true })`exit 1`
+        assert.equal(o1.ok, false)
+        assert.equal(o1.exitCode, 1)
+        assert.match(o1.message, /exit code: 1/)
+
+        const o2 = await $({
+          nothrow: true,
+          spawn() {
+            throw new Error('BrokenSpawn')
+          },
+        })`echo foo`
+        assert.equal(o2.ok, false)
+        assert.equal(o2.exitCode, null)
+        assert.match(o2.message, /BrokenSpawn/)
+      })
+
       test('handles `input` option', async () => {
         const p1 = $({ input: 'foo' })`cat`
         const p2 = $({ input: Readable.from('bar') })`cat`
@@ -1103,6 +1120,7 @@ describe('core', () => {
       assert.equal(o.signal, 'SIGTERM')
       assert.equal(o.exitCode, -1)
       assert.equal(o.duration, 20)
+      assert.equal(o.ok, false)
       assert.equal(Object.prototype.toString.call(o), '[object ProcessOutput]')
     })
 
