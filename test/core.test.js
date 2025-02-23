@@ -422,6 +422,10 @@ describe('core', () => {
       assert.ok(p.exitCode instanceof Promise)
       assert.ok(p.signal instanceof AbortSignal)
       assert.equal(p.output, null)
+      assert.equal(Object.prototype.toString.call(p), '[object ProcessPromise]')
+      assert.equal('' + p, '[object ProcessPromise]')
+      assert.equal(`${p}`, '[object ProcessPromise]')
+      assert.equal(+p, NaN)
 
       await p
       assert.ok(p.output instanceof ProcessOutput)
@@ -907,10 +911,7 @@ describe('core', () => {
           lines.push(line)
         }
 
-        assert.equal(lines.length, 3, 'Should have 3 lines')
-        assert.equal(lines[0], 'Line1', 'First line should be "Line1"')
-        assert.equal(lines[1], 'Line2', 'Second line should be "Line2"')
-        assert.equal(lines[2], 'Line3', 'Third line should be "Line3"')
+        assert.deepEqual(lines, ['Line1', 'Line2', 'Line3'])
       })
 
       it('should handle partial lines correctly', async () => {
@@ -920,18 +921,7 @@ describe('core', () => {
           lines.push(line)
         }
 
-        assert.equal(lines.length, 3, 'Should have 3 lines')
-        assert.equal(
-          lines[0],
-          'PartialLine1',
-          'First line should be "PartialLine1"'
-        )
-        assert.equal(lines[1], 'Line2', 'Second line should be "Line2"')
-        assert.equal(
-          lines[2],
-          'PartialLine3',
-          'Third line should be "PartialLine3"'
-        )
+        assert.deepEqual(lines, ['PartialLine1', 'Line2', 'PartialLine3'])
       })
 
       it('should handle empty stdout', async () => {
@@ -951,12 +941,7 @@ describe('core', () => {
           lines.push(line)
         }
 
-        assert.equal(
-          lines.length,
-          1,
-          'Should have 1 line for single line without trailing newline'
-        )
-        assert.equal(lines[0], 'SingleLine', 'The line should be "SingleLine"')
+        assert.deepEqual(lines, ['SingleLine'])
       })
 
       it('should yield all buffered and new chunks when iterated after a delay', async () => {
@@ -1118,6 +1103,14 @@ describe('core', () => {
       assert.equal(o.signal, 'SIGTERM')
       assert.equal(o.exitCode, -1)
       assert.equal(o.duration, 20)
+      assert.equal(Object.prototype.toString.call(o), '[object ProcessOutput]')
+    })
+
+    test('[Symbol.toPrimitive]', () => {
+      const o = new ProcessOutput(-1, 'SIGTERM', '', '', 'foo\n', 'msg', 20)
+      assert.equal('' + o, 'foo')
+      assert.equal(`${o}`, 'foo')
+      assert.equal(+o, NaN)
     })
 
     test('toString()', async () => {
@@ -1175,6 +1168,7 @@ describe('core', () => {
       }
       assert.deepEqual(lines, expected)
       assert.deepEqual(o.lines(), expected)
+      assert.deepEqual([...o], expected) // isConcatSpreadable
     })
 
     describe('static', () => {

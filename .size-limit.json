@@ -9,14 +9,14 @@
   {
     "name": "zx/index",
     "path": "build/*.{js,cjs}",
-    "limit": "811 kB",
+    "limit": "812 kB",
     "brotli": false,
     "gzip": false
   },
   {
     "name": "dts libdefs",
     "path": "build/*.d.ts",
-    "limit": "38.7 kB",
+    "limit": "39 kB",
     "brotli": false,
     "gzip": false
   },
