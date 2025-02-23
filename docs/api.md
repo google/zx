@@ -67,6 +67,22 @@ The timeout option makes the process autokillable after the specified delay.
 const p = $({timeout: '1s'})`sleep 999`
 ```
 
+### `$({nothrow})`
+
+The `nothrow` option suppresses errors and returns a `ProcessOutput` with details.
+
+```js
+const o1 = await $({nothrow: true})`exit 1`
+o1.ok       // false
+o1.exitCode // 1
+o1.message  // exit code: 1 ...
+
+const o2 = await $({nothrow: true, spawn() { throw new Error('BrokenSpawn') }})`echo foo`
+o2.ok       // false
+o2.exitCode // null
+o2.message  // BrokenSpawn ...
+```
+
 The full options list:
 ```ts
 interface Options {
