@@ -253,15 +253,17 @@ describe('core', () => {
         assert.equal(o1.exitCode, 1)
         assert.match(o1.message, /exit code: 1/)
 
+        const err = new Error('BrokenSpawn')
         const o2 = await $({
           nothrow: true,
           spawn() {
-            throw new Error('BrokenSpawn')
+            throw err
           },
         })`echo foo`
         assert.equal(o2.ok, false)
         assert.equal(o2.exitCode, null)
         assert.match(o2.message, /BrokenSpawn/)
+        assert.equal(o2.cause, err)
       })
 
       test('handles `input` option', async () => {
