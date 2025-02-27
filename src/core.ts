@@ -675,6 +675,11 @@ type ProcessDto = {
 
 export class ProcessOutput extends Error {
   private readonly _dto: ProcessDto
+  cause!: Error | null
+  message!: string
+  stdout!: string
+  stderr!: string
+  stdall!: string
   constructor(dto: ProcessDto)
   constructor(
     code: number | null,
@@ -704,6 +709,7 @@ export class ProcessOutput extends Error {
       : { code, signal, duration, error, from, store }
 
     Object.defineProperties(this, {
+      cause: { value: dto.error, enumerable: false, writable: true, configurable: true },
       stdout: { get: once(() => bufArrJoin(dto.store.stdout)) },
       stderr: { get: once(() => bufArrJoin(dto.store.stderr)) },
       stdall: { get: once(() => bufArrJoin(dto.store.stdall)) },
@@ -715,10 +721,6 @@ export class ProcessOutput extends Error {
       },
     })
   }
-  message!: string
-  stdout!: string
-  stderr!: string
-  stdall!: string
 
   get exitCode(): number | null {
     return this._dto.code
