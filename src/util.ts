@@ -123,7 +123,7 @@ export function preferLocalBin(
 // }
 
 export function quote(arg: string): string {
-  if (arg === '') return "''"
+  if (arg === '') return `$''`
   if (/^[\w/.\-@:=]+$/.test(arg)) {
     return arg
   }
@@ -143,10 +143,8 @@ export function quote(arg: string): string {
 }
 
 export function quotePowerShell(arg: string): string {
-  if (arg === '') return "''"
-  if (/^[\w/.\-]+$/.test(arg)) {
-    return arg
-  }
+  if (arg === '') return `''`
+  if (/^[\w/.\-]+$/.test(arg)) return arg
   return `'` + arg.replace(/'/g, "''") + `'`
 }
 
