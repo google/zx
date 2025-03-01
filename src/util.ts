@@ -20,10 +20,10 @@ import {
   type RequestInfo,
   type RequestInit,
   type TSpawnStoreChunks,
-} from './vendor-core.js'
+} from './vendor-core.ts'
 import { inspect } from 'node:util'
 
-export { isStringLiteral } from './vendor-core.js'
+export { isStringLiteral } from './vendor-core.ts'
 
 export function tempdir(
   prefix: string = `zx-${randomId()}`,

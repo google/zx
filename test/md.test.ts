@@ -1,4 +1,4 @@
-// Copyright 2022 Google LLC
+// Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,15 +12,45 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import './cli.test.js'
-import './core.test.js'
-import './deps.test.js'
-import './error.test.ts'
-import './export.test.js'
-import './global.test.js'
-import './goods.test.js'
-import './index.test.js'
-import './md.test.ts'
-import './package.test.js'
-import './util.test.js'
-import './vendor.test.js'
+import { test, describe } from 'node:test'
+import assert from 'node:assert'
+import { transformMarkdown } from '../src/md.ts'
+
+describe('md', () => {
+  test('transformMarkdown()', () => {
+    // prettier-ignore
+    assert.equal(transformMarkdown(`
+# Title
+    
+~~~js
+await $\`echo "js"\`
+~~~
+
+typescript code block
+~~~~~ts
+await $\`echo "ts"\`
+~~~~~
+
+~~~
+unknown code block
+~~~
+
+`), `// 
+// # Title
+//     
+
+await $\`echo "js"\`
+
+// 
+// typescript code block
+
+await $\`echo "ts"\`
+
+// 
+
+// unknown code block
+
+// 
+// `)
+  })
+})

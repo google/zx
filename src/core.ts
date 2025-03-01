@@ -31,7 +31,7 @@ import {
   formatExitMessage,
   getCallerLocation,
   getExitCodeInfo,
-} from './error.js'
+} from './error.ts'
 import {
   exec,
   buildCmd,
@@ -41,7 +41,7 @@ import {
   VoidStream,
   type ChalkInstance,
   type TSpawnStore,
-} from './vendor-core.js'
+} from './vendor-core.ts'
 import {
   type Duration,
   log,
@@ -60,9 +60,9 @@ import {
   toCamelCase,
   randomId,
   bufArrJoin,
-} from './util.js'
+} from './util.ts'
 
-export { log, type LogEntry } from './util.js'
+export { log, type LogEntry } from './util.ts'
 
 const CWD = Symbol('processCwd')
 const SYNC = Symbol('syncExec')

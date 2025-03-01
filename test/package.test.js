@@ -62,6 +62,7 @@ describe('package', () => {
         'build/index.cjs',
         'build/index.d.ts',
         'build/index.js',
+        'build/md.d.ts',
         'build/util.cjs',
         'build/util.d.ts',
         'build/util.js',
