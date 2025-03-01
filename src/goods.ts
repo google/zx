@@ -74,7 +74,6 @@ export async function fetch(
 export function echo(...args: any[]): void
 export function echo(pieces: TemplateStringsArray, ...args: any[]) {
   const lastIdx = pieces.length - 1
-  console.log(isStringLiteral(pieces, ...args))
   const msg = isStringLiteral(pieces, ...args)
     ? args.map((a, i) => pieces[i] + stringify(a)).join('') + pieces[lastIdx]
     : [pieces, ...args].map(stringify).join(' ')
