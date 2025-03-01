@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2021",
+    "lib": ["ES2021"],
+    "moduleResolution": "NodeNext",
+    "module": "NodeNext",
+    "strict": true,
+    "outDir": "./build",
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "types": []
+  },
+  "include": ["./src/**/*"],
+  "exclude": ["./src/globals.ts"]
+}
