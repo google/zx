@@ -156,8 +156,14 @@ describe('core', () => {
     })
 
     test('can use array as an argument', async () => {
-      const args = ['-n', 'foo']
-      assert.equal((await $`echo ${args}`).toString(), 'foo')
+      const _$ = $({ prefix: '', postfix: '' })
+      const p1 = _$`echo ${['-n', 'foo']}`
+      assert.equal(p1.cmd, 'echo -n foo')
+      assert.equal((await p1).toString(), 'foo')
+
+      const p2 = _$`echo ${[1, '', '*', '2']}`
+      assert.equal(p2.cmd, `echo 1 $'' $'*' 2`)
+      assert.equal((await p2).toString(), `1  * 2\n`)
     })
 
     test('requires $.shell to be specified', async () => {

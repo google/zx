@@ -31,7 +31,7 @@ import {
 } from './index.ts'
 import { installDeps, parseDeps } from './deps.ts'
 import { startRepl } from './repl.ts'
-import { randomId, bufToString } from './util.ts'
+import { randomId } from './util.ts'
 import { transformMarkdown } from './md.ts'
 import { createRequire, type minimist } from './vendor.ts'
 
