@@ -83,7 +83,11 @@ export function echo(pieces: TemplateStringsArray, ...args: any[]) {
 }
 
 function stringify(arg: ProcessOutput | any) {
-  return arg instanceof ProcessOutput ? arg.toString().trimEnd() : arg === '' ? `${''}`: `${arg}`
+  return arg instanceof ProcessOutput
+    ? arg.toString().trimEnd()
+    : arg === ''
+      ? `${''}`
+      : `${arg}`
 }
 
 export async function question(
