@@ -110,6 +110,7 @@ for (const dts of await glob(['build/**/*.d.ts', '!build/vendor-*.d.ts'])) {
   const contents =
     (pkgEntries.some((e) => dts.includes(e)) ? prefix : '') +
     (await fs.readFile(dts, 'utf8'))
+      .replaceAll(".ts';", ".js';")
       .split('\n')
       .filter((line) => !line.startsWith('/// <reference types'))
       .join('\n')

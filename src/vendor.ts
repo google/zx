@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { bus } from './vendor-core.js'
+import { bus } from './vendor-core.ts'
 import {
   depseek as _depseek,
   dotenv as _dotenv,
@@ -22,10 +22,10 @@ import {
   YAML as _YAML,
   glob as _glob,
   nodeFetch as _nodeFetch,
-} from './vendor-extra.js'
+} from './vendor-extra.ts'
 
-export * from './vendor-core.js'
-export { createRequire } from './vendor-extra.js'
+export * from './vendor-core.ts'
+export { createRequire } from './vendor-extra.ts'
 
 const { wrap } = bus
 export const depseek: typeof _depseek = wrap('depseek', _depseek)

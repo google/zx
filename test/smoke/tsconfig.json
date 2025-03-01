@@ -8,7 +8,6 @@
     "outDir": "./build",
     "declaration": true,
     "emitDeclarationOnly": true,
-    "allowImportingTsExtensions": true,
     "types": []
   },
   "include": ["./src/**/*"],

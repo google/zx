@@ -14,7 +14,7 @@
 
 import assert from 'node:assert'
 import { createInterface } from 'node:readline'
-import { $, within, ProcessOutput } from './core.js'
+import { $, within, ProcessOutput } from './core.ts'
 import {
   type Duration,
   identity,
@@ -22,13 +22,13 @@ import {
   parseBool,
   parseDuration,
   toCamelCase,
-} from './util.js'
+} from './util.ts'
 import {
   type RequestInfo,
   type RequestInit,
   nodeFetch,
   minimist,
-} from './vendor.js'
+} from './vendor.ts'
 
 export { default as path } from 'node:path'
 export * as os from 'node:os'

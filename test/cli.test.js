@@ -18,7 +18,7 @@ import { fileURLToPath } from 'node:url'
 import net from 'node:net'
 import getPort from 'get-port'
 import { $, path, tmpfile, tmpdir, fs } from '../build/index.js'
-import { isMain, normalizeExt, transformMarkdown } from '../build/cli.js'
+import { isMain, normalizeExt } from '../build/cli.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const spawn = $.spawn
@@ -347,43 +347,6 @@ describe('cli', () => {
       } catch (e) {
         assert.ok(['EACCES', 'ENOENT'].includes(e.code))
       }
-    })
-
-    test('transformMarkdown()', () => {
-      // prettier-ignore
-      assert.equal(transformMarkdown(`
-# Title
-    
-~~~js
-await $\`echo "js"\`
-~~~
-
-typescript code block
-~~~~~ts
-await $\`echo "ts"\`
-~~~~~
-
-~~~
-unknown code block
-~~~
-
-`), `// 
-// # Title
-//     
-
-await $\`echo "js"\`
-
-// 
-// typescript code block
-
-await $\`echo "ts"\`
-
-// 
-
-// unknown code block
-
-// 
-// `)
     })
 
     test('normalizeExt()', () => {

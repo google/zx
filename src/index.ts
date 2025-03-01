@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { ProcessPromise } from './core.js'
-import { fs } from './vendor.js'
+import { ProcessPromise } from './core.ts'
+import { fs } from './vendor.ts'
 
-export * from './core.js'
-export * from './goods.js'
+export * from './core.ts'
+export * from './goods.ts'
 export {
   minimist,
   chalk,
@@ -27,7 +27,7 @@ export {
   ps,
   glob,
   glob as globby,
-} from './vendor.js'
+} from './vendor.ts'
 
 export const VERSION: string = fs.readJsonSync(
   new URL('../package.json', import.meta.url)
@@ -42,7 +42,7 @@ export {
   tempdir as tmpdir,
   tempfile,
   tempfile as tmpfile,
-} from './util.js'
+} from './util.ts'
 
 /**
  *  @deprecated Use $`cmd`.nothrow() instead.
