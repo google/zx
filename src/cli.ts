@@ -34,7 +34,6 @@ import { startRepl } from './repl.ts'
 import { randomId } from './util.ts'
 import { transformMarkdown } from './md.ts'
 import { createRequire, type minimist } from './vendor.ts'
-import { unlinkSync } from 'fs'
 
 const EXT = '.mjs'
 const EXT_RE = /^\.[mc]?[jt]sx?$/
@@ -82,6 +81,7 @@ export function printUsage() {
 
 // prettier-ignore
 export const argv: minimist.ParsedArgs = parseArgv(process.argv.slice(2), {
+  default: { ['prefer-local']: false },
   // exclude 'prefer-local' to let minimist infer the type
   string: ['shell', 'prefix', 'postfix', 'eval', 'cwd', 'ext', 'registry', 'env'],
   boolean: ['version', 'help', 'quiet', 'verbose', 'install', 'repl', 'experimental'],
@@ -130,9 +130,8 @@ async function runScript(
 ): Promise<void> {
   let nm = ''
   const rmTemp = () => {
-    const rmOpts = { force: true, recursive: true }
-    fs.rmSync(tempPath, rmOpts)
-    nm && fs.rmSync(nm, rmOpts)
+    fs.rmSync(tempPath, { force: true, recursive: true })
+    nm && fs.rmSync(nm, { force: true, recursive: true })
   }
   try {
     if (tempPath) {
@@ -140,7 +139,6 @@ async function runScript(
       await fs.writeFile(tempPath, script)
     }
     const cwd = path.dirname(scriptPath)
-
     if (typeof argv.preferLocal === 'string') {
       nm = linkNodeModules(cwd, argv.preferLocal)
     }

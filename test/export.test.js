@@ -68,6 +68,8 @@ describe('cli', () => {
     assert.equal(typeof cli.argv.help, 'boolean', 'cli.argv.help')
     assert.equal(typeof cli.argv.i, 'boolean', 'cli.argv.i')
     assert.equal(typeof cli.argv.install, 'boolean', 'cli.argv.install')
+    assert.equal(typeof cli.argv.l, 'boolean', 'cli.argv.l')
+    assert.equal(typeof cli.argv.preferLocal, 'boolean', 'cli.argv.preferLocal')
     assert.equal(typeof cli.argv.quiet, 'boolean', 'cli.argv.quiet')
     assert.equal(typeof cli.argv.repl, 'boolean', 'cli.argv.repl')
     assert.equal(typeof cli.argv.v, 'boolean', 'cli.argv.v')
