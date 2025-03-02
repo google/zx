@@ -63,7 +63,7 @@ export function printUsage() {
    --shell=<path>       custom shell binary
    --prefix=<command>   prefix all commands
    --postfix=<command>  postfix all commands
-   --prefer-local, -l   prefer locally installed packages bins
+   --prefer-local, -l   prefer locally installed packages and binaries
    --cwd=<path>         set current directory
    --eval=<js>, -e      evaluate script
    --ext=<.mjs>         script extension
@@ -81,8 +81,10 @@ export function printUsage() {
 
 // prettier-ignore
 export const argv: minimist.ParsedArgs = parseArgv(process.argv.slice(2), {
+  default: { ['prefer-local']: false },
+  // exclude 'prefer-local' to let minimist infer the type
   string: ['shell', 'prefix', 'postfix', 'eval', 'cwd', 'ext', 'registry', 'env'],
-  boolean: ['version', 'help', 'quiet', 'verbose', 'install', 'repl', 'experimental', 'prefer-local'],
+  boolean: ['version', 'help', 'quiet', 'verbose', 'install', 'repl', 'experimental'],
   alias: { e: 'eval', i: 'install', v: 'version', h: 'help', l: 'prefer-local', 'env-file': 'env' },
   stopEarly: true,
   parseBoolean: true,
@@ -126,19 +128,22 @@ async function runScript(
   scriptPath: string,
   tempPath: string
 ): Promise<void> {
-  const rmTemp = () => fs.rmSync(tempPath, { force: true })
+  let nm = ''
+  const rmTemp = () => {
+    fs.rmSync(tempPath, { force: true, recursive: true })
+    nm && fs.rmSync(nm, { force: true, recursive: true })
+  }
   try {
     if (tempPath) {
       scriptPath = tempPath
       await fs.writeFile(tempPath, script)
     }
-
+    const cwd = path.dirname(scriptPath)
+    if (typeof argv.preferLocal === 'string') {
+      nm = linkNodeModules(cwd, argv.preferLocal)
+    }
     if (argv.install) {
-      await installDeps(
-        parseDeps(script),
-        path.dirname(scriptPath),
-        argv.registry
-      )
+      await installDeps(parseDeps(script), cwd, argv.registry)
     }
 
     injectGlobalRequire(scriptPath)
@@ -149,6 +154,20 @@ async function runScript(
   } finally {
     rmTemp()
   }
+}
+
+function linkNodeModules(cwd: string, external: string): string {
+  const nm = 'node_modules'
+  const alias = path.resolve(cwd, nm)
+  const target =
+    path.basename(external) === nm
+      ? path.resolve(external)
+      : path.resolve(external, nm)
+
+  if (fs.existsSync(alias) || !fs.existsSync(target)) return ''
+
+  fs.symlinkSync(target, alias, 'junction')
+  return target
 }
 
 async function readScript() {

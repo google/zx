@@ -106,10 +106,10 @@ zx --shell=/bin/another/sh script.mjs
 
 ## `--prefer-local, -l`
 
-Prefer locally installed packages bins.
+Prefer locally installed packages and binaries.
 
 ```bash
-zx --shell=/bin/bash script.mjs
+zx --prefer-local=/external/node_modules/or/nm-root script.mjs
 ```
 
 ## `--prefix & --postfix`
