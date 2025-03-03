@@ -7,6 +7,9 @@ pre-commit:
 pre-push:
   parallel: true
   commands:
+    format:
+      glob: '*.{js,ts,md,yml}'
+      run: npm run fmt:check
     license:
       run: npm run test:license
     size:
