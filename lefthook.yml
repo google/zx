@@ -3,13 +3,10 @@ pre-commit:
   commands:
     format:
       glob: '*.{js,ts,md,yml}'
-      run: npm run fmt
+      run: npm run fmt:check && echo "No formatting issues found." || npm run fmt
 pre-push:
   parallel: true
   commands:
-    format:
-      glob: '*.{js,ts,md,yml}'
-      run: npm run fmt:check
     license:
       run: npm run test:license
     size:
