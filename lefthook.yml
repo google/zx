@@ -1,9 +1,9 @@
 pre-commit:
-  parallel: false
+  parallel: true
   commands:
     format:
       glob: '*.{js,ts,md,yml}'
-      run: npm run fmt:check && echo "No formatting issues found." || npm run fmt
+      run: npm run fmt:check && echo "No formatting issues found." || npm run fmt && git add {staged_files}
 pre-push:
   parallel: true
   commands:
