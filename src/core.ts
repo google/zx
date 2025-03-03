@@ -257,6 +257,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     const self = this
     const $ = self._snapshot
     const id = self.id
+    
     const sync = $[SYNC]
     const timeout = self._timeout ?? $.timeout
     const timeoutSignal = self._timeoutSignal ?? $.timeoutSignal
