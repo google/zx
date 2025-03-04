@@ -9,7 +9,7 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "allowImportingTsExtensions": true,
-    "types": []
+    "types": ["node", "fs-extra"]
   },
   "include": ["./src/**/*"],
   "exclude": ["./src/globals.ts"]
