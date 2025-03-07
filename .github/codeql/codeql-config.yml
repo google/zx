@@ -1,0 +1,11 @@
+paths:
+  - .github
+  - docs
+  - examples
+  - man
+  - src
+  - scripts
+  - test
+  - test-d
+paths-ignore:
+  - build
