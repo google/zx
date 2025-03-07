@@ -5,4 +5,5 @@ package/
 reports/
 docs/.vitepress/cache/
 yarn.lock
+pnpm-lock.yaml
 temp

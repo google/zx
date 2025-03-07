@@ -128,10 +128,10 @@ async function runScript(
   scriptPath: string,
   tempPath: string
 ): Promise<void> {
-  let nm = ''
+  let nmLink = ''
   const rmTemp = () => {
     fs.rmSync(tempPath, { force: true, recursive: true })
-    nm && fs.rmSync(nm, { force: true, recursive: true })
+    nmLink && fs.rmSync(nmLink, { force: true, recursive: true })
   }
   try {
     if (tempPath) {
@@ -140,7 +140,7 @@ async function runScript(
     }
     const cwd = path.dirname(scriptPath)
     if (typeof argv.preferLocal === 'string') {
-      nm = linkNodeModules(cwd, argv.preferLocal)
+      nmLink = linkNodeModules(cwd, argv.preferLocal)
     }
     if (argv.install) {
       await installDeps(parseDeps(script), cwd, argv.registry)

@@ -36,7 +36,7 @@ global.AbortController = global.AbortController || AbortController
 
 export const createRequire = _createRequire as unknown as (
   filename: string | URL
-) => NodeRequire
+) => NodeJS.Require
 
 export const globbyModule = {
   convertPathToPattern,
