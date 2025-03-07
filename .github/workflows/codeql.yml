@@ -7,6 +7,17 @@ on:
     branches: ['main']
   schedule:
     - cron: '28 6 * * 3'
+  paths:
+    - .github
+    - docs
+    - examples
+    - man
+    - src
+    - scripts
+    - test
+    - test-d
+  paths-ignore:
+    - build
 
 jobs:
   analyze:
