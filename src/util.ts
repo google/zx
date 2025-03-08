@@ -235,107 +235,9 @@ export function log(entry: LogEntry) {
   }
 }
 
-export function formatCmd(cmd?: string): string {
-  if (cmd == undefined) return chalk.grey('undefined')
-  const chars = [...cmd]
-  let out = '$ '
-  let buf = ''
-  let ch: string
-  type State = (() => State) | undefined
-  let state: State = root
-  let wordCount = 0
-  while (state) {
-    ch = chars.shift() || 'EOF'
-    if (ch == '\n') {
-      out += style(state, buf) + '\n> '
-      buf = ''
-      continue
-    }
-    const next: State = ch === 'EOF' ? undefined : state()
-    if (next !== state) {
-      out += style(state, buf)
-      buf = ''
-    }
-    state = next === root ? next() : next
-    buf += ch
-  }
-
-  function style(state: State, s: string): string {
-    if (s === '') return ''
-    if (RESERVED_WORDS.has(s)) {
-      return chalk.cyanBright(s)
-    }
-    if (state == word && wordCount == 0) {
-      wordCount++
-      return chalk.greenBright(s)
-    }
-    if (state == syntax) {
-      wordCount = 0
-      return chalk.cyanBright(s)
-    }
-    if (state == dollar) return chalk.yellowBright(s)
-    if (state?.name.startsWith('str')) return chalk.yellowBright(s)
-    return s
-  }
-
-  function isSyntax(ch: string) {
-    return '()[]{}<>;:+|&='.includes(ch)
-  }
-
-  function root() {
-    if (/\s/.test(ch)) return space
-    if (isSyntax(ch)) return syntax
-    if (ch === '$') return dollar
-    if (ch === '"') return strDouble
-    if (ch === "'") return strSingle
-    return word
-  }
-
-  function space() {
-    return /\s/.test(ch) ? space : root
-  }
-
-  function word() {
-    return /[\w/.]/i.test(ch) ? word : root
-  }
-
-  function syntax() {
-    return isSyntax(ch) ? syntax : root
-  }
-
-  function dollar() {
-    return ch === "'" ? str : root
-  }
-
-  function str() {
-    if (ch === "'") return strEnd
-    if (ch === '\\') return strBackslash
-    return str
-  }
-
-  function strBackslash() {
-    return strEscape
-  }
-
-  function strEscape() {
-    return str
-  }
-
-  function strDouble() {
-    return ch === '"' ? strEnd : strDouble
-  }
-
-  function strSingle() {
-    return ch === "'" ? strEnd : strSingle
-  }
-
-  function strEnd() {
-    return root
-  }
-
-  return out + '\n'
-}
-
+const SYNTAX = '()[]{}<>;:+|&='
+const CMD_BREAK = new Set(['|', '&', ';', '>', '<'])
+const SPACE_RE = /\s/
 const RESERVED_WORDS = new Set([
   'if',
   'then',
@@ -352,6 +254,77 @@ const RESERVED_WORDS = new Set([
   'done',
   'in',
 ])
+
+export function formatCmd(cmd?: string): string {
+  if (cmd == undefined) return chalk.grey('undefined')
+  let q = ''
+  let out = '$ '
+  let buf = ''
+  let mode: 'syntax' | 'quote' | 'dollar' | '' = ''
+  let pos = 0
+  const cap = () => {
+    const word = buf.trim()
+    if (word) {
+      pos++
+      if (mode === 'syntax') {
+        if (CMD_BREAK.has(word)) {
+          pos = 0
+        }
+        out += chalk.red(buf)
+      } else if (mode === 'quote' || mode === 'dollar') {
+        out += chalk.yellowBright(buf)
+      } else if (RESERVED_WORDS.has(word)) {
+        out += chalk.cyanBright(buf)
+      } else if (pos === 1) {
+        out += chalk.greenBright(buf)
+        pos = Infinity
+      } else {
+        out += buf
+      }
+    } else {
+      out += buf
+    }
+    mode = ''
+    buf = ''
+  }
+
+  for (const c of [...cmd]) {
+    if (!q) {
+      if (c === '$') {
+        cap()
+        mode = 'dollar'
+        buf += c
+        cap()
+      } else if (c === "'" || c === '"') {
+        cap()
+        mode = 'quote'
+        q = c
+        buf += c
+      } else if (SPACE_RE.test(c)) {
+        cap()
+        buf += c
+      } else if (SYNTAX.includes(c)) {
+        const isEnv = c === '=' && pos === 0
+        isEnv && (pos = 1)
+        cap()
+        mode = 'syntax'
+        buf += c
+        cap()
+        isEnv && (pos = -1)
+      } else {
+        buf += c
+      }
+    } else {
+      buf += c
+      if (c === q) {
+        cap()
+        q = ''
+      }
+    }
+  }
+  cap()
+  return out.replaceAll('\n', chalk.reset('\n> ')) + '\n'
+}
 
 export const once = <T extends (...args: any[]) => any>(fn: T) => {
   let called = false

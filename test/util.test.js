@@ -14,8 +14,7 @@
 
 import assert from 'node:assert'
 import fs from 'node:fs'
-import { test, describe, after } from 'node:test'
-import { fs as fsCore } from '../build/index.js'
+import { test, describe } from 'node:test'
 import {
   formatCmd,
   isString,
@@ -85,22 +84,46 @@ describe('util', () => {
   })
 
   test('formatCwd works', () => {
-    assert.equal(
-      formatCmd(`echo $'hi'`),
-      "$ \u001b[92mecho\u001b[39m \u001b[93m$\u001b[39m\u001b[93m'hi\u001b[39m\u001b[93m'\u001b[39m\n"
-    )
-    assert.equal(
-      formatCmd(`while true; do "$" done`),
-      '$ \u001b[96mwhile\u001b[39m \u001b[92mtrue\u001b[39m\u001b[96m;\u001b[39m \u001b[96mdo\u001b[39m \u001b[93m"$\u001b[39m\u001b[93m"\u001b[39m \u001b[96mdone\u001b[39m\n'
-    )
-    assert.equal(
-      formatCmd(`echo '\n str\n'`),
-      "$ \u001b[92mecho\u001b[39m \u001b[93m'\u001b[39m\n> \u001b[93m str\u001b[39m\n> \u001b[93m'\u001b[39m\n"
-    )
-    assert.equal(
-      formatCmd(`$'\\''`),
-      "$ \u001b[93m$\u001b[39m\u001b[93m'\u001b[39m\u001b[93m\\\u001b[39m\u001b[93m'\u001b[39m\u001b[93m'\u001b[39m\n"
-    )
+    const cases = [
+      [
+        `echo $'hi'`,
+        "$ \x1B[92mecho\x1B[39m \x1B[93m$\x1B[39m\x1B[93m'hi'\x1B[39m\n",
+      ],
+      [`echo$foo`, '$ \x1B[92mecho\x1B[39m\x1B[93m$\x1B[39mfoo\n'],
+      [
+        `test --foo=bar p1 p2`,
+        '$ \x1B[92mtest\x1B[39m --foo\x1B[31m=\x1B[39mbar p1 p2\n',
+      ],
+      [
+        `cmd1 --foo || cmd2`,
+        '$ \x1B[92mcmd1\x1B[39m --foo \x1B[31m|\x1B[39m\x1B[31m|\x1B[39m\x1B[92m cmd2\x1B[39m\n',
+      ],
+      [
+        `A=B C='D' cmd`,
+        "$ A\x1B[31m=\x1B[39mB C\x1B[31m=\x1B[39m\x1B[93m'D'\x1B[39m\x1B[92m cmd\x1B[39m\n",
+      ],
+      [
+        `foo-extra --baz = b-a-z --bar = 'b-a-r' -q -u x`,
+        "$ \x1B[92mfoo-extra\x1B[39m --baz \x1B[31m=\x1B[39m b-a-z --bar \x1B[31m=\x1B[39m \x1B[93m'b-a-r'\x1B[39m -q -u x\n",
+      ],
+      [
+        `while true; do "$" done`,
+        '$ \x1B[96mwhile\x1B[39m true\x1B[31m;\x1B[39m\x1B[96m do\x1B[39m \x1B[93m"$"\x1B[39m\x1B[96m done\x1B[39m\n',
+      ],
+      [
+        `echo '\n str\n'`,
+        "$ \x1B[92mecho\x1B[39m \x1B[93m'\x1B[39m\x1B[0m\x1B[0m\n\x1B[0m> \x1B[0m\x1B[93m str\x1B[39m\x1B[0m\x1B[0m\n\x1B[0m> \x1B[0m\x1B[93m'\x1B[39m\n",
+      ],
+      [`$'\\''`, "$ \x1B[93m$\x1B[39m\x1B[93m'\\'\x1B[39m\x1B[93m'\x1B[39m\n"],
+      [
+        'sass-compiler --style=compressed src/static/bootstrap.scss > dist/static/bootstrap-v5.3.3.min.css',
+        '$ \x1B[92msass-compiler\x1B[39m --style\x1B[31m=\x1B[39mcompressed src/static/bootstrap.scss \x1B[31m>\x1B[39m\x1B[92m dist/static/bootstrap-v5.3.3.min.css\x1B[39m\n',
+      ],
+    ]
+
+    cases.forEach(([input, expected]) => {
+      assert.equal(formatCmd(input), expected, input)
+    })
   })
 
   // test('normalizeMultilinePieces()', () => {
