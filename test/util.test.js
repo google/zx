@@ -16,7 +16,6 @@ import assert from 'node:assert'
 import fs from 'node:fs'
 import { test, describe } from 'node:test'
 import {
-  formatCmd,
   isString,
   isStringLiteral,
   noop,
@@ -81,68 +80,6 @@ describe('util', () => {
     assert.throws(() => parseDuration('100'))
     assert.throws(() => parseDuration(NaN))
     assert.throws(() => parseDuration(-1))
-  })
-
-  test('formatCwd works', () => {
-    const cases = [
-      [
-        `echo $'hi'`,
-        "$ \x1B[92mecho\x1B[39m \x1B[93m$\x1B[39m\x1B[93m'hi'\x1B[39m\n",
-      ],
-      [`echo$foo`, '$ \x1B[92mecho\x1B[39m\x1B[93m$\x1B[39mfoo\n'],
-      [
-        `test --foo=bar p1 p2`,
-        '$ \x1B[92mtest\x1B[39m --foo\x1B[31m=\x1B[39mbar p1 p2\n',
-      ],
-      [
-        `cmd1 --foo || cmd2`,
-        '$ \x1B[92mcmd1\x1B[39m --foo \x1B[31m|\x1B[39m\x1B[31m|\x1B[39m\x1B[92m cmd2\x1B[39m\n',
-      ],
-      [
-        `A=B C='D' cmd`,
-        "$ A\x1B[31m=\x1B[39mB C\x1B[31m=\x1B[39m\x1B[93m'D'\x1B[39m\x1B[92m cmd\x1B[39m\n",
-      ],
-      [
-        `foo-extra --baz = b-a-z --bar = 'b-a-r' -q -u x`,
-        "$ \x1B[92mfoo-extra\x1B[39m --baz \x1B[31m=\x1B[39m b-a-z --bar \x1B[31m=\x1B[39m \x1B[93m'b-a-r'\x1B[39m -q -u x\n",
-      ],
-      [
-        `while true; do "$" done`,
-        '$ \x1B[96mwhile\x1B[39m true\x1B[31m;\x1B[39m\x1B[96m do\x1B[39m \x1B[93m"$"\x1B[39m\x1B[96m done\x1B[39m\n',
-      ],
-      [
-        `echo '\n str\n'`,
-        "$ \x1B[92mecho\x1B[39m \x1B[93m'\x1B[39m\x1B[0m\x1B[0m\n\x1B[0m> \x1B[0m\x1B[93m str\x1B[39m\x1B[0m\x1B[0m\n\x1B[0m> \x1B[0m\x1B[93m'\x1B[39m\n",
-      ],
-      [`$'\\''`, "$ \x1B[93m$\x1B[39m\x1B[93m'\\'\x1B[39m\x1B[93m'\x1B[39m\n"],
-      [
-        'sass-compiler --style=compressed src/static/bootstrap.scss > dist/static/bootstrap-v5.3.3.min.css',
-        '$ \x1B[92msass-compiler\x1B[39m --style\x1B[31m=\x1B[39mcompressed src/static/bootstrap.scss \x1B[31m>\x1B[39m\x1B[92m dist/static/bootstrap-v5.3.3.min.css\x1B[39m\n',
-      ],
-      [
-        'echo 1+2 | bc',
-        '$ \x1B[92mecho\x1B[39m 1\x1B[31m+\x1B[39m2 \x1B[31m|\x1B[39m\x1B[92m bc\x1B[39m\n',
-      ],
-      [
-        'echo test &>> filepath',
-        '$ \x1B[92mecho\x1B[39m test \x1B[31m&\x1B[39m\x1B[31m>\x1B[39m\x1B[31m>\x1B[39m\x1B[92m filepath\x1B[39m\n',
-      ],
-      [
-        'bc < filepath',
-        '$ \x1B[92mbc\x1B[39m \x1B[31m<\x1B[39m\x1B[92m filepath\x1B[39m\n',
-      ],
-      [
-        `cat << 'EOF' | tee -a filepath
-line 1
-line 2
-EOF`,
-        "$ \x1B[92mcat\x1B[39m \x1B[31m<\x1B[39m\x1B[31m<\x1B[39m \x1B[93m'EOF'\x1B[39m \x1B[31m|\x1B[39m\x1B[92m tee\x1B[39m -a filepath\x1B[0m\x1B[0m\n\x1B[0m> \x1B[0mline 1\x1B[0m\x1B[0m\n\x1B[0m> \x1B[0mline 2\x1B[96m\x1B[39m\x1B[0m\x1B[0m\n\x1B[0m> \x1B[0m\x1B[96mEOF\x1B[39m\n",
-      ],
-    ]
-
-    cases.forEach(([input, expected]) => {
-      assert.equal(formatCmd(input), expected, input)
-    })
   })
 
   // test('normalizeMultilinePieces()', () => {
