@@ -206,12 +206,17 @@ export type LogEntry = {
     }
 )
 
-export function log(entry: LogEntry) {
+type LogFormatter = (cmd?: string) => string
+type Log = {
+  (entry: LogEntry): void
+  formatCmd?: LogFormatter
+}
+export const log: Log = function (entry) {
   if (!entry.verbose) return
   const stream = process.stderr
   switch (entry.kind) {
     case 'cmd':
-      stream.write(formatCmd(entry.cmd))
+      stream.write((log.formatCmd || formatCmd)(entry.cmd))
       break
     case 'stdout':
     case 'stderr':
@@ -256,7 +261,7 @@ const RESERVED_WORDS = new Set([
   'EOF',
 ])
 
-export function formatCmd(cmd?: string): string {
+export const formatCmd: LogFormatter = function (cmd) {
   if (cmd == undefined) return chalk.grey('undefined')
   let q = ''
   let out = '$ '
