@@ -13,10 +13,83 @@
 // limitations under the License.
 
 import assert from 'node:assert'
-import { test, describe } from 'node:test'
-import { formatCmd } from '../src/log.ts'
+import { test, describe, beforeEach, before, after } from 'node:test'
+import { formatCmd, log } from '../src/log.ts'
 
 describe('log', () => {
+  describe('log()', () => {
+    const data = []
+    const stream = {
+      write(s: string) {
+        data.push(s)
+      },
+    } as NodeJS.WriteStream
+
+    before(() => (log.stream = stream))
+
+    after(() => delete log.stream)
+
+    beforeEach(() => (data.length = 0))
+
+    test('cmd', () => {
+      log({
+        kind: 'cmd',
+        cmd: 'echo hi',
+        id: '1',
+        verbose: true,
+      })
+      assert.equal(data.join(''), '$ \x1B[92mecho\x1B[39m hi\n')
+    })
+
+    test('stdout', () => {
+      log({
+        kind: 'stdout',
+        data: Buffer.from('foo'),
+        id: '1',
+        verbose: true,
+      })
+      assert.equal(data.join(''), 'foo')
+    })
+
+    test('cd', () => {
+      log({
+        kind: 'cd',
+        dir: '/tmp',
+        verbose: true,
+      })
+      assert.equal(data.join(''), '$ \x1B[92mcd\x1B[39m /tmp\n')
+    })
+
+    test('fetch', () => {
+      log({
+        kind: 'fetch',
+        url: 'https://example.com',
+        init: { method: 'GET' },
+        verbose: true,
+      })
+      assert.equal(
+        data.join(''),
+        "$ \x1B[92mfetch\x1B[39m https://example.com { method: 'GET' }\n"
+      )
+    })
+
+    test('retry', () => {
+      log({
+        kind: 'retry',
+        attempt: 1,
+        total: 3,
+        delay: 1000,
+        exception: new Error('foo'),
+        error: 'bar',
+        verbose: true,
+      })
+      assert.equal(
+        data.join(''),
+        '\x1B[41m\x1B[37m FAIL \x1B[39m\x1B[49m Attempt: 1/3; next in 1000ms\n'
+      )
+    })
+  })
+
   test('formatCwd()', () => {
     const cases = [
       [

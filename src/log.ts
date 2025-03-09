@@ -63,10 +63,11 @@ type LogFormatter = (cmd?: string) => string
 type Log = {
   (entry: LogEntry): void
   formatCmd?: LogFormatter
+  stream?: NodeJS.WriteStream
 }
 export const log: Log = function (entry) {
   if (!entry.verbose) return
-  const stream = process.stderr
+  const stream = log.stream || process.stderr
   switch (entry.kind) {
     case 'cmd':
       stream.write((log.formatCmd || formatCmd)(entry.cmd))
