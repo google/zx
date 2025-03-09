@@ -253,6 +253,7 @@ const RESERVED_WORDS = new Set([
   'do',
   'done',
   'in',
+  'EOF',
 ])
 
 export function formatCmd(cmd?: string): string {
