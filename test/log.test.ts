@@ -25,9 +25,9 @@ describe('log', () => {
       },
     } as NodeJS.WriteStream
 
-    before(() => (log.stream = stream))
+    before(() => (log.output = stream))
 
-    after(() => delete log.stream)
+    after(() => delete log.output)
 
     beforeEach(() => (data.length = 0))
 
