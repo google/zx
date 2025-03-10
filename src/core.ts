@@ -44,7 +44,6 @@ import {
 } from './vendor-core.ts'
 import {
   type Duration,
-  log,
   isString,
   isStringLiteral,
   getLast,
@@ -62,7 +61,9 @@ import {
   bufArrJoin,
 } from './util.ts'
 
-export { log, type LogEntry } from './util.ts'
+import { log } from './log.ts'
+
+export { log, type LogEntry } from './log.ts'
 
 const CWD = Symbol('processCwd')
 const SYNC = Symbol('syncExec')
