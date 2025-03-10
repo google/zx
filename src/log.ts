@@ -24,7 +24,12 @@ export type LogEntry = {
       id: string
     }
   | {
-      kind: 'stdout' | 'stderr'
+      kind: 'stdout'
+      data: Buffer
+      id: string
+    }
+  | {
+      kind: 'stderr'
       data: Buffer
       id: string
     }
@@ -59,39 +64,59 @@ export type LogEntry = {
     }
 )
 
-type LogFormatter = (cmd?: string) => string
+type LogFormatters = {
+  [key in LogEntry['kind']]: (
+    entry: Extract<LogEntry, { kind: key }>
+  ) => string | Buffer
+}
+
+const formatters: LogFormatters = {
+  cmd({ cmd }) {
+    return formatCmd(cmd)
+  },
+  stdout({ data }) {
+    return data
+  },
+  stderr({ data }) {
+    return data
+  },
+  custom({ data }) {
+    return data
+  },
+  fetch(entry) {
+    const init = entry.init ? ' ' + inspect(entry.init) : ''
+    return '$ ' + chalk.greenBright('fetch') + ` ${entry.url}${init}\n`
+  },
+  cd(entry) {
+    return '$ ' + chalk.greenBright('cd') + ` ${entry.dir}\n`
+  },
+  retry(entry) {
+    return (
+      chalk.bgRed.white(' FAIL ') +
+      ` Attempt: ${entry.attempt}${entry.total == Infinity ? '' : `/${entry.total}`}` +
+      (entry.delay > 0 ? `; next in ${entry.delay}ms` : '') +
+      '\n'
+    )
+  },
+  end() {
+    return ''
+  },
+}
+
 type Log = {
   (entry: LogEntry): void
-  formatCmd?: LogFormatter
+  formatters?: Partial<LogFormatters>
   output?: NodeJS.WriteStream
 }
+
 export const log: Log = function (entry) {
   if (!entry.verbose) return
   const stream = log.output || process.stderr
-  switch (entry.kind) {
-    case 'cmd':
-      stream.write((log.formatCmd || formatCmd)(entry.cmd))
-      break
-    case 'stdout':
-    case 'stderr':
-    case 'custom':
-      stream.write(entry.data)
-      break
-    case 'cd':
-      stream.write('$ ' + chalk.greenBright('cd') + ` ${entry.dir}\n`)
-      break
-    case 'fetch':
-      const init = entry.init ? ' ' + inspect(entry.init) : ''
-      stream.write('$ ' + chalk.greenBright('fetch') + ` ${entry.url}${init}\n`)
-      break
-    case 'retry':
-      stream.write(
-        chalk.bgRed.white(' FAIL ') +
-          ` Attempt: ${entry.attempt}${entry.total == Infinity ? '' : `/${entry.total}`}` +
-          (entry.delay > 0 ? `; next in ${entry.delay}ms` : '') +
-          '\n'
-      )
-  }
+  const format = (log.formatters?.[entry.kind] ?? formatters[entry.kind]) as (
+    entry: LogEntry
+  ) => string | Buffer
+  const data = format(entry)
+  stream.write(data)
 }
 
 const SYNTAX = '()[]{}<>;:+|&='
@@ -115,7 +140,7 @@ const RESERVED_WORDS = new Set([
   'EOF',
 ])
 
-export const formatCmd: LogFormatter = function (cmd) {
+export function formatCmd(cmd: string): string {
   if (cmd == undefined) return chalk.grey('undefined')
   let q = ''
   let out = '$ '
