@@ -102,10 +102,11 @@ $.log = (entry: LogEntry) => {
 ```
 
 Log mostly acts like a debugger, so by default it uses `process.error` for output.
-Set `log.output` to change the stream.
+Set `log.output` to change the stream. Setting string value will create a file stream:
 
 ```ts
 $.log.output = process.stdout
+$.log.output = 'zx.log'
 ```
 
 Set `log.formatters` to customize each log entry kind printing:
