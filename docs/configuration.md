@@ -108,10 +108,13 @@ Set `log.output` to change the stream.
 $.log.output = process.stdout
 ```
 
-Set `log.formatCmd` to customize the command highlighter:
+Set `log.formatters` to customize each log entry kind printing:
 
 ```ts
-$.log.formatCmd = (cmd: string) => chalk.bgRedBright.black(cmd)
+$.log.formatters = {
+  cmd: (entry: LogEntry) => `CMD: ${entry.cmd}`,
+  fetch: (entry: LogEntry) => `FETCH: ${entry.url}`
+}
 ```
 
 ## `$.timeout`

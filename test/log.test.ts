@@ -27,7 +27,10 @@ describe('log', () => {
 
     before(() => (log.output = stream))
 
-    after(() => delete log.output)
+    after(() => {
+      delete log.output
+      delete log.formatters
+    })
 
     beforeEach(() => (data.length = 0))
 
@@ -87,6 +90,20 @@ describe('log', () => {
         data.join(''),
         '\x1B[41m\x1B[37m FAIL \x1B[39m\x1B[49m Attempt: 1/3; next in 1000ms\n'
       )
+    })
+
+    test('formatters', () => {
+      log.formatters = {
+        cmd: ({ cmd }) => `CMD: ${cmd}`,
+      }
+
+      log({
+        kind: 'cmd',
+        cmd: 'echo hi',
+        id: '1',
+        verbose: true,
+      })
+      assert.equal(data.join(''), 'CMD: echo hi')
     })
   })
 
