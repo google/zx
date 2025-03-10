@@ -14,6 +14,7 @@
 
 import { chalk, type RequestInfo, type RequestInit } from './vendor-core.ts'
 import { inspect } from 'node:util'
+import fs from 'node:fs'
 
 export type LogEntry = {
   verbose?: boolean
@@ -102,20 +103,22 @@ const formatters: LogFormatters = {
     return ''
   },
 }
-
+type LogWriter = Pick<NodeJS.WriteStream, 'write'>
 type Log = {
   (entry: LogEntry): void
   formatters?: Partial<LogFormatters>
-  output?: NodeJS.WriteStream
+  output?: LogWriter | string
 }
 
 export const log: Log = function (entry) {
   if (!entry.verbose) return
-  const stream = log.output || process.stderr
   const format = (log.formatters?.[entry.kind] || formatters[entry.kind]) as (
     entry: LogEntry
   ) => string | Buffer
   if (!format) return // ignore unknown log entries
+  if (typeof log.output === 'string')
+    log.output = fs.createWriteStream(log.output) as LogWriter
+  const stream = log.output || process.stderr
   const data = format(entry)
   stream.write(data)
 }

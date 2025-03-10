@@ -14,6 +14,8 @@
 
 import assert from 'node:assert'
 import { test, describe, beforeEach, before, after } from 'node:test'
+import fs from 'node:fs'
+import { tempfile } from '../src/util.ts'
 import { formatCmd, log } from '../src/log.ts'
 
 describe('log', () => {
@@ -104,6 +106,25 @@ describe('log', () => {
         verbose: true,
       })
       assert.equal(data.join(''), 'CMD: echo hi')
+      delete log.formatters
+    })
+
+    test('output as string', async () => {
+      const file = tempfile()
+
+      log.output = file
+      log({
+        kind: 'cmd',
+        cmd: 'echo hi',
+        id: '1',
+        verbose: true,
+      })
+      log.output = stream
+
+      assert.equal(
+        await fs.promises.readFile(file, 'utf-8'),
+        '$ \x1B[92mecho\x1B[39m hi\n'
+      )
     })
   })
 
