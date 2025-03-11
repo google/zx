@@ -5,6 +5,8 @@ on:
   release:
     types: [created]
 
+permissions: {}
+
 jobs:
   build:
     runs-on: ubuntu-latest
