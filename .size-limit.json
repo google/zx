@@ -9,7 +9,7 @@
   {
     "name": "zx/index",
     "path": "build/*.{js,cjs}",
-    "limit": "812.1 kB",
+    "limit": "812 kB",
     "brotli": false,
     "gzip": false
   },

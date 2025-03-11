@@ -796,7 +796,7 @@ export class ProcessOutput extends Error {
   static getErrorMessage = formatErrorMessage;
 
   [inspect.custom](): string {
-    let stringify = (s: string, c: ChalkInstance) =>
+    const stringify = (s: string, c: ChalkInstance) =>
       s.length === 0 ? "''" : c(inspect(s))
     return `ProcessOutput {
   stdout: ${stringify(this.stdout, chalk.green)},

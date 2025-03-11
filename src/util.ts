@@ -68,8 +68,6 @@ export const bufArrJoin = (arr: TSpawnStoreChunks) =>
 export const getLast = <T>(arr: { length: number; [i: number]: any }): T =>
   arr[arr.length - 1]
 
-const pad = (v: string) => (v === ' ' ? ' ' : '')
-
 export function preferLocalBin(
   env: NodeJS.ProcessEnv,
   ...dirs: (string | undefined)[]
@@ -98,23 +96,6 @@ export function preferLocalBin(
     [pathKey]: pathValue,
   }
 }
-
-// export function normalizeMultilinePieces(
-//   pieces: TemplateStringsArray
-// ): TemplateStringsArray {
-//   return Object.assign(
-//     pieces.map((p, i) =>
-//       p.trim()
-//         ? pad(p[0]) +
-//           parseLine(p)
-//             .words.map(({ w }) => (w === '\\' ? '' : w.trim()))
-//             .join(' ') +
-//           pad(p[p.length - 1])
-//         : pieces[i]
-//     ),
-//     { raw: pieces.raw }
-//   )
-// }
 
 export function quote(arg: string): string {
   if (arg === '') return `$''`
