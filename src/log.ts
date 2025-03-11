@@ -85,18 +85,16 @@ const formatters: LogFormatters = {
   },
   fetch(entry) {
     const init = entry.init ? ' ' + inspect(entry.init) : ''
-    return '$ ' + chalk.greenBright('fetch') + ` ${entry.url}${init}\n`
+    return `$ ${chalk.greenBright('fetch')} ${entry.url}${init}\n`
   },
   cd(entry) {
-    return '$ ' + chalk.greenBright('cd') + ` ${entry.dir}\n`
+    return `$ ${chalk.greenBright('cd')} ${entry.dir}\n`
   },
   retry(entry) {
-    return (
-      chalk.bgRed.white(' FAIL ') +
-      ` Attempt: ${entry.attempt}${entry.total == Infinity ? '' : `/${entry.total}`}` +
-      (entry.delay > 0 ? `; next in ${entry.delay}ms` : '') +
-      '\n'
-    )
+    const attempt = `Attempt: ${entry.attempt}${entry.total == Infinity ? '' : `/${entry.total}`}`
+    const delay = entry.delay > 0 ? `; next in ${entry.delay}ms` : ''
+
+    return `${chalk.bgRed.white(' FAIL ')} ${attempt}${delay}\n`
   },
   end() {
     return ''
