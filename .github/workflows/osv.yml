@@ -11,6 +11,8 @@
 
 name: OSV-Scanner
 
+permissions: {}
+
 on:
   pull_request:
     branches: ['main']

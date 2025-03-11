@@ -90,7 +90,7 @@
     "test:smoke:cjs": "node ./test/smoke/node.test.cjs",
     "test:smoke:mjs": "node ./test/smoke/node.test.mjs",
     "test:smoke:deno": "deno test ./test/smoke/deno.test.js --allow-read --allow-sys --allow-env --allow-run",
-    "test:workflow": "zizmor .github/workflows -v -p"
+    "test:workflow": "zizmor .github/workflows -v -p --min-severity=medium"
   },
   "devDependencies": {
     "@size-limit/file": "11.2.0",

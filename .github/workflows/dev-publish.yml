@@ -3,6 +3,8 @@ name: Dev Publish
 on:
   workflow_dispatch:
 
+permissions: {}
+
 jobs:
   build:
     runs-on: ubuntu-latest
