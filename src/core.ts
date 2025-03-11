@@ -839,12 +839,14 @@ try {
 
 function checkShell() {
   if (!$.shell)
-    throw new Error(`No shell is available: https://ï.at/zx-no-shell`)
+    throw new Error(`No shell is available: https://google.github.io/zx/shell`)
 }
 
 function checkQuote() {
   if (!$.quote)
-    throw new Error('No quote function is defined: https://ï.at/no-quote-func')
+    throw new Error(
+      'No quote function is defined: https://google.github.io/zx/quotes'
+    )
 }
 
 let cwdSyncHook: AsyncHook
