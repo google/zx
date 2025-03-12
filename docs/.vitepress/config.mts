@@ -75,6 +75,7 @@ export default defineConfig({
           link: '/faq',
           items: [
             { text: 'Quotes', link: '/quotes' },
+            { text: 'Shell', link: '/shell' },
             { text: 'TypeScript', link: '/typescript' },
             { text: 'Markdown Scripts', link: '/markdown-scripts' },
             { text: 'Known Issues', link: '/known-issues' },
