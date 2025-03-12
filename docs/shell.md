@@ -6,7 +6,7 @@ zx provides several functions to help with setup:
 
 * [`useBash`](./api#usebash) switches to bash
 * [`usePowerShell`](./api#usepowershell) - PowerShell
-* [`usePowerShell`](./api#usepwsh) - pwsh (PowerShell v7+)
+* [`usePwsh`](./api#usepwsh) - pwsh (PowerShell v7+)
 
 You can also set the shell directly via [JS API](./setup#bash), [CLI flags](./cli#shell) or [envars](./cli#environment-variables):
 
