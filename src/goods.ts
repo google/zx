@@ -14,6 +14,7 @@
 
 import assert from 'node:assert'
 import { createInterface } from 'node:readline'
+import { Readable } from 'node:stream'
 import { $, within, ProcessOutput } from './core.ts'
 import {
   type Duration,
@@ -29,7 +30,6 @@ import {
   nodeFetch,
   minimist,
 } from './vendor.ts'
-import { Readable } from 'node:stream'
 
 export { default as path } from 'node:path'
 export * as os from 'node:os'
