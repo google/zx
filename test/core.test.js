@@ -716,6 +716,27 @@ describe('core', () => {
           assert.equal(stdout, 'TEST')
         })
 
+        test('fetch (stream) > $', async () => {
+          // stream.Readable.fromWeb requires Node.js 18+
+          const responseToReadable = (response) => {
+            const reader = response.body.getReader()
+            const rs = new Readable()
+            rs._read = async () => {
+              const result = await reader.read()
+              if (!result.done) rs.push(Buffer.from(result.value))
+              else rs.push(null)
+            }
+            return rs
+          }
+
+          const p = (
+            await fetch('https://example.com').then(responseToReadable)
+          ).pipe($`cat`)
+          const o = await p
+
+          assert.match(o.stdout, /Example Domain/)
+        })
+
         test('$ > stream > $', async () => {
           const p = $`echo "hello"`
           const { stdout } = await p.pipe(getUpperCaseTransform()).pipe($`cat`)
