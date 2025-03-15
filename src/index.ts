@@ -17,17 +17,7 @@ import { fs } from './vendor.ts'
 
 export * from './core.ts'
 export * from './goods.ts'
-export {
-  minimist,
-  chalk,
-  dotenv,
-  fs,
-  which,
-  YAML,
-  ps,
-  glob,
-  glob as globby,
-} from './vendor.ts'
+export { minimist, dotenv, fs, YAML, glob, glob as globby } from './vendor.ts'
 
 export const VERSION: string = fs.readJsonSync(
   new URL('../package.json', import.meta.url)

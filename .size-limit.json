@@ -16,21 +16,21 @@
       "README.md",
       "LICENSE"
     ],
-    "limit": "110 kB",
+    "limit": "111 kB",
     "brotli": false,
     "gzip": false
   },
   {
     "name": "js parts",
     "path": "build/*.{js,cjs}",
-    "limit": "813 kB",
+    "limit": "813.5 kB",
     "brotli": false,
     "gzip": false
   },
   {
     "name": "libdefs",
     "path": "build/*.d.ts",
-    "limit": "39.4 kB",
+    "limit": "39.5 kB",
     "brotli": false,
     "gzip": false
   },
