@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Optimizes package.json for npm publishing
+
 import fs from 'node:fs'
 import path from 'node:path'
 
@@ -46,3 +48,5 @@ const pkgJson = Object.fromEntries(
   Object.entries(_pkgJson).filter(([k]) => whitelist.has(k))
 )
 fs.writeFileSync(pkgJsonFile, JSON.stringify(pkgJson, null, 2))
+
+console.log('package.json optimized for npm publishing')

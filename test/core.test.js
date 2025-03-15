@@ -1134,7 +1134,6 @@ describe('core', () => {
       assert.deepEqual(await p1.lines(), ['foo', 'bar', 'baz'])
 
       const p2 = $.sync`echo 'foo\nbar\r\nbaz'`
-      console.log('p2', p2)
       assert.deepEqual(p2.lines(), ['foo', 'bar', 'baz'])
     })
 
