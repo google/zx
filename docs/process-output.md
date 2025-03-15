@@ -8,7 +8,7 @@ const o = await p     // ProcessOutput
 ```
 
 ```ts
-interface ProcessOutput {
+interface ProcessOutput extends Error {
   // Exit code of the process: 0 for success, non-zero for failure
   exitCode: number
   
