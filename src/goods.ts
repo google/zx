@@ -14,6 +14,7 @@
 
 import assert from 'node:assert'
 import { createInterface } from 'node:readline'
+import { Readable } from 'node:stream'
 import { $, within, ProcessOutput } from './core.ts'
 import {
   type Duration,
@@ -63,12 +64,43 @@ export function sleep(duration: Duration): Promise<void> {
   })
 }
 
-export async function fetch(
+const responseToReadable = (response: Response, rs: Readable) => {
+  const reader = response.body?.getReader()
+  if (!reader) {
+    rs.push(null)
+    return rs
+  }
+  rs._read = async () => {
+    const result = await reader.read()
+    if (!result.done) rs.push(Buffer.from(result.value))
+    else rs.push(null)
+  }
+  return rs
+}
+
+export function fetch(
   url: RequestInfo,
   init?: RequestInit
-): Promise<Response> {
+): Promise<Response> & { pipe: <D>(dest: D) => D } {
   $.log({ kind: 'fetch', url, init, verbose: !$.quiet && $.verbose })
-  return nodeFetch(url, init)
+  const p = nodeFetch(url, init)
+
+  return Object.assign(p, {
+    pipe(dest: any, ...args: any[]) {
+      const rs = new Readable()
+      const _dest = isStringLiteral(dest, ...args)
+        ? $({
+            halt: true,
+            signal: init?.signal as AbortSignal,
+          })(dest as TemplateStringsArray, ...args)
+        : dest
+      p.then(
+        (r) => responseToReadable(r, rs).pipe(_dest.run?.()),
+        (err) => _dest.abort?.(err)
+      )
+      return _dest
+    },
+  })
 }
 
 export function echo(...args: any[]): void

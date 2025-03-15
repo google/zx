@@ -43,6 +43,7 @@ import {
   quiet,
   which,
   nothrow,
+  fetch,
 } from '../build/index.js'
 import { noop } from '../build/util.js'
 
@@ -714,6 +715,37 @@ describe('core', () => {
             .pipe($`cat`)
 
           assert.equal(stdout, 'TEST')
+        })
+
+        test('fetch (stream) > $', async () => {
+          // stream.Readable.fromWeb requires Node.js 18+
+          const responseToReadable = (response) => {
+            const reader = response.body.getReader()
+            const rs = new Readable()
+            rs._read = async () => {
+              const result = await reader.read()
+              if (!result.done) rs.push(Buffer.from(result.value))
+              else rs.push(null)
+            }
+            return rs
+          }
+
+          const p = (
+            await fetch('https://example.com').then(responseToReadable)
+          ).pipe($`cat`)
+          const o = await p
+
+          assert.match(o.stdout, /Example Domain/)
+        })
+
+        test('fetch (pipe) > $', async () => {
+          const p1 = fetch('https://example.com').pipe($`cat`)
+          const p2 = fetch('https://example.com').pipe`cat`
+          const o1 = await p1
+          const o2 = await p2
+
+          assert.match(o1.stdout, /Example Domain/)
+          assert.equal(o1.stdout, o2.stdout)
         })
 
         test('$ > stream > $', async () => {
