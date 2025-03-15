@@ -142,6 +142,13 @@ package.
 const resp = await fetch('https://medv.io')
 ```
 
+We've attached a minor adjustment to the `fetch` API to make it more zx-friendly in pipe chains:
+
+```js
+const p1 = fetch('https://example.com').pipe($`cat`)
+const p2 = fetch('https://example.com').pipe`cat`
+```
+
 ## `question()`
 
 A wrapper around the [readline](https://nodejs.org/api/readline.html) package.
