@@ -140,9 +140,11 @@ package.
 
 ```js
 const resp = await fetch('https://medv.io')
+const json = await resp.json()
 ```
 
-We've attached a minor adjustment to the `fetch` API to make it more zx-friendly in pipe chains:
+For some cases, `text()` or `json()` can produce extremely large output that exceeds the string size limit.
+Streams are just for that, so we've attached a minor adjustment to the `fetch` API to make it more pipe friendly.
 
 ```js
 const p1 = fetch('https://example.com').pipe($`cat`)
