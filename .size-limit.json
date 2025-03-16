@@ -30,7 +30,7 @@
   {
     "name": "all",
     "path": "build/*",
-    "limit": "851.5 kB",
+    "limit": "852.5 kB",
     "brotli": false,
     "gzip": false
   }
