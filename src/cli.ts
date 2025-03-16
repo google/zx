@@ -89,7 +89,7 @@ export const argv: minimist.ParsedArgs = parseArgv(process.argv.slice(2), {
   stopEarly: true,
   parseBoolean: true,
   camelCase: true,
-}, resolveDefaults({} as any, 'ZX_', process.env, new Set(['env', 'eval', 'install', 'registry'])))
+}, resolveDefaults({} as any, 'ZX_', process.env, new Set(['env', 'install', 'registry'])))
 
 export async function main(): Promise<void> {
   await import('./globals.js')
