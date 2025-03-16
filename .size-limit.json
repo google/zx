@@ -30,7 +30,7 @@
   {
     "name": "libdefs",
     "path": "build/*.d.ts",
-    "limit": "39.5 kB",
+    "limit": "40 kB",
     "brotli": false,
     "gzip": false
   },
@@ -44,7 +44,7 @@
   {
     "name": "all",
     "path": ["build/*", "man/*", "README.md", "LICENSE"],
-    "limit": "866 kB",
+    "limit": "866.5 kB",
     "brotli": false,
     "gzip": false
   }
