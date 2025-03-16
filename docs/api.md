@@ -267,10 +267,8 @@ And it's disabled for `CI` by default.
 The [globby](https://github.com/sindresorhus/globby) package.
 
 ```js
-const packages = await glob(['package.json', 'packages/*/package.json']);
-
-// Synchronous form of glob()
-const packages = glob.sync(['package.json', 'packages/*/package.json']);
+const packages = await glob(['package.json', 'packages/*/package.json'])
+const markdowns = glob.sync('*.md') // sync API shortcut
 ```
 
 ## `which()`
