@@ -47,7 +47,7 @@ const pkgJson = {
     'build/core.js',
     'build/core.d.ts',
     'build/deno.js',
-    'build/esblib.js',
+    'build/esblib.cjs',
     'build/util.cjs',
     'build/util.js',
     'build/util.d.ts',
