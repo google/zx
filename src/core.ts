@@ -75,6 +75,19 @@ const EOL = Buffer.from(_EOL)
 const BR_CC = '\n'.charCodeAt(0)
 const SIGTERM = 'SIGTERM'
 const ENV_PREFIX = 'ZX_'
+const ENV_ALLOWED: Set<string> = new Set([
+  'cwd',
+  'preferLocal',
+  'detached',
+  'verbose',
+  'quiet',
+  'timeout',
+  'timeoutSignal',
+  'killSignal',
+  'prefix',
+  'postfix',
+  'shell',
+])
 const storage = new AsyncLocalStorage<Options>()
 
 function getStore() {
@@ -931,22 +944,9 @@ const promisifyStream = <S extends Writable>(
 export function resolveDefaults(
   defs: Options = defaults,
   prefix: string = ENV_PREFIX,
-  env = process.env
+  env = process.env,
+  allowed = ENV_ALLOWED
 ): Options {
-  const allowed = new Set([
-    'cwd',
-    'preferLocal',
-    'detached',
-    'verbose',
-    'quiet',
-    'timeout',
-    'timeoutSignal',
-    'killSignal',
-    'prefix',
-    'postfix',
-    'shell',
-  ])
-
   return Object.entries(env).reduce<Options>((m, [k, v]) => {
     if (v && k.startsWith(prefix)) {
       const _k = toCamelCase(k.slice(prefix.length))
