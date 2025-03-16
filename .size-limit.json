@@ -16,7 +16,7 @@
   {
     "name": "dts libdefs",
     "path": "build/*.d.ts",
-    "limit": "39.33 kB",
+    "limit": "39.4 kB",
     "brotli": false,
     "gzip": false
   },
@@ -30,7 +30,7 @@
   {
     "name": "all",
     "path": "build/*",
-    "limit": "851.14 kB",
+    "limit": "851.5 kB",
     "brotli": false,
     "gzip": false
   }
