@@ -38,7 +38,8 @@ type ArgvOpts = minimist.Opts & { camelCase?: boolean; parseBoolean?: boolean }
 
 export const parseArgv = (
   args: string[] = process.argv.slice(2),
-  opts: ArgvOpts = {}
+  opts: ArgvOpts = {},
+  defs: Record<string, any> = {}
 ): minimist.ParsedArgs =>
   Object.entries(minimist(args, opts)).reduce<minimist.ParsedArgs>(
     (m, [k, v]) => {
@@ -48,7 +49,7 @@ export const parseArgv = (
       m[_k] = _v
       return m
     },
-    {} as minimist.ParsedArgs
+    { ...defs } as minimist.ParsedArgs
   )
 
 export function updateArgv(args?: string[], opts?: ArgvOpts) {
