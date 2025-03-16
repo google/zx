@@ -31,9 +31,6 @@ import {
   minimist,
 } from './vendor.ts'
 
-export { default as path } from 'node:path'
-export * as os from 'node:os'
-
 type ArgvOpts = minimist.Opts & { camelCase?: boolean; parseBoolean?: boolean }
 
 export const parseArgv = (

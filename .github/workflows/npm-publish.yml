@@ -22,7 +22,7 @@ jobs:
       - run: npm test
         env:
           FORCE_COLOR: 3
-      - run: node scripts/clean-package-json.mjs
+      - run: node scripts/prepublish-clean.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: build-${{ github.run_id }}
@@ -54,4 +54,7 @@ jobs:
       - run: echo "//wombat-dressing-room.appspot.com/:_authToken=$AUTH_TOKEN" >> .npmrc
         env:
           AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
-      - run: npm publish --provenance --access=public
+      - run: |
+          npm publish --provenance --access=public
+          node scripts/prepublish-lite.mjs
+          npm publish --provenance --access=public --no-git-tag-version --tag lite

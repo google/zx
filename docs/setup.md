@@ -32,7 +32,8 @@ brew install zx
 
 :::
 
-Dev snapshot versions are published to npm under the [`dev` tag](https://www.npmjs.com/package/zx?activeTab=versions): `npm i zx@dev`.
+zx-core is distributed separately to the `lite` channel on npm: `npm i zx@lite`.  
+Dev snapshot versions are published to npm under the [`dev` tag](https://www.npmjs.com/package/zx?activeTab=versions): `npm i zx@dev`. See [versions](./versions) for more details.
 
 ## Bash
 

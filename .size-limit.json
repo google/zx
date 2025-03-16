@@ -1,22 +1,36 @@
 [
   {
-    "name": "zx/core",
-    "path": ["build/core.cjs", "build/util.cjs", "build/vendor-core.cjs"],
-    "limit": "77.3 kB",
+    "name": "zx-lite",
+    "path": [
+      "build/core.cjs",
+      "build/core.js",
+      "build/core.d.ts",
+      "build/deno.js",
+      "build/esblib.js",
+      "build/util.cjs",
+      "build/util.js",
+      "build/util.d.ts",
+      "build/vendor-core.cjs",
+      "build/vendor-core.js",
+      "build/vendor-core.d.ts",
+      "README.md",
+      "LICENSE"
+    ],
+    "limit": "111 kB",
     "brotli": false,
     "gzip": false
   },
   {
-    "name": "zx/index",
+    "name": "js parts",
     "path": "build/*.{js,cjs}",
-    "limit": "813 kB",
+    "limit": "813.5 kB",
     "brotli": false,
     "gzip": false
   },
   {
-    "name": "dts libdefs",
+    "name": "libdefs",
     "path": "build/*.d.ts",
-    "limit": "39.42 kB",
+    "limit": "40 kB",
     "brotli": false,
     "gzip": false
   },
@@ -29,8 +43,8 @@
   },
   {
     "name": "all",
-    "path": "build/*",
-    "limit": "852.5 kB",
+    "path": ["build/*", "man/*", "README.md", "LICENSE"],
+    "limit": "866.5 kB",
     "brotli": false,
     "gzip": false
   }
