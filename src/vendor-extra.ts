@@ -41,6 +41,7 @@ export const createRequire = _createRequire as unknown as (
 export const globbyModule = {
   convertPathToPattern,
   globby,
+  sync: globbySync,
   globbySync,
   globbyStream,
   generateGlobTasksSync,

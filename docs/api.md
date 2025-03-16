@@ -268,6 +268,7 @@ The [globby](https://github.com/sindresorhus/globby) package.
 
 ```js
 const packages = await glob(['package.json', 'packages/*/package.json'])
+const markdowns = glob.sync('*.md') // sync API shortcut
 ```
 
 ## `which()`
