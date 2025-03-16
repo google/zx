@@ -33,6 +33,7 @@ describe('vendor API', () => {
 
   test('globby() works', async () => {
     assert.deepEqual(await glob('*.md'), ['README.md'])
+    assert.deepEqual(glob.sync('*.md'), ['README.md'])
   })
 
   test('fetch() works', async () => {
