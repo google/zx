@@ -203,9 +203,9 @@ function digestLicenses(dirs) {
       if (pkgJson.name === 'zx') return
 
       return `${pkgJson.name}@${pkgJson.version}
-  by ${by}
-  licensed under ${license}
-  ${repository}`
+  ${by}
+  ${repository}
+  ${license}`
     })
     .filter(Boolean)
     .sort()
