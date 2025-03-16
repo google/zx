@@ -156,6 +156,9 @@ describe('goods', () => {
           camelCase: true,
           parseBoolean: true,
           alias: { a: 'aaa' },
+        },
+        {
+          def: 'def',
         }
       ),
       {
@@ -170,6 +173,7 @@ describe('goods', () => {
         b4: false,
         b5: true,
         b6: true,
+        def: 'def',
       }
     )
   })
