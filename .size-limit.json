@@ -2,6 +2,7 @@
   {
     "name": "zx-lite",
     "path": [
+      "build/3rd-party-licenses",
       "build/core.cjs",
       "build/core.js",
       "build/core.d.ts",
@@ -16,14 +17,14 @@
       "README.md",
       "LICENSE"
     ],
-    "limit": "111 kB",
+    "limit": "114.5 kB",
     "brotli": false,
     "gzip": false
   },
   {
     "name": "js parts",
     "path": "build/*.{js,cjs}",
-    "limit": "813.5 kB",
+    "limit": "812.6 kB",
     "brotli": false,
     "gzip": false
   },
@@ -37,14 +38,14 @@
   {
     "name": "vendor",
     "path": "build/vendor-*",
-    "limit": "767.12 kB",
+    "limit": "765.5 kB",
     "brotli": false,
     "gzip": false
   },
   {
     "name": "all",
     "path": ["build/*", "man/*", "README.md", "LICENSE"],
-    "limit": "866.5 kB",
+    "limit": "868 kB",
     "brotli": false,
     "gzip": false
   }

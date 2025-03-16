@@ -76,6 +76,7 @@ describe('package', () => {
         'build/vendor.cjs',
         'build/vendor.d.ts',
         'build/vendor.js',
+        'build/3rd-party-licenses',
       ].sort()
     )
   })
