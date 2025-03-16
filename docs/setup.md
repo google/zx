@@ -59,7 +59,11 @@ import { $ } from 'zx'
 const { $ } = require('zx')
 ```
 
-It has also built-in TypeScript libdefs.
+It has also built-in TypeScript libdefs. But `@types/fs-extra` and `@types/node` are required to be installed on user's side.
+
+```bash
+npm i -D @types/fs-extra @types/node
+```
 
 ```ts
 import { type Options } from 'zx'
