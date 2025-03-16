@@ -16,9 +16,19 @@ in **package.json**
 - Set [`"module": "ESNext"`](https://www.typescriptlang.org/tsconfig/#module)
 in **tsconfig.json**.
 
-Using TypeScript compiler is the most straightforward way.
+Using TypeScript compiler is the most straightforward way, but native TS support from runtimes is gradually increasing.
 
 ::: code-group
+
+```bash [node]
+# Since Node.js v22.6.0
+node --experimental-strip-types script.js
+```
+
+```bash [npx]
+# Since Node.js v22.6.0
+NODE_OPTIONS="--experimental-strip-types" zx script.js
+```
 
 ```bash [tsc]
 npm install typescript
