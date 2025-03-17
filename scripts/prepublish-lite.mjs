@@ -43,6 +43,7 @@ const pkgJson = {
   },
   man: undefined,
   files: [
+    'build/3rd-party-licenses',
     'build/core.cjs',
     'build/core.js',
     'build/core.d.ts',
