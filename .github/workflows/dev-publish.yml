@@ -72,6 +72,7 @@ jobs:
 
   # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images
   docker-publish:
+    needs: build
     runs-on: ubuntu-latest
     # Defines two custom environment variables for the workflow. These are used for the Container registry domain, and a name for the Docker image that this workflow builds.
     env:
