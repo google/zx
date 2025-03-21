@@ -20,6 +20,26 @@ const pkgJson = JSON.parse(
   fs.readFileSync(path.resolve(root, 'package.json'), 'utf-8')
 )
 
+const deps = new Set([
+  '@types/fs-extra',
+  '@types/minimist',
+  '@types/node',
+  '@types/which',
+  '@webpod/ingrid',
+  '@webpod/ps',
+  'chalk',
+  'create-require',
+  'depseek',
+  'envapi',
+  'fs-extra',
+  'globby',
+  'minimist',
+  'node-fetch-native',
+  'which',
+  'yaml',
+  'zurk',
+])
+
 fs.writeFileSync(
   path.resolve(root, 'jsr.json'),
   JSON.stringify(
@@ -32,8 +52,11 @@ fs.writeFileSync(
         './cli': './src/cli.ts',
       },
       publish: {
-        include: ['src', 'README.md'],
+        include: ['src', 'README.md', 'LICENSE'],
       },
+      dependencies: Object.fromEntries(
+        Object.entries(pkgJson.devDependencies).filter(([k]) => deps.has(k))
+      ),
     },
     null,
     2
