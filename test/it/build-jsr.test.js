@@ -32,6 +32,7 @@ describe('jsr artifact', () => {
         'src/',
         'tsconfig.json',
         'LICENSE',
+        'README.md',
         'scripts/build-jsr.mjs',
         'package.json',
       ].map((filepath) =>
