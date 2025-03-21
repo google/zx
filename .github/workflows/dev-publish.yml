@@ -16,8 +16,6 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
-      - name: Set env
-        run: echo "ZX_VERSION=$(node --eval='console.log(require(\'./package.json\').version)')\nSHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
       - run: npm ci
       - run: npm test
         env:
@@ -48,6 +46,8 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
+      - name: Set zx version
+        run: echo "ZX_VERSION=$(node --eval='console.log(require(\'./package.json\').version)')\nSHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - run: echo "//wombat-dressing-room.appspot.com/:_authToken=$AUTH_TOKEN" >> .npmrc
         env:
@@ -59,7 +59,7 @@ jobs:
           name: build-${{ github.run_id }}
       - run: |
           node scripts/prepublish-lite.mjs
-          npm version $ZX_VERSION-lite-dev.$SHA_SHORT --no-git-tag-version
+          npm version ${{ env.ZX_VERSION }}-lite-dev.${{ env.SHA_SHORT }}--no-git-tag-version
           npm publish --provenance --access=public --no-git-tag-version --tag dev
 
       # publishing regular snapshot version: 1.2.3-dev.abcd1234
@@ -67,7 +67,7 @@ jobs:
         with:
           name: build-${{ github.run_id }}
       - run: |
-          npm version $ZX_VERSION-dev.$SHA_SHORT --no-git-tag-version
+          npm version ${{ env.ZX_VERSION }}-dev.${{ env.SHA_SHORT }} --no-git-tag-version
           npm publish --provenance --access=public --no-git-tag-version --tag dev
 
   # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images
@@ -96,9 +96,12 @@ jobs:
         with:
           name: build-${{ github.run_id }}
 
+      - name: Set zx version
+        run: echo "ZX_VERSION=$(node --eval='console.log(require(\'./package.json\').version)')\nSHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
       # Uses the `docker/login-action` action to log in to the Container registry using the account and password that will publish the packages. Once published, the packages are scoped to the account defined here.
       - name: Log in to the Container registry
-        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -106,18 +109,18 @@ jobs:
       # This step uses [docker/metadata-action](https://github.com/docker/metadata-action#about) to extract tags and labels that will be applied to the specified image. The `id` "meta" allows the output of this step to be referenced in a subsequent step. The `images` value provides the base name for the tags and labels.
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            # minimal
+            type=sha
             type=semver,pattern={{version}},value=v${{ env.ZX_VERSION }}-dev.${{ env.SHA_SHORT }}
       # This step uses the `docker/build-push-action` action to build the image, based on your repository's `Dockerfile`. If the build succeeds, it pushes the image to GitHub Packages.
       # It uses the `context` parameter to define the build's context as the set of files located in the specified path. For more information, see [Usage](https://github.com/docker/build-push-action#usage) in the README of the `docker/build-push-action` repository.
       # It uses the `tags` and `labels` parameters to tag and label the image with the output from the "meta" step.
       - name: Build and push Docker image
         id: push
-        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        uses: docker/build-push-action@471d1dc4e07e5cdedd4c2171150001c434f0b7a4
         with:
           context: ./
           file: ./dcr/Dockerfile
