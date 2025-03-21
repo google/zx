@@ -51,9 +51,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+#      - uses: actions/setup-node@v4
+#        with:
+#          node-version: 22
 
-      - name: Build
+      - name: Build with zx
         env:
           FORCE_COLOR: 3
         run: |
