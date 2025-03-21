@@ -105,6 +105,22 @@ jobs:
       - name: Type tests
         run: npm run test:types
 
+  docker-test:
+    name: Docker test
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build
+      - run: |
+          npm run build:dcr
+          npm run test:dcr
+
   smoke-win32-node16:
     runs-on: windows-latest
     needs: build
