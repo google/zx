@@ -29,7 +29,7 @@ jobs:
             package.json
           retention-days: 1
 
-  publish:
+  npm-publish:
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -38,6 +38,9 @@ jobs:
       contents: write
       packages: write
       id-token: write
+    env:
+      GOOGLE_NPM_REGISTRY: wombat-dressing-room.appspot.com
+      GH_NPM_REGISTRY: npm.pkg.github.com
     steps:
       - uses: actions/checkout@v4
         with:
@@ -51,25 +54,28 @@ jobs:
           echo SHA_SHORT=$(git rev-parse --short HEAD) >> $GITHUB_ENV
           echo ZX_VERSION=$(npm pkg get version | tr -d \") >> $GITHUB_ENV
 
-      - run: echo "//wombat-dressing-room.appspot.com/:_authToken=$AUTH_TOKEN" >> .npmrc
-        env:
-          AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
-
-      # publishing lite snapshot version: 1.2.3-lite-dev.abcd1234
       - uses: actions/download-artifact@v4
         with:
           name: build-${{ github.run_id }}
-      - run: |
-          node scripts/prepublish-lite.mjs
-          npm version ${{ env.ZX_VERSION }}-lite-dev.${{ env.SHA_SHORT }} --no-git-tag-version
+
+      - name: pushing to ${{ env.GOOGLE_NPM_REGISTRY }}
+        run: |
+          echo "//${{ env.GOOGLE_NPM_REGISTRY }}/:_authToken=${{ secrets.AUTH_TOKEN }}" >> .npmrc
+          npm version ${{ env.ZX_VERSION }}-dev.${{ env.SHA_SHORT }} --no-git-tag-version
           npm publish --provenance --access=public --no-git-tag-version --tag dev
 
-      # publishing regular snapshot version: 1.2.3-dev.abcd1234
-      - uses: actions/download-artifact@v4
-        with:
-          name: build-${{ github.run_id }}
-      - run: |
-          npm version ${{ env.ZX_VERSION }}-dev.${{ env.SHA_SHORT }} --no-git-tag-version
+      - name: pushing to ${{ env.GH_NPM_REGISTRY }}
+        run:
+          echo "//${{ env.GH_NPM_REGISTRY }}/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
+          echo "\`jq '.name="@${{ github.repository }}"' package.json\`" > package.json
+          npm publish --no-git-tag-version --access=public --no-git-tag-version --tag dev
+
+      - name: pushing lite snapshot to ${{ env.GOOGLE_NPM_REGISTRY }}
+        run: |
+          echo "//${{ env.GOOGLE_NPM_REGISTRY }}/:_authToken=${{ secrets.AUTH_TOKEN }}" >> .npmrc
+          echo "\`jq '.name="zx"' package.json\`" > package.json
+          node scripts/prepublish-lite.mjs
+          npm version ${{ env.ZX_VERSION }}-lite-dev.${{ env.SHA_SHORT }} --no-git-tag-version
           npm publish --provenance --access=public --no-git-tag-version --tag dev
 
   # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images
@@ -87,7 +93,6 @@ jobs:
       packages: write
       attestations: write
       id-token: write
-      #
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
