@@ -55,6 +55,10 @@ jobs:
         run: |
           echo SHA_SHORT=$(git rev-parse --short HEAD) >> $GITHUB_ENV
           echo ZX_VERSION=$(npm pkg get version | tr -d \") >> $GITHUB_ENV
+      - name: Configure npmrc
+        run: |
+          echo "//${{ env.GOOGLE_NPM_REGISTRY }}/:_authToken=$GOOGLE_NPM_TOKEN" >> .npmrc
+          echo "//${{ env.GH_NPM_REGISTRY }}/:_authToken=$GH_NPM_TOKEN" >> .npmrc
 
       - uses: actions/download-artifact@v4
         with:
@@ -62,23 +66,20 @@ jobs:
 
       - name: pushing to ${{ env.GOOGLE_NPM_REGISTRY }}
         run: |
-          echo "//${{ env.GOOGLE_NPM_REGISTRY }}/:_authToken=$GOOGLE_NPM_TOKEN" > .npmrc
           npm version ${{ env.ZX_VERSION }}-dev.${{ env.SHA_SHORT }} --no-git-tag-version
-          npm publish --provenance --access=public --no-git-tag-version --tag dev
+          npm publish --provenance --access=public --no-git-tag-version --tag dev --registry https://${{ env.GOOGLE_NPM_REGISTRY }}
 
       - name: pushing to ${{ env.GH_NPM_REGISTRY }}
         run: |
-          echo "//${{ env.GH_NPM_REGISTRY }}/:_authToken=$GH_NPM_TOKEN" > .npmrc
           cat <<< $(jq '.name="@${{ github.repository }}"' package.json) > package.json
-          npm publish --no-git-tag-version --access=public --no-git-tag-version --tag dev
+          npm publish --no-git-tag-version --access=public --tag dev --registry https://${{ env.GH_NPM_REGISTRY }}
 
       - name: pushing lite snapshot to ${{ env.GOOGLE_NPM_REGISTRY }}
         run: |
-          echo "//${{ env.GOOGLE_NPM_REGISTRY }}/:_authToken=$GOOGLE_NPM_TOKEN" > .npmrc
           cat <<< $(jq '.name="zx"' package.json) > package.json
           node scripts/prepublish-lite.mjs
           npm version ${{ env.ZX_VERSION }}-lite-dev.${{ env.SHA_SHORT }} --no-git-tag-version
-          npm publish --provenance --access=public --no-git-tag-version --tag dev
+          npm publish --provenance --access=public --no-git-tag-version --tag dev --registry https://${{ env.GOOGLE_NPM_REGISTRY }}
 
   # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images
   docker-publish:
