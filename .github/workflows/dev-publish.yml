@@ -67,7 +67,7 @@ jobs:
           npm publish --provenance --access=public --no-git-tag-version --tag dev
 
       - name: pushing to ${{ env.GH_NPM_REGISTRY }}
-        run:
+        run: |
           echo "//${{ env.GH_NPM_REGISTRY }}/:_authToken=$GH_NPM_TOKEN" >> .npmrc
           cat <<< $(jq '.name="@${{ github.repository }}"' package.json) > package.json
           npm publish --no-git-tag-version --access=public --no-git-tag-version --tag dev
