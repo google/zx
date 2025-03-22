@@ -20,12 +20,15 @@ jobs:
       - run: npm test
         env:
           FORCE_COLOR: 3
-      - run: node scripts/prepublish-clean.mjs
+      - run: |
+          node scripts/build-jsr.mjs
+          node scripts/prepublish-clean.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: build-${{ github.run_id }}
           path: |
             build
+            jsr.json
             package.json
           retention-days: 1
 
@@ -43,6 +46,7 @@ jobs:
       GOOGLE_NPM_TOKEN: ${{ secrets.AUTH_TOKEN }}
       GH_NPM_REGISTRY: npm.pkg.github.com
       GH_NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      JSR_TOKEN: ${{ secrets.JSR_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -51,10 +55,10 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
-      - name: Set zx version
+      - name: Get zx version info
         run: |
           echo SHA_SHORT=$(git rev-parse --short HEAD) >> $GITHUB_ENV
-          echo ZX_VERSION=$(npm pkg get version | tr -d \") >> $GITHUB_ENV
+          echo ZX_VERSION=$(jq -r '.version' package.json) >> $GITHUB_ENV
       - name: Configure npmrc
         run: |
           echo "//${{ env.GOOGLE_NPM_REGISTRY }}/:_authToken=$GOOGLE_NPM_TOKEN" >> .npmrc
@@ -80,6 +84,11 @@ jobs:
           node scripts/prepublish-lite.mjs
           npm version ${{ env.ZX_VERSION }}-lite-dev.${{ env.SHA_SHORT }} --no-git-tag-version
           npm publish --provenance --access=public --no-git-tag-version --tag dev --registry https://${{ env.GOOGLE_NPM_REGISTRY }}
+
+      - name: pushing to jsr.io
+        run: |
+          cat <<< $(jq '.version="${{ env.ZX_VERSION }}-dev.${{ env.SHA_SHORT }}"' jsr.json) > jsr.json
+          npx jsr publish --token $JSR_TOKEN --dry-run
 
   # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images
   docker-publish:
