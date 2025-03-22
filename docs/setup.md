@@ -26,14 +26,32 @@ deno install -A npm:zx
 # zx requires additional permissions: --allow-read --allow-sys --allow-env --allow-run
 ```
 
+```bash [jsr]
+# https://jsr.io/docs/using-packages
+
+npx jsr add @zx/zx
+deno add jsr:@zx/zx
+```
+
+```bash [docker]
+docker pull ghcr.io/google/zx:8.5.0
+docker run -t ghcr.io/google/zx:8.5.0 -e="await \$({verbose: true})\`echo foo\`"
+docker run -t -i -v ./:/script ghcr.io/google/zx:8.5.0 script/t.js
+```
+
 ```bash [brew]
 brew install zx
 ```
 
 :::
 
-zx-core is distributed separately to the `lite` channel on npm: `npm i zx@lite`.  
-Dev snapshot versions are published to npm under the [`dev` tag](https://www.npmjs.com/package/zx?activeTab=versions): `npm i zx@dev`. See [versions](./versions) for more details.
+## Channels
+
+zx is distributed in several versions, each with its own set of features.
+* Extracted zx core functions go to the `lite` channel: `npm i zx@lite`.  
+* Dev snapshots are published to npm under the [`dev` tag](https://www.npmjs.com/package/zx?activeTab=versions): `npm i zx@dev`.  
+
+Detailed comparison: [versions](./versions).
 
 ## Bash
 

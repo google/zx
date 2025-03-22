@@ -68,6 +68,7 @@
     "build:tests": "node scripts/build-tests.mjs",
     "build:dts": "tsc --project tsconfig.json && rm build/error.d.ts build/repl.d.ts && node scripts/build-dts.mjs",
     "build:dcr": "docker build -f ./dcr/Dockerfile . -t zx",
+    "build:jsr": "node scripts/build-jsr.mjs",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
