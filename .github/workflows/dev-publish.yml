@@ -69,13 +69,13 @@ jobs:
       - name: pushing to ${{ env.GH_NPM_REGISTRY }}
         run:
           echo "//${{ env.GH_NPM_REGISTRY }}/:_authToken=$GH_NPM_TOKEN" >> .npmrc
-          echo "`jq '.name="@${{ github.repository }}"' package.json`" > package.json
+          echo "`jq '.name=\"@${{ github.repository }}\"' package.json`" > package.json
           npm publish --no-git-tag-version --access=public --no-git-tag-version --tag dev
 
       - name: pushing lite snapshot to ${{ env.GOOGLE_NPM_REGISTRY }}
         run: |
           echo "//${{ env.GOOGLE_NPM_REGISTRY }}/:_authToken=$GOOGLE_NPM_TOKEN" >> .npmrc
-          echo "`jq '.name="zx"' package.json`" > package.json
+          echo "`jq '.name=\"zx\"' package.json`" > package.json
           node scripts/prepublish-lite.mjs
           npm version ${{ env.ZX_VERSION }}-lite-dev.${{ env.SHA_SHORT }} --no-git-tag-version
           npm publish --provenance --access=public --no-git-tag-version --tag dev
