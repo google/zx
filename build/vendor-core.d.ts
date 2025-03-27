@@ -5,7 +5,7 @@
 import { Buffer } from 'node:buffer';
 import * as cp from 'node:child_process';
 import EventEmitter from 'node:events';
-import { Readable, Stream, Transform, Writable } from 'node:stream';
+import { Readable, Transform, Writable } from 'node:stream';
 
 type ColorSupportLevel = 0 | 1 | 2 | 3;
 export interface ChalkInstance {
@@ -299,7 +299,7 @@ type TSpawnListeners = {
 };
 type TSpawnCtx = Partial<Omit<TSpawnCtxNormalized, "child">>;
 type TChild = ReturnType<typeof cp.spawn>;
-type TInput = string | Buffer | Stream;
+type TInput = string | Buffer | Readable;
 interface TSpawnCtxNormalized {
 	id: string;
 	cwd: string;

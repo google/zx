@@ -99,7 +99,7 @@
     "@size-limit/file": "11.2.0",
     "@types/fs-extra": "11.0.4",
     "@types/minimist": "1.2.5",
-    "@types/node": "22.13.5",
+    "@types/node": "22.13.14",
     "@types/which": "3.0.4",
     "@webpod/ingrid": "0.0.0-beta.3",
     "@webpod/ps": "0.1.0",
@@ -110,7 +110,7 @@
     "depseek": "0.4.1",
     "dts-bundle-generator": "9.5.1",
     "envapi": "0.2.3",
-    "esbuild": "0.25.0",
+    "esbuild": "0.25.1",
     "esbuild-node-externals": "1.18.0",
     "esbuild-plugin-entry-chunks": "0.1.15",
     "esbuild-plugin-extract-helpers": "0.0.6",
@@ -122,7 +122,7 @@
     "get-port": "7.1.0",
     "globby": "14.0.2",
     "jsr": "0.13.4",
-    "lefthook": "1.11.2",
+    "lefthook": "1.11.5",
     "madge": "8.0.0",
     "minimist": "1.2.8",
     "node-fetch-native": "1.6.4",
@@ -135,7 +135,7 @@
     "vitepress": "1.6.3",
     "which": "5.0.0",
     "yaml": "2.7.0",
-    "zurk": "0.10.2"
+    "zurk": "0.10.3"
   },
   "overrides": {
     "globby": {
@@ -146,6 +146,9 @@
     },
     "vite": {
       "esbuild": "$esbuild"
+    },
+    "zurk": {
+      "@webpod/ps": "$zurk"
     }
   },
   "publishConfig": {
