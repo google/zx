@@ -102,6 +102,12 @@ describe('core', () => {
       assert.equal((await $`echo ${bar}`).stdout.trim(), bar)
     })
 
+    test('broken quoting', async () => {
+      const args = ['param && echo bar']
+      const p = $`echo --foo=$'${args}'`
+      assert.equal((await p).stdout, '--foo=$param\nbar\n')
+    })
+
     test('undefined and empty string correctly quoted', async () => {
       assert.equal((await $`echo -n ${undefined}`).toString(), 'undefined')
       assert.equal((await $`echo -n ${''}`).toString(), '')
