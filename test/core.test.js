@@ -195,7 +195,7 @@ describe('core', () => {
       })
     })
 
-    test.only('$ thrown as error', async () => {
+    test('$ thrown as error', async () => {
       let err
       try {
         await $`wtf`
