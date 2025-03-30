@@ -36,7 +36,10 @@ describe('error', () => {
   })
 
   test('getCallerLocation()', () => {
-    assert.match(getCallerLocation(new Error('Foo')), /Test\.run/)
+    assert.match(
+      getCallerLocation(new Error('Foo')),
+      /TestContext\.<anonymous>/
+    )
   })
 
   describe('getCallerLocationFromString()', () => {
