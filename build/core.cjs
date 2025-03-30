@@ -234,8 +234,9 @@ function getCallerLocation(err = new Error("zx error")) {
   return getCallerLocationFromString(err.stack);
 }
 function getCallerLocationFromString(stackString = "unknown") {
-  const lines = stackString.split(/^\s*(at\s)?/m).filter((s) => s == null ? void 0 : s.includes(":")).slice(3);
-  return (lines.find((l) => l.includes("file://")) || lines[0] || stackString).trim();
+  const lines = stackString.split(/^\s*(at\s)?/m).filter((s) => s == null ? void 0 : s.includes(":"));
+  return (lines.find((l) => l.includes("file://")) || lines[3] || // skip getCallerLocation and Proxy.set
+  stackString).trim();
 }
 function findErrors(lines = []) {
   if (lines.length < 20) return lines.join("\n");

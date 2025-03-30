@@ -224,11 +224,10 @@ export function getCallerLocationFromString(stackString = 'unknown'): string {
   const lines = stackString
     .split(/^\s*(at\s)?/m)
     .filter((s) => s?.includes(':'))
-    .slice(3) // skip getCallerLocation and Proxy.set
 
   return (
     lines.find((l) => l.includes('file://')) ||
-    lines[0] ||
+    lines[3] || // skip getCallerLocation and Proxy.set
     stackString
   ).trim()
 }
