@@ -170,7 +170,7 @@ export declare class ProcessOutput extends Error {
     lines(): string[];
     valueOf(): string;
     [Symbol.iterator](): Iterator<string>;
-    static getExitMessage: (code: number | null, signal: NodeJS.Signals | null, stderr: string, from: string) => string;
+    static getExitMessage: (code: number | null, signal: NodeJS.Signals | null, stderr: string, from: string, details?: string) => string;
     static getErrorMessage: (err: NodeJS.ErrnoException, from: string) => string;
     [inspect.custom](): string;
 }

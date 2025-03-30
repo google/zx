@@ -206,7 +206,7 @@ function getErrnoMessage(errno) {
 function getExitCodeInfo(exitCode) {
   return EXIT_CODES[exitCode];
 }
-var formatExitMessage = (code, signal, stderr, from) => {
+var formatExitMessage = (code, signal, stderr, from, details = "") => {
   let message = `exit code: ${code}`;
   if (code != 0 || signal != null) {
     message = `${stderr || "\n"}    at ${from}`;
@@ -215,6 +215,11 @@ var formatExitMessage = (code, signal, stderr, from) => {
     if (signal != null) {
       message += `
     signal: ${signal}`;
+    }
+    if (details) {
+      message += `
+    details: 
+${details}`;
     }
   }
   return message;
@@ -230,7 +235,13 @@ function getCallerLocation(err = new Error("zx error")) {
 }
 function getCallerLocationFromString(stackString = "unknown") {
   var _a;
-  return ((_a = stackString.split(/^\s*(at\s)?/m).filter((s) => s == null ? void 0 : s.includes(":"))[2]) == null ? void 0 : _a.trim()) || stackString;
+  return ((_a = stackString.split(/^\s*(at\s)?/m).filter((s) => s == null ? void 0 : s.includes(":"))[3]) == null ? void 0 : _a.trim()) || stackString;
+}
+function findErrors(lines = []) {
+  if (lines.length < 20) return lines.join("\n");
+  let errors = lines.filter((l) => /(fail|error|not ok|exception)/i.test(l));
+  if (errors.length === 0) errors = lines;
+  return errors.slice(0, 20).join("\n") + (errors.length > 20 ? "\n..." : "");
 }
 
 // src/core.ts
@@ -853,7 +864,7 @@ var _ProcessOutput = class _ProcessOutput extends Error {
       stdall: { get: (0, import_util.once)(() => (0, import_util.bufArrJoin)(dto.store.stdall)) },
       message: {
         get: (0, import_util.once)(
-          () => message || dto.error ? _ProcessOutput.getErrorMessage(dto.error, dto.from) : _ProcessOutput.getExitMessage(dto.code, dto.signal, this.stderr, dto.from)
+          () => message || dto.error ? _ProcessOutput.getErrorMessage(dto.error, dto.from) : _ProcessOutput.getExitMessage(dto.code, dto.signal, this.stderr, dto.from, this.stderr.trim() ? "" : findErrors(this.lines()))
         )
       }
     });

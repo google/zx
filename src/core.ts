@@ -27,6 +27,7 @@ import { inspect } from 'node:util'
 import { EOL as _EOL } from 'node:os'
 import { EventEmitter } from 'node:events'
 import {
+  findErrors,
   formatErrorMessage,
   formatExitMessage,
   getCallerLocation,
@@ -734,7 +735,7 @@ export class ProcessOutput extends Error {
       message: { get: once(() =>
           message || dto.error
             ? ProcessOutput.getErrorMessage(dto.error, dto.from)
-            : ProcessOutput.getExitMessage(dto.code, dto.signal, this.stderr, dto.from)
+            : ProcessOutput.getExitMessage(dto.code, dto.signal, this.stderr, dto.from, this.stderr.trim() ? '' : findErrors(this.lines()))
         ),
       },
     })

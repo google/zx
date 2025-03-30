@@ -17,14 +17,14 @@
       "README.md",
       "LICENSE"
     ],
-    "limit": "113.7 kB",
+    "limit": "114.2 kB",
     "brotli": false,
     "gzip": false
   },
   {
     "name": "js parts",
     "path": "build/*.{js,cjs}",
-    "limit": "811.6 kB",
+    "limit": "812.1 kB",
     "brotli": false,
     "gzip": false
   },
@@ -45,7 +45,7 @@
   {
     "name": "all",
     "path": ["build/*", "man/*", "README.md", "LICENSE"],
-    "limit": "867.5 kB",
+    "limit": "868.0 kB",
     "brotli": false,
     "gzip": false
   }

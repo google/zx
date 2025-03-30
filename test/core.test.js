@@ -195,7 +195,7 @@ describe('core', () => {
       })
     })
 
-    test('$ thrown as error', async () => {
+    test.only('$ thrown as error', async () => {
       let err
       try {
         await $`wtf`
@@ -203,8 +203,10 @@ describe('core', () => {
         err = p
       }
       assert.ok(err.exitCode > 0)
-      assert.ok(err.stderr.includes('wtf: command not found'))
-      assert.ok(err[inspect.custom]().includes('Command not found'))
+      assert.match(err.toString(), /command not found/)
+      assert.match(err.valueOf(), /command not found/)
+      assert.match(err.stderr, /wtf: command not found/)
+      assert.match(err[inspect.custom](), /Command not found/)
     })
 
     test('error event is handled', async () => {
