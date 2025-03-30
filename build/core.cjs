@@ -234,8 +234,8 @@ function getCallerLocation(err = new Error("zx error")) {
   return getCallerLocationFromString(err.stack);
 }
 function getCallerLocationFromString(stackString = "unknown") {
-  var _a;
-  return ((_a = stackString.split(/^\s*(at\s)?/m).filter((s) => s == null ? void 0 : s.includes(":"))[3]) == null ? void 0 : _a.trim()) || stackString;
+  const lines = stackString.split(/^\s*(at\s)?/m).filter((s) => s == null ? void 0 : s.includes(":")).slice(3);
+  return (lines.find((l) => l.includes("file://")) || lines[0] || stackString).trim();
 }
 function findErrors(lines = []) {
   if (lines.length < 20) return lines.join("\n");
@@ -864,7 +864,7 @@ var _ProcessOutput = class _ProcessOutput extends Error {
       stdall: { get: (0, import_util.once)(() => (0, import_util.bufArrJoin)(dto.store.stdall)) },
       message: {
         get: (0, import_util.once)(
-          () => message || dto.error ? _ProcessOutput.getErrorMessage(dto.error, dto.from) : _ProcessOutput.getExitMessage(dto.code, dto.signal, this.stderr, dto.from, this.stderr.trim() ? "" : findErrors(this.lines()))
+          () => message || dto.error ? _ProcessOutput.getErrorMessage(dto.error || new Error(message), dto.from) : _ProcessOutput.getExitMessage(dto.code, dto.signal, this.stderr, dto.from, this.stderr.trim() ? "" : findErrors(this.lines()))
         )
       }
     });

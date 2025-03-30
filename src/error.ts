@@ -221,12 +221,16 @@ export function getCallerLocation(err = new Error('zx error')): string {
 }
 
 export function getCallerLocationFromString(stackString = 'unknown'): string {
+  const lines = stackString
+    .split(/^\s*(at\s)?/m)
+    .filter((s) => s?.includes(':'))
+    .slice(3) // skip getCallerLocation and Proxy.set
+
   return (
+    lines.find((l) => l.includes('file://')) ||
+    lines[0] ||
     stackString
-      .split(/^\s*(at\s)?/m)
-      .filter((s) => s?.includes(':'))[3] // skip getCallerLocation and Proxy.set
-      ?.trim() || stackString
-  )
+  ).trim()
 }
 
 export function findErrors(lines: string[] = []): string {

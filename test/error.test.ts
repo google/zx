@@ -36,7 +36,7 @@ describe('error', () => {
   })
 
   test('getCallerLocation()', () => {
-    assert.match(getCallerLocation(new Error('Foo')), /Suite\.runInAsyncScope/)
+    assert.match(getCallerLocation(new Error('Foo')), /Test\.run/)
   })
 
   describe('getCallerLocationFromString()', () => {
@@ -55,6 +55,7 @@ describe('error', () => {
       const stack = `
     Error
       at getCallerLocation (/Users/user/test.js:22:17)
+      at Proxy.set (/Users/user/test.js:40:10)
       at e (/Users/user/test.js:34:13)
       at d (/Users/user/test.js:11:5)
       at c (/Users/user/test.js:8:5)
@@ -72,6 +73,7 @@ describe('error', () => {
     test(`getCallerLocationFromString-JSC`, () => {
       const stack = `
     getCallerLocation@/Users/user/test.js:22:17
+    Proxy.set@/Users/user/test.js:40:10)
     e@/Users/user/test.js:34:13
     d@/Users/user/test.js:11:5
     c@/Users/user/test.js:8:5

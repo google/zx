@@ -734,7 +734,7 @@ export class ProcessOutput extends Error {
       stdall: { get: once(() => bufArrJoin(dto.store.stdall)) },
       message: { get: once(() =>
           message || dto.error
-            ? ProcessOutput.getErrorMessage(dto.error, dto.from)
+            ? ProcessOutput.getErrorMessage(dto.error || new Error(message), dto.from)
             : ProcessOutput.getExitMessage(dto.code, dto.signal, this.stderr, dto.from, this.stderr.trim() ? '' : findErrors(this.lines()))
         ),
       },
