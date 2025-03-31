@@ -19,8 +19,9 @@ const root = path.resolve(__dirname, '..')
 const pkgJson = JSON.parse(
   fs.readFileSync(path.resolve(root, 'package.json'), 'utf-8')
 )
+const deps = pkgJson.devDependencies
 
-const deps = new Set([
+const prodDeps = new Set([
   '@types/fs-extra',
   '@types/minimist',
   '@types/node',
@@ -52,13 +53,15 @@ fs.writeFileSync(
         './cli': './src/cli.ts',
       },
       imports: {
-        'zurk/spawn': `jsr:@webpod/zurk@${pkgJson.devDependencies.zurk}`,
+        '@webpod/ps': `npm:@webpod/ps@${deps['@webpod/ps']}`,
+        yaml: `jsr:@eemeli/yaml@${deps.yaml}`,
+        'zurk/spawn': `jsr:@webpod/zurk@${deps.zurk}`,
       },
       publish: {
         include: ['src', 'README.md', 'LICENSE'],
       },
       dependencies: Object.fromEntries(
-        Object.entries(pkgJson.devDependencies).filter(([k]) => deps.has(k))
+        Object.entries(deps).filter(([k]) => prodDeps.has(k))
       ),
     },
     null,
