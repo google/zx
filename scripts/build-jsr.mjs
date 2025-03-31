@@ -21,6 +21,10 @@ const pkgJson = JSON.parse(
 )
 const deps = pkgJson.devDependencies
 
+const jsrDeps = {
+  yaml: 'jsr:@eemeli/yaml',
+  zurk: 'jsr:@webpod/zurk',
+}
 const prodDeps = new Set([
   '@types/fs-extra',
   '@types/minimist',
@@ -52,16 +56,20 @@ fs.writeFileSync(
         './core': './src/core.ts',
         './cli': './src/cli.ts',
       },
-      imports: {
-        '@webpod/ps': `npm:@webpod/ps@${deps['@webpod/ps']}`,
-        yaml: `jsr:@eemeli/yaml@${deps.yaml}`,
-        'zurk/spawn': `jsr:@webpod/zurk@${deps.zurk}`,
-      },
       publish: {
         include: ['src', 'README.md', 'LICENSE'],
       },
-      dependencies: Object.fromEntries(
-        Object.entries(deps).filter(([k]) => prodDeps.has(k))
+      imports: Object.entries(deps).reduce(
+        (m, [k, v]) => {
+          if (prodDeps.has(k)) {
+            const name = jsrDeps[k] || `npm:${k}`
+            m[k] = `${name}@${v}`
+          }
+          return m
+        },
+        {
+          'zurk/spawn': `jsr:@webpod/zurk@${deps.zurk}`,
+        }
       ),
     },
     null,
