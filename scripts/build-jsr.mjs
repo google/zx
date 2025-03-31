@@ -44,7 +44,7 @@ fs.writeFileSync(
   path.resolve(root, 'jsr.json'),
   JSON.stringify(
     {
-      name: '@zx/zx',
+      name: '@webpod/zx',
       version: pkgJson.version,
       exports: {
         '.': './src/index.ts',
