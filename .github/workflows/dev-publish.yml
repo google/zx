@@ -87,7 +87,7 @@ jobs:
       - name: pushing to jsr.io
         run: |
           cat <<< $(jq '.version="${{ env.ZX_VERSION }}-dev.${{ env.SHA_SHORT }}"' jsr.json) > jsr.json
-          npx jsr publish
+          npx jsr publish --allow-dirty
 
   # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images
   docker-publish:

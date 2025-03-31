@@ -7,3 +7,5 @@ yarn.lock
 pnpm-lock.yaml
 temp
 test/fixtures/ts-project/build/
+jsr.json
+.npmrc
