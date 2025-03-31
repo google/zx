@@ -59,6 +59,7 @@ fs.writeFileSync(
       publish: {
         include: ['src', 'README.md', 'LICENSE'],
       },
+      nodeModulesDir: true,
       imports: Object.entries(deps).reduce(
         (m, [k, v]) => {
           if (prodDeps.has(k)) {
