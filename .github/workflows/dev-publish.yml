@@ -46,7 +46,6 @@ jobs:
       GOOGLE_NPM_TOKEN: ${{ secrets.AUTH_TOKEN }}
       GH_NPM_REGISTRY: npm.pkg.github.com
       GH_NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      JSR_TOKEN: ${{ secrets.JSR_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -88,7 +87,7 @@ jobs:
       - name: pushing to jsr.io
         run: |
           cat <<< $(jq '.version="${{ env.ZX_VERSION }}-dev.${{ env.SHA_SHORT }}"' jsr.json) > jsr.json
-          npx jsr publish --token $JSR_TOKEN --dry-run
+          npx jsr publish
 
   # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images
   docker-publish:
