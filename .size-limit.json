@@ -24,7 +24,7 @@
   {
     "name": "js parts",
     "path": "build/*.{js,cjs}",
-    "limit": "812.15 kB",
+    "limit": "812.2 kB",
     "brotli": false,
     "gzip": false
   },

@@ -20,8 +20,9 @@ export * from './goods.ts'
 export { minimist, dotenv, fs, YAML, glob, glob as globby } from './vendor.ts'
 
 export const VERSION: string = fs.readJsonSync(
-  new URL('../package.json', import.meta.url)
-).version
+  new URL('../package.json', import.meta.url),
+  { throws: false }
+)?.version
 export const version: string = VERSION
 
 export {
