@@ -50,7 +50,7 @@ fast-glob@3.3.3
   mrmlnc/fast-glob
   MIT
 
-fastq@1.19.0
+fastq@1.19.1
   Matteo Collina <hello@matteocollina.com>
   git+https://github.com/mcollina/fastq.git
   ISC

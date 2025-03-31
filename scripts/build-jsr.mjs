@@ -51,6 +51,9 @@ fs.writeFileSync(
         './core': './src/core.ts',
         './cli': './src/cli.ts',
       },
+      imports: {
+        'zurk/spawn': `jsr:@webpod/zurk@${pkgJson.devDependencies.zurk}`,
+      },
       publish: {
         include: ['src', 'README.md', 'LICENSE'],
       },
