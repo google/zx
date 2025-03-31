@@ -45,6 +45,7 @@ describe('vendor API', () => {
 
   test('which() available', async () => {
     assert.equal(which.sync('npm'), await which('npm'))
+    assert.throws(() => which.sync('not-found-cmd'), /not-found-cmd/)
   })
 
   test('minimist available', async () => {

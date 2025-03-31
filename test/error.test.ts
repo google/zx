@@ -21,6 +21,7 @@ import {
   getCallerLocationFromString,
   formatExitMessage,
   formatErrorMessage,
+  findErrors,
 } from '../src/error.ts'
 
 describe('error', () => {
@@ -34,8 +35,11 @@ describe('error', () => {
     assert.equal(getErrnoMessage(undefined), 'Unknown error')
   })
 
-  describe('getCallerLocation()', () => {
-    assert.match(getCallerLocation(new Error('Foo')), /Suite\.runInAsyncScope/)
+  test('getCallerLocation()', () => {
+    assert.match(
+      getCallerLocation(new Error('Foo')),
+      /TestContext\.<anonymous>/
+    )
   })
 
   describe('getCallerLocationFromString()', () => {
@@ -54,6 +58,7 @@ describe('error', () => {
       const stack = `
     Error
       at getCallerLocation (/Users/user/test.js:22:17)
+      at Proxy.set (/Users/user/test.js:40:10)
       at e (/Users/user/test.js:34:13)
       at d (/Users/user/test.js:11:5)
       at c (/Users/user/test.js:8:5)
@@ -71,6 +76,7 @@ describe('error', () => {
     test(`getCallerLocationFromString-JSC`, () => {
       const stack = `
     getCallerLocation@/Users/user/test.js:22:17
+    Proxy.set@/Users/user/test.js:40:10)
     e@/Users/user/test.js:34:13
     d@/Users/user/test.js:11:5
     c@/Users/user/test.js:8:5
@@ -107,6 +113,23 @@ describe('error', () => {
     assert.match(
       formatErrorMessage({} as NodeJS.ErrnoException, ''),
       /Unknown error/
+    )
+  })
+
+  test('findErrors()', () => {
+    const lines = [...Array(40).keys()].map((v) => v + '')
+
+    assert.equal(findErrors([]), '', 'empty returns empty')
+    assert.equal(findErrors(['foo', 'bar']), 'foo\nbar', 'squashes a few')
+    assert.equal(
+      findErrors(['failure: foo', 'NOT OK smth', ...lines]),
+      'failure: foo\nNOT OK smth',
+      'extracts errors'
+    )
+    assert.equal(
+      findErrors(lines),
+      '0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n...',
+      'shows a sample'
     )
   })
 })
