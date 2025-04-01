@@ -19,10 +19,12 @@ import { basename } from 'node:path'
 import { WriteStream } from 'node:fs'
 import { Readable, Transform, Writable } from 'node:stream'
 import { Socket } from 'node:net'
+import { ChildProcess } from 'node:child_process'
 import {
   $,
   ProcessPromise,
   ProcessOutput,
+  defaults,
   resolveDefaults,
   cd,
   syncProcessCwd,
@@ -42,6 +44,7 @@ import {
   which,
   nothrow,
 } from '../build/index.js'
+import { noop } from '../build/util.js'
 
 describe('core', () => {
   describe('resolveDefaults()', () => {
@@ -219,6 +222,20 @@ describe('core', () => {
     })
 
     describe('$({opts}) API', () => {
+      it('$ proxy uses `defaults` store', () => {
+        assert.equal($.foo, undefined)
+        defaults.foo = 'bar'
+        $.baz = 'qux'
+        assert.equal($.foo, 'bar')
+        assert.equal($.baz, 'qux')
+        assert.equal(defaults.baz, 'qux')
+        delete defaults.foo
+        $.baz = undefined
+        assert.equal($.foo, undefined)
+        assert.equal($.baz, undefined)
+        assert.equal(defaults.baz, undefined)
+      })
+
       test('provides presets', async () => {
         const $1 = $({ nothrow: true })
         assert.equal((await $1`exit 1`).exitCode, 1)
@@ -228,6 +245,25 @@ describe('core', () => {
 
         const $3 = $({ sync: true })({ nothrow: true })
         assert.equal($3`exit 3`.exitCode, 3)
+      })
+
+      test('handles `nothrow` option', async () => {
+        const o1 = await $({ nothrow: true })`exit 1`
+        assert.equal(o1.ok, false)
+        assert.equal(o1.exitCode, 1)
+        assert.match(o1.message, /exit code: 1/)
+
+        const err = new Error('BrokenSpawn')
+        const o2 = await $({
+          nothrow: true,
+          spawn() {
+            throw err
+          },
+        })`echo foo`
+        assert.equal(o2.ok, false)
+        assert.equal(o2.exitCode, null)
+        assert.match(o2.message, /BrokenSpawn/)
+        assert.equal(o2.cause, err)
       })
 
       test('handles `input` option', async () => {
@@ -392,6 +428,77 @@ describe('core', () => {
   })
 
   describe('ProcessPromise', () => {
+    test('getters', async () => {
+      const p = $`echo foo`
+      assert.ok(typeof p.pid === 'number')
+      assert.ok(typeof p.id === 'string')
+      assert.ok(typeof p.cmd === 'string')
+      assert.ok(typeof p.fullCmd === 'string')
+      assert.ok(typeof p.stage === 'string')
+      assert.ok(p.child instanceof ChildProcess)
+      assert.ok(p.stdout instanceof Socket)
+      assert.ok(p.stderr instanceof Socket)
+      assert.ok(p.exitCode instanceof Promise)
+      assert.ok(p.signal instanceof AbortSignal)
+      assert.equal(p.output, null)
+      assert.equal(Object.prototype.toString.call(p), '[object ProcessPromise]')
+      assert.equal('' + p, '[object ProcessPromise]')
+      assert.equal(`${p}`, '[object ProcessPromise]')
+      assert.equal(+p, NaN)
+
+      await p
+      assert.ok(p.output instanceof ProcessOutput)
+    })
+
+    describe('state machine transitions', () => {
+      it('running > fulfilled', async () => {
+        const p = $`echo foo`
+        assert.equal(p.stage, 'running')
+        await p
+        assert.equal(p.stage, 'fulfilled')
+      })
+
+      it('running > rejected', async () => {
+        const p = $`foo`
+        assert.equal(p.stage, 'running')
+
+        try {
+          await p
+        } catch {}
+        assert.equal(p.stage, 'rejected')
+      })
+
+      it('halted > running > fulfilled', async () => {
+        const p = $({ halt: true })`echo foo`
+        assert.equal(p.stage, 'halted')
+        p.run()
+        assert.equal(p.stage, 'running')
+        await p
+        assert.equal(p.stage, 'fulfilled')
+      })
+
+      it('all transitions', async () => {
+        const { promise, resolve, reject } = Promise.withResolvers()
+        const p = new ProcessPromise(noop)
+        ProcessPromise.disarm(p, false)
+        assert.equal(p.stage, 'initial')
+
+        p._command = 'echo foo'
+        p._from = 'test'
+        p._resolve = resolve
+        p._reject = reject
+        p._snapshot = { ...defaults }
+        p._stage = 'halted'
+
+        assert.equal(p.stage, 'halted')
+        p.run()
+        assert.equal(p.stage, 'running')
+        await promise
+        assert.equal(p.stage, 'fulfilled')
+        assert.equal(p.output.stdout, 'foo\n')
+      })
+    })
+
     test('inherits native Promise', async () => {
       const p1 = $`echo 1`
       const p2 = p1.then((v) => v)
@@ -411,6 +518,13 @@ describe('core', () => {
       assert.ok(p5 !== p1)
     })
 
+    test('asserts self instantiation', async () => {
+      const p = new ProcessPromise(() => {})
+
+      assert(typeof p.then === 'function')
+      assert.throws(() => p.stage, /Inappropriate usage/)
+    })
+
     test('resolves with ProcessOutput', async () => {
       const o = await $`echo foo`
       assert.ok(o instanceof ProcessOutput)
@@ -422,12 +536,6 @@ describe('core', () => {
       const p = $`echo ${foo} --t ${baz}`
       assert.equal(p.cmd, "echo $'#bar' --t 1")
       assert.equal(p.fullCmd, "set -euo pipefail;echo $'#bar' --t 1")
-    })
-
-    test('exposes pid & id', () => {
-      const p = $`echo foo`
-      assert.ok(p.pid > 0)
-      assert.ok(typeof p.id === 'string')
     })
 
     test('stdio() works', async () => {
@@ -488,6 +596,15 @@ describe('core', () => {
       test('accepts ProcessPromise', async () => {
         const p = await $`echo foo`.pipe($`cat`)
         assert.equal(p.stdout.trim(), 'foo')
+      })
+
+      test('detects inappropriate ProcessPromise', async () => {
+        const foo = $`echo foo`
+        const p1 = $`cat`
+        const p2 = p1.then((v) => v)
+
+        assert.throws(() => foo.pipe(p2), /Inappropriate usage/)
+        await foo.pipe(p1)
       })
 
       test('accepts $ template literal', async () => {
@@ -813,10 +930,7 @@ describe('core', () => {
           lines.push(line)
         }
 
-        assert.equal(lines.length, 3, 'Should have 3 lines')
-        assert.equal(lines[0], 'Line1', 'First line should be "Line1"')
-        assert.equal(lines[1], 'Line2', 'Second line should be "Line2"')
-        assert.equal(lines[2], 'Line3', 'Third line should be "Line3"')
+        assert.deepEqual(lines, ['Line1', 'Line2', 'Line3'])
       })
 
       it('should handle partial lines correctly', async () => {
@@ -826,18 +940,7 @@ describe('core', () => {
           lines.push(line)
         }
 
-        assert.equal(lines.length, 3, 'Should have 3 lines')
-        assert.equal(
-          lines[0],
-          'PartialLine1',
-          'First line should be "PartialLine1"'
-        )
-        assert.equal(lines[1], 'Line2', 'Second line should be "Line2"')
-        assert.equal(
-          lines[2],
-          'PartialLine3',
-          'Third line should be "PartialLine3"'
-        )
+        assert.deepEqual(lines, ['PartialLine1', 'Line2', 'PartialLine3'])
       })
 
       it('should handle empty stdout', async () => {
@@ -857,12 +960,7 @@ describe('core', () => {
           lines.push(line)
         }
 
-        assert.equal(
-          lines.length,
-          1,
-          'Should have 1 line for single line without trailing newline'
-        )
-        assert.equal(lines[0], 'SingleLine', 'The line should be "SingleLine"')
+        assert.deepEqual(lines, ['SingleLine'])
       })
 
       it('should yield all buffered and new chunks when iterated after a delay', async () => {
@@ -1024,6 +1122,15 @@ describe('core', () => {
       assert.equal(o.signal, 'SIGTERM')
       assert.equal(o.exitCode, -1)
       assert.equal(o.duration, 20)
+      assert.equal(o.ok, false)
+      assert.equal(Object.prototype.toString.call(o), '[object ProcessOutput]')
+    })
+
+    test('[Symbol.toPrimitive]', () => {
+      const o = new ProcessOutput(-1, 'SIGTERM', '', '', 'foo\n', 'msg', 20)
+      assert.equal('' + o, 'foo')
+      assert.equal(`${o}`, 'foo')
+      assert.equal(+o, NaN)
     })
 
     test('toString()', async () => {
@@ -1066,6 +1173,22 @@ describe('core', () => {
       globalThis.Blob = undefined
       assert.throws(() => o.blob(), /Blob is not supported/)
       globalThis.Blob = Blob
+    })
+
+    test('[Symbol.Iterator]', () => {
+      const o = new ProcessOutput({
+        store: {
+          stdall: ['foo\nba', 'r\nbaz'],
+        },
+      })
+      const lines = []
+      const expected = ['foo', 'bar', 'baz']
+      for (const line of o) {
+        lines.push(line)
+      }
+      assert.deepEqual(lines, expected)
+      assert.deepEqual(o.lines(), expected)
+      assert.deepEqual([...o], expected) // isConcatSpreadable
     })
 
     describe('static', () => {

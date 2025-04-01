@@ -1,6 +1,6 @@
 # API Reference
 
-## $.sync 
+## `$.sync`
 Zx provides both synchronous and asynchronous command executions, returns [`ProcessOutput`](./process-output) or [`ProcessPromise`](./process-promise) respectively.
 
 ```js
@@ -8,7 +8,7 @@ const list = await $`ls -la`
 const dir = $.sync`pwd`
 ```
 
-## $({...})
+## `$({...})`
 
 `$` object holds the default zx [configuration](./configuration), which is used for all execution. To specify a custom preset use `$` as factory:
 
@@ -36,7 +36,7 @@ const $3 = $({ sync: true })({ nothrow: true })
 assert.equal($3`exit 3`.exitCode, 3)
 ```
 
-### $({input})
+### `$({input})`
 
 The input option passes the specified `stdin` to the command.
 
@@ -48,7 +48,7 @@ const p4 = $({ input: p3 })`cat`
 const p5 = $({ input: await p3 })`cat`
 ```
 
-### $({signal})
+### `$({signal})`
 
 The signal option makes the process abortable.
 
@@ -59,12 +59,28 @@ const p = $({ signal })`sleep 9999`
 setTimeout(() => signal.abort('reason'), 1000)
 ```
 
-### $({timeout})
+### `$({timeout})`
 
 The timeout option makes the process autokillable after the specified delay.
 
 ```js
 const p = $({timeout: '1s'})`sleep 999`
+```
+
+### `$({nothrow})`
+
+The `nothrow` option suppresses errors and returns a `ProcessOutput` with details.
+
+```js
+const o1 = await $({nothrow: true})`exit 1`
+o1.ok       // false
+o1.exitCode // 1
+o1.message  // exit code: 1 ...
+
+const o2 = await $({nothrow: true, spawn() { throw new Error('BrokenSpawn') }})`echo foo`
+o2.ok       // false
+o2.exitCode // null
+o2.message  // BrokenSpawn ...
 ```
 
 The full options list:
@@ -97,8 +113,9 @@ interface Options {
   halt:           boolean
 }
 ```
+See also [Configuration](./configuration).
 
-## cd()
+## `cd()`
 
 Changes the current working directory.
 
@@ -116,7 +133,7 @@ cd(await $`mktemp -d`)
 
 > ⚠️ `cd` invokes `process.chdir()` internally, so it does affect the global context. To keep `process.cwd()` in sync with separate `$` calls enable [syncProcessCwd()](#syncprocesscwd) hook.
 
-## fetch()
+## `fetch()`
 
 A wrapper around the [node-fetch-native](https://www.npmjs.com/package/node-fetch-native)
 package.
@@ -125,7 +142,7 @@ package.
 const resp = await fetch('https://medv.io')
 ```
 
-## question()
+## `question()`
 
 A wrapper around the [readline](https://nodejs.org/api/readline.html) package.
 
@@ -133,7 +150,7 @@ A wrapper around the [readline](https://nodejs.org/api/readline.html) package.
 const bear = await question('What kind of bear is best? ')
 ```
 
-## sleep()
+## `sleep()`
 
 A wrapper around the `setTimeout` function.
 
@@ -141,7 +158,7 @@ A wrapper around the `setTimeout` function.
 await sleep(1000)
 ```
 
-## echo()
+## `echo()`
 
 A `console.log()` alternative which can take [ProcessOutput](#processoutput).
 
@@ -153,7 +170,7 @@ echo`Current branch is ${branch}.`
 echo('Current branch is', branch)
 ```
 
-## stdin()
+## `stdin()`
 
 Returns the stdin as a string.
 
@@ -161,7 +178,7 @@ Returns the stdin as a string.
 const content = JSON.parse(await stdin())
 ```
 
-## within()
+## `within()`
 
 Creates a new async context.
 
@@ -195,7 +212,7 @@ const version = await within(async () => {
 echo(version) // => v16.20.0
 ```
 
-## syncProcessCwd()
+## `syncProcessCwd()`
 
 Keeps the `process.cwd()` in sync with the internal `$` current working directory if it is changed via [cd()](#cd).
 
@@ -208,7 +225,7 @@ syncProcessCwd(false) // pass false to disable the hook
 
 > This feature is disabled by default because of performance overhead.
 
-## retry()
+## `retry()`
 
 Retries a callback for a few times. Will return after the first
 successful attempt, or will throw after specifies attempts count.
@@ -223,7 +240,7 @@ const p = await retry(20, '1s', () => $`curl https://medv.io`)
 const p = await retry(30, expBackoff(), () => $`curl https://medv.io`)
 ```
 
-## spinner()
+## `spinner()`
 
 Starts a simple CLI spinner.
 
@@ -236,7 +253,7 @@ await spinner('working...', () => $`sleep 99`)
 
 And it's disabled for `CI` by default.
 
-## glob()
+## `glob()`
 
 The [globby](https://github.com/sindresorhus/globby) package.
 
@@ -244,7 +261,7 @@ The [globby](https://github.com/sindresorhus/globby) package.
 const packages = await glob(['package.json', 'packages/*/package.json'])
 ```
 
-## which()
+## `which()`
 
 The [which](https://github.com/npm/node-which) package.
 
@@ -258,7 +275,7 @@ If nothrow option is used, returns null if not found.
 const pathOrNull = await which('node', { nothrow: true })
 ```
 
-## ps()
+## `ps`
 
 The [@webpod/ps](https://github.com/webpod/ps) package to provide a cross-platform way to list processes.
 
@@ -269,7 +286,7 @@ const children = await ps.tree({ pid: 123 })
 const fulltree = await ps.tree({ pid: 123, recursive: true })
 ```
 
-## kill()
+## `kill()`
 
 A process killer.
 
@@ -278,7 +295,7 @@ await kill(123)
 await kill(123, 'SIGKILL')
 ```
 
-## tmpdir()
+## `tmpdir()`
 
 Creates a temporary directory.
 
@@ -287,7 +304,7 @@ t1 = tmpdir()       // /os/based/tmp/zx-1ra1iofojgg/
 t2 = tmpdir('foo')  // /os/based/tmp/zx-1ra1iofojgg/foo/
 ```
 
-## tmpfile()
+## `tmpfile()`
 
 Temp file factory.
 
@@ -298,7 +315,7 @@ f3 = tmpfile('f3.txt', 'string or buffer')
 f4 = tmpfile('f4.sh', 'echo "foo"', 0o744) // executable
 ```
 
-## minimist
+## `minimist`
 
 The [minimist](https://www.npmjs.com/package/minimist) package.
 
@@ -306,7 +323,7 @@ The [minimist](https://www.npmjs.com/package/minimist) package.
 const argv = minimist(process.argv.slice(2), {})
 ```
 
-## argv
+## `argv`
 
 A minimist-parsed version of the `process.argv` as `argv`.
 
@@ -330,7 +347,7 @@ const myCustomArgv = minimist(process.argv.slice(2), {
 })
 ```
 
-## chalk
+## `chalk`
 
 The [chalk](https://www.npmjs.com/package/chalk) package.
 
@@ -338,7 +355,7 @@ The [chalk](https://www.npmjs.com/package/chalk) package.
 console.log(chalk.blue('Hello world!'))
 ```
 
-## fs
+## `fs`
 
 The [fs-extra](https://www.npmjs.com/package/fs-extra) package.
 
@@ -346,7 +363,7 @@ The [fs-extra](https://www.npmjs.com/package/fs-extra) package.
 const {version} = await fs.readJson('./package.json')
 ```
 
-## os
+## `os`
 
 The [os](https://nodejs.org/api/os.html) package.
 
@@ -354,7 +371,7 @@ The [os](https://nodejs.org/api/os.html) package.
 await $`cd ${os.homedir()} && mkdir example`
 ```
 
-## path
+## `path`
 
 The [path](https://nodejs.org/api/path.html) package.
 
@@ -362,7 +379,7 @@ The [path](https://nodejs.org/api/path.html) package.
 await $`mkdir ${path.join(basedir, 'output')}`
 ```
 
-## yaml
+## `yaml`
 
 The [yaml](https://www.npmjs.com/package/yaml) package.
 
@@ -370,7 +387,8 @@ The [yaml](https://www.npmjs.com/package/yaml) package.
 console.log(YAML.parse('foo: bar').foo)
 ```
 
-## dotenv
+## `dotenv`
+
 The [envapi](https://www.npmjs.com/package/envapi) package.  
 An API to interact with environment vars in [dotenv](https://www.npmjs.com/package/dotenv) format.
 
@@ -387,4 +405,44 @@ await $({ env })`echo $FOO`.stdout // BAR
 // config
 dotenv.config('.env')
 process.env.FOO // BAR
+```
+
+## `quote()`
+
+Default bash quoting function.
+
+```js
+quote("$FOO") // "$'$FOO'"
+```
+
+## `quotePowerShell()`
+
+PowerShell specific quoting.
+
+```js
+quotePowerShell("$FOO") // "'$FOO'"
+```
+
+## `useBash()`
+
+Enables bash preset: sets `$.shell` to `bash` and `$.quote` to `quote`.
+
+```js
+useBash()
+```
+
+## `usePowerShell()`
+
+Switches to PowerShell. Applies the `quotePowerShell` for quoting.
+
+```js
+usePowerShell()
+```
+
+## `usePwsh()`
+
+Sets pwsh (PowerShell v7+) as `$.shell` default.
+
+```js
+usePwsh()
 ```

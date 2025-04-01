@@ -38,8 +38,6 @@ jobs:
   checks:
     needs: build
     runs-on: ubuntu-latest
-    env:
-      FORCE_COLOR: 3
     steps:
       - uses: actions/checkout@v4
         with:
@@ -70,6 +68,13 @@ jobs:
 
       - name: Circular
         run: npm run test:circular
+
+      - name: Bundles
+        run: npm run test:it
+        timeout-minutes: 1
+
+      - name: JSR dry-run
+        run: npm run test:jsr
 
   test:
     needs: build

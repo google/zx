@@ -47,8 +47,8 @@ import {
   log,
   isString,
   isStringLiteral,
-  bufToString,
   getLast,
+  getLines,
   noop,
   once,
   parseBool,
@@ -145,6 +145,7 @@ export interface Shell<
     (opts: Partial<Omit<Options, 'sync'>>): Shell<true>
   }
 }
+const bound: [string, string, Options][] = []
 
 export const $: Shell & Options = new Proxy<Shell & Options>(
   function (pieces: TemplateStringsArray | Partial<Options>, ...args: any) {
@@ -164,25 +165,14 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
     checkShell()
     checkQuote()
 
-    let resolve: Resolve, reject: Resolve
-    const process = new ProcessPromise((...args) => ([resolve, reject] = args))
     const cmd = buildCmd(
       $.quote as typeof quote,
       pieces as TemplateStringsArray,
       args
     ) as string
     const sync = snapshot[SYNC]
-
-    process._bind(
-      cmd,
-      from,
-      resolve!,
-      (v: ProcessOutput) => {
-        reject!(v)
-        if (sync) throw v
-      },
-      snapshot
-    )
+    bound.push([cmd, from, snapshot])
+    const process = new ProcessPromise(noop)
 
     if (!process.isHalted() || sync) process.run()
 
@@ -204,6 +194,8 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
   }
 )
 
+type ProcessStage = 'initial' | 'halted' | 'running' | 'fulfilled' | 'rejected'
+
 type Resolve = (out: ProcessOutput) => void
 
 type PipeDest = Writable | ProcessPromise | TemplateStringsArray | string
@@ -214,6 +206,7 @@ type PipeMethod = {
 }
 
 export class ProcessPromise extends Promise<ProcessOutput> {
+  private _stage: ProcessStage = 'initial'
   private _id = randomId()
   private _command = ''
   private _from = ''
@@ -225,11 +218,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _timeout?: number
   private _timeoutSignal?: NodeJS.Signals
   private _timeoutId?: NodeJS.Timeout
-  private _resolved = false
-  private _halted?: boolean
   private _piped = false
   private _pipedFrom?: ProcessPromise
-  private _run = false
   private _ee = new EventEmitter()
   private _stdin = new VoidStream()
   private _zurk: ReturnType<typeof exec> | null = null
@@ -237,24 +227,31 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _reject: Resolve = noop
   private _resolve: Resolve = noop
 
-  _bind(
-    cmd: string,
-    from: string,
-    resolve: Resolve,
-    reject: Resolve,
-    options: Options
-  ) {
-    this._command = cmd
-    this._from = from
-    this._resolve = resolve
-    this._reject = reject
-    this._snapshot = { ac: new AbortController(), ...options }
+  constructor(executor: (resolve: Resolve, reject: Resolve) => void) {
+    let resolve: Resolve
+    let reject: Resolve
+    super((...args) => {
+      ;[resolve, reject] = args
+      executor(...args)
+    })
+
+    if (bound.length) {
+      const [cmd, from, snapshot] = bound.pop()!
+      this._command = cmd
+      this._from = from
+      this._resolve = resolve!
+      this._reject = (v: ProcessOutput) => {
+        reject!(v)
+        if (snapshot[SYNC]) throw v
+      }
+      this._snapshot = { ac: new AbortController(), ...snapshot }
+      if (this._snapshot.halt) this._stage = 'halted'
+    } else ProcessPromise.disarm(this)
   }
 
   run(): ProcessPromise {
-    if (this._run) return this // The _run() can be called from a few places.
-    this._halted = false
-    this._run = true
+    if (this.isRunning() || this.isSettled()) return this // The _run() can be called from a few places.
+    this._stage = 'running'
     this._pipedFrom?.run()
 
     const self = this
@@ -310,39 +307,28 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           $.log({ kind: 'stderr', data, verbose: !self.isQuiet(), id })
         },
         end: (data, c) => {
-          self._resolved = true
-          const { error, status, signal, duration, ctx } = data
-          const { stdout, stderr, stdall } = ctx.store
-          const dto: ProcessOutputLazyDto = {
-            code: () => status,
-            signal: () => signal,
-            duration: () => duration,
-            stdout: once(() => bufArrJoin(stdout)),
-            stderr: once(() => bufArrJoin(stderr)),
-            stdall: once(() => bufArrJoin(stdall)),
-            message: once(() => ProcessOutput.getExitMessage(
-              status,
-              signal,
-              dto.stderr(),
-              self._from
-            )),
-            ...error && {
-              code: () => null,
-              signal: () => null,
-              message: () => ProcessOutput.getErrorMessage(error, self._from)
-            }
-          }
+          const { error, status, signal, duration, ctx: {store} } = data
+          const { stdout, stderr } = store
+          const output = self._output = new ProcessOutput({
+            code: status,
+            signal,
+            error,
+            duration,
+            store,
+            from: self._from,
+          })
+
+          $.log({ kind: 'end', signal, exitCode: status, duration, error, verbose: self.isVerbose(), id })
 
           // Ensures EOL
           if (stdout.length && getLast(getLast(stdout)) !== BR_CC) c.on.stdout!(EOL, c)
           if (stderr.length && getLast(getLast(stderr)) !== BR_CC) c.on.stderr!(EOL, c)
 
-          $.log({ kind: 'end', signal, exitCode: status, duration, error, verbose: self.isVerbose(), id })
-          const output = self._output = new ProcessOutput(dto)
-
-          if (error || status !== 0 && !self.isNothrow()) {
+          if (!output.ok && !self.isNothrow()) {
+            self._stage = 'rejected'
             self._reject(output)
           } else {
+            self._stage = 'fulfilled'
             self._resolve(output)
           }
         },
@@ -388,9 +374,9 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       for (const chunk of this._zurk!.store[source]) from.write(chunk)
       return true
     }
-    const fillEnd = () => this._resolved && fill() && from.end()
+    const fillEnd = () => this.isSettled() && fill() && from.end()
 
-    if (!this._resolved) {
+    if (!this.isSettled()) {
       const onData = (chunk: string | Buffer) => from.write(chunk)
       ee.once(source, () => {
         fill()
@@ -448,7 +434,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   // Getters
-  get id() {
+  get id(): string {
     return this._id
   }
 
@@ -495,6 +481,18 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this._output
   }
 
+  get stage(): ProcessStage {
+    return this._stage
+  }
+
+  get [Symbol.toStringTag](): string {
+    return 'ProcessPromise'
+  }
+
+  [Symbol.toPrimitive](): string {
+    return this.toString()
+  }
+
   // Configurators
   stdio(
     stdin: IOType,
@@ -520,14 +518,17 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this
   }
 
-  timeout(d: Duration, signal = $.timeoutSignal): ProcessPromise {
-    if (this._resolved) return this
+  timeout(
+    d: Duration,
+    signal = this._timeoutSignal || $.timeoutSignal
+  ): ProcessPromise {
+    if (this.isSettled()) return this
 
     this._timeout = parseDuration(d)
     this._timeoutSignal = signal
 
     if (this._timeoutId) clearTimeout(this._timeoutId)
-    if (this._timeout && this._run) {
+    if (this._timeout && this.isRunning()) {
       this._timeoutId = setTimeout(
         () => this.kill(this._timeoutSignal),
         this._timeout
@@ -559,10 +560,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   // Status checkers
-  isHalted(): boolean {
-    return this._halted ?? this._snapshot.halt ?? false
-  }
-
   isQuiet(): boolean {
     return this._quiet ?? this._snapshot.quiet
   }
@@ -573,6 +570,18 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   isNothrow(): boolean {
     return this._nothrow ?? this._snapshot.nothrow
+  }
+
+  isHalted(): boolean {
+    return this.stage === 'halted'
+  }
+
+  private isSettled(): boolean {
+    return !!this.output
+  }
+
+  private isRunning(): boolean {
+    return this.stage === 'running'
   }
 
   // Promise API
@@ -599,27 +608,20 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   // Async iterator API
-  async *[Symbol.asyncIterator]() {
-    let last: string | undefined
-    const getLines = (chunk: Buffer | string) => {
-      const lines = ((last || '') + bufToString(chunk)).split('\n')
-      last = lines.pop()
-      return lines
-    }
+  async *[Symbol.asyncIterator](): AsyncIterator<string> {
+    const memo: (string | undefined)[] = []
 
     for (const chunk of this._zurk!.store.stdout) {
-      const lines = getLines(chunk)
-      for (const line of lines) yield line
+      yield* getLines(chunk, memo)
     }
 
     for await (const chunk of this.stdout[Symbol.asyncIterator]
       ? this.stdout
       : VoidStream.from(this.stdout)) {
-      const lines = getLines(chunk)
-      for (const line of lines) yield line
+      yield* getLines(chunk, memo)
     }
 
-    if (last) yield last
+    if (memo[0]) yield memo[0]
 
     if ((await this.exitCode) !== 0) throw this._output
   }
@@ -649,78 +651,111 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     this._stdin.removeListener(event, cb)
     return this
   }
+
+  // prettier-ignore
+  private static disarm(p: ProcessPromise, toggle = true): void {
+    Object.getOwnPropertyNames(ProcessPromise.prototype).forEach(k => {
+      if (k in Promise.prototype) return
+      if (!toggle) { Reflect.deleteProperty(p, k); return }
+      Object.defineProperty(p, k, { configurable: true, get() {
+        throw new Error('Inappropriate usage. Apply $ instead of direct instantiation.')
+      }})
+    })
+  }
 }
 
-type GettersRecord<T extends Record<any, any>> = { [K in keyof T]: () => T[K] }
-
-type ProcessOutputLazyDto = GettersRecord<{
+type ProcessDto = {
   code: number | null
   signal: NodeJS.Signals | null
-  stdout: string
-  stderr: string
-  stdall: string
-  message: string
   duration: number
-}>
+  error: any
+  from: string
+  store: TSpawnStore
+}
 
 export class ProcessOutput extends Error {
-  private readonly _code: number | null = null
-  private readonly _signal: NodeJS.Signals | null
-  private readonly _stdout: string
-  private readonly _stderr: string
-  private readonly _combined: string
-  private readonly _duration: number
-
-  constructor(dto: ProcessOutputLazyDto)
+  private readonly _dto: ProcessDto
+  cause!: Error | null
+  message!: string
+  stdout!: string
+  stderr!: string
+  stdall!: string
+  constructor(dto: ProcessDto)
   constructor(
     code: number | null,
     signal: NodeJS.Signals | null,
     stdout: string,
     stderr: string,
-    combined: string,
+    stdall: string,
     message: string,
     duration?: number
   )
+  // prettier-ignore
   constructor(
-    code: number | null | ProcessOutputLazyDto,
+    code: number | null | ProcessDto,
     signal: NodeJS.Signals | null = null,
     stdout: string = '',
     stderr: string = '',
-    combined: string = '',
+    stdall: string = '',
     message: string = '',
-    duration: number = 0
+    duration: number = 0,
+    error: any = null,
+    from: string = '',
+    store: TSpawnStore = { stdout: [stdout], stderr: [stderr], stdall: [stdall], }
   ) {
     super(message)
-    this._signal = signal
-    this._stdout = stdout
-    this._stderr = stderr
-    this._combined = combined
-    this._duration = duration
-    if (code !== null && typeof code === 'object') {
-      Object.defineProperties(this, {
-        _code: { get: code.code },
-        _signal: { get: code.signal },
-        _duration: { get: code.duration },
-        _stdout: { get: code.stdout },
-        _stderr: { get: code.stderr },
-        _combined: { get: code.stdall },
-        message: { get: code.message },
-      })
-    } else {
-      this._code = code
-    }
+    const dto = this._dto = code !== null && typeof code === 'object'
+      ? code
+      : { code, signal, duration, error, from, store }
+
+    Object.defineProperties(this, {
+      cause: { value: dto.error, enumerable: false, writable: true, configurable: true },
+      stdout: { get: once(() => bufArrJoin(dto.store.stdout)) },
+      stderr: { get: once(() => bufArrJoin(dto.store.stderr)) },
+      stdall: { get: once(() => bufArrJoin(dto.store.stdall)) },
+      message: { get: once(() =>
+          message || dto.error
+            ? ProcessOutput.getErrorMessage(dto.error, dto.from)
+            : ProcessOutput.getExitMessage(dto.code, dto.signal, this.stderr, dto.from)
+        ),
+      },
+    })
+  }
+
+  get exitCode(): number | null {
+    return this._dto.code
+  }
+
+  get signal(): NodeJS.Signals | null {
+    return this._dto.signal
+  }
+
+  get duration(): number {
+    return this._dto.duration
+  }
+
+  get [Symbol.toStringTag](): string {
+    return 'ProcessOutput'
+  }
+
+  get ok(): boolean {
+    return !this._dto.error && this.exitCode === 0
+  }
+
+  [Symbol.toPrimitive](): string {
+    return this.valueOf()
   }
 
   toString(): string {
-    return this._combined
+    return this.stdall
   }
 
   json<T = any>(): T {
-    return JSON.parse(this._combined)
+    return JSON.parse(this.stdall)
   }
 
   buffer(): Buffer {
-    return Buffer.from(this._combined)
+    return Buffer.from(this.stdall)
   }
 
   blob(type = 'text/plain'): Blob {
@@ -738,31 +773,21 @@ export class ProcessOutput extends Error {
   }
 
   lines(): string[] {
-    return this.valueOf().split(/\r?\n/)
+    return [...this]
   }
 
   valueOf(): string {
-    return this._combined.trim()
+    return this.stdall.trim()
   }
 
-  get stdout(): string {
-    return this._stdout
-  }
+  *[Symbol.iterator](): Iterator<string> {
+    const memo: (string | undefined)[] = []
 
-  get stderr(): string {
-    return this._stderr
-  }
+    for (const chunk of this._dto.store.stdall) {
+      yield* getLines(chunk, memo)
+    }
 
-  get exitCode(): number | null {
-    return this._code
-  }
-
-  get signal(): NodeJS.Signals | null {
-    return this._signal
-  }
-
-  get duration(): number {
-    return this._duration
+    if (memo[0]) yield memo[0]
   }
 
   static getExitMessage = formatExitMessage
@@ -900,7 +925,7 @@ export function resolveDefaults(
   defs: Options = defaults,
   prefix: string = ENV_PREFIX,
   env = process.env
-) {
+): Options {
   const allowed = new Set([
     'cwd',
     'preferLocal',

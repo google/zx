@@ -11,8 +11,18 @@ zx script.mjs
 If script does not have a file extension (like `.git/hooks/pre-commit`), zx
 assumes that it is
 an [ESM](https://nodejs.org/api/modules.html#modules_module_createrequire_filename)
-module.
+module unless the `--ext` option is specified.
 
+## Non-standard extension
+`zx` internally loads scripts via `import` API, so you can use any extension supported by the runtime (nodejs, deno, bun) or apply a [custom loader](https://nodejs.org/api/cli.html#--experimental-loadermodule).
+However, if the script has a non-js-like extension (`/^\.[mc]?[jt]sx?$/`) and the `--ext` is specified, it will be used.
+
+```bash
+zx script.zx           # Unknown file extension "\.zx"
+zx --ext=mjs script.zx # OK
+```
+
+## Markdown
 ```bash
 zx docs/markdown.md
 ```
@@ -36,7 +46,7 @@ await $`pwd`
 EOF
 ```
 
-## --eval
+## `--eval`
 
 Evaluate the following argument as a script.
 
@@ -44,10 +54,10 @@ Evaluate the following argument as a script.
 cat package.json | zx --eval 'const v = JSON.parse(await stdin()).version; echo(v)'
 ```
 
-## --repl
+## `--repl`
 Starts zx in [REPL](https://en.wikipedia.org/wiki/Read%E2%80%93eval%E2%80%93print_loop) mode.
 
-## --install
+## `--install`
 
 ```js
 // script.mjs:
@@ -70,7 +80,7 @@ the import.
 import sh from 'tinysh' // @^1
 ```
 
-## --registry
+## `--registry`
 
 By default, `zx` uses `https://registry.npmjs.org` as a registry. Customize if needed.
 
@@ -78,23 +88,23 @@ By default, `zx` uses `https://registry.npmjs.org` as a registry. Customize if n
 zx --registry=https://registry.yarnpkg.com script.mjs
 ```
 
-## --quiet
+## `--quiet`
 
 Suppress any outputs.
 
-## --verbose
+## `--verbose`
 
 Enable verbose mode.
 
-## --shell
+## `--shell`
 
-Specify a custom shell binary.
+Specify a custom shell binary path. By default, zx refers to `bash`.
 
 ```bash
-zx --shell=/bin/bash script.mjs
+zx --shell=/bin/another/sh script.mjs
 ```
 
-## --prefer-local, -l
+## `--prefer-local, -l`
 
 Prefer locally installed packages bins.
 
@@ -102,7 +112,7 @@ Prefer locally installed packages bins.
 zx --shell=/bin/bash script.mjs
 ```
 
-## --prefix & --postfix
+## `--prefix & --postfix`
 
 Attach a command to the beginning or the end of every command.
 
@@ -110,7 +120,7 @@ Attach a command to the beginning or the end of every command.
 zx --prefix='echo foo;' --postfix='; echo bar' script.mjs
 ```
 
-## --cwd
+## `--cwd`
 
 Set the current working directory.
 
@@ -118,7 +128,7 @@ Set the current working directory.
 zx --cwd=/foo/bar script.mjs
 ```
 
-## --env
+## `--env`
 Specify an env file.
 
 ```bash
@@ -128,15 +138,15 @@ zx --env=/path/to/some.env script.mjs
 When `cwd` option is specified, it will be used as base path:  
 `--cwd='/foo/bar' --env='../.env'` → `/foo/.env`
 
-## --ext
+## `--ext`
 
-Override the default (temp) script extension. Default is `.mjs`.
+Overrides the default script extension (`.mjs`).
 
-## --version, -v
+## `--version, -v`
 
 Print the current `zx` version.
 
-## --help, -h
+## `--help, -h`
 
 Print help notes.
 
@@ -156,13 +166,13 @@ steps:
       ZX_SHELL: '/bin/bash'
 ```
 
-## __filename & __dirname
+## `__filename & __dirname`
 
 In [ESM](https://nodejs.org/api/esm.html) modules, Node.js does not provide
 `__filename` and `__dirname` globals. As such globals are really handy in scripts,
 zx provides these for use in `.mjs` files (when using the `zx` executable).
 
-## require()
+## `require()`
 
 In [ESM](https://nodejs.org/api/modules.html#modules_module_createrequire_filename)
 modules, the `require()` function is not defined.

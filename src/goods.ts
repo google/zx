@@ -194,7 +194,7 @@ export async function spinner<T>(
   title: string | (() => T),
   callback?: () => T
 ): Promise<T> {
-  if (typeof title == 'function') {
+  if (typeof title === 'function') {
     callback = title
     title = ''
   }

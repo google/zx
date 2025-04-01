@@ -191,7 +191,7 @@ describe('cli', () => {
     const port = await getPort()
     const server = await getServer([resp]).start(port)
     const out =
-      await $`node build/cli.js --verbose http://127.0.0.1:${port}/echo.mjs`
+      await $`node build/cli.js --verbose http://127.0.0.1:${port}/script.mjs`
     assert.match(out.stderr, /test/)
     await server.stop()
   })
@@ -204,12 +204,33 @@ describe('cli', () => {
     await server.stop()
   })
 
+  test('scripts (md) from https', async () => {
+    const resp = await fs.readFile(path.resolve('test/fixtures/md.http'))
+    const port = await getPort()
+    const server = await getServer([resp]).start(port)
+    const out =
+      await $`node build/cli.js --verbose http://127.0.0.1:${port}/script.md`
+    assert.match(out.stderr, /md/)
+    await server.stop()
+  })
+
   test('scripts with no extension', async () => {
     await $`node build/cli.js test/fixtures/no-extension`
     assert.ok(
       /Test file to verify no-extension didn't overwrite similarly name .mjs file./.test(
         (await fs.readFile('test/fixtures/no-extension.mjs')).toString()
       )
+    )
+  })
+
+  test('scripts with non standard extension', async () => {
+    const o =
+      await $`node build/cli.js --ext='.mjs' test/fixtures/non-std-ext.zx`
+    assert.ok(o.stdout.trim().endsWith('zx/test/fixtures/non-std-ext.zx.mjs'))
+
+    await assert.rejects(
+      $`node build/cli.js test/fixtures/non-std-ext.zx`,
+      /Unknown file extension "\.zx"/
     )
   })
 
@@ -231,10 +252,6 @@ describe('cli', () => {
 
   test('__filename & __dirname are defined', async () => {
     await $`node build/cli.js test/fixtures/filename-dirname.mjs`
-  })
-
-  test('markdown scripts are working', async () => {
-    await $`node build/cli.js test/fixtures/markdown.md`
   })
 
   test('markdown scripts are working', async () => {
