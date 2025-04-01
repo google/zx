@@ -20,7 +20,7 @@ THIRD PARTY LICENSES
   sindresorhus/merge-streams
   MIT
 
-@webpod/ps@0.1.0
+@webpod/ps@0.1.1
   <unknown>
   git://github.com/webpod/ps.git
   MIT
@@ -60,7 +60,7 @@ fill-range@7.1.1
   jonschlinkert/fill-range
   MIT
 
-fs-extra@11.2.0
+fs-extra@11.3.0
   JP Richardson <jprichardson@gmail.com>
   https://github.com/jprichardson/node-fs-extra
   MIT
@@ -70,7 +70,7 @@ glob-parent@5.1.2
   gulpjs/glob-parent
   ISC
 
-globby@14.0.2
+globby@14.1.0
   Sindre Sorhus <sindresorhus@gmail.com>
   sindresorhus/globby
   MIT
@@ -110,7 +110,7 @@ node-fetch-native@1.6.4
   unjs/node-fetch-native
   MIT
 
-path-type@5.0.0
+path-type@6.0.0
   Sindre Sorhus <sindresorhus@gmail.com>
   sindresorhus/path-type
   MIT
@@ -130,7 +130,7 @@ to-regex-range@5.0.1
   micromatch/to-regex-range
   MIT
 
-unicorn-magic@0.1.0
+unicorn-magic@0.3.0
   Sindre Sorhus <sindresorhus@gmail.com>
   sindresorhus/unicorn-magic
   MIT
@@ -140,12 +140,12 @@ which@5.0.0
   git+https://github.com/npm/node-which.git
   ISC
 
-yaml@2.7.0
+yaml@2.7.1
   Eemeli Aro <eemeli@gmail.com>
   github:eemeli/yaml
   ISC
 
-zurk@0.10.3
+zurk@0.11.2
   Anton Golub <antongolub@antongolub.com>
   git+https://github.com/webpod/zurk.git
   MIT
