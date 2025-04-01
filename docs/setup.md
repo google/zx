@@ -27,10 +27,10 @@ deno install -A npm:zx
 ```
 
 ```bash [jsr]
-# https://jsr.io/docs/using-packages
+npx jsr add @webpod/zx
+deno add jsr:@webpod/zx
 
-npx jsr add @zx/zx
-deno add jsr:@zx/zx
+# https://jsr.io/docs/using-packages
 ```
 
 ```bash [docker]
@@ -48,10 +48,19 @@ brew install zx
 ## Channels
 
 zx is distributed in several versions, each with its own set of features.
-* Extracted zx core functions go to the `lite` channel: `npm i zx@lite`.  
+* Extracted zx core functions go to the [`lite`](https://www.npmjs.com/package/zx?activeTab=versions) channel: `npm i zx@lite`.  
 * Dev snapshots are published to npm under the [`dev` tag](https://www.npmjs.com/package/zx?activeTab=versions): `npm i zx@dev`.  
 
 Detailed comparison: [versions](./versions).
+
+Please check the download sources carefully. Official links are:
+
+* [npmjs](https://www.npmjs.com/package/zx)
+* [GH npm](https://github.com/google/zx/pkgs/npm/zx)
+* [GH repo](https://github.com/google/zx)
+* [GH docker](https://github.com/google/zx/pkgs/container/zx)
+* [JSR](https://jsr.io/@webpod/zx)
+* [Homebrew](https://github.com/Homebrew/homebrew-core/blob/master/Formula/z/zx.rb)
 
 ## Bash
 
