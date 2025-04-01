@@ -22,16 +22,19 @@ jobs:
       - run: npm test
         env:
           FORCE_COLOR: 3
-      - run: node scripts/prepublish-clean.mjs
+      - run: |
+          node scripts/build-jsr.mjs
+          node scripts/prepublish-clean.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: build-${{ github.run_id }}
           path: |
             build
             package.json
+            jsr.json
           retention-days: 1
 
-  publish:
+  npm-publish:
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -40,6 +43,11 @@ jobs:
       contents: write
       packages: write
       id-token: write
+    env:
+      GOOGLE_NPM_REGISTRY: wombat-dressing-room.appspot.com
+      GOOGLE_NPM_TOKEN: ${{ secrets.AUTH_TOKEN }}
+      GH_NPM_REGISTRY: npm.pkg.github.com
+      GH_NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -48,13 +56,88 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
+      - name: Get zx version info
+        run: echo ZX_VERSION=$(jq -r '.version' package.json) >> $GITHUB_ENV
+      - name: Configure npmrc
+        run: |
+          echo "//${{ env.GOOGLE_NPM_REGISTRY }}/:_authToken=$GOOGLE_NPM_TOKEN" >> .npmrc
+          echo "//${{ env.GH_NPM_REGISTRY }}/:_authToken=$GH_NPM_TOKEN" >> .npmrc
       - uses: actions/download-artifact@v4
         with:
           name: build-${{ github.run_id }}
-      - run: echo "//wombat-dressing-room.appspot.com/:_authToken=$AUTH_TOKEN" >> .npmrc
-        env:
-          AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
-      - run: |
-          npm publish --provenance --access=public
+
+      - name: pushing to ${{ env.GOOGLE_NPM_REGISTRY }}
+        run: npm publish --provenance --access=public --registry https://${{ env.GOOGLE_NPM_REGISTRY }}
+
+      - name: pushing to ${{ env.GH_NPM_REGISTRY }}
+        run: |
+          cat <<< $(jq '.name="@${{ github.repository }}"' package.json) > package.json
+          npm publish --no-git-tag-version --access=public --registry https://${{ env.GH_NPM_REGISTRY }}
+
+      - name: pushing lite snapshot to ${{ env.GOOGLE_NPM_REGISTRY }}
+        run: |
+          cat <<< $(jq '.name="zx"' package.json) > package.json
           node scripts/prepublish-lite.mjs
-          npm publish --provenance --access=public --no-git-tag-version --tag lite
+          npm publish --provenance --access=public --no-git-tag-version --tag lite --registry https://${{ env.GOOGLE_NPM_REGISTRY }}
+
+      - name: pushing to jsr.io
+        run: npx jsr publish --allow-dirty
+
+  # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images
+  docker-publish:
+    needs: build
+    runs-on: ubuntu-latest
+    # Defines two custom environment variables for the workflow. These are used for the Container registry domain, and a name for the Docker image that this workflow builds.
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: ${{ github.repository }}
+
+    # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-${{ github.run_id }}
+
+      - name: Get zx version
+        run: echo ZX_VERSION=$(jq -r '.version' package.json) >> $GITHUB_ENV
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha
+            type=semver,pattern={{version}},value=v${{ env.ZX_VERSION }}
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@471d1dc4e07e5cdedd4c2171150001c434f0b7a4
+        with:
+          context: ./
+          file: ./dcr/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
