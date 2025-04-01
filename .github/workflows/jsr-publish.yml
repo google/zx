@@ -1,0 +1,51 @@
+name: JSR Manual Publish
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+      - run: npm ci
+      - run: npm test
+        env:
+          FORCE_COLOR: 3
+      - run: node scripts/build-jsr.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ github.run_id }}
+          path: |
+            build
+            jsr.json
+          retention-days: 1
+
+  jsr-publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-${{ github.run_id }}
+
+      - name: pushing to jsr.io
+        run: npx jsr publish --allow-dirty
