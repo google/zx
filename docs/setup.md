@@ -12,8 +12,16 @@
 
 ::: code-group
 
-```bash [node]
+```bash [npm]
 npm install zx
+```
+
+```bash [yarn]
+yarn add zx
+```
+
+```bash [pnpm]
+pnpm add zx
 ```
 
 ```bash [bun]
@@ -45,7 +53,7 @@ brew install zx
 
 :::
 
-## Channels
+### Channels
 
 zx is distributed in several versions, each with its own set of features.
 * Extracted zx core functions go to the [`lite`](https://www.npmjs.com/package/zx?activeTab=versions) channel: `npm i zx@lite`.  
@@ -61,6 +69,16 @@ Please check the download sources carefully. Official links are:
 * [GH docker](https://github.com/google/zx/pkgs/container/zx)
 * [JSR](https://jsr.io/@webpod/zx)
 * [Homebrew](https://github.com/Homebrew/homebrew-core/blob/master/Formula/z/zx.rb)
+
+### Docker
+If you'd prefer to run scripts in a container, you can pull the zx image from the [ghcr.io](https://ghcr.io).
+[node:22-alpine](https://hub.docker.com/_/node) is used as [a base](https://github.com/google/zx/blob/main/dcr/Dockerfile).
+
+```shell
+docker pull ghcr.io/google/zx:8.5.0
+docker run -t ghcr.io/google/zx:8.5.0 -e="await \$({verbose: true})\`echo foo\`"
+docker run -t -i -v ./:/script ghcr.io/google/zx:8.5.0 script/t.js
+```
 
 ## Bash
 
