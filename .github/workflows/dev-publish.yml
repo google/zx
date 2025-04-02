@@ -58,6 +58,9 @@ jobs:
         run: |
           echo SHA_SHORT=$(git rev-parse --short HEAD) >> $GITHUB_ENV
           echo ZX_VERSION=$(jq -r '.version' package.json) >> $GITHUB_ENV
+      - run: |
+          echo ZX_DEV_VERSION="${{ env.ZX_VERSION }}-dev.${{ env.SHA_SHORT }}" >> $GITHUB_ENV
+          echo ZX_LITE_DEV_VERSION="${{ env.ZX_VERSION }}-lite-dev.${{ env.SHA_SHORT }}" >> $GITHUB_ENV
       - name: Configure npmrc
         run: |
           echo "//${{ env.GOOGLE_NPM_REGISTRY }}/:_authToken=$GOOGLE_NPM_TOKEN" >> .npmrc
@@ -69,7 +72,7 @@ jobs:
 
       - name: pushing to ${{ env.GOOGLE_NPM_REGISTRY }}
         run: |
-          npm version ${{ env.ZX_VERSION }}-dev.${{ env.SHA_SHORT }} --no-git-tag-version
+          cat <<< $(jq '.version="${{ env.ZX_DEV_VERSION }}"' package.json) > package.json
           npm publish --provenance --access=public --no-git-tag-version --tag dev --registry https://${{ env.GOOGLE_NPM_REGISTRY }}
 
       - name: pushing to ${{ env.GH_NPM_REGISTRY }}
@@ -80,13 +83,13 @@ jobs:
       - name: pushing lite snapshot to ${{ env.GOOGLE_NPM_REGISTRY }}
         run: |
           cat <<< $(jq '.name="zx"' package.json) > package.json
+          cat <<< $(jq '.version="${{ env.ZX_LITE_DEV_VERSION }}"' package.json) > package.json
           node scripts/prepublish-lite.mjs
-          npm version ${{ env.ZX_VERSION }}-lite-dev.${{ env.SHA_SHORT }} --no-git-tag-version
           npm publish --provenance --access=public --no-git-tag-version --tag dev --registry https://${{ env.GOOGLE_NPM_REGISTRY }}
 
       - name: pushing to jsr.io
         run: |
-          cat <<< $(jq '.version="${{ env.ZX_VERSION }}-dev.${{ env.SHA_SHORT }}"' jsr.json) > jsr.json
+          cat <<< $(jq '.version="${{ env.ZX_DEV_VERSION }}"' jsr.json) > jsr.json
           npx jsr publish --allow-dirty
 
   # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images
