@@ -47,5 +47,12 @@ jobs:
         with:
           name: build-${{ github.run_id }}
 
+      - name: Get zx version info
+        run: |
+          echo SHA_SHORT=$(git rev-parse --short HEAD) >> $GITHUB_ENV
+          echo ZX_VERSION=$(jq -r '.version' jsr.json) >> $GITHUB_ENV
+
       - name: pushing to jsr.io
-        run: npx jsr publish --allow-dirty
+        run: |
+          cat <<< $(jq '.version="${{ env.ZX_VERSION }}-dev.${{ env.SHA_SHORT }}"' jsr.json) > jsr.json
+          npx jsr publish --allow-dirty

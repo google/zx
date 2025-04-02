@@ -83,7 +83,6 @@ jobs:
       - name: pushing to jsr.io
         run: npx jsr publish --allow-dirty
 
-  # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images
   docker-publish:
     needs: build
     runs-on: ubuntu-latest
@@ -92,7 +91,6 @@ jobs:
       REGISTRY: ghcr.io
       IMAGE_NAME: ${{ github.repository }}
 
-    # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
       contents: read
       packages: write
