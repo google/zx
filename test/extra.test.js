@@ -24,12 +24,15 @@ describe('extra', () => {
       path.resolve(__dirname, 'fixtures/copyright.txt'),
       'utf8'
     )
-    const files = await globby(['**/*.{js,mjs,ts}', '!**/*polyfill.js'], {
-      gitignore: true,
-      onlyFiles: true,
-      cwd: process.cwd(),
-      followSymbolicLinks: false,
-    })
+    const files = await globby(
+      ['**/*.{js,mjs,ts}', '!**/*polyfill.js', '!build'],
+      {
+        gitignore: true,
+        onlyFiles: true,
+        cwd: process.cwd(),
+        followSymbolicLinks: false,
+      }
+    )
     for (const file of files) {
       const content = await fs.readFile(file, 'utf8')
       assert(

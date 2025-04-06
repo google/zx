@@ -1,9 +1,9 @@
-name: Publish
+name: JSR Manual Publish
 
 on:
   workflow_dispatch:
-  release:
-    types: [created]
+
+permissions: {}
 
 jobs:
   build:
@@ -20,23 +20,20 @@ jobs:
       - run: npm test
         env:
           FORCE_COLOR: 3
-      - run: node scripts/clean-package-json.mjs
+      - run: node scripts/build-jsr.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: build-${{ github.run_id }}
           path: |
             build
-            package.json
+            jsr.json
           retention-days: 1
 
-  publish:
+  jsr-publish:
     needs: build
     runs-on: ubuntu-latest
     permissions:
-      checks: read
-      statuses: write
-      contents: write
-      packages: write
+      contents: read
       id-token: write
     steps:
       - uses: actions/checkout@v4
@@ -49,7 +46,13 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: build-${{ github.run_id }}
-      - run: echo "//wombat-dressing-room.appspot.com/:_authToken=$AUTH_TOKEN" >> .npmrc
-        env:
-          AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
-      - run: npm publish --provenance --access=public
+
+      - name: Get zx version info
+        run: |
+          echo SHA_SHORT=$(git rev-parse --short HEAD) >> $GITHUB_ENV
+          echo ZX_VERSION=$(jq -r '.version' jsr.json) >> $GITHUB_ENV
+
+      - name: pushing to jsr.io
+        run: |
+          cat <<< $(jq '.version="${{ env.ZX_VERSION }}-dev.${{ env.SHA_SHORT }}"' jsr.json) > jsr.json
+          npx jsr publish --allow-dirty

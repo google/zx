@@ -18,7 +18,7 @@ import { fileURLToPath } from 'node:url'
 import net from 'node:net'
 import getPort from 'get-port'
 import { $, path, tmpfile, tmpdir, fs } from '../build/index.js'
-import { isMain, normalizeExt, transformMarkdown } from '../build/cli.js'
+import { isMain, normalizeExt } from '../build/cli.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const spawn = $.spawn
@@ -186,6 +186,30 @@ describe('cli', () => {
     }
   })
 
+  test('supports --prefer-local to load modules', async () => {
+    const cwd = tmpdir()
+    const external = tmpdir()
+    await fs.outputJson(path.join(external, 'node_modules/a/package.json'), {
+      name: 'a',
+      version: '1.0.0',
+      type: 'module',
+      exports: './index.js',
+    })
+    await fs.outputFile(
+      path.join(external, 'node_modules/a/index.js'),
+      `
+export const a = 'AAA'
+`
+    )
+    const script = `
+import {a} from 'a'
+console.log(a);
+`
+    const out =
+      await $`node build/cli.js --cwd=${cwd} --prefer-local=${external} --test <<< ${script}`
+    assert.equal(out.stdout, 'AAA\n')
+  })
+
   test('scripts from https 200', async () => {
     const resp = await fs.readFile(path.resolve('test/fixtures/echo.http'))
     const port = await getPort()
@@ -347,43 +371,6 @@ describe('cli', () => {
       } catch (e) {
         assert.ok(['EACCES', 'ENOENT'].includes(e.code))
       }
-    })
-
-    test('transformMarkdown()', () => {
-      // prettier-ignore
-      assert.equal(transformMarkdown(`
-# Title
-    
-~~~js
-await $\`echo "js"\`
-~~~
-
-typescript code block
-~~~~~ts
-await $\`echo "ts"\`
-~~~~~
-
-~~~
-unknown code block
-~~~
-
-`), `// 
-// # Title
-//     
-
-await $\`echo "js"\`
-
-// 
-// typescript code block
-
-await $\`echo "ts"\`
-
-// 
-
-// unknown code block
-
-// 
-// `)
     })
 
     test('normalizeExt()', () => {

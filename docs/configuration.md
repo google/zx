@@ -84,7 +84,7 @@ all `$` processes use `process.cwd()` by default (same as `spawn` behavior).
 
 ## `$.log`
 
-Specifies a [logging function](src/core.ts).
+Specifies a [logging function](src/log.ts).
 
 ```ts
 import {LogEntry, log} from 'zx/core'
@@ -98,6 +98,22 @@ $.log = (entry: LogEntry) => {
     default:
       log(entry)
   }
+}
+```
+
+Log mostly acts like a debugger, so by default it uses `process.error` for output.
+Set `log.output` to change the stream.
+
+```ts
+$.log.output = process.stdout
+```
+
+Set `log.formatters` to customize each log entry kind printing:
+
+```ts
+$.log.formatters = {
+  cmd: (entry: LogEntry) => `CMD: ${entry.cmd}`,
+  fetch: (entry: LogEntry) => `FETCH: ${entry.url}`
 }
 ```
 

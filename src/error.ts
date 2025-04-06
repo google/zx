@@ -184,7 +184,8 @@ export const formatExitMessage = (
   code: number | null,
   signal: NodeJS.Signals | null,
   stderr: string,
-  from: string
+  from: string,
+  details: string = ''
 ): string => {
   let message = `exit code: ${code}`
   if (code != 0 || signal != null) {
@@ -194,6 +195,9 @@ export const formatExitMessage = (
     }`
     if (signal != null) {
       message += `\n    signal: ${signal}`
+    }
+    if (details) {
+      message += `\n    details: \n${details}`
     }
   }
 
@@ -217,10 +221,21 @@ export function getCallerLocation(err = new Error('zx error')): string {
 }
 
 export function getCallerLocationFromString(stackString = 'unknown'): string {
+  const lines = stackString
+    .split(/^\s*(at\s)?/m)
+    .filter((s) => s?.includes(':'))
+
   return (
+    lines.find((l) => l.includes('file://')) ||
+    lines[3] || // skip getCallerLocation and Proxy.set
     stackString
-      .split(/^\s*(at\s)?/m)
-      .filter((s) => s?.includes(':'))[2]
-      ?.trim() || stackString
-  )
+  ).trim()
+}
+
+export function findErrors(lines: string[] = []): string {
+  if (lines.length < 20) return lines.join('\n')
+
+  let errors = lines.filter((l) => /(fail|error|not ok|exception)/i.test(l))
+  if (errors.length === 0) errors = lines
+  return errors.slice(0, 20).join('\n') + (errors.length > 20 ? '\n...' : '')
 }

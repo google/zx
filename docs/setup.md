@@ -12,8 +12,16 @@
 
 ::: code-group
 
-```bash [node]
+```bash [npm]
 npm install zx
+```
+
+```bash [yarn]
+yarn add zx
+```
+
+```bash [pnpm]
+pnpm add zx
 ```
 
 ```bash [bun]
@@ -26,13 +34,51 @@ deno install -A npm:zx
 # zx requires additional permissions: --allow-read --allow-sys --allow-env --allow-run
 ```
 
+```bash [jsr]
+npx jsr add @webpod/zx
+deno add jsr:@webpod/zx
+
+# https://jsr.io/docs/using-packages
+```
+
+```bash [docker]
+docker pull ghcr.io/google/zx:8.5.0
+docker run -t ghcr.io/google/zx:8.5.0 -e="await \$({verbose: true})\`echo foo\`"
+docker run -t -i -v ./:/script ghcr.io/google/zx:8.5.0 script/t.js
+```
+
 ```bash [brew]
 brew install zx
 ```
 
 :::
 
-Dev snapshot versions are published to npm under the [`dev` tag](https://www.npmjs.com/package/zx?activeTab=versions): `npm i zx@dev`.
+### Channels
+
+zx is distributed in several versions, each with its own set of features.
+* Extracted zx core functions go to the [`lite`](https://www.npmjs.com/package/zx?activeTab=versions) channel: `npm i zx@lite`.  
+* Dev snapshots are published to npm under the [`dev` tag](https://www.npmjs.com/package/zx?activeTab=versions): `npm i zx@dev`.  
+
+Detailed comparison: [versions](./versions).
+
+Please check the download sources carefully. Official links are:
+
+* [npmjs](https://www.npmjs.com/package/zx)
+* [GH npm](https://github.com/google/zx/pkgs/npm/zx)
+* [GH repo](https://github.com/google/zx)
+* [GH docker](https://github.com/google/zx/pkgs/container/zx)
+* [JSR](https://jsr.io/@webpod/zx)
+* [Homebrew](https://github.com/Homebrew/homebrew-core/blob/master/Formula/z/zx.rb)
+
+### Docker
+If you'd prefer to run scripts in a container, you can pull the zx image from the [ghcr.io](https://ghcr.io).
+[node:22-alpine](https://hub.docker.com/_/node) is used as [a base](https://github.com/google/zx/blob/main/dcr/Dockerfile).
+
+```shell
+docker pull ghcr.io/google/zx:8.5.0
+docker run -t ghcr.io/google/zx:8.5.0 -e="await \$({verbose: true})\`echo foo\`"
+docker run -t -i -v ./:/script ghcr.io/google/zx:8.5.0 script/t.js
+```
 
 ## Bash
 
@@ -58,7 +104,11 @@ import { $ } from 'zx'
 const { $ } = require('zx')
 ```
 
-It has also built-in TypeScript libdefs.
+It has also built-in TypeScript libdefs. But `@types/fs-extra` and `@types/node` are required to be installed on user's side.
+
+```bash
+npm i -D @types/fs-extra @types/node
+```
 
 ```ts
 import { type Options } from 'zx'

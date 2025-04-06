@@ -28,11 +28,12 @@ import {
   path,
   stdin,
   VERSION,
-} from './index.js'
-import { installDeps, parseDeps } from './deps.js'
-import { startRepl } from './repl.js'
-import { randomId, bufToString } from './util.js'
-import { createRequire, type minimist } from './vendor.js'
+} from './index.ts'
+import { installDeps, parseDeps } from './deps.ts'
+import { startRepl } from './repl.ts'
+import { randomId } from './util.ts'
+import { transformMarkdown } from './md.ts'
+import { createRequire, type minimist } from './vendor.ts'
 
 const EXT = '.mjs'
 const EXT_RE = /^\.[mc]?[jt]sx?$/
@@ -62,7 +63,7 @@ export function printUsage() {
    --shell=<path>       custom shell binary
    --prefix=<command>   prefix all commands
    --postfix=<command>  postfix all commands
-   --prefer-local, -l   prefer locally installed packages bins
+   --prefer-local, -l   prefer locally installed packages and binaries
    --cwd=<path>         set current directory
    --eval=<js>, -e      evaluate script
    --ext=<.mjs>         script extension
@@ -80,13 +81,15 @@ export function printUsage() {
 
 // prettier-ignore
 export const argv: minimist.ParsedArgs = parseArgv(process.argv.slice(2), {
+  default: { ['prefer-local']: false },
+  // exclude 'prefer-local' to let minimist infer the type
   string: ['shell', 'prefix', 'postfix', 'eval', 'cwd', 'ext', 'registry', 'env'],
-  boolean: ['version', 'help', 'quiet', 'verbose', 'install', 'repl', 'experimental', 'prefer-local'],
+  boolean: ['version', 'help', 'quiet', 'verbose', 'install', 'repl', 'experimental'],
   alias: { e: 'eval', i: 'install', v: 'version', h: 'help', l: 'prefer-local', 'env-file': 'env' },
   stopEarly: true,
   parseBoolean: true,
   camelCase: true,
-})
+}, resolveDefaults({} as any, 'ZX_', process.env, new Set(['env', 'install', 'registry'])))
 
 export async function main(): Promise<void> {
   await import('./globals.js')
@@ -125,19 +128,22 @@ async function runScript(
   scriptPath: string,
   tempPath: string
 ): Promise<void> {
-  const rmTemp = () => fs.rmSync(tempPath, { force: true })
+  let nmLink = ''
+  const rmTemp = () => {
+    fs.rmSync(tempPath, { force: true, recursive: true })
+    nmLink && fs.rmSync(nmLink, { force: true, recursive: true })
+  }
   try {
     if (tempPath) {
       scriptPath = tempPath
       await fs.writeFile(tempPath, script)
     }
-
+    const cwd = path.dirname(scriptPath)
+    if (typeof argv.preferLocal === 'string') {
+      nmLink = linkNodeModules(cwd, argv.preferLocal)
+    }
     if (argv.install) {
-      await installDeps(
-        parseDeps(script),
-        path.dirname(scriptPath),
-        argv.registry
-      )
+      await installDeps(parseDeps(script), cwd, argv.registry)
     }
 
     injectGlobalRequire(scriptPath)
@@ -148,6 +154,20 @@ async function runScript(
   } finally {
     rmTemp()
   }
+}
+
+function linkNodeModules(cwd: string, external: string): string {
+  const nm = 'node_modules'
+  const alias = path.resolve(cwd, nm)
+  const target =
+    path.basename(external) === nm
+      ? path.resolve(external)
+      : path.resolve(external, nm)
+
+  if (fs.existsSync(alias) || !fs.existsSync(target)) return ''
+
+  fs.symlinkSync(target, alias, 'junction')
+  return target
 }
 
 async function readScript() {
@@ -206,84 +226,13 @@ async function readScriptFromHttp(remote: string): Promise<string> {
   return res.text()
 }
 
+export { transformMarkdown }
+
 export function injectGlobalRequire(origin: string): void {
   const __filename = path.resolve(origin)
   const __dirname = path.dirname(__filename)
   const require = createRequire(origin)
   Object.assign(globalThis, { __filename, __dirname, require })
-}
-
-export function transformMarkdown(buf: Buffer | string): string {
-  const output = []
-  const tabRe = /^(  +|\t)/
-  const codeBlockRe =
-    /^(?<fence>(`{3,20}|~{3,20}))(?:(?<js>(js|javascript|ts|typescript))|(?<bash>(sh|shell|bash))|.*)$/
-  let state = 'root'
-  let codeBlockEnd = ''
-  let prevLineIsEmpty = true
-  for (const line of bufToString(buf).split(/\r?\n/)) {
-    switch (state) {
-      case 'root':
-        if (tabRe.test(line) && prevLineIsEmpty) {
-          output.push(line)
-          state = 'tab'
-          continue
-        }
-        const { fence, js, bash } = line.match(codeBlockRe)?.groups || {}
-        if (!fence) {
-          prevLineIsEmpty = line === ''
-          output.push('// ' + line)
-          continue
-        }
-        codeBlockEnd = fence
-        if (js) {
-          state = 'js'
-          output.push('')
-        } else if (bash) {
-          state = 'bash'
-          output.push('await $`')
-        } else {
-          state = 'other'
-          output.push('')
-        }
-        break
-      case 'tab':
-        if (line === '') {
-          output.push('')
-        } else if (tabRe.test(line)) {
-          output.push(line)
-        } else {
-          output.push('// ' + line)
-          state = 'root'
-        }
-        break
-      case 'js':
-        if (line === codeBlockEnd) {
-          output.push('')
-          state = 'root'
-        } else {
-          output.push(line)
-        }
-        break
-      case 'bash':
-        if (line === codeBlockEnd) {
-          output.push('`')
-          state = 'root'
-        } else {
-          output.push(line)
-        }
-        break
-      case 'other':
-        if (line === codeBlockEnd) {
-          output.push('')
-          state = 'root'
-        } else {
-          output.push('// ' + line)
-        }
-        break
-    }
-  }
-  return output.join('\n')
 }
 
 export function isMain(

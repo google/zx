@@ -43,6 +43,7 @@ import {
   quiet,
   which,
   nothrow,
+  fetch,
 } from '../build/index.js'
 import { noop } from '../build/util.js'
 
@@ -101,6 +102,12 @@ describe('core', () => {
       assert.equal((await $`echo ${bar}`).stdout.trim(), bar)
     })
 
+    test('broken quoting', async () => {
+      const args = ['param && echo bar']
+      const p = $`echo --foo=$'${args}'`
+      assert.equal((await p).stdout, '--foo=$param\nbar\n')
+    })
+
     test('undefined and empty string correctly quoted', async () => {
       assert.equal((await $`echo -n ${undefined}`).toString(), 'undefined')
       assert.equal((await $`echo -n ${''}`).toString(), '')
@@ -156,8 +163,14 @@ describe('core', () => {
     })
 
     test('can use array as an argument', async () => {
-      const args = ['-n', 'foo']
-      assert.equal((await $`echo ${args}`).toString(), 'foo')
+      const _$ = $({ prefix: '', postfix: '' })
+      const p1 = _$`echo ${['-n', 'foo']}`
+      assert.equal(p1.cmd, 'echo -n foo')
+      assert.equal((await p1).toString(), 'foo')
+
+      const p2 = _$`echo ${[1, '', '*', '2']}`
+      assert.equal(p2.cmd, `echo 1 $'' $'*' 2`)
+      assert.equal((await p2).toString(), `1  * 2\n`)
     })
 
     test('requires $.shell to be specified', async () => {
@@ -190,8 +203,10 @@ describe('core', () => {
         err = p
       }
       assert.ok(err.exitCode > 0)
-      assert.ok(err.stderr.includes('wtf: command not found'))
-      assert.ok(err[inspect.custom]().includes('Command not found'))
+      assert.match(err.toString(), /command not found/)
+      assert.match(err.valueOf(), /command not found/)
+      assert.match(err.stderr, /wtf: command not found/)
+      assert.match(err[inspect.custom](), /Command not found/)
     })
 
     test('error event is handled', async () => {
@@ -710,6 +725,37 @@ describe('core', () => {
           assert.equal(stdout, 'TEST')
         })
 
+        test('fetch (stream) > $', async () => {
+          // stream.Readable.fromWeb requires Node.js 18+
+          const responseToReadable = (response) => {
+            const reader = response.body.getReader()
+            const rs = new Readable()
+            rs._read = async () => {
+              const result = await reader.read()
+              if (!result.done) rs.push(Buffer.from(result.value))
+              else rs.push(null)
+            }
+            return rs
+          }
+
+          const p = (
+            await fetch('https://example.com').then(responseToReadable)
+          ).pipe($`cat`)
+          const o = await p
+
+          assert.match(o.stdout, /Example Domain/)
+        })
+
+        test('fetch (pipe) > $', async () => {
+          const p1 = fetch('https://example.com').pipe($`cat`)
+          const p2 = fetch('https://example.com').pipe`cat`
+          const o1 = await p1
+          const o2 = await p2
+
+          assert.match(o1.stdout, /Example Domain/)
+          assert.equal(o1.stdout, o2.stdout)
+        })
+
         test('$ > stream > $', async () => {
           const p = $`echo "hello"`
           const { stdout } = await p.pipe(getUpperCaseTransform()).pipe($`cat`)
@@ -1096,7 +1142,6 @@ describe('core', () => {
       assert.deepEqual(await p1.lines(), ['foo', 'bar', 'baz'])
 
       const p2 = $.sync`echo 'foo\nbar\r\nbaz'`
-      console.log('p2', p2)
       assert.deepEqual(p2.lines(), ['foo', 'bar', 'baz'])
     })
 
@@ -1119,11 +1164,30 @@ describe('core', () => {
 
       assert.equal(o.stdout, '')
       assert.equal(o.stderr, '')
+      assert.equal(o.stdall, 'foo\n')
       assert.equal(o.signal, 'SIGTERM')
       assert.equal(o.exitCode, -1)
       assert.equal(o.duration, 20)
       assert.equal(o.ok, false)
+      assert.equal(
+        o.message,
+        'msg\n    errno: undefined (Unknown error)\n    code: undefined\n    at '
+      )
       assert.equal(Object.prototype.toString.call(o), '[object ProcessOutput]')
+
+      const o1 = new ProcessOutput({
+        code: -1,
+        from: 'file.js(12:34)',
+        store: {
+          stdall: ['error in stdout'],
+          stdout: [],
+          stderr: [],
+        },
+      })
+      assert.equal(
+        o1.message,
+        '\n    at file.js(12:34)\n    exit code: -1\n    details: \nerror in stdout'
+      )
     })
 
     test('[Symbol.toPrimitive]', () => {

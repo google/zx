@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { $ } from './core.js'
-import { spinner } from './goods.js'
-import { depseek } from './vendor.js'
+import { $ } from './core.ts'
+import { spinner } from './goods.ts'
+import { depseek } from './vendor.ts'
 
 /**
  * Install npm dependencies

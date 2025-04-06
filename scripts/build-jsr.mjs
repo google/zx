@@ -19,21 +19,60 @@ const root = path.resolve(__dirname, '..')
 const pkgJson = JSON.parse(
   fs.readFileSync(path.resolve(root, 'package.json'), 'utf-8')
 )
+const deps = pkgJson.devDependencies
+
+const jsrDeps = {
+  yaml: 'jsr:@eemeli/yaml',
+  zurk: 'jsr:@webpod/zurk',
+}
+const prodDeps = new Set([
+  '@types/fs-extra',
+  '@types/minimist',
+  '@types/node',
+  '@types/which',
+  '@webpod/ingrid',
+  '@webpod/ps',
+  'chalk',
+  'create-require',
+  'depseek',
+  'envapi',
+  'fs-extra',
+  'globby',
+  'minimist',
+  'node-fetch-native',
+  'which',
+  'yaml',
+  'zurk',
+])
 
 fs.writeFileSync(
   path.resolve(root, 'jsr.json'),
   JSON.stringify(
     {
-      name: '@zx/zx',
+      name: '@webpod/zx',
       version: pkgJson.version,
+      license: pkgJson.license,
       exports: {
         '.': './src/index.ts',
         './core': './src/core.ts',
-        './cli': './src/cli.ts',
+        // './cli': './src/cli.ts',
       },
       publish: {
-        include: ['src', 'README.md'],
+        include: ['src', 'README.md', 'LICENSE'],
       },
+      nodeModulesDir: 'auto',
+      imports: Object.entries(deps).reduce(
+        (m, [k, v]) => {
+          if (prodDeps.has(k)) {
+            const name = jsrDeps[k] || `npm:${k}`
+            m[k] = `${name}@${v}`
+          }
+          return m
+        },
+        {
+          'zurk/spawn': `jsr:@webpod/zurk@${deps.zurk}`,
+        }
+      ),
     },
     null,
     2

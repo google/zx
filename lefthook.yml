@@ -1,9 +1,12 @@
-pre-push:
+pre-commit:
   parallel: true
   commands:
     format:
       glob: '*.{js,ts,md,yml}'
-      run: npm run fmt:check
+      run: npm run fmt && git add {staged_files}
+pre-push:
+  parallel: true
+  commands:
     license:
       run: npm run test:license
     size:

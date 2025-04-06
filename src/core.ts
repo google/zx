@@ -27,11 +27,12 @@ import { inspect } from 'node:util'
 import { EOL as _EOL } from 'node:os'
 import { EventEmitter } from 'node:events'
 import {
+  findErrors,
   formatErrorMessage,
   formatExitMessage,
   getCallerLocation,
   getExitCodeInfo,
-} from './error.js'
+} from './error.ts'
 import {
   exec,
   buildCmd,
@@ -41,10 +42,9 @@ import {
   VoidStream,
   type ChalkInstance,
   type TSpawnStore,
-} from './vendor-core.js'
+} from './vendor-core.ts'
 import {
   type Duration,
-  log,
   isString,
   isStringLiteral,
   getLast,
@@ -60,9 +60,15 @@ import {
   toCamelCase,
   randomId,
   bufArrJoin,
-} from './util.js'
+} from './util.ts'
 
-export { log, type LogEntry } from './util.js'
+import { log } from './log.ts'
+
+export { default as path } from 'node:path'
+export * as os from 'node:os'
+export { log, type LogEntry } from './log.ts'
+export { chalk, which, ps } from './vendor-core.ts'
+export { quote, quotePowerShell } from './util.ts'
 
 const CWD = Symbol('processCwd')
 const SYNC = Symbol('syncExec')
@@ -70,6 +76,19 @@ const EOL = Buffer.from(_EOL)
 const BR_CC = '\n'.charCodeAt(0)
 const SIGTERM = 'SIGTERM'
 const ENV_PREFIX = 'ZX_'
+const ENV_ALLOWED: Set<string> = new Set([
+  'cwd',
+  'preferLocal',
+  'detached',
+  'verbose',
+  'quiet',
+  'timeout',
+  'timeoutSignal',
+  'killSignal',
+  'prefix',
+  'postfix',
+  'shell',
+])
 const storage = new AsyncLocalStorage<Options>()
 
 function getStore() {
@@ -715,8 +734,8 @@ export class ProcessOutput extends Error {
       stdall: { get: once(() => bufArrJoin(dto.store.stdall)) },
       message: { get: once(() =>
           message || dto.error
-            ? ProcessOutput.getErrorMessage(dto.error, dto.from)
-            : ProcessOutput.getExitMessage(dto.code, dto.signal, this.stderr, dto.from)
+            ? ProcessOutput.getErrorMessage(dto.error || new Error(message), dto.from)
+            : ProcessOutput.getExitMessage(dto.code, dto.signal, this.stderr, dto.from, this.stderr.trim() ? '' : findErrors(this.lines()))
         ),
       },
     })
@@ -795,7 +814,7 @@ export class ProcessOutput extends Error {
   static getErrorMessage = formatErrorMessage;
 
   [inspect.custom](): string {
-    let stringify = (s: string, c: ChalkInstance) =>
+    const stringify = (s: string, c: ChalkInstance) =>
       s.length === 0 ? "''" : c(inspect(s))
     return `ProcessOutput {
   stdout: ${stringify(this.stdout, chalk.green)},
@@ -838,12 +857,14 @@ try {
 
 function checkShell() {
   if (!$.shell)
-    throw new Error(`No shell is available: https://ï.at/zx-no-shell`)
+    throw new Error(`No shell is available: https://google.github.io/zx/shell`)
 }
 
 function checkQuote() {
   if (!$.quote)
-    throw new Error('No quote function is defined: https://ï.at/no-quote-func')
+    throw new Error(
+      'No quote function is defined: https://google.github.io/zx/quotes'
+    )
 }
 
 let cwdSyncHook: AsyncHook
@@ -924,22 +945,9 @@ const promisifyStream = <S extends Writable>(
 export function resolveDefaults(
   defs: Options = defaults,
   prefix: string = ENV_PREFIX,
-  env = process.env
+  env = process.env,
+  allowed = ENV_ALLOWED
 ): Options {
-  const allowed = new Set([
-    'cwd',
-    'preferLocal',
-    'detached',
-    'verbose',
-    'quiet',
-    'timeout',
-    'timeoutSignal',
-    'killSignal',
-    'prefix',
-    'postfix',
-    'shell',
-  ])
-
   return Object.entries(env).reduce<Options>((m, [k, v]) => {
     if (v && k.startsWith(prefix)) {
       const _k = toCamelCase(k.slice(prefix.length))

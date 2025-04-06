@@ -8,7 +8,8 @@
     "outDir": "./build",
     "declaration": true,
     "emitDeclarationOnly": true,
-    "types": []
+    "allowImportingTsExtensions": true,
+    "types": ["node", "fs-extra"]
   },
   "include": ["./src/**/*"],
   "exclude": ["./src/globals.ts"]

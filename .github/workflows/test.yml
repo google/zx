@@ -105,6 +105,22 @@ jobs:
       - name: Type tests
         run: npm run test:types
 
+  docker-test:
+    name: Docker test
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build
+      - run: |
+          npm run build:dcr
+          npm run test:dcr
+
   smoke-win32-node16:
     runs-on: windows-latest
     needs: build
@@ -215,7 +231,7 @@ jobs:
       - name: Install deps
         run: npm ci
       - name: Install TypeScript ${{ matrix.ts }}
-        run: npm i --force --no-package-lock typescript@${{ matrix.ts }}
+        run: npm i --force --no-package-lock --no-fund typescript@${{ matrix.ts }}
       - uses: actions/download-artifact@v4
         with:
           name: build

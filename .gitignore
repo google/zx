@@ -1,8 +1,11 @@
 node_modules/
-build/
 coverage/
 package/
 reports/
 docs/.vitepress/cache/
 yarn.lock
+pnpm-lock.yaml
 temp
+test/fixtures/ts-project/build/
+jsr.json
+.npmrc

@@ -14,10 +14,8 @@
 
 import assert from 'node:assert'
 import fs from 'node:fs'
-import { test, describe, after } from 'node:test'
-import { fs as fsCore } from '../build/index.js'
+import { test, describe } from 'node:test'
 import {
-  formatCmd,
   isString,
   isStringLiteral,
   noop,
@@ -62,12 +60,14 @@ describe('util', () => {
 
   test('quote()', () => {
     assert.ok(quote('string') === 'string')
+    assert.ok(quote('') === `$''`)
     assert.ok(quote(`'\f\n\r\t\v\0`) === `$'\\'\\f\\n\\r\\t\\v\\0'`)
   })
 
   test('quotePowerShell()', () => {
     assert.equal(quotePowerShell('string'), 'string')
     assert.equal(quotePowerShell(`'`), `''''`)
+    assert.equal(quotePowerShell(''), `''`)
   })
 
   test('duration parsing works', () => {
@@ -80,25 +80,6 @@ describe('util', () => {
     assert.throws(() => parseDuration('100'))
     assert.throws(() => parseDuration(NaN))
     assert.throws(() => parseDuration(-1))
-  })
-
-  test('formatCwd works', () => {
-    assert.equal(
-      formatCmd(`echo $'hi'`),
-      "$ \u001b[92mecho\u001b[39m \u001b[93m$\u001b[39m\u001b[93m'hi\u001b[39m\u001b[93m'\u001b[39m\n"
-    )
-    assert.equal(
-      formatCmd(`while true; do "$" done`),
-      '$ \u001b[96mwhile\u001b[39m \u001b[92mtrue\u001b[39m\u001b[96m;\u001b[39m \u001b[96mdo\u001b[39m \u001b[93m"$\u001b[39m\u001b[93m"\u001b[39m \u001b[96mdone\u001b[39m\n'
-    )
-    assert.equal(
-      formatCmd(`echo '\n str\n'`),
-      "$ \u001b[92mecho\u001b[39m \u001b[93m'\u001b[39m\n> \u001b[93m str\u001b[39m\n> \u001b[93m'\u001b[39m\n"
-    )
-    assert.equal(
-      formatCmd(`$'\\''`),
-      "$ \u001b[93m$\u001b[39m\u001b[93m'\u001b[39m\u001b[93m\\\u001b[39m\u001b[93m'\u001b[39m\u001b[93m'\u001b[39m\n"
-    )
   })
 
   // test('normalizeMultilinePieces()', () => {

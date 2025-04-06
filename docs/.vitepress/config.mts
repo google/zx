@@ -66,6 +66,7 @@ export default defineConfig({
             { text: 'CLI Usage', link: '/cli' },
             { text: 'Configuration', link: '/configuration' },
             { text: 'Process Promise', link: '/process-promise' },
+            { text: 'Process Output', link: '/process-output' },
             { text: 'Contribution Guide', link: '/contribution' },
             { text: 'Migration from v7', link: '/migration-from-v7' },
           ],
@@ -75,6 +76,7 @@ export default defineConfig({
           link: '/faq',
           items: [
             { text: 'Quotes', link: '/quotes' },
+            { text: 'Shell', link: '/shell' },
             { text: 'TypeScript', link: '/typescript' },
             { text: 'Markdown Scripts', link: '/markdown-scripts' },
             { text: 'Known Issues', link: '/known-issues' },

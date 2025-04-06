@@ -8,7 +8,15 @@ const name = 'foo & bar'
 await $`mkdir ${name}`
 ```
 
-Zx automatically escapes and quotes anything within `${...}`, so there's no need for additional quotes.
+
+> [!WARNING]  
+> Zx automatically escapes and quotes anything within `${...}`, so there's no need for additional quotes. Moreover, this may result in an **unsafe injection**.
+> ```ts
+> const args = ['param && echo bar']
+> const p = $`echo --foo=$'${args}'`
+> (await p).stdout // '--foo=$param\nbar\n'
+> ```
+
 
 The following examples produce the same, correct result:
 

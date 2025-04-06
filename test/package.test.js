@@ -62,6 +62,8 @@ describe('package', () => {
         'build/index.cjs',
         'build/index.d.ts',
         'build/index.js',
+        'build/log.d.ts',
+        'build/md.d.ts',
         'build/util.cjs',
         'build/util.d.ts',
         'build/util.js',
@@ -74,6 +76,7 @@ describe('package', () => {
         'build/vendor.cjs',
         'build/vendor.d.ts',
         'build/vendor.js',
+        'build/3rd-party-licenses',
       ].sort()
     )
   })

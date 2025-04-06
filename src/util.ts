@@ -15,15 +15,9 @@
 import os from 'node:os'
 import path from 'node:path'
 import fs, { type Mode } from 'node:fs'
-import {
-  chalk,
-  type RequestInfo,
-  type RequestInit,
-  type TSpawnStoreChunks,
-} from './vendor-core.js'
-import { inspect } from 'node:util'
+import { type TSpawnStoreChunks } from './vendor-core.ts'
 
-export { isStringLiteral } from './vendor-core.js'
+export { isStringLiteral } from './vendor-core.ts'
 
 export function tempdir(
   prefix: string = `zx-${randomId()}`,
@@ -74,8 +68,6 @@ export const bufArrJoin = (arr: TSpawnStoreChunks) =>
 export const getLast = <T>(arr: { length: number; [i: number]: any }): T =>
   arr[arr.length - 1]
 
-const pad = (v: string) => (v === ' ' ? ' ' : '')
-
 export function preferLocalBin(
   env: NodeJS.ProcessEnv,
   ...dirs: (string | undefined)[]
@@ -105,27 +97,10 @@ export function preferLocalBin(
   }
 }
 
-// export function normalizeMultilinePieces(
-//   pieces: TemplateStringsArray
-// ): TemplateStringsArray {
-//   return Object.assign(
-//     pieces.map((p, i) =>
-//       p.trim()
-//         ? pad(p[0]) +
-//           parseLine(p)
-//             .words.map(({ w }) => (w === '\\' ? '' : w.trim()))
-//             .join(' ') +
-//           pad(p[p.length - 1])
-//         : pieces[i]
-//     ),
-//     { raw: pieces.raw }
-//   )
-// }
-
 export function quote(arg: string): string {
-  if (/^[\w/.\-@:=]+$/.test(arg) || arg === '') {
-    return arg
-  }
+  if (arg === '') return `$''`
+  if (/^[\w/.\-@:=]+$/.test(arg)) return arg
+
   return (
     `$'` +
     arg
@@ -142,9 +117,9 @@ export function quote(arg: string): string {
 }
 
 export function quotePowerShell(arg: string): string {
-  if (/^[\w/.\-]+$/.test(arg) || arg === '') {
-    return arg
-  }
+  if (arg === '') return `''`
+  if (/^[\w/.\-]+$/.test(arg)) return arg
+
   return `'` + arg.replace(/'/g, "''") + `'`
 }
 
@@ -161,197 +136,6 @@ export function parseDuration(d: Duration) {
 
   throw new Error(`Unknown duration: "${d}".`)
 }
-
-export type LogEntry = {
-  verbose?: boolean
-} & (
-  | {
-      kind: 'cmd'
-      cmd: string
-      id: string
-    }
-  | {
-      kind: 'stdout' | 'stderr'
-      data: Buffer
-      id: string
-    }
-  | {
-      kind: 'end'
-      exitCode: number | null
-      signal: NodeJS.Signals | null
-      duration: number
-      error: null | Error
-      id: string
-    }
-  | {
-      kind: 'cd'
-      dir: string
-    }
-  | {
-      kind: 'fetch'
-      url: RequestInfo
-      init?: RequestInit
-    }
-  | {
-      kind: 'retry'
-      attempt: number
-      total: number
-      delay: number
-      exception: unknown
-      error?: string
-    }
-  | {
-      kind: 'custom'
-      data: any
-    }
-)
-
-export function log(entry: LogEntry) {
-  if (!entry.verbose) return
-  const stream = process.stderr
-  switch (entry.kind) {
-    case 'cmd':
-      stream.write(formatCmd(entry.cmd))
-      break
-    case 'stdout':
-    case 'stderr':
-    case 'custom':
-      stream.write(entry.data)
-      break
-    case 'cd':
-      stream.write('$ ' + chalk.greenBright('cd') + ` ${entry.dir}\n`)
-      break
-    case 'fetch':
-      const init = entry.init ? ' ' + inspect(entry.init) : ''
-      stream.write('$ ' + chalk.greenBright('fetch') + ` ${entry.url}${init}\n`)
-      break
-    case 'retry':
-      stream.write(
-        chalk.bgRed.white(' FAIL ') +
-          ` Attempt: ${entry.attempt}${entry.total == Infinity ? '' : `/${entry.total}`}` +
-          (entry.delay > 0 ? `; next in ${entry.delay}ms` : '') +
-          '\n'
-      )
-  }
-}
-
-export function formatCmd(cmd?: string): string {
-  if (cmd == undefined) return chalk.grey('undefined')
-  const chars = [...cmd]
-  let out = '$ '
-  let buf = ''
-  let ch: string
-  type State = (() => State) | undefined
-  let state: State = root
-  let wordCount = 0
-  while (state) {
-    ch = chars.shift() || 'EOF'
-    if (ch == '\n') {
-      out += style(state, buf) + '\n> '
-      buf = ''
-      continue
-    }
-    const next: State = ch === 'EOF' ? undefined : state()
-    if (next !== state) {
-      out += style(state, buf)
-      buf = ''
-    }
-    state = next === root ? next() : next
-    buf += ch
-  }
-
-  function style(state: State, s: string): string {
-    if (s === '') return ''
-    if (RESERVED_WORDS.has(s)) {
-      return chalk.cyanBright(s)
-    }
-    if (state == word && wordCount == 0) {
-      wordCount++
-      return chalk.greenBright(s)
-    }
-    if (state == syntax) {
-      wordCount = 0
-      return chalk.cyanBright(s)
-    }
-    if (state == dollar) return chalk.yellowBright(s)
-    if (state?.name.startsWith('str')) return chalk.yellowBright(s)
-    return s
-  }
-
-  function isSyntax(ch: string) {
-    return '()[]{}<>;:+|&='.includes(ch)
-  }
-
-  function root() {
-    if (/\s/.test(ch)) return space
-    if (isSyntax(ch)) return syntax
-    if (ch === '$') return dollar
-    if (ch === '"') return strDouble
-    if (ch === "'") return strSingle
-    return word
-  }
-
-  function space() {
-    return /\s/.test(ch) ? space : root
-  }
-
-  function word() {
-    return /[\w/.]/i.test(ch) ? word : root
-  }
-
-  function syntax() {
-    return isSyntax(ch) ? syntax : root
-  }
-
-  function dollar() {
-    return ch === "'" ? str : root
-  }
-
-  function str() {
-    if (ch === "'") return strEnd
-    if (ch === '\\') return strBackslash
-    return str
-  }
-
-  function strBackslash() {
-    return strEscape
-  }
-
-  function strEscape() {
-    return str
-  }
-
-  function strDouble() {
-    return ch === '"' ? strEnd : strDouble
-  }
-
-  function strSingle() {
-    return ch === "'" ? strEnd : strSingle
-  }
-
-  function strEnd() {
-    return root
-  }
-
-  return out + '\n'
-}
-
-const RESERVED_WORDS = new Set([
-  'if',
-  'then',
-  'else',
-  'elif',
-  'fi',
-  'case',
-  'esac',
-  'for',
-  'select',
-  'while',
-  'until',
-  'do',
-  'done',
-  'in',
-])
 
 export const once = <T extends (...args: any[]) => any>(fn: T) => {
   let called = false
