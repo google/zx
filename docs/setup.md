@@ -13,7 +13,12 @@
 ::: code-group
 
 ```bash [npm]
-npm install zx
+npm install zx     # add -g to install globally 
+```
+
+```bash [npx]
+npx zx script.js         # run script without installing the zx package
+npx zx@8.5.0 script.js   # pin to a specific zx version
 ```
 
 ```bash [yarn]

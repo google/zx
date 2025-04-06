@@ -30,6 +30,7 @@ gives sensible defaults.
 ```bash
 npm install zx
 ```
+Complete installation instructions: [zx/setup](https://google.github.io/zx/setup)
 
 ## Documentation
 

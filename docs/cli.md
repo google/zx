@@ -1,6 +1,6 @@
 # CLI Usage
 
-Zx provides a CLI for running scripts. It comes with the package and can be used as `zx` executable (if referenced in package.json `"scripts"`, installed globally or added to the `$PATH` somehow).
+Zx provides a CLI for running scripts. It comes with the package and can be used as `zx` executable (if referenced in package.json `"scripts"`, installed [globally](/setup#install) or added to the `$PATH` somehow).
 
 ```sh
 zx script.mjs
