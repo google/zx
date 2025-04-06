@@ -28,7 +28,7 @@ gives sensible defaults.
 ## Install
 
 ```bash
-npm install zx
+npm install -g zx
 ```
 
 ## Documentation
