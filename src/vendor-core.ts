@@ -46,7 +46,9 @@ export {
 } from 'zurk/spawn'
 
 export type RequestInfo = Parameters<typeof globalThis.fetch>[0]
-export type RequestInit = Parameters<typeof globalThis.fetch>[1]
+export type RequestInit = Parameters<typeof globalThis.fetch>[1] & {
+  signal?: AbortSignal
+}
 
 export { type ChalkInstance } from 'chalk'
 export const chalk: typeof _chalk = wrap('chalk', _chalk)
