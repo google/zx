@@ -34,6 +34,16 @@ describe('log', () => {
 
     beforeEach(() => (data.length = 0))
 
+    test('empty log', () => {
+      log({
+        kind: 'cmd',
+        cmd: 'echo hi',
+        id: '1',
+        verbose: false,
+      })
+      assert.equal(data.join(''), '')
+    })
+
     test('cmd', () => {
       log({
         kind: 'cmd',
