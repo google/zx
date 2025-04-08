@@ -64,7 +64,7 @@ const entryPoints = entry.includes('*')
   : entries.map((p) => path.relative(cwd, path.resolve(cwd, p)))
 
 const _bundle = bundle && bundle !== 'none'
-const _external = _bundle ? external.split(',') : undefined // https://github.com/evanw/esbuild/issues/1466
+const _external = ['zx/globals', ...(_bundle ? external.split(',') : [])] // https://github.com/evanw/esbuild/issues/1466
 
 const plugins = [
   esbuildResolvePlugin({
@@ -155,6 +155,10 @@ plugins.push(
             .replace(
               /\/\/ Annotate the CommonJS export names for ESM import in node:/,
               ($0) => `/* c8 ignore next 100 */\n${$0}`
+            )
+            .replace(
+              'yield import("zx/globals")',
+              'yield require("./globals.cjs")'
             )
         },
       },

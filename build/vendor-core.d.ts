@@ -347,7 +347,9 @@ export declare const bus: {
 	wrap: <T extends object>(name: string, api: T) => T;
 };
 export type RequestInfo = Parameters<typeof globalThis.fetch>[0];
-type RequestInit$1 = Parameters<typeof globalThis.fetch>[1];
+type RequestInit$1 = Parameters<typeof globalThis.fetch>[1] & {
+	signal?: AbortSignal;
+};
 declare const chalk$1: typeof chalk;
 declare const which$1: typeof which;
 export declare const ps: typeof _default;

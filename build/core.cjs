@@ -252,6 +252,7 @@ var import_util = require("./util.cjs");
 // src/log.ts
 var import_vendor_core = require("./vendor-core.cjs");
 var import_node_util = require("util");
+var import_node_process = __toESM(require("process"), 1);
 var formatters = {
   cmd({ cmd }) {
     return formatCmd(cmd);
@@ -287,7 +288,7 @@ var formatters = {
 var log = function(entry) {
   var _a;
   if (!entry.verbose) return;
-  const stream = log.output || process.stderr;
+  const stream = log.output || import_node_process.default.stderr;
   const format = ((_a = log.formatters) == null ? void 0 : _a[entry.kind]) || formatters[entry.kind];
   if (!format) return;
   const data = format(entry);
@@ -386,11 +387,13 @@ function formatCmd(cmd) {
 // src/core.ts
 var import_node_path = __toESM(require("path"), 1);
 var os = __toESM(require("os"), 1);
+var import_node_buffer = require("buffer");
+var import_node_process2 = __toESM(require("process"), 1);
 var import_vendor_core3 = require("./vendor-core.cjs");
 var import_util2 = require("./util.cjs");
 var CWD = Symbol("processCwd");
 var SYNC = Symbol("syncExec");
-var EOL = Buffer.from(import_node_os.EOL);
+var EOL = import_node_buffer.Buffer.from(import_node_os.EOL);
 var BR_CC = "\n".charCodeAt(0);
 var SIGTERM = "SIGTERM";
 var ENV_PREFIX = "ZX_";
@@ -415,10 +418,10 @@ function within(callback) {
   return storage.run(__spreadValues({}, getStore()), callback);
 }
 var defaults = resolveDefaults({
-  [CWD]: process.cwd(),
+  [CWD]: import_node_process2.default.cwd(),
   [SYNC]: false,
   verbose: false,
-  env: process.env,
+  env: import_node_process2.default.env,
   sync: false,
   shell: true,
   stdio: "pipe",
@@ -459,9 +462,9 @@ var $ = new Proxy(
     );
     const sync = snapshot[SYNC];
     bound.push([cmd, from, snapshot]);
-    const process2 = new ProcessPromise(import_util.noop);
-    if (!process2.isHalted() || sync) process2.run();
-    return sync ? process2.output : process2;
+    const process3 = new ProcessPromise(import_util.noop);
+    if (!process3.isHalted() || sync) process3.run();
+    return sync ? process3.output : process3;
   },
   {
     set(_, key, value) {
@@ -895,7 +898,7 @@ var _ProcessOutput = class _ProcessOutput extends Error {
     return JSON.parse(this.stdall);
   }
   buffer() {
-    return Buffer.from(this.stdall);
+    return import_node_buffer.Buffer.from(this.stdall);
   }
   blob(type = "text/plain") {
     if (!globalThis.Blob)
@@ -979,30 +982,30 @@ function syncProcessCwd(flag = true) {
   else cwdSyncHook.disable();
 }
 function syncCwd() {
-  if ($[CWD] != process.cwd()) process.chdir($[CWD]);
+  if ($[CWD] != import_node_process2.default.cwd()) import_node_process2.default.chdir($[CWD]);
 }
 function cd(dir) {
   if (dir instanceof ProcessOutput) {
     dir = dir.toString().trim();
   }
   $.log({ kind: "cd", dir, verbose: !$.quiet && $.verbose });
-  process.chdir(dir);
-  $[CWD] = process.cwd();
+  import_node_process2.default.chdir(dir);
+  $[CWD] = import_node_process2.default.cwd();
 }
 function kill(_0) {
   return __async(this, arguments, function* (pid, signal = $.killSignal) {
     const children = yield import_vendor_core2.ps.tree({ pid, recursive: true });
     for (const p of children) {
       try {
-        process.kill(+p.pid, signal);
+        import_node_process2.default.kill(+p.pid, signal);
       } catch (e) {
       }
     }
     try {
-      process.kill(-pid, signal);
+      import_node_process2.default.kill(-pid, signal);
     } catch (e) {
       try {
-        process.kill(+pid, signal);
+        import_node_process2.default.kill(+pid, signal);
       } catch (e2) {
       }
     }
@@ -1029,7 +1032,7 @@ var promisifyStream = (stream, from) => (0, import_util.proxyOverride)(stream, {
     return piped instanceof ProcessPromise ? piped : promisifyStream(piped, from);
   }
 });
-function resolveDefaults(defs = defaults, prefix = ENV_PREFIX, env = process.env, allowed = ENV_ALLOWED) {
+function resolveDefaults(defs = defaults, prefix = ENV_PREFIX, env = import_node_process2.default.env, allowed = ENV_ALLOWED) {
   return Object.entries(env).reduce((m, [k, v]) => {
     if (v && k.startsWith(prefix)) {
       const _k = (0, import_util.toCamelCase)(k.slice(prefix.length));

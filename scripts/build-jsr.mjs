@@ -56,9 +56,11 @@ fs.writeFileSync(
         '.': './src/index.ts',
         './core': './src/core.ts',
         './cli': './src/cli.ts',
+        './globals': './src/globals-jsr.ts',
       },
       publish: {
         include: ['src', 'README.md', 'LICENSE'],
+        exclude: ['src/globals.ts'],
       },
       nodeModulesDir: 'auto',
       imports: Object.entries(deps).reduce(
@@ -71,6 +73,7 @@ fs.writeFileSync(
         },
         {
           'zurk/spawn': `jsr:@webpod/zurk@${deps.zurk}`,
+          'zx/globals': './src/globals-jsr.ts',
         }
       ),
     },

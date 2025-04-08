@@ -93,7 +93,7 @@ export const argv: minimist.ParsedArgs = parseArgv(process.argv.slice(2), {
 }, resolveDefaults({} as any, 'ZX_', process.env, new Set(['env', 'install', 'registry'])))
 
 export async function main(): Promise<void> {
-  await import('./globals.ts')
+  await import('zx/globals')
   argv.ext = normalizeExt(argv.ext)
   if (argv.cwd) $.cwd = argv.cwd
   if (argv.env) {
