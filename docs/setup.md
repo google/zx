@@ -13,7 +13,12 @@
 ::: code-group
 
 ```bash [npm]
-npm install zx
+npm install zx     # add -g to install globally
+```
+
+```bash [npx]
+npx zx script.js         # run script without installing the zx package
+npx zx@8.5.0 script.js   # pin to a specific zx version
 ```
 
 ```bash [yarn]
@@ -61,7 +66,7 @@ zx is distributed in several versions, each with its own set of features.
 
 Detailed comparison: [versions](./versions).
 
-Please check the download sources carefully. Official links are:
+Please check the download sources carefully. Official links:
 
 * [npmjs](https://www.npmjs.com/package/zx)
 * [GH npm](https://github.com/google/zx/pkgs/npm/zx)
@@ -69,6 +74,17 @@ Please check the download sources carefully. Official links are:
 * [GH docker](https://github.com/google/zx/pkgs/container/zx)
 * [JSR](https://jsr.io/@webpod/zx)
 * [Homebrew](https://github.com/Homebrew/homebrew-core/blob/master/Formula/z/zx.rb)
+
+### Github
+To fetch zx directly from the GitHub:
+```bash
+# Install via git
+npm i google/zx
+npm i git@github.com:google/zx.git
+
+# Fetch from the GH pkg registry
+npm i --registry=https://npm.pkg.github.com @google/zx
+```
 
 ### Docker
 If you'd prefer to run scripts in a container, you can pull the zx image from the [ghcr.io](https://ghcr.io).

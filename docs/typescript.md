@@ -56,6 +56,8 @@ swc-node script.ts
 npm install tsx
 
 tsx script.ts
+# or
+node --import=tsx script.ts
 ```
 
 ```bash [bun]
