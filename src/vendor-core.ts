@@ -23,7 +23,7 @@ const wrap = <T extends object>(name: string, api: T): T => {
   override(name, api)
   return new Proxy<T>(api, {
     get(_, key) {
-      return store.get(name)[key]
+      return store.get(name)[key] || store.get(name)?.default?.[key]
     },
     apply(_, self, args) {
       return (store.get(name) as TCallable).apply(self, args)
@@ -46,7 +46,9 @@ export {
 } from 'zurk/spawn'
 
 export type RequestInfo = Parameters<typeof globalThis.fetch>[0]
-export type RequestInit = Parameters<typeof globalThis.fetch>[1]
+export type RequestInit = Parameters<typeof globalThis.fetch>[1] & {
+  signal?: AbortSignal
+}
 
 export { type ChalkInstance } from 'chalk'
 export const chalk: typeof _chalk = wrap('chalk', _chalk)
