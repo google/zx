@@ -66,6 +66,8 @@ import { log } from './log.ts'
 
 export { default as path } from 'node:path'
 export * as os from 'node:os'
+import { Buffer } from 'node:buffer'
+import process from 'node:process'
 export { log, type LogEntry } from './log.ts'
 export { chalk, which, ps } from './vendor-core.ts'
 export { quote, quotePowerShell } from './util.ts'
@@ -236,7 +238,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _verbose?: boolean
   private _timeout?: number
   private _timeoutSignal?: NodeJS.Signals
-  private _timeoutId?: NodeJS.Timeout
+  private _timeoutId?: ReturnType<typeof setTimeout>
   private _piped = false
   private _pipedFrom?: ProcessPromise
   private _ee = new EventEmitter()
@@ -504,7 +506,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this._stage
   }
 
-  get [Symbol.toStringTag](): string {
+  override get [Symbol.toStringTag](): string {
     return 'ProcessPromise'
   }
 
@@ -604,7 +606,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   // Promise API
-  then<R = ProcessOutput, E = ProcessOutput>(
+  override then<R = ProcessOutput, E = ProcessOutput>(
     onfulfilled?:
       | ((value: ProcessOutput) => PromiseLike<R> | R)
       | undefined
@@ -617,7 +619,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return super.then(onfulfilled, onrejected)
   }
 
-  catch<T = ProcessOutput>(
+  override catch<T = ProcessOutput>(
     onrejected?:
       | ((reason: ProcessOutput) => PromiseLike<T> | T)
       | undefined
@@ -658,7 +660,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     this._stdin.once(event, cb)
     return this
   }
-  private write(data: any, encoding: BufferEncoding, cb: any) {
+  private write(data: any, encoding: NodeJS.BufferEncoding, cb: any) {
     this._stdin.write(data, encoding, cb)
     return this
   }
@@ -765,7 +767,7 @@ export class ProcessOutput extends Error {
     return this.valueOf()
   }
 
-  toString(): string {
+  override toString(): string {
     return this.stdall
   }
 
@@ -795,7 +797,7 @@ export class ProcessOutput extends Error {
     return [...this]
   }
 
-  valueOf(): string {
+  override valueOf(): string {
     return this.stdall.trim()
   }
 

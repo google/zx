@@ -32,7 +32,11 @@ import { AbortController } from 'node-fetch-native'
 
 export { fetch as nodeFetch } from 'node-fetch-native'
 
-global.AbortController = global.AbortController || AbortController
+// Calculate a global variable for use (Deno/NodeJS) runtime.
+// deno-lint-ignore no-node-globals
+const globalVar = 'Deno' in globalThis ? globalThis : global
+
+globalVar.AbortController = globalVar.AbortController || AbortController
 
 export const createRequire = _createRequire as unknown as (
   filename: string | URL

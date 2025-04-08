@@ -14,6 +14,8 @@
 
 import { chalk, type RequestInfo, type RequestInit } from './vendor-core.ts'
 import { inspect } from 'node:util'
+import { type Buffer } from 'node:buffer'
+import process from 'node:process'
 
 export type LogEntry = {
   verbose?: boolean

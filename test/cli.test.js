@@ -373,6 +373,10 @@ console.log(a);
       }
     })
 
+    test('isMain() function is running from the wrong path', () => {
+      assert.equal(isMain('///root/zx/test/cli.test.js'), false)
+    })
+
     test('normalizeExt()', () => {
       assert.equal(normalizeExt('.ts'), '.ts')
       assert.equal(normalizeExt('ts'), '.ts')

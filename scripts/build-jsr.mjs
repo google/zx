@@ -55,7 +55,7 @@ fs.writeFileSync(
       exports: {
         '.': './src/index.ts',
         './core': './src/core.ts',
-        // './cli': './src/cli.ts',
+        './cli': './src/cli.ts',
       },
       publish: {
         include: ['src', 'README.md', 'LICENSE'],

@@ -22,7 +22,7 @@ Bash is great, but when it comes to writing more complex scripts,
 many people prefer a more convenient programming language.
 JavaScript is a perfect choice, but the Node.js standard library
 requires additional hassle before using. The `zx` package provides
-useful wrappers around `child_process`, escapes arguments and
+useful cross-platform wrappers around `child_process`, escapes arguments and
 gives sensible defaults.
 
 ## Install
@@ -30,6 +30,7 @@ gives sensible defaults.
 ```bash
 npm install zx
 ```
+Complete installation instructions: [zx/setup](https://google.github.io/zx/setup)
 
 ## Documentation
 

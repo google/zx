@@ -17,35 +17,35 @@
       "README.md",
       "LICENSE"
     ],
-    "limit": "114.25 kB",
+    "limit": "115.10 kB",
     "brotli": false,
     "gzip": false
   },
   {
     "name": "js parts",
     "path": "build/*.{js,cjs}",
-    "limit": "815.7 kB",
+    "limit": "817.10 kB",
     "brotli": false,
     "gzip": false
   },
   {
     "name": "libdefs",
     "path": "build/*.d.ts",
-    "limit": "39.55 kB",
+    "limit": "39.75 kB",
     "brotli": false,
     "gzip": false
   },
   {
     "name": "vendor",
     "path": "build/vendor-*",
-    "limit": "769.0 kB",
+    "limit": "769.20 kB",
     "brotli": false,
     "gzip": false
   },
   {
     "name": "all",
     "path": ["build/*", "man/*", "README.md", "LICENSE"],
-    "limit": "871.5 kB",
+    "limit": "873.20 kB",
     "brotli": false,
     "gzip": false
   }

@@ -34,6 +34,7 @@ import { startRepl } from './repl.ts'
 import { randomId } from './util.ts'
 import { transformMarkdown } from './md.ts'
 import { createRequire, type minimist } from './vendor.ts'
+import process from 'node:process'
 
 const EXT = '.mjs'
 const EXT_RE = /^\.[mc]?[jt]sx?$/
@@ -92,7 +93,7 @@ export const argv: minimist.ParsedArgs = parseArgv(process.argv.slice(2), {
 }, resolveDefaults({} as any, 'ZX_', process.env, new Set(['env', 'install', 'registry'])))
 
 export async function main(): Promise<void> {
-  await import('./globals.js')
+  await import('./globals.ts')
   argv.ext = normalizeExt(argv.ext)
   if (argv.cwd) $.cwd = argv.cwd
   if (argv.env) {

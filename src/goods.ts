@@ -30,6 +30,8 @@ import {
   nodeFetch,
   minimist,
 } from './vendor.ts'
+import { Buffer } from 'node:buffer'
+import process from 'node:process'
 
 type ArgvOpts = minimist.Opts & { camelCase?: boolean; parseBoolean?: boolean }
 
@@ -38,7 +40,7 @@ export const parseArgv = (
   opts: ArgvOpts = {},
   defs: Record<string, any> = {}
 ): minimist.ParsedArgs =>
-  Object.entries(minimist(args, opts)).reduce<minimist.ParsedArgs>(
+  Object.entries<string>(minimist(args, opts)).reduce<minimist.ParsedArgs>(
     (m, [k, v]) => {
       const kTrans = opts.camelCase ? toCamelCase : identity
       const vTrans = opts.parseBoolean ? parseBool : identity
@@ -240,7 +242,7 @@ export async function spinner<T>(
     try {
       return await callback!()
     } finally {
-      clearInterval(id as NodeJS.Timeout)
+      clearInterval(id as ReturnType<typeof setTimeout>)
       process.stderr.write(' '.repeat((process.stdout.columns || 1) - 1) + '\r')
     }
   })
