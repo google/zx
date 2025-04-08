@@ -55,10 +55,11 @@ fs.writeFileSync(
       exports: {
         '.': './src/index.ts',
         './core': './src/core.ts',
-        './cli': './src/cli.ts',
+        // './cli': './src/cli.ts', // https://github.com/google/zx/issues/1004
       },
       publish: {
         include: ['src', 'README.md', 'LICENSE'],
+        exclude: ['src/cli.ts', 'src/globals.ts'], //  https://github.com/google/zx/issues/1004
       },
       nodeModulesDir: 'auto',
       imports: Object.entries(deps).reduce(
