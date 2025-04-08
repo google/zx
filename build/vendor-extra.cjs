@@ -19647,7 +19647,8 @@ var config = (def = DOTENV, ...files) => populate(process.env, loadSafe(def, ...
 var index_default = { parse: parse2, stringify: stringify4, load, loadSafe, config };
 
 // src/vendor-extra.ts
-global.AbortController = global.AbortController || A;
+var globalVar = "Deno" in globalThis ? globalThis : global;
+globalVar.AbortController = globalVar.AbortController || A;
 var createRequire = import_create_require.default;
 var globbyModule = {
   convertPathToPattern,

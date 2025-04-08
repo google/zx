@@ -32,7 +32,9 @@ var import_node_stream = require("stream");
 var import_core = require("./core.cjs");
 var import_util = require("./util.cjs");
 var import_vendor = require("./vendor.cjs");
-var parseArgv = (args = process.argv.slice(2), opts = {}, defs = {}) => Object.entries((0, import_vendor.minimist)(args, opts)).reduce(
+var import_node_buffer = require("buffer");
+var import_node_process = __toESM(require("process"), 1);
+var parseArgv = (args = import_node_process.default.argv.slice(2), opts = {}, defs = {}) => Object.entries((0, import_vendor.minimist)(args, opts)).reduce(
   (m, [k, v]) => {
     const kTrans = opts.camelCase ? import_util.toCamelCase : import_util.identity;
     const vTrans = opts.parseBoolean ? import_util.parseBool : import_util.identity;
@@ -61,7 +63,7 @@ var responseToReadable = (response, rs) => {
   }
   rs._read = () => __async(void 0, null, function* () {
     const result = yield reader.read();
-    if (!result.done) rs.push(Buffer.from(result.value));
+    if (!result.done) rs.push(import_node_buffer.Buffer.from(result.value));
     else rs.push(null);
   });
   return rs;
@@ -109,8 +111,8 @@ function question(query, options) {
       };
     }
     const rl = (0, import_node_readline.createInterface)({
-      input: process.stdin,
-      output: process.stdout,
+      input: import_node_process.default.stdin,
+      output: import_node_process.default.stdout,
       terminal: true,
       completer
     });
@@ -125,9 +127,9 @@ function question(query, options) {
 function stdin() {
   return __async(this, null, function* () {
     let buf = "";
-    process.stdin.setEncoding("utf8");
+    import_node_process.default.stdin.setEncoding("utf8");
     try {
-      for (var iter = __forAwait(process.stdin), more, temp, error; more = !(temp = yield iter.next()).done; more = false) {
+      for (var iter = __forAwait(import_node_process.default.stdin), more, temp, error; more = !(temp = yield iter.next()).done; more = false) {
         const chunk = temp.value;
         buf += chunk;
       }
@@ -204,9 +206,9 @@ function spinner(title, callback) {
       callback = title;
       title = "";
     }
-    if (import_core.$.quiet || process.env.CI) return callback();
+    if (import_core.$.quiet || import_node_process.default.env.CI) return callback();
     let i = 0;
-    const spin = () => process.stderr.write(`  ${"\u280B\u2819\u2839\u2838\u283C\u2834\u2826\u2827\u2807\u280F"[i++ % 10]} ${title}\r`);
+    const spin = () => import_node_process.default.stderr.write(`  ${"\u280B\u2819\u2839\u2838\u283C\u2834\u2826\u2827\u2807\u280F"[i++ % 10]} ${title}\r`);
     return (0, import_core.within)(() => __async(this, null, function* () {
       import_core.$.verbose = false;
       const id = setInterval(spin, 100);
@@ -214,7 +216,7 @@ function spinner(title, callback) {
         return yield callback();
       } finally {
         clearInterval(id);
-        process.stderr.write(" ".repeat((process.stdout.columns || 1) - 1) + "\r");
+        import_node_process.default.stderr.write(" ".repeat((import_node_process.default.stdout.columns || 1) - 1) + "\r");
       }
     }));
   });

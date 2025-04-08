@@ -1378,7 +1378,8 @@ var wrap = (name, api) => {
   override(name, api);
   return new Proxy(api, {
     get(_, key) {
-      return store.get(name)[key];
+      var _a, _b;
+      return store.get(name)[key] || ((_b = (_a = store.get(name)) == null ? void 0 : _a.default) == null ? void 0 : _b[key]);
     },
     apply(_, self, args) {
       return store.get(name).apply(self, args);

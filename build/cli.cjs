@@ -37,8 +37,9 @@ var import_node_repl = __toESM(require("repl"), 1);
 var import_node_util = require("util");
 var import_core = require("./core.cjs");
 var import_vendor_core = require("./vendor-core.cjs");
+var import_node_process = __toESM(require("process"), 1);
 var _a;
-var HISTORY = (_a = process.env.ZX_REPL_HISTORY) != null ? _a : import_node_path.default.join(import_node_os.default.homedir(), ".zx_repl_history");
+var HISTORY = (_a = import_node_process.default.env.ZX_REPL_HISTORY) != null ? _a : import_node_path.default.join(import_node_os.default.homedir(), ".zx_repl_history");
 function startRepl() {
   return __async(this, arguments, function* (history = HISTORY) {
     import_core.defaults.verbose = false;
@@ -135,6 +136,7 @@ function transformMarkdown(buf) {
 
 // src/cli.ts
 var import_vendor = require("./vendor.cjs");
+var import_node_process2 = __toESM(require("process"), 1);
 var import_meta = {};
 var EXT = ".mjs";
 var EXT_RE = /^\.[mc]?[jt]sx?$/;
@@ -144,7 +146,7 @@ isMain() && main().catch((err) => {
   } else {
     console.error(err);
   }
-  process.exitCode = 1;
+  import_node_process2.default.exitCode = 1;
 });
 function printUsage() {
   console.log(`
@@ -175,7 +177,7 @@ function printUsage() {
  ${import_index.chalk.italic("Full documentation:")} ${import_index.chalk.underline("https://google.github.io/zx/")}
 `);
 }
-var argv = (0, import_index.parseArgv)(process.argv.slice(2), {
+var argv = (0, import_index.parseArgv)(import_node_process2.default.argv.slice(2), {
   default: { ["prefer-local"]: false },
   // exclude 'prefer-local' to let minimist infer the type
   string: ["shell", "prefix", "postfix", "eval", "cwd", "ext", "registry", "env"],
@@ -184,15 +186,15 @@ var argv = (0, import_index.parseArgv)(process.argv.slice(2), {
   stopEarly: true,
   parseBoolean: true,
   camelCase: true
-}, (0, import_index.resolveDefaults)({}, "ZX_", process.env, /* @__PURE__ */ new Set(["env", "install", "registry"])));
+}, (0, import_index.resolveDefaults)({}, "ZX_", import_node_process2.default.env, /* @__PURE__ */ new Set(["env", "install", "registry"])));
 function main() {
   return __async(this, null, function* () {
     var _a2;
-    yield import("./globals.cjs");
+    yield require("./globals.cjs");
     argv.ext = normalizeExt(argv.ext);
     if (argv.cwd) import_index.$.cwd = argv.cwd;
     if (argv.env) {
-      const envfile = import_index.path.resolve((_a2 = import_index.$.cwd) != null ? _a2 : process.cwd(), argv.env);
+      const envfile = import_index.path.resolve((_a2 = import_index.$.cwd) != null ? _a2 : import_node_process2.default.cwd(), argv.env);
       import_index.dotenv.config(envfile);
       (0, import_index.resolveDefaults)();
     }
@@ -238,7 +240,7 @@ function runScript(script, scriptPath, tempPath) {
         yield (0, import_deps.installDeps)((0, import_deps.parseDeps)(script), cwd, argv.registry);
       }
       injectGlobalRequire(scriptPath);
-      process.once("exit", rmTemp);
+      import_node_process2.default.once("exit", rmTemp);
       yield import(import_node_url.default.pathToFileURL(scriptPath).toString());
     } finally {
       rmTemp();
@@ -269,7 +271,7 @@ function readScript() {
       tempPath = getFilepath(import_index.$.cwd, "zx", argv.ext);
       if (script.length === 0) {
         printUsage();
-        process.exitCode = 1;
+        import_node_process2.default.exitCode = 1;
         throw new Error("No script provided");
       }
     } else if (/^https?:/.test(firstArg)) {
@@ -294,7 +296,7 @@ function readScript() {
 }
 function readScriptFromStdin() {
   return __async(this, null, function* () {
-    return !process.stdin.isTTY ? (0, import_index.stdin)() : "";
+    return !import_node_process2.default.stdin.isTTY ? (0, import_index.stdin)() : "";
   });
 }
 function readScriptFromHttp(remote) {
@@ -302,7 +304,7 @@ function readScriptFromHttp(remote) {
     const res = yield (0, import_index.fetch)(remote);
     if (!res.ok) {
       console.error(`Error: Can't get ${remote}`);
-      process.exit(1);
+      import_node_process2.default.exit(1);
     }
     return res.text();
   });
@@ -313,7 +315,7 @@ function injectGlobalRequire(origin) {
   const require2 = (0, import_vendor.createRequire)(origin);
   Object.assign(globalThis, { __filename, __dirname, require: require2 });
 }
-function isMain(metaurl = import_meta_url, scriptpath = process.argv[1]) {
+function isMain(metaurl = import_meta_url, scriptpath = import_node_process2.default.argv[1]) {
   if (metaurl.startsWith("file:")) {
     const modulePath = import_node_url.default.fileURLToPath(metaurl).replace(/\.\w+$/, "");
     const mainPath = import_index.fs.realpathSync(scriptpath).replace(/\.\w+$/, "");
@@ -329,7 +331,7 @@ function getFilepath(cwd = ".", name = "zx", _ext) {
   return [
     name + ext,
     name + "-" + (0, import_util2.randomId)() + ext
-  ].map((f) => import_index.path.resolve(process.cwd(), cwd, f)).find((f) => !import_index.fs.existsSync(f));
+  ].map((f) => import_index.path.resolve(import_node_process2.default.cwd(), cwd, f)).find((f) => !import_index.fs.existsSync(f));
 }
 /* c8 ignore next 100 */
 // Annotate the CommonJS export names for ESM import in node:

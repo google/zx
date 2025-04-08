@@ -10,6 +10,7 @@ import { type Duration, quote } from './util.js';
 import { log } from './log.js';
 export { default as path } from 'node:path';
 export * as os from 'node:os';
+import { Buffer } from 'node:buffer';
 export { log, type LogEntry } from './log.js';
 export { chalk, which, ps } from './vendor-core.js';
 export { quote, quotePowerShell } from './util.js';

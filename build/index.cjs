@@ -39,11 +39,11 @@ __reExport(index_exports, require("./goods.cjs"), module.exports);
 var import_vendor2 = require("./vendor.cjs");
 var import_util = require("./util.cjs");
 var import_meta = {};
-var _a;
-var VERSION = (_a = import_vendor.fs.readJsonSync(
-  new URL("../package.json", import_meta_url),
-  { throws: false }
-)) == null ? void 0 : _a.version;
+var VERSION = (() => {
+  var _a;
+  const f = (file) => import_vendor.fs.readJsonSync(new URL(file, import_meta_url), { throws: false });
+  return (_a = f("../package.json") || f("../jsr.json")) == null ? void 0 : _a.version;
+})();
 var version = VERSION;
 function nothrow(promise) {
   return promise.nothrow();

@@ -35,6 +35,7 @@ module.exports = __toCommonJS(util_exports);
 var import_node_os = __toESM(require("os"), 1);
 var import_node_path = __toESM(require("path"), 1);
 var import_node_fs = __toESM(require("fs"), 1);
+var import_node_process = __toESM(require("process"), 1);
 var import_vendor_core = require("./vendor-core.cjs");
 function tempdir(prefix = `zx-${randomId()}`, mode) {
   const dirpath = import_node_path.default.join(import_node_os.default.tmpdir(), prefix);
@@ -63,7 +64,7 @@ var bufToString = (buf) => isString(buf) ? buf : utf8Decoder.decode(buf);
 var bufArrJoin = (arr) => arr.reduce((acc, buf) => acc + bufToString(buf), "");
 var getLast = (arr) => arr[arr.length - 1];
 function preferLocalBin(env, ...dirs) {
-  const pathKey = process.platform === "win32" ? Object.keys(env).reverse().find((key) => key.toUpperCase() === "PATH") || "Path" : "PATH";
+  const pathKey = import_node_process.default.platform === "win32" ? Object.keys(env).reverse().find((key) => key.toUpperCase() === "PATH") || "Path" : "PATH";
   const pathValue = dirs.map(
     (c) => c && [
       import_node_path.default.resolve(c, "node_modules", ".bin"),
