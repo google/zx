@@ -1,0 +1,34 @@
+{
+  "name": "@webpod/zx",
+  "version": "8.5.1",
+  "license": "Apache-2.0",
+  "exports": {
+    ".": "./src/index.ts",
+    "./core": "./src/core.ts"
+  },
+  "publish": {
+    "include": ["src", "src/config.json", "README.md", "LICENSE"],
+    "exclude": ["src/cli.ts", "src/globals.ts"]
+  },
+  "nodeModulesDir": "auto",
+  "imports": {
+    "zurk/spawn": "jsr:@webpod/zurk@0.11.2",
+    "@types/fs-extra": "npm:@types/fs-extra@11.0.4",
+    "@types/minimist": "npm:@types/minimist@1.2.5",
+    "@types/node": "npm:@types/node@22.13.16",
+    "@types/which": "npm:@types/which@3.0.4",
+    "@webpod/ingrid": "npm:@webpod/ingrid@0.0.0-beta.3",
+    "@webpod/ps": "npm:@webpod/ps@0.1.1",
+    "chalk": "npm:chalk@5.4.1",
+    "create-require": "npm:create-require@1.1.1",
+    "depseek": "npm:depseek@0.4.1",
+    "envapi": "npm:envapi@0.2.3",
+    "fs-extra": "npm:fs-extra@11.3.0",
+    "globby": "npm:globby@14.1.0",
+    "minimist": "npm:minimist@1.2.8",
+    "node-fetch-native": "npm:node-fetch-native@1.6.4",
+    "which": "npm:which@5.0.0",
+    "yaml": "jsr:@eemeli/yaml@2.7.1",
+    "zurk": "jsr:@webpod/zurk@0.11.2"
+  }
+}
