@@ -19,11 +19,10 @@ export * from './core.ts'
 export * from './goods.ts'
 export { minimist, dotenv, fs, YAML, glob, glob as globby } from './vendor.ts'
 
-export const VERSION: string = (() => {
-  const f = (file: string) =>
-    fs.readJsonSync(new URL(file, import.meta.url), { throws: false })
-  return (f('../package.json') || f('../jsr.json'))?.version
-})()
+export const VERSION: string =
+  fs.readJsonSync(new URL('../package.json', import.meta.url), {
+    throws: false,
+  })?.version || URL.parse(import.meta.url)!.pathname.split('/')[3] // extracts version from JSR url
 
 export const version: string = VERSION
 
