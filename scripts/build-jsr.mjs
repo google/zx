@@ -57,9 +57,10 @@ fs.writeFileSync(
         './core': './src/core.ts',
         './cli': './src/cli.ts',
         './globals': './src/globals-jsr.ts',
+        './jsr.json': './jsr.json',
       },
       publish: {
-        include: ['src', 'README.md', 'LICENSE'],
+        include: ['src', 'README.md', 'LICENSE', 'jsr.json'],
         exclude: ['src/globals.ts'],
       },
       nodeModulesDir: 'auto',
