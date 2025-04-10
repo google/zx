@@ -3,9 +3,10 @@
 ## Requirements
 * Linux, macOS, or Windows
 * JavaScript Runtime:
-  * Node.js 12.17.0 or later
-  * Bun 1.0.0 or later
+  * Node.js >= 12.17.0
+  * Bun >= 1.0.0
   * Deno 1.x, 2.x
+  * GraalVM Node.js
 * Some kind of bash or PowerShell
 
 ## Install
