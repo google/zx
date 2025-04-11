@@ -213,6 +213,31 @@ jobs:
         if: matrix.node-version >= 22
         run: npm run test:smoke:strip-types
 
+  smoke-graal:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: [17, 20]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: graalvm/setup-graalvm@7f61f4917e70cddcfee9df637f280f10d5ae3566 #v1
+        with:
+          java-version: ${{ matrix.version }}
+          distribution: 'graalvm-community'
+          components: 'nodejs'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: build
+      - name: smoke tests
+        run: |
+          which node
+          node -v
+          npm run test:smoke:cjs
+
   smoke-ts:
     runs-on: ubuntu-latest
     needs: build
