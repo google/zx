@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { $ } from './core.ts'
-import { spinner } from './goods.ts'
+import { $, spinner } from './index.ts'
 import { depseek } from './vendor.ts'
 
 /**

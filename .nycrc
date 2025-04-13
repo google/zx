@@ -10,6 +10,9 @@
     "build/esblib.cjs",
     "test/**",
     "scripts",
-    "src/util.ts"
+    "src/util.ts",
+    "src/core.ts",
+    "src/index.ts",
+    "src/vendor-extra.ts"
   ]
 }

@@ -153,10 +153,13 @@ const p2 = fetch('https://example.com').pipe`cat`
 
 ## `question()`
 
-A wrapper around the [readline](https://nodejs.org/api/readline.html) package.
+A wrapper around the [readline](https://nodejs.org/api/readline.html) API.
 
 ```js
 const bear = await question('What kind of bear is best? ')
+const selected = await question('Select an option:', {
+  choices: ['A', 'B', 'C'],
+})
 ```
 
 ## `sleep()`
