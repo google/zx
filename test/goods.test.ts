@@ -14,22 +14,78 @@
 
 import assert from 'node:assert'
 import { test, describe, after } from 'node:test'
-import { $, chalk, fs, tempfile, dotenv } from '../build/index.js'
-import { echo, sleep, parseArgv } from '../build/goods.js'
+import { Duplex } from 'node:stream'
+import { $, chalk, fs, path, tempfile, dotenv } from '../src/index.ts'
+import {
+  echo,
+  sleep,
+  argv,
+  parseArgv,
+  updateArgv,
+  stdin,
+  spinner,
+  fetch,
+  retry,
+  question,
+  expBackoff,
+} from '../src/goods.ts'
+import { Writable } from 'node:stream'
+
+const __dirname = new URL('.', import.meta.url).pathname
+const root = path.resolve(__dirname, '..')
 
 describe('goods', () => {
   function zx(script) {
     return $`node build/cli.js --eval ${script}`.nothrow().timeout('5s')
   }
 
-  test('question() works', async () => {
-    const p = $`node build/cli.js --eval "
+  describe('question()', async () => {
+    test('works', async () => {
+      let contents = ''
+      class Input extends Duplex {
+        constructor() {
+          super()
+        }
+        _read() {}
+        _write(chunk, encoding, callback) {
+          this.push(chunk)
+          callback()
+        }
+        _final() {
+          this.push(null)
+        }
+      }
+      const input = new Input() as any
+      const output = new Writable({
+        write: function (chunk, encoding, next) {
+          contents += chunk.toString()
+          next()
+        },
+      }) as NodeJS.WriteStream
+
+      setTimeout(() => {
+        input.write('foo\n')
+        input.end()
+      }, 10)
+      const result = await question('foo or bar? ', {
+        choices: ['foo', 'bar'],
+        input,
+        output,
+      })
+
+      assert.equal(result, 'foo')
+      assert(contents.includes('foo or bar? '))
+    })
+
+    test('nested', async () => {
+      const p = $`node build/cli.js --eval "
   let answer = await question('foo or bar? ', { choices: ['foo', 'bar'] })
   echo('Answer is', answer)
 "`
-    p.stdin.write('foo\n')
-    p.stdin.end()
-    assert.match((await p).stdout, /Answer is foo/)
+      p.stdin.write('foo\n')
+      p.stdin.end()
+      assert.match((await p).stdout, /Answer is foo/)
+    })
   })
 
   test('echo() works', async () => {
@@ -88,8 +144,24 @@ describe('goods', () => {
 
   describe('spinner()', () => {
     test('works', async () => {
-      const out = await zx(
-        `
+      let contents = ''
+      $.log.output = new Writable({
+        write: function (chunk, encoding, next) {
+          contents += chunk.toString()
+          next()
+        },
+      }) as NodeJS.WriteStream
+
+      await spinner(() => sleep(100))
+      assert(contents.includes('⠋'))
+
+      delete $.log.output
+    })
+
+    describe('nested process', () => {
+      test('works', async () => {
+        const out = await zx(
+          `
     process.env.CI = ''
     echo(await spinner(async () => {
       await sleep(100)
@@ -97,47 +169,49 @@ describe('goods', () => {
       return $\`echo result\`
     }))
   `
-      )
-      assert(out.stdout.includes('result'))
-      assert(out.stderr.includes('⠋'))
-      assert(!out.stderr.includes('result'))
-      assert(!out.stderr.includes('hidden'))
-    })
+        )
+        assert(out.stdout.includes('result'))
+        assert(out.stderr.includes('⠋'))
+        assert(!out.stderr.includes('result'))
+        assert(!out.stderr.includes('hidden'))
+      })
 
-    test('with title', async () => {
-      const out = await zx(
-        `
+      test('with title', async () => {
+        const out = await zx(
+          `
     process.env.CI = ''
     await spinner('processing', () => sleep(100))
   `
-      )
-      assert.match(out.stderr, /processing/)
-    })
+        )
+        assert.match(out.stderr, /processing/)
+      })
 
-    test('disabled in CI', async () => {
-      const out = await zx(
-        `
+      test('disabled in CI', async () => {
+        const out = await zx(
+          `
     process.env.CI = 'true'
     await spinner('processing', () => sleep(100))
   `
-      )
-      assert.doesNotMatch(out.stderr, /processing/)
-    })
+        )
+        assert.doesNotMatch(out.stderr, /processing/)
+      })
 
-    test('stops on throw', async () => {
-      const out = await zx(`
+      test('stops on throw', async () => {
+        const out = await zx(`
     await spinner('processing', () => $\`wtf-cmd\`)
   `)
-      assert.match(out.stderr, /Error:/)
-      assert(out.exitCode !== 0)
+        assert.match(out.stderr, /Error:/)
+        assert(out.exitCode !== 0)
+      })
     })
   })
 
-  test('parseArgv() works', () => {
-    assert.deepEqual(
-      parseArgv(
-        // prettier-ignore
-        [
+  describe('args', () => {
+    test('parseArgv() works', () => {
+      assert.deepEqual(
+        parseArgv(
+          // prettier-ignore
+          [
           '--foo-bar', 'baz',
           '-a', '5',
           '-a', '42',
@@ -151,31 +225,46 @@ describe('goods', () => {
           '--b5', 'true',
           '--b6', 'str'
         ],
+          {
+            boolean: ['force', 'b3', 'b4', 'b5', 'b6'],
+            camelCase: true,
+            parseBoolean: true,
+            alias: { a: 'aaa' },
+          },
+          {
+            def: 'def',
+          }
+        ),
         {
-          boolean: ['force', 'b3', 'b4', 'b5', 'b6'],
-          camelCase: true,
-          parseBoolean: true,
-          alias: { a: 'aaa' },
-        },
-        {
+          a: [5, 42, 'AAA'],
+          aaa: [5, 42, 'AAA'],
+          fooBar: 'baz',
+          force: true,
+          _: ['./some.file', 'str'],
+          b1: true,
+          b2: false,
+          b3: true,
+          b4: false,
+          b5: true,
+          b6: true,
           def: 'def',
         }
-      ),
-      {
-        a: [5, 42, 'AAA'],
-        aaa: [5, 42, 'AAA'],
-        fooBar: 'baz',
-        force: true,
-        _: ['./some.file', 'str'],
-        b1: true,
-        b2: false,
-        b3: true,
-        b4: false,
-        b5: true,
-        b6: true,
-        def: 'def',
-      }
-    )
+      )
+    })
+
+    test('updateArgv() works', () => {
+      updateArgv(['--foo', 'bar'])
+      assert.deepEqual(argv, {
+        _: [],
+        foo: 'bar',
+      })
+    })
+  })
+
+  test('stdin()', async () => {
+    const stream = fs.createReadStream(path.resolve(root, 'package.json'))
+    const input = await stdin(stream)
+    assert.match(input, /"name": "zx"/)
   })
 
   describe('dotenv', () => {
@@ -228,7 +317,7 @@ ENV5=v5 # comment
       test('throws error on ENOENT', () => {
         try {
           dotenv.load('./.env')
-          assert.throw()
+          throw new Error('unreachable')
         } catch (e) {
           assert.equal(e.code, 'ENOENT')
           assert.equal(e.errno, -2)

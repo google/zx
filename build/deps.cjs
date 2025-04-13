@@ -13,8 +13,7 @@ __export(deps_exports, {
   parseDeps: () => parseDeps
 });
 module.exports = __toCommonJS(deps_exports);
-var import_core = require("./core.cjs");
-var import_goods = require("./goods.cjs");
+var import_index = require("./index.cjs");
 var import_vendor = require("./vendor.cjs");
 function installDeps(dependencies, prefix, registry) {
   return __async(this, null, function* () {
@@ -26,9 +25,9 @@ function installDeps(dependencies, prefix, registry) {
     if (packages.length === 0) {
       return;
     }
-    yield (0, import_goods.spinner)(
+    yield (0, import_index.spinner)(
       `npm i ${packages.join(" ")}`,
-      () => import_core.$`npm install --no-save --no-audit --no-fund ${registryFlag} ${prefixFlag} ${packages}`.nothrow()
+      () => import_index.$`npm install --no-save --no-audit --no-fund ${registryFlag} ${prefixFlag} ${packages}`.nothrow()
     );
   });
 }

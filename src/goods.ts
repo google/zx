@@ -119,20 +119,27 @@ function stringify(arg: ProcessOutput | any) {
 
 export async function question(
   query?: string,
-  options?: { choices: string[] }
+  {
+    choices,
+    input = process.stdin,
+    output = process.stdout,
+  }: {
+    choices?: string[]
+    input?: NodeJS.ReadStream
+    output?: NodeJS.WriteStream
+  } = {}
 ): Promise<string> {
   let completer = undefined
-  if (options && Array.isArray(options.choices)) {
+  if (Array.isArray(choices)) {
     /* c8 ignore next 5 */
     completer = function completer(line: string) {
-      const completions = options.choices
-      const hits = completions.filter((c) => c.startsWith(line))
-      return [hits.length ? hits : completions, line]
+      const hits = choices.filter((c) => c.startsWith(line))
+      return [hits.length ? hits : choices, line]
     }
   }
   const rl = createInterface({
-    input: process.stdin,
-    output: process.stdout,
+    input,
+    output,
     terminal: true,
     completer,
   })
@@ -145,10 +152,10 @@ export async function question(
   )
 }
 
-export async function stdin(): Promise<string> {
+export async function stdin(stream: Readable = process.stdin): Promise<string> {
   let buf = ''
-  process.stdin.setEncoding('utf8')
-  for await (const chunk of process.stdin) {
+  stream.setEncoding('utf8')
+  for await (const chunk of stream) {
     buf += chunk
   }
   return buf
@@ -233,8 +240,8 @@ export async function spinner<T>(
   if ($.quiet || process.env.CI) return callback!()
 
   let i = 0
-  const spin = () =>
-    process.stderr.write(`  ${'⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'[i++ % 10]} ${title}\r`)
+  const stream = $.log.output || process.stderr
+  const spin = () => stream.write(`  ${'⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'[i++ % 10]} ${title}\r`)
   return within(async () => {
     $.verbose = false
     const id = setInterval(spin, 100)
@@ -243,7 +250,7 @@ export async function spinner<T>(
       return await callback!()
     } finally {
       clearInterval(id as ReturnType<typeof setTimeout>)
-      process.stderr.write(' '.repeat((process.stdout.columns || 1) - 1) + '\r')
+      stream.write(' '.repeat((process.stdout.columns || 1) - 1) + '\r')
     }
   })
 }
