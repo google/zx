@@ -15,7 +15,7 @@
 import assert from 'node:assert'
 import { createInterface } from 'node:readline'
 import { Readable } from 'node:stream'
-import { $, within, ProcessOutput } from './core.ts'
+import { $, within, ProcessOutput, type ProcessPromise } from './core.ts'
 import {
   type Duration,
   identity,
@@ -81,7 +81,12 @@ const responseToReadable = (response: Response, rs: Readable) => {
 export function fetch(
   url: RequestInfo,
   init?: RequestInit
-): Promise<Response> & { pipe: <D>(dest: D) => D } {
+): Promise<Response> & {
+  pipe: {
+    (dest: TemplateStringsArray, ...args: any[]): ProcessPromise
+    <D>(dest: D): D
+  }
+} {
   $.log({ kind: 'fetch', url, init, verbose: !$.quiet && $.verbose })
   const p = nodeFetch(url, init)
 
@@ -216,14 +221,13 @@ export async function retry<T>(
 
 export function* expBackoff(
   max: Duration = '60s',
-  rand: Duration = '100ms'
+  delay: Duration = '100ms'
 ): Generator<number, void, unknown> {
   const maxMs = parseDuration(max)
-  const randMs = parseDuration(rand)
-  let n = 1
+  const randMs = parseDuration(delay)
+  let n = 0
   while (true) {
-    const ms = Math.floor(Math.random() * randMs)
-    yield Math.min(2 ** n++, maxMs) + ms
+    yield Math.min(randMs * 2 ** n++, maxMs)
   }
 }
 

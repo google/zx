@@ -77,7 +77,7 @@ describe('goods', () => {
       assert(contents.includes('foo or bar? '))
     })
 
-    test('nested', async () => {
+    test('integration', async () => {
       const p = $`node build/cli.js --eval "
   let answer = await question('foo or bar? ', { choices: ['foo', 'bar'] })
   echo('Answer is', answer)
@@ -111,9 +111,40 @@ describe('goods', () => {
     assert.ok(Date.now() >= now + 99)
   })
 
-  test('retry() works', async () => {
-    const now = Date.now()
-    const p = await zx(`
+  describe('retry()', () => {
+    test('works', async () => {
+      let count = 0
+      const result = await retry(5, () => {
+        count++
+        if (count < 5) throw new Error('fail')
+        return 'success'
+      })
+      assert.equal(result, 'success')
+      assert.equal(count, 5)
+    })
+
+    test('works with custom delay and limit', async () => {
+      try {
+        await retry(3, '2ms', () => {
+          throw new Error('fail')
+        })
+      } catch (e) {
+        assert.match(e.message, /fail/)
+      }
+    })
+
+    test('supports expBackoff', async () => {
+      const result = await retry(5, expBackoff('10ms'), () => {
+        if (Math.random() < 0.1) throw new Error('fail')
+        return 'success'
+      })
+
+      assert.equal(result, 'success')
+    })
+
+    test('integration', async () => {
+      const now = Date.now()
+      const p = await zx(`
     try {
       await retry(5, '50ms', () => $\`exit 123\`)
     } catch (e) {
@@ -122,14 +153,14 @@ describe('goods', () => {
     await retry(5, () => $\`exit 0\`)
     echo('success')
 `)
-    assert.ok(p.toString().includes('exitCode: 123'))
-    assert.ok(p.toString().includes('success'))
-    assert.ok(Date.now() >= now + 50 * (5 - 1))
-  })
+      assert.ok(p.toString().includes('exitCode: 123'))
+      assert.ok(p.toString().includes('success'))
+      assert.ok(Date.now() >= now + 50 * (5 - 1))
+    })
 
-  test('retry() with expBackoff() works', async () => {
-    const now = Date.now()
-    const p = await zx(`
+    test('integration with expBackoff', async () => {
+      const now = Date.now()
+      const p = await zx(`
     try {
       await retry(5, expBackoff('60s', 0), () => $\`exit 123\`)
     } catch (e) {
@@ -137,9 +168,24 @@ describe('goods', () => {
     }
     echo('success')
 `)
-    assert.ok(p.toString().includes('exitCode: 123'))
-    assert.ok(p.toString().includes('success'))
-    assert.ok(Date.now() >= now + 2 + 4 + 8 + 16 + 32)
+      assert.ok(p.toString().includes('exitCode: 123'))
+      assert.ok(p.toString().includes('success'))
+      assert.ok(Date.now() >= now + 2 + 4 + 8 + 16 + 32)
+    })
+  })
+
+  test('expBackoff()', async () => {
+    const g = expBackoff('10s', '100ms')
+
+    const [a, b, c] = [
+      g.next().value,
+      g.next().value,
+      g.next().value,
+    ] as number[]
+
+    assert.equal(a, 100)
+    assert.equal(b, 200)
+    assert.equal(c, 400)
   })
 
   describe('spinner()', () => {
@@ -158,7 +204,7 @@ describe('goods', () => {
       delete $.log.output
     })
 
-    describe('nested process', () => {
+    describe('integration', () => {
       test('works', async () => {
         const out = await zx(
           `
@@ -265,6 +311,16 @@ describe('goods', () => {
     const stream = fs.createReadStream(path.resolve(root, 'package.json'))
     const input = await stdin(stream)
     assert.match(input, /"name": "zx"/)
+  })
+
+  test('fetch()', async () => {
+    const req = fetch('https://example.com/')
+    const res = await req
+    assert.equal(res.status, 200)
+    assert.equal(res.statusText, 'OK')
+
+    const text = (await req.pipe`cat`).stdout
+    assert(text.includes('Example Domain'))
   })
 
   describe('dotenv', () => {
