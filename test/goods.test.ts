@@ -30,6 +30,7 @@ import {
   expBackoff,
 } from '../src/goods.ts'
 import { Writable } from 'node:stream'
+import process from 'node:process'
 
 const __dirname = new URL('.', import.meta.url).pathname
 const root = path.resolve(__dirname, '..')
@@ -191,17 +192,24 @@ describe('goods', () => {
   describe('spinner()', () => {
     test('works', async () => {
       let contents = ''
-      $.log.output = new Writable({
+      const { CI } = process.env
+      const output = new Writable({
         write: function (chunk, encoding, next) {
           contents += chunk.toString()
           next()
         },
-      }) as NodeJS.WriteStream
+      })
 
-      await spinner(() => sleep(100))
-      assert(contents.includes('⠋'))
+      delete process.env.CI
+      $.log.output = output as NodeJS.WriteStream
+
+      const p = spinner(() => sleep(100))
 
       delete $.log.output
+      process.env.CI = CI
+
+      await p
+      assert(contents.includes('⠋'))
     })
 
     describe('integration', () => {
