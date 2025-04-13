@@ -56,6 +56,7 @@ describe('package', () => {
         'build/globals.cjs',
         'build/globals.d.ts',
         'build/globals.js',
+        'build/goods.d.ts',
         'build/index.cjs',
         'build/index.d.ts',
         'build/index.js',
