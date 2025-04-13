@@ -7,7 +7,7 @@
       "build/core.js",
       "build/core.d.ts",
       "build/deno.js",
-      "build/esblib.js",
+      "build/esblib.cjs",
       "build/util.cjs",
       "build/util.js",
       "build/util.d.ts",
@@ -17,7 +17,7 @@
       "README.md",
       "LICENSE"
     ],
-    "limit": "115.11 kB",
+    "limit": "121.7 kB",
     "brotli": false,
     "gzip": false
   },
