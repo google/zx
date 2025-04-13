@@ -127,19 +127,22 @@ function echo(pieces, ...args) {
 function stringify(arg) {
   return arg instanceof import_core.ProcessOutput ? arg.toString().trimEnd() : `${arg}`;
 }
-function question(query, options) {
-  return __async(this, null, function* () {
+function question(_0) {
+  return __async(this, arguments, function* (query, {
+    choices,
+    input = import_node_process.default.stdin,
+    output = import_node_process.default.stdout
+  } = {}) {
     let completer = void 0;
-    if (options && Array.isArray(options.choices)) {
+    if (Array.isArray(choices)) {
       completer = function completer2(line) {
-        const completions = options.choices;
-        const hits = completions.filter((c) => c.startsWith(line));
-        return [hits.length ? hits : completions, line];
+        const hits = choices.filter((c) => c.startsWith(line));
+        return [hits.length ? hits : choices, line];
       };
     }
     const rl = (0, import_node_readline.createInterface)({
-      input: import_node_process.default.stdin,
-      output: import_node_process.default.stdout,
+      input,
+      output,
       terminal: true,
       completer
     });
@@ -152,11 +155,11 @@ function question(query, options) {
   });
 }
 function stdin() {
-  return __async(this, null, function* () {
+  return __async(this, arguments, function* (stream = import_node_process.default.stdin) {
     let buf = "";
-    import_node_process.default.stdin.setEncoding("utf8");
+    stream.setEncoding("utf8");
     try {
-      for (var iter = __forAwait(import_node_process.default.stdin), more, temp, error; more = !(temp = yield iter.next()).done; more = false) {
+      for (var iter = __forAwait(stream), more, temp, error; more = !(temp = yield iter.next()).done; more = false) {
         const chunk = temp.value;
         buf += chunk;
       }
@@ -218,13 +221,12 @@ function retry(count, a, b) {
     throw lastErr;
   });
 }
-function* expBackoff(max = "60s", rand = "100ms") {
+function* expBackoff(max = "60s", delay = "100ms") {
   const maxMs = (0, import_util.parseDuration)(max);
-  const randMs = (0, import_util.parseDuration)(rand);
-  let n = 1;
+  const randMs = (0, import_util.parseDuration)(delay);
+  let n = 0;
   while (true) {
-    const ms = Math.floor(Math.random() * randMs);
-    yield Math.min(__pow(2, n++), maxMs) + ms;
+    yield Math.min(randMs * __pow(2, n++), maxMs);
   }
 }
 function spinner(title, callback) {
@@ -235,7 +237,8 @@ function spinner(title, callback) {
     }
     if (import_core.$.quiet || import_node_process.default.env.CI) return callback();
     let i = 0;
-    const spin = () => import_node_process.default.stderr.write(`  ${"\u280B\u2819\u2839\u2838\u283C\u2834\u2826\u2827\u2807\u280F"[i++ % 10]} ${title}\r`);
+    const stream = import_core.$.log.output || import_node_process.default.stderr;
+    const spin = () => stream.write(`  ${"\u280B\u2819\u2839\u2838\u283C\u2834\u2826\u2827\u2807\u280F"[i++ % 10]} ${title}\r`);
     return (0, import_core.within)(() => __async(this, null, function* () {
       import_core.$.verbose = false;
       const id = setInterval(spin, 100);
@@ -243,7 +246,7 @@ function spinner(title, callback) {
         return yield callback();
       } finally {
         clearInterval(id);
-        import_node_process.default.stderr.write(" ".repeat((import_node_process.default.stdout.columns || 1) - 1) + "\r");
+        stream.write(" ".repeat((import_node_process.default.stdout.columns || 1) - 1) + "\r");
       }
     }));
   });
