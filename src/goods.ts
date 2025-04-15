@@ -18,6 +18,7 @@ import { Readable } from 'node:stream'
 import { $, within, ProcessOutput, type ProcessPromise } from './core.ts'
 import {
   type Duration,
+  getLast,
   identity,
   isStringLiteral,
   parseBool,
@@ -110,9 +111,8 @@ export function fetch(
 
 export function echo(...args: any[]): void
 export function echo(pieces: TemplateStringsArray, ...args: any[]) {
-  const lastIdx = pieces.length - 1
   const msg = isStringLiteral(pieces, ...args)
-    ? args.map((a, i) => pieces[i] + stringify(a)).join('') + pieces[lastIdx]
+    ? args.map((a, i) => pieces[i] + stringify(a)).join('') + getLast(pieces)
     : [pieces, ...args].map(stringify).join(' ')
 
   console.log(msg)
