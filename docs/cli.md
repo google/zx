@@ -30,6 +30,8 @@ zx --ext=mjs script.zx # OK
 ```
 
 ## Markdown
+The CLI supports [markdown](/markdown) files and interprets `ts`, `js` and `bash` code blocks as scripts.
+
 ```bash
 zx docs/markdown.md
 ```
