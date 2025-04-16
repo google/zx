@@ -120,8 +120,7 @@ function fetch(url, init) {
   });
 }
 function echo(pieces, ...args) {
-  const lastIdx = pieces.length - 1;
-  const msg = (0, import_util.isStringLiteral)(pieces, ...args) ? args.map((a, i) => pieces[i] + stringify(a)).join("") + pieces[lastIdx] : [pieces, ...args].map(stringify).join(" ");
+  const msg = (0, import_util.isStringLiteral)(pieces, ...args) ? args.map((a, i) => pieces[i] + stringify(a)).join("") + (0, import_util.getLast)(pieces) : [pieces, ...args].map(stringify).join(" ");
   console.log(msg);
 }
 function stringify(arg) {

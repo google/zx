@@ -20,6 +20,7 @@ import {
   isStringLiteral,
   noop,
   parseDuration,
+  parseBool,
   quote,
   quotePowerShell,
   randomId,
@@ -28,6 +29,7 @@ import {
   tempfile,
   preferLocalBin,
   toCamelCase,
+  getLast,
 } from '../build/util.js'
 
 describe('util', () => {
@@ -119,5 +121,16 @@ describe('util', () => {
     assert.equal(toCamelCase('PREFER_LOCAL'), 'preferLocal')
     assert.equal(toCamelCase('SOME_MORE_BIG_STR'), 'someMoreBigStr')
     assert.equal(toCamelCase('kebab-input-str'), 'kebabInputStr')
+  })
+
+  test('parseBool()', () => {
+    assert.equal(parseBool('true'), true)
+    assert.equal(parseBool('false'), false)
+    assert.equal(parseBool('other'), 'other')
+  })
+
+  test('getLast()', () => {
+    assert.equal(getLast([1, 2, 3]), 3)
+    assert.equal(getLast([]), undefined)
   })
 })

@@ -113,10 +113,7 @@ var proxyOverride = (origin, ...fallbacks) => new Proxy(origin, {
 var toCamelCase = (str) => str.toLowerCase().replace(/([a-z])[_-]+([a-z])/g, (_, p1, p2) => {
   return p1 + p2.toUpperCase();
 });
-var parseBool = (v) => {
-  var _a;
-  return (_a = { true: true, false: false }[v]) != null ? _a : v;
-};
+var parseBool = (v) => v === "true" || v !== "false" && v;
 var getLines = (chunk, next) => {
   const lines = ((next.pop() || "") + bufToString(chunk)).split(/\r?\n/);
   next.push(lines.pop());

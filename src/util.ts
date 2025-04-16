@@ -168,7 +168,7 @@ export const toCamelCase = (str: string) =>
   })
 
 export const parseBool = (v: string): boolean | string =>
-  ({ true: true, false: false })[v] ?? v
+  v === 'true' || (v !== 'false' && v)
 
 export const getLines = (
   chunk: Buffer | string,
