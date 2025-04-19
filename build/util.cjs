@@ -110,9 +110,7 @@ var proxyOverride = (origin, ...fallbacks) => new Proxy(origin, {
     return (_b = (_a = fallbacks.find((f) => key in f)) == null ? void 0 : _a[key]) != null ? _b : Reflect.get(target, key);
   }
 });
-var toCamelCase = (str) => str.toLowerCase().replace(/([a-z])[_-]+([a-z])/g, (_, p1, p2) => {
-  return p1 + p2.toUpperCase();
-});
+var toCamelCase = (str) => str.toLowerCase().replace(/([a-z])[_-]+([a-z])/g, (_, p1, p2) => p1 + p2.toUpperCase());
 var parseBool = (v) => v === "true" || v !== "false" && v;
 var getLines = (chunk, next) => {
   const lines = ((next.pop() || "") + bufToString(chunk)).split(/\r?\n/);

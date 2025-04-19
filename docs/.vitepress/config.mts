@@ -78,31 +78,8 @@ export default defineConfig({
             { text: 'Quotes', link: '/quotes' },
             { text: 'Shell', link: '/shell' },
             { text: 'TypeScript', link: '/typescript' },
-            { text: 'Markdown Scripts', link: '/markdown-scripts' },
+            { text: 'Markdown Scripts', link: '/markdown' },
             { text: 'Known Issues', link: '/known-issues' },
-          ],
-        },
-      ],
-
-      '/v7/': [
-        {
-          text: 'Docs (v7)',
-          items: [
-            { text: 'Getting Started', link: '/v7/getting-started' },
-            { text: 'Process Promise', link: '/v7/process-promise' },
-            { text: 'API Reference', link: '/v7/api' },
-            { text: 'Configuration', link: '/v7/configuration' },
-            { text: 'CLI Usage', link: '/v7/cli' },
-          ],
-        },
-        {
-          text: 'FAQ',
-          link: '/v7/faq',
-          items: [
-            { text: 'Quotes', link: '/v7/quotes' },
-            { text: 'TypeScript', link: '/v7/typescript' },
-            { text: 'Markdown Scripts', link: '/v7/markdown-scripts' },
-            { text: 'Known Issues', link: '/v7/known-issues' },
           ],
         },
       ],
