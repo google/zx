@@ -30,12 +30,11 @@ jobs:
       security-events: write
       contents: read
       actions: read
-    uses: 'google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@126676819209c3a606f31bc46ad974fba4f2012c' # v1.9.2
+    uses: 'google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@be9015f3256940e63d99b9d1a009f99c7dc4d8ec' # v2.0.1
     with:
       # Example of specifying custom arguments
       scan-args: |-
         -r
-        --skip-git
         ./
   scan-pr:
     if: ${{ github.event_name == 'pull_request' || github.event_name == 'merge_group' }}
@@ -43,10 +42,9 @@ jobs:
       security-events: write
       contents: read
       actions: read
-    uses: 'google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@126676819209c3a606f31bc46ad974fba4f2012c' # v1.9.2
+    uses: 'google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@be9015f3256940e63d99b9d1a009f99c7dc4d8ec' # v2.0.1
     with:
       # Example of specifying custom arguments
       scan-args: |-
         -r
-        --skip-git
         ./
