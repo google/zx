@@ -153,7 +153,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup Bun
-        uses: antongolub/action-setup-bun@v1
+        uses: antongolub/action-setup-bun@f0b9f339a7ce9ba1174a58484e4dc9bbd6f7b133 # v1.13.2
       - uses: actions/download-artifact@v4
         with:
           name: build
@@ -175,7 +175,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Setup Deno
-        uses: denoland/setup-deno@v2
+        uses: denoland/setup-deno@909cc5acb0fdd60627fb858598759246509fa755 # v2.0.2
         with:
           deno-version: ${{ matrix.deno-version }}
       - run: deno install npm:types/node npm:types/fs-extra
