@@ -101,14 +101,14 @@ $.log = (entry: LogEntry) => {
 }
 ```
 
-Log mostly acts like a debugger, so by default it uses `process.error` for output.
-Set `log.output` to change the stream.
+The log mostly acts like a debugger, so by default it uses `process.error` for output.
+Override the `$.log.output` to change the stream.
 
 ```ts
 $.log.output = process.stdout
 ```
 
-Set `log.formatters` to customize each log entry kind printing:
+Define `$.log.formatters` to customize each log entry kind printing:
 
 ```ts
 $.log.formatters = {
