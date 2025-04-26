@@ -49,12 +49,12 @@ export const parseArgv = (
       m[_k] = _v
       return m
     },
-    { ...defs } as minimist.ParsedArgs
+    defs as minimist.ParsedArgs
   )
 
 export function updateArgv(args?: string[], opts?: ArgvOpts) {
   for (const k in argv) delete argv[k]
-  Object.assign(argv, parseArgv(args, opts))
+  parseArgv(args, opts, argv)
 }
 
 export const argv: minimist.ParsedArgs = parseArgv()

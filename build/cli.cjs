@@ -140,6 +140,16 @@ var import_node_process2 = __toESM(require("process"), 1);
 var import_meta = {};
 var EXT = ".mjs";
 var EXT_RE = /^\.[mc]?[jt]sx?$/;
+var argv = (0, import_index.parseArgv)(import_node_process2.default.argv.slice(2), {
+  default: (0, import_index.resolveDefaults)({ ["prefer-local"]: false }, "ZX_", import_node_process2.default.env, /* @__PURE__ */ new Set(["env", "install", "registry"])),
+  // exclude 'prefer-local' to let minimist infer the type
+  string: ["shell", "prefix", "postfix", "eval", "cwd", "ext", "registry", "env"],
+  boolean: ["version", "help", "quiet", "verbose", "install", "repl", "experimental"],
+  alias: { e: "eval", i: "install", v: "version", h: "help", l: "prefer-local", "env-file": "env" },
+  stopEarly: true,
+  parseBoolean: true,
+  camelCase: true
+});
 isMain() && main().catch((err) => {
   if (err instanceof import_index.ProcessOutput) {
     console.error("Error:", err.message);
@@ -177,21 +187,17 @@ function printUsage() {
  ${import_index.chalk.italic("Full documentation:")} ${import_index.chalk.underline("https://google.github.io/zx/")}
 `);
 }
-var argv = (0, import_index.parseArgv)(import_node_process2.default.argv.slice(2), {
-  default: { ["prefer-local"]: false },
-  // exclude 'prefer-local' to let minimist infer the type
-  string: ["shell", "prefix", "postfix", "eval", "cwd", "ext", "registry", "env"],
-  boolean: ["version", "help", "quiet", "verbose", "install", "repl", "experimental"],
-  alias: { e: "eval", i: "install", v: "version", h: "help", l: "prefer-local", "env-file": "env" },
-  stopEarly: true,
-  parseBoolean: true,
-  camelCase: true
-}, (0, import_index.resolveDefaults)({}, "ZX_", import_node_process2.default.env, /* @__PURE__ */ new Set(["env", "install", "registry"])));
 function main() {
   return __async(this, null, function* () {
     var _a2;
-    yield require("./globals.cjs");
-    argv.ext = normalizeExt(argv.ext);
+    if (argv.version) {
+      console.log(import_index.VERSION);
+      return;
+    }
+    if (argv.help) {
+      printUsage();
+      return;
+    }
     if (argv.cwd) import_index.$.cwd = argv.cwd;
     if (argv.env) {
       const envfile = import_index.path.resolve((_a2 = import_index.$.cwd) != null ? _a2 : import_node_process2.default.cwd(), argv.env);
@@ -204,18 +210,12 @@ function main() {
     if (argv.prefix) import_index.$.prefix = argv.prefix;
     if (argv.postfix) import_index.$.postfix = argv.postfix;
     if (argv.preferLocal) import_index.$.preferLocal = argv.preferLocal;
-    if (argv.version) {
-      console.log(import_index.VERSION);
-      return;
-    }
-    if (argv.help) {
-      printUsage();
-      return;
-    }
+    yield require("./globals.cjs");
     if (argv.repl) {
       yield startRepl();
       return;
     }
+    argv.ext = normalizeExt(argv.ext);
     const { script, scriptPath, tempPath } = yield readScript();
     yield runScript(script, scriptPath, tempPath);
   });

@@ -19,7 +19,7 @@ var require_posix = __commonJS({
     exports2.sync = exports2.isexe = void 0;
     var fs_1 = require("fs");
     var promises_1 = require("fs").promises;
-    var isexe = (_0, ..._1) => __async(exports2, [_0, ..._1], function* (path, options = {}) {
+    var isexe = (_0, ..._1) => __async(null, [_0, ..._1], function* (path, options = {}) {
       const { ignoreErrors = false } = options;
       try {
         return checkStat(yield (0, promises_1.stat)(path), options);
@@ -73,7 +73,7 @@ var require_win32 = __commonJS({
     exports2.sync = exports2.isexe = void 0;
     var fs_1 = require("fs");
     var promises_1 = require("fs").promises;
-    var isexe = (_0, ..._1) => __async(exports2, [_0, ..._1], function* (path, options = {}) {
+    var isexe = (_0, ..._1) => __async(null, [_0, ..._1], function* (path, options = {}) {
       const { ignoreErrors = false } = options;
       try {
         return checkStat(yield (0, promises_1.stat)(path), path, options);
@@ -208,7 +208,7 @@ var require_lib = __commonJS({
       const prefix = !pathPart && rRel.test(cmd) ? cmd.slice(0, 2) : "";
       return prefix + join(pathPart, cmd);
     };
-    var which2 = (_0, ..._1) => __async(exports2, [_0, ..._1], function* (cmd, opt = {}) {
+    var which2 = (_0, ..._1) => __async(null, [_0, ..._1], function* (cmd, opt = {}) {
       const { pathEnv, pathExt, pathExtExe } = getPathInfo(cmd, opt);
       const found = [];
       for (const envPart of pathEnv) {
@@ -1273,7 +1273,7 @@ var _tree = ({
     return Promise.reject(err);
   }
 };
-var tree = (opts, cb) => __async(void 0, null, function* () {
+var tree = (opts, cb) => __async(null, null, function* () {
   return _tree({ opts, cb });
 });
 var treeSync = (opts, cb) => _tree({ opts, cb, sync: true });
