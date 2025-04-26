@@ -6923,7 +6923,7 @@ var require_make_dir = __commonJS({
       if (typeof options === "number") return options;
       return __spreadValues(__spreadValues({}, defaults), options).mode;
     };
-    module2.exports.makeDir = (dir, options) => __async(exports2, null, function* () {
+    module2.exports.makeDir = (dir, options) => __async(null, null, function* () {
       checkPath(dir);
       return fs6.mkdir(dir, {
         mode: getMode(options),
@@ -11577,7 +11577,7 @@ var init_node = __esm({
       const { body: o3 } = i[H];
       return o3 === null ? 0 : yr(o3) ? o3.size : import_node_buffer2.Buffer.isBuffer(o3) ? o3.length : o3 && typeof o3.getLengthSync == "function" && o3.hasKnownLength && o3.hasKnownLength() ? o3.getLengthSync() : null;
     }, "getTotalBytes");
-    Xs = n2((_0, _1) => __async(void 0, [_0, _1], function* (i, { body: o3 }) {
+    Xs = n2((_0, _1) => __async(null, [_0, _1], function* (i, { body: o3 }) {
       o3 === null ? i.end() : yield Zs(o3, i);
     }), "writeToStream");
     gr = typeof import_node_http2.default.validateHeaderName == "function" ? import_node_http2.default.validateHeaderName : (i) => {
@@ -12335,7 +12335,7 @@ _streams = new WeakMap();
 _ended = new WeakMap();
 _aborted = new WeakMap();
 _onFinished = new WeakMap();
-var onMergedStreamFinished = (passThroughStream, streams) => __async(void 0, null, function* () {
+var onMergedStreamFinished = (passThroughStream, streams) => __async(null, null, function* () {
   updateMaxListeners(passThroughStream, PASSTHROUGH_LISTENERS_COUNT);
   const controller = new AbortController();
   try {
@@ -12348,10 +12348,10 @@ var onMergedStreamFinished = (passThroughStream, streams) => __async(void 0, nul
     updateMaxListeners(passThroughStream, -PASSTHROUGH_LISTENERS_COUNT);
   }
 });
-var onMergedStreamEnd = (_0, _1) => __async(void 0, [_0, _1], function* (passThroughStream, { signal }) {
+var onMergedStreamEnd = (_0, _1) => __async(null, [_0, _1], function* (passThroughStream, { signal }) {
   yield (0, import_promises.finished)(passThroughStream, { signal, cleanup: true });
 });
-var onInputStreamsUnpipe = (_0, _1, _2) => __async(void 0, [_0, _1, _2], function* (passThroughStream, streams, { signal }) {
+var onInputStreamsUnpipe = (_0, _1, _2) => __async(null, [_0, _1, _2], function* (passThroughStream, streams, { signal }) {
   try {
     for (var iter = __forAwait((0, import_node_events.on)(passThroughStream, "unpipe", { signal })), more, temp, error; more = !(temp = yield iter.next()).done; more = false) {
       const [unpipedStream] = temp.value;
@@ -12375,7 +12375,7 @@ var validateStream = (stream) => {
     throw new TypeError(`Expected a readable stream, got: \`${typeof stream}\`.`);
   }
 };
-var endWhenStreamsDone = (_0) => __async(void 0, [_0], function* ({ passThroughStream, stream, streams, ended, aborted, onFinished }) {
+var endWhenStreamsDone = (_0) => __async(null, [_0], function* ({ passThroughStream, stream, streams, ended, aborted, onFinished }) {
   updateMaxListeners(passThroughStream, PASSTHROUGH_LISTENERS_PER_STREAM);
   const controller = new AbortController();
   try {
@@ -12397,7 +12397,7 @@ var endWhenStreamsDone = (_0) => __async(void 0, [_0], function* ({ passThroughS
   }
 });
 var isAbortError = (error) => (error == null ? void 0 : error.code) === "ERR_STREAM_PREMATURE_CLOSE";
-var afterMergedStreamFinished = (onFinished, stream) => __async(void 0, null, function* () {
+var afterMergedStreamFinished = (onFinished, stream) => __async(null, null, function* () {
   try {
     yield onFinished;
     abortStream(stream);
@@ -12409,7 +12409,7 @@ var afterMergedStreamFinished = (onFinished, stream) => __async(void 0, null, fu
     }
   }
 });
-var onInputStreamEnd = (_0) => __async(void 0, [_0], function* ({ passThroughStream, stream, streams, ended, aborted, controller: { signal } }) {
+var onInputStreamEnd = (_0) => __async(null, [_0], function* ({ passThroughStream, stream, streams, ended, aborted, controller: { signal } }) {
   try {
     yield (0, import_promises.finished)(stream, { signal, cleanup: true, readable: true, writable: false });
     if (streams.has(stream)) {
@@ -12426,7 +12426,7 @@ var onInputStreamEnd = (_0) => __async(void 0, [_0], function* ({ passThroughStr
     }
   }
 });
-var onInputStreamUnpipe = (_0) => __async(void 0, [_0], function* ({ stream, streams, ended, aborted, controller: { signal } }) {
+var onInputStreamUnpipe = (_0) => __async(null, [_0], function* ({ stream, streams, ended, aborted, controller: { signal } }) {
   yield (0, import_node_events.once)(stream, unpipeEvent, { signal });
   streams.delete(stream);
   ended.delete(stream);
@@ -12578,7 +12578,7 @@ var normalizeOptions = (options = {}) => {
     ignore: [...(_b2 = options.ignore) != null ? _b2 : [], ...defaultIgnoredDirectories]
   };
 };
-var isIgnoredByIgnoreFiles = (patterns, options) => __async(void 0, null, function* () {
+var isIgnoredByIgnoreFiles = (patterns, options) => __async(null, null, function* () {
   const { cwd, suppressErrors, deep, ignore } = normalizeOptions(options);
   const paths = yield (0, import_fast_glob.default)(patterns, __spreadValues({
     cwd,
@@ -12587,7 +12587,7 @@ var isIgnoredByIgnoreFiles = (patterns, options) => __async(void 0, null, functi
     ignore
   }, ignoreFilesGlobOptions));
   const files = yield Promise.all(
-    paths.map((filePath) => __async(void 0, null, function* () {
+    paths.map((filePath) => __async(null, null, function* () {
       return {
         filePath,
         content: yield import_promises3.default.readFile(filePath, "utf8")
@@ -12627,13 +12627,13 @@ var getDirectoryGlob = ({ directoryPath, files, extensions }) => {
   const extensionGlob = (extensions == null ? void 0 : extensions.length) > 0 ? `.${extensions.length > 1 ? `{${extensions.join(",")}}` : extensions[0]}` : "";
   return files ? files.map((file) => import_node_path3.default.posix.join(directoryPath, `**/${import_node_path3.default.extname(file) ? file : `${file}${extensionGlob}`}`)) : [import_node_path3.default.posix.join(directoryPath, `**${extensionGlob ? `/*${extensionGlob}` : ""}`)];
 };
-var directoryToGlob = (_0, ..._1) => __async(void 0, [_0, ..._1], function* (directoryPaths, {
+var directoryToGlob = (_0, ..._1) => __async(null, [_0, ..._1], function* (directoryPaths, {
   cwd = import_node_process2.default.cwd(),
   files,
   extensions
 } = {}) {
   const globs = yield Promise.all(
-    directoryPaths.map((directoryPath) => __async(void 0, null, function* () {
+    directoryPaths.map((directoryPath) => __async(null, null, function* () {
       return (yield isDirectory(normalizePathForDirectoryGlob(directoryPath, cwd))) ? getDirectoryGlob({ directoryPath, files, extensions }) : directoryPath;
     }))
   );
@@ -12673,7 +12673,7 @@ var normalizeOptions2 = (options = {}) => {
   checkCwdOption(options.cwd);
   return options;
 };
-var normalizeArguments = (function_) => (patterns, options) => __async(void 0, null, function* () {
+var normalizeArguments = (function_) => (patterns, options) => __async(null, null, function* () {
   return function_(toPatternsArray(patterns), normalizeOptions2(options));
 });
 var normalizeArgumentsSync = (function_) => (patterns, options) => function_(toPatternsArray(patterns), normalizeOptions2(options));
@@ -12685,7 +12685,7 @@ var getIgnoreFilesPatterns = (options) => {
   }
   return patterns;
 };
-var getFilter = (options) => __async(void 0, null, function* () {
+var getFilter = (options) => __async(null, null, function* () {
   const ignoreFilesPatterns = getIgnoreFilesPatterns(options);
   return createFilterFunction(
     ignoreFilesPatterns.length > 0 && (yield isIgnoredByIgnoreFiles(ignoreFilesPatterns, options))
@@ -12738,7 +12738,7 @@ var convertNegativePatterns = (patterns, options) => {
   return tasks;
 };
 var normalizeExpandDirectoriesOption = (options, cwd) => __spreadValues(__spreadValues({}, cwd ? { cwd } : {}), Array.isArray(options) ? { files: options } : options);
-var generateTasks = (patterns, options) => __async(void 0, null, function* () {
+var generateTasks = (patterns, options) => __async(null, null, function* () {
   const globTasks = convertNegativePatterns(patterns, options);
   const { cwd, expandDirectories } = options;
   if (!expandDirectories) {
@@ -12746,7 +12746,7 @@ var generateTasks = (patterns, options) => __async(void 0, null, function* () {
   }
   const directoryToGlobOptions = normalizeExpandDirectoriesOption(expandDirectories, cwd);
   return Promise.all(
-    globTasks.map((task) => __async(void 0, null, function* () {
+    globTasks.map((task) => __async(null, null, function* () {
       let { patterns: patterns2, options: options2 } = task;
       [
         patterns2,
@@ -12773,7 +12773,7 @@ var generateTasksSync = (patterns, options) => {
     return { patterns: patterns2, options: options2 };
   });
 };
-var globby = normalizeArguments((patterns, options) => __async(void 0, null, function* () {
+var globby = normalizeArguments((patterns, options) => __async(null, null, function* () {
   const [
     tasks,
     filter

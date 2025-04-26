@@ -39,6 +39,18 @@ import process from 'node:process'
 const EXT = '.mjs'
 const EXT_RE = /^\.[mc]?[jt]sx?$/
 
+// prettier-ignore
+export const argv: minimist.ParsedArgs = parseArgv(process.argv.slice(2), {
+  default: resolveDefaults({ ['prefer-local']: false } as any, 'ZX_', process.env, new Set(['env', 'install', 'registry'])),
+  // exclude 'prefer-local' to let minimist infer the type
+  string: ['shell', 'prefix', 'postfix', 'eval', 'cwd', 'ext', 'registry', 'env'],
+  boolean: ['version', 'help', 'quiet', 'verbose', 'install', 'repl', 'experimental'],
+  alias: { e: 'eval', i: 'install', v: 'version', h: 'help', l: 'prefer-local', 'env-file': 'env' },
+  stopEarly: true,
+  parseBoolean: true,
+  camelCase: true,
+})
+
 isMain() &&
   main().catch((err) => {
     if (err instanceof ProcessOutput) {
@@ -80,21 +92,15 @@ export function printUsage() {
 `)
 }
 
-// prettier-ignore
-export const argv: minimist.ParsedArgs = parseArgv(process.argv.slice(2), {
-  default: { ['prefer-local']: false },
-  // exclude 'prefer-local' to let minimist infer the type
-  string: ['shell', 'prefix', 'postfix', 'eval', 'cwd', 'ext', 'registry', 'env'],
-  boolean: ['version', 'help', 'quiet', 'verbose', 'install', 'repl', 'experimental'],
-  alias: { e: 'eval', i: 'install', v: 'version', h: 'help', l: 'prefer-local', 'env-file': 'env' },
-  stopEarly: true,
-  parseBoolean: true,
-  camelCase: true,
-}, resolveDefaults({} as any, 'ZX_', process.env, new Set(['env', 'install', 'registry'])))
-
 export async function main(): Promise<void> {
-  await import('zx/globals')
-  argv.ext = normalizeExt(argv.ext)
+  if (argv.version) {
+    console.log(VERSION)
+    return
+  }
+  if (argv.help) {
+    printUsage()
+    return
+  }
   if (argv.cwd) $.cwd = argv.cwd
   if (argv.env) {
     const envfile = path.resolve($.cwd ?? process.cwd(), argv.env)
@@ -107,18 +113,13 @@ export async function main(): Promise<void> {
   if (argv.prefix) $.prefix = argv.prefix
   if (argv.postfix) $.postfix = argv.postfix
   if (argv.preferLocal) $.preferLocal = argv.preferLocal
-  if (argv.version) {
-    console.log(VERSION)
-    return
-  }
-  if (argv.help) {
-    printUsage()
-    return
-  }
+
+  await import('zx/globals')
   if (argv.repl) {
     await startRepl()
     return
   }
+  argv.ext = normalizeExt(argv.ext)
 
   const { script, scriptPath, tempPath } = await readScript()
   await runScript(script, scriptPath, tempPath)

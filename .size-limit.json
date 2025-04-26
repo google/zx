@@ -24,7 +24,7 @@
   {
     "name": "js parts",
     "path": "build/*.{js,cjs}",
-    "limit": "816.30 kB",
+    "limit": "816.20 kB",
     "brotli": false,
     "gzip": false
   },
@@ -38,14 +38,14 @@
   {
     "name": "vendor",
     "path": "build/vendor-*",
-    "limit": "769.15 kB",
+    "limit": "769.10 kB",
     "brotli": false,
     "gzip": false
   },
   {
     "name": "all",
     "path": ["build/*", "man/*", "README.md", "LICENSE"],
-    "limit": "872.70 kB",
+    "limit": "872.50 kB",
     "brotli": false,
     "gzip": false
   }
