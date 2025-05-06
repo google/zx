@@ -60,9 +60,11 @@ export interface Shell<S = false, R = S extends true ? ProcessOutput : ProcessPr
 export declare const $: Shell & Options;
 type ProcessStage = 'initial' | 'halted' | 'running' | 'fulfilled' | 'rejected';
 type Resolve = (out: ProcessOutput) => void;
+type PromisifiedStream<D extends Writable> = D & PromiseLike<ProcessOutput & D>;
 type PipeMethod = {
     (dest: TemplateStringsArray, ...args: any[]): ProcessPromise;
-    <D extends Writable>(dest: D): D & PromiseLike<ProcessOutput & D>;
+    (file: string): PromisifiedStream<Writable>;
+    <D extends Writable>(dest: D): PromisifiedStream<D>;
     <D extends ProcessPromise>(dest: D): D;
 };
 export declare class ProcessPromise extends Promise<ProcessOutput> {

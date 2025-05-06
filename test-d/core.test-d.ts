@@ -27,6 +27,7 @@ expectType<ProcessPromise>(p.nothrow())
 expectType<ProcessPromise>(p.quiet())
 expectType<ProcessPromise>(p.pipe($`cmd`))
 expectType<ProcessPromise>(p.pipe`cmd`)
+expectType<Writable & PromiseLike<ProcessOutput & Writable>>(p.pipe('file'))
 expectType<
   typeof process.stdout & PromiseLike<ProcessOutput & typeof process.stdout>
 >(p.pipe(process.stdout))

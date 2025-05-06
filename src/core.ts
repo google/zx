@@ -219,10 +219,13 @@ type ProcessStage = 'initial' | 'halted' | 'running' | 'fulfilled' | 'rejected'
 
 type Resolve = (out: ProcessOutput) => void
 
+type PromisifiedStream<D extends Writable> = D & PromiseLike<ProcessOutput & D>
+
 type PipeDest = Writable | ProcessPromise | TemplateStringsArray | string
 type PipeMethod = {
   (dest: TemplateStringsArray, ...args: any[]): ProcessPromise
-  <D extends Writable>(dest: D): D & PromiseLike<ProcessOutput & D>
+  (file: string): PromisifiedStream<Writable>
+  <D extends Writable>(dest: D): PromisifiedStream<D>
   <D extends ProcessPromise>(dest: D): D
 }
 
@@ -378,7 +381,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     source: keyof TSpawnStore,
     dest: PipeDest,
     ...args: any[]
-  ): (Writable & PromiseLike<ProcessPromise & Writable>) | ProcessPromise {
+  ): PromisifiedStream<Writable> | ProcessPromise {
     if (isStringLiteral(dest, ...args))
       return this.pipe[source](
         $({
@@ -426,7 +429,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     from.once('end', () => dest.emit('end-piped-from')).pipe(dest)
     fillEnd()
     return promisifyStream(dest, this) as Writable &
-      PromiseLike<ProcessPromise & Writable>
+      PromiseLike<ProcessOutput & Writable>
   }
 
   abort(reason?: string) {

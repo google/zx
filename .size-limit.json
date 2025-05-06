@@ -17,7 +17,7 @@
       "README.md",
       "LICENSE"
     ],
-    "limit": "121.7 kB",
+    "limit": "121.8 kB",
     "brotli": false,
     "gzip": false
   },
@@ -31,21 +31,21 @@
   {
     "name": "libdefs",
     "path": "build/*.d.ts",
-    "limit": "40.00 kB",
+    "limit": "40.2 kB",
     "brotli": false,
     "gzip": false
   },
   {
     "name": "vendor",
     "path": "build/vendor-*",
-    "limit": "769.10 kB",
+    "limit": "769.1 kB",
     "brotli": false,
     "gzip": false
   },
   {
     "name": "all",
     "path": ["build/*", "man/*", "README.md", "LICENSE"],
-    "limit": "872.50 kB",
+    "limit": "872.6 kB",
     "brotli": false,
     "gzip": false
   }
