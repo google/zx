@@ -49,4 +49,20 @@ _describe('win32', () => {
       assert.match(p.stdout, /Hello,\s+new 'PowerShell'!/)
     })
   })
+
+  test('should create a dir via mkdir', async () => {
+    const temp = tmpdir()
+    const _$ = $({ verbose: true, cwd: temp })
+
+    console.log('shell:', $.shell)
+    await _$`which bash`
+    await _$`bash --version`
+
+    await _$`mkdir -p ${path.join(temp, 'AA-zx-test')}`
+    await _$`mkdir -p BB-zx-test`
+    const { stdout } = await _$`ls -l | grep zx-test`
+
+    assert.match(stdout, /AA-zx-test/)
+    assert.match(stdout, /BB-zx-test/)
+  })
 })
