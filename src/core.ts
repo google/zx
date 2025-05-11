@@ -64,7 +64,7 @@ import {
 
 import { log } from './log.ts'
 
-export { default as path } from 'node:path'
+export * as path from 'node:path'
 export * as os from 'node:os'
 import { Buffer } from 'node:buffer'
 import process from 'node:process'
