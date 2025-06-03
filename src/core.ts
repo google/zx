@@ -647,6 +647,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
     if (memo[0]) yield memo[0]
 
+    if (this.isNothrow()) return
+
     if ((await this.exitCode) !== 0) throw this._output
   }
 

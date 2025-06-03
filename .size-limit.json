@@ -45,7 +45,7 @@
   {
     "name": "all",
     "path": ["build/*", "man/*", "README.md", "LICENSE"],
-    "limit": "872.6 kB",
+    "limit": "872.65 kB",
     "brotli": false,
     "gzip": false
   }

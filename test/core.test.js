@@ -1048,6 +1048,14 @@ describe('core', () => {
           'The process exit code should be 1'
         )
       })
+
+      it('handles .nothrow() correctly', async () => {
+        const data = []
+        for await (const line of $({ nothrow: true })`grep any test`) {
+          data.push(line)
+        }
+        assert.equal(data.length, 0, 'Should not yield any lines')
+      })
     })
 
     test('quiet() mode is working', async () => {
@@ -1083,8 +1091,10 @@ describe('core', () => {
     })
 
     test('nothrow() does not throw', async () => {
-      const { exitCode } = await $`exit 42`.nothrow()
-      assert.equal(exitCode, 42)
+      {
+        const { exitCode } = await $`exit 42`.nothrow()
+        assert.equal(exitCode, 42)
+      }
       {
         // Toggle
         try {
