@@ -45,6 +45,7 @@ export interface Options {
     kill: typeof kill;
     killSignal?: NodeJS.Signals;
     halt?: boolean;
+    delimiter?: string | RegExp;
 }
 export declare const defaults: Options;
 export interface Shell<S = false, R = S extends true ? ProcessOutput : ProcessPromise> {
@@ -121,7 +122,7 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     timeout(d: Duration, signal?: NodeJS.Signals | undefined): ProcessPromise;
     json<T = any>(): Promise<T>;
     text(encoding?: Encoding): Promise<string>;
-    lines(): Promise<string[]>;
+    lines(delimiter?: string | RegExp): Promise<string[]>;
     buffer(): Promise<Buffer>;
     blob(type?: string): Promise<Blob>;
     isQuiet(): boolean;
@@ -149,6 +150,7 @@ type ProcessDto = {
     error: any;
     from: string;
     store: TSpawnStore;
+    delimiter?: string | RegExp;
 };
 export declare class ProcessOutput extends Error {
     private readonly _dto;
@@ -170,7 +172,7 @@ export declare class ProcessOutput extends Error {
     buffer(): Buffer;
     blob(type?: string): Blob;
     text(encoding?: Encoding): string;
-    lines(): string[];
+    lines(delimiter?: string | RegExp): string[];
     valueOf(): string;
     [Symbol.iterator](): Iterator<string>;
     static getExitMessage: (code: number | null, signal: NodeJS.Signals | null, stderr: string, from: string, details?: string) => string;

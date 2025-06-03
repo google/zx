@@ -1025,7 +1025,6 @@ describe('core', () => {
 
       it('should process all output before handling a non-zero exit code', async () => {
         const process = $`sleep 0.1; echo foo; sleep 0.1; echo bar; sleep 0.1; exit 1;`
-
         const chunks = []
 
         let errorCaught = null
@@ -1050,11 +1049,22 @@ describe('core', () => {
       })
 
       it('handles .nothrow() correctly', async () => {
-        const data = []
+        const lines = []
         for await (const line of $({ nothrow: true })`grep any test`) {
-          data.push(line)
+          lines.push(line)
         }
-        assert.equal(data.length, 0, 'Should not yield any lines')
+        assert.equal(lines.length, 0, 'Should not yield any lines')
+      })
+
+      it('handles a custom delimiter', async () => {
+        const lines = []
+        for await (const line of $({
+          delimiter: '\0',
+          cwd: tempdir(),
+        })`touch foo bar baz; find ./ -type f -print0 -maxdepth 1`) {
+          lines.push(line)
+        }
+        assert.deepEqual(lines.sort(), ['./bar', './baz', './foo'])
       })
     })
 
@@ -1153,6 +1163,15 @@ describe('core', () => {
 
       const p2 = $.sync`echo 'foo\nbar\r\nbaz'`
       assert.deepEqual(p2.lines(), ['foo', 'bar', 'baz'])
+
+      const p3 = $({
+        cwd: await tempdir(),
+      })`touch foo bar baz; find ./ -type f -print0 -maxdepth 1`
+      assert.deepEqual((await p3.lines('\0')).sort(), [
+        './bar',
+        './baz',
+        './foo',
+      ])
     })
 
     test('buffer()', async () => {
@@ -1230,8 +1249,12 @@ describe('core', () => {
     })
 
     test('lines()', async () => {
-      const o = new ProcessOutput(null, null, '', '', 'foo\nbar\r\nbaz\n')
-      assert.deepEqual(o.lines(), ['foo', 'bar', 'baz'])
+      const o1 = new ProcessOutput(null, null, '', '', 'foo\nbar\r\nbaz\n')
+      assert.deepEqual(o1.lines(), ['foo', 'bar', 'baz'])
+
+      const o2 = new ProcessOutput(null, null, '', '', 'foo\0bar\0baz\0')
+      assert.deepEqual(o2.lines(), ['foo\0bar\0baz\0'])
+      assert.deepEqual(o2.lines('\0'), ['foo', 'bar', 'baz'])
     })
 
     test('buffer()', async () => {
