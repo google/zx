@@ -75,6 +75,7 @@ const CWD = Symbol('processCwd')
 const SYNC = Symbol('syncExec')
 const EOL = Buffer.from(_EOL)
 const BR_CC = '\n'.charCodeAt(0)
+const DLMTR = /\r?\n/
 const SIGTERM = 'SIGTERM'
 const ENV_PREFIX = 'ZX_'
 const ENV_ALLOWED: Set<string> = new Set([
@@ -635,7 +636,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   // Async iterator API
   async *[Symbol.asyncIterator](): AsyncIterator<string> {
     const memo: (string | undefined)[] = []
-    const dlmtr = this._snapshot.delimiter ?? $.delimiter
+    const dlmtr = this._snapshot.delimiter || $.delimiter || DLMTR
 
     for (const chunk of this._zurk!.store.stdout) {
       yield* getLines(chunk, memo, dlmtr)
@@ -812,7 +813,8 @@ export class ProcessOutput extends Error {
 
   *[Symbol.iterator](): Iterator<string> {
     const memo: (string | undefined)[] = []
-    const dlmtr = delimiters.pop() ?? this._dto.delimiter ?? $.delimiter
+    const dlmtr =
+      delimiters.pop() || this._dto.delimiter || $.delimiter || DLMTR
 
     for (const chunk of this._dto.store.stdall) {
       yield* getLines(chunk, memo, dlmtr)

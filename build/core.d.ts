@@ -5,12 +5,12 @@ import { type ChildProcess, type IOType, type StdioOptions, spawn, spawnSync } f
 import { type Encoding } from 'node:crypto';
 import { type Readable, type Writable } from 'node:stream';
 import { inspect } from 'node:util';
+import { Buffer } from 'node:buffer';
 import { type TSpawnStore } from './vendor-core.js';
 import { type Duration, quote } from './util.js';
 import { log } from './log.js';
 export { default as path } from 'node:path';
 export * as os from 'node:os';
-import { Buffer } from 'node:buffer';
 export { log, type LogEntry } from './log.js';
 export { chalk, which, ps } from './vendor-core.js';
 export { quote, quotePowerShell } from './util.js';

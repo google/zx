@@ -43,6 +43,8 @@ var import_node_fs = __toESM(require("fs"), 1);
 var import_node_util2 = require("util");
 var import_node_os = require("os");
 var import_node_events = require("events");
+var import_node_buffer = require("buffer");
+var import_node_process2 = __toESM(require("process"), 1);
 
 // src/error.ts
 var EXIT_CODES = {
@@ -388,14 +390,13 @@ function formatCmd(cmd) {
 // src/core.ts
 var import_node_path = __toESM(require("path"), 1);
 var os = __toESM(require("os"), 1);
-var import_node_buffer = require("buffer");
-var import_node_process2 = __toESM(require("process"), 1);
 var import_vendor_core3 = require("./vendor-core.cjs");
 var import_util2 = require("./util.cjs");
 var CWD = Symbol("processCwd");
 var SYNC = Symbol("syncExec");
 var EOL = import_node_buffer.Buffer.from(import_node_os.EOL);
 var BR_CC = "\n".charCodeAt(0);
+var DLMTR = /\r?\n/;
 var SIGTERM = "SIGTERM";
 var ENV_PREFIX = "ZX_";
 var ENV_ALLOWED = /* @__PURE__ */ new Set([
@@ -787,9 +788,8 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
   // Async iterator API
   [Symbol.asyncIterator]() {
     return __asyncGenerator(this, null, function* () {
-      var _a;
       const memo = [];
-      const dlmtr = (_a = this._snapshot.delimiter) != null ? _a : $.delimiter;
+      const dlmtr = this._snapshot.delimiter || $.delimiter || DLMTR;
       for (const chunk of this._zurk.store.stdout) {
         yield* __yieldStar((0, import_util.getLines)(chunk, memo, dlmtr));
       }
@@ -923,9 +923,8 @@ var _ProcessOutput = class _ProcessOutput extends Error {
     return this.stdall.trim();
   }
   *[Symbol.iterator]() {
-    var _a, _b;
     const memo = [];
-    const dlmtr = (_b = (_a = delimiters.pop()) != null ? _a : this._dto.delimiter) != null ? _b : $.delimiter;
+    const dlmtr = delimiters.pop() || this._dto.delimiter || $.delimiter || DLMTR;
     for (const chunk of this._dto.store.stdall) {
       yield* __yieldStar((0, import_util.getLines)(chunk, memo, dlmtr));
     }
