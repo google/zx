@@ -43,6 +43,8 @@ var import_node_fs = __toESM(require("fs"), 1);
 var import_node_util2 = require("util");
 var import_node_os = require("os");
 var import_node_events = require("events");
+var import_node_buffer = require("buffer");
+var import_node_process2 = __toESM(require("process"), 1);
 
 // src/error.ts
 var EXIT_CODES = {
@@ -388,14 +390,13 @@ function formatCmd(cmd) {
 // src/core.ts
 var import_node_path = __toESM(require("path"), 1);
 var os = __toESM(require("os"), 1);
-var import_node_buffer = require("buffer");
-var import_node_process2 = __toESM(require("process"), 1);
 var import_vendor_core3 = require("./vendor-core.cjs");
 var import_util2 = require("./util.cjs");
 var CWD = Symbol("processCwd");
 var SYNC = Symbol("syncExec");
 var EOL = import_node_buffer.Buffer.from(import_node_os.EOL);
 var BR_CC = "\n".charCodeAt(0);
+var DLMTR = /\r?\n/;
 var SIGTERM = "SIGTERM";
 var ENV_PREFIX = "ZX_";
 var ENV_ALLOWED = /* @__PURE__ */ new Set([
@@ -439,7 +440,8 @@ var defaults = resolveDefaults({
   killSignal: SIGTERM,
   timeoutSignal: SIGTERM
 });
-var bound = [];
+var boundCtxs = [];
+var delimiters = [];
 var $ = new Proxy(
   function(pieces, ...args) {
     const snapshot = getStore();
@@ -462,7 +464,7 @@ var $ = new Proxy(
       args
     );
     const sync = snapshot[SYNC];
-    bound.push([cmd, from, snapshot]);
+    boundCtxs.push([cmd, from, snapshot]);
     const process3 = new ProcessPromise(import_util.noop);
     if (!process3.isHalted() || sync) process3.run();
     return sync ? process3.output : process3;
@@ -503,8 +505,8 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     this._resolve = import_util.noop;
     // Stream-like API
     this.writable = true;
-    if (bound.length) {
-      const [cmd, from, snapshot] = bound.pop();
+    if (boundCtxs.length) {
+      const [cmd, from, snapshot] = boundCtxs.pop();
       this._command = cmd;
       this._from = from;
       this._resolve = resolve;
@@ -745,8 +747,8 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
   text(encoding) {
     return this.then((p) => p.text(encoding));
   }
-  lines() {
-    return this.then((p) => p.lines());
+  lines(delimiter) {
+    return this.then((p) => p.lines(delimiter));
   }
   buffer() {
     return this.then((p) => p.buffer());
@@ -787,13 +789,14 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
   [Symbol.asyncIterator]() {
     return __asyncGenerator(this, null, function* () {
       const memo = [];
+      const dlmtr = this._snapshot.delimiter || $.delimiter || DLMTR;
       for (const chunk of this._zurk.store.stdout) {
-        yield* __yieldStar((0, import_util.getLines)(chunk, memo));
+        yield* __yieldStar((0, import_util.getLines)(chunk, memo, dlmtr));
       }
       try {
         for (var iter = __forAwait(this.stdout[Symbol.asyncIterator] ? this.stdout : import_vendor_core2.VoidStream.from(this.stdout)), more, temp, error; more = !(temp = yield new __await(iter.next())).done; more = false) {
           const chunk = temp.value;
-          yield* __yieldStar((0, import_util.getLines)(chunk, memo));
+          yield* __yieldStar((0, import_util.getLines)(chunk, memo, dlmtr));
         }
       } catch (temp) {
         error = [temp];
@@ -912,7 +915,8 @@ var _ProcessOutput = class _ProcessOutput extends Error {
   text(encoding = "utf8") {
     return encoding === "utf8" ? this.toString() : this.buffer().toString(encoding);
   }
-  lines() {
+  lines(delimiter) {
+    delimiters.push(delimiter);
     return [...this];
   }
   valueOf() {
@@ -920,8 +924,9 @@ var _ProcessOutput = class _ProcessOutput extends Error {
   }
   *[Symbol.iterator]() {
     const memo = [];
+    const dlmtr = delimiters.pop() || this._dto.delimiter || $.delimiter || DLMTR;
     for (const chunk of this._dto.store.stdall) {
-      yield* __yieldStar((0, import_util.getLines)(chunk, memo));
+      yield* __yieldStar((0, import_util.getLines)(chunk, memo, dlmtr));
     }
     if (memo[0]) yield memo[0];
   }

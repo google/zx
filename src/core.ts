@@ -26,6 +26,8 @@ import fs from 'node:fs'
 import { inspect } from 'node:util'
 import { EOL as _EOL } from 'node:os'
 import { EventEmitter } from 'node:events'
+import { Buffer } from 'node:buffer'
+import process from 'node:process'
 import {
   findErrors,
   formatErrorMessage,
@@ -61,13 +63,10 @@ import {
   randomId,
   bufArrJoin,
 } from './util.ts'
-
 import { log } from './log.ts'
 
 export { default as path } from 'node:path'
 export * as os from 'node:os'
-import { Buffer } from 'node:buffer'
-import process from 'node:process'
 export { log, type LogEntry } from './log.ts'
 export { chalk, which, ps } from './vendor-core.ts'
 export { quote, quotePowerShell } from './util.ts'
@@ -76,6 +75,7 @@ const CWD = Symbol('processCwd')
 const SYNC = Symbol('syncExec')
 const EOL = Buffer.from(_EOL)
 const BR_CC = '\n'.charCodeAt(0)
+const DLMTR = /\r?\n/
 const SIGTERM = 'SIGTERM'
 const ENV_PREFIX = 'ZX_'
 const ENV_ALLOWED: Set<string> = new Set([
@@ -129,6 +129,7 @@ export interface Options {
   kill:           typeof kill
   killSignal?:    NodeJS.Signals
   halt?:          boolean
+  delimiter?:     string | RegExp
 }
 
 // prettier-ignore
@@ -166,7 +167,8 @@ export interface Shell<
     (opts: Partial<Omit<Options, 'sync'>>): Shell<true>
   }
 }
-const bound: [string, string, Options][] = []
+const boundCtxs: [string, string, Options][] = []
+const delimiters: Array<string | RegExp | undefined> = []
 
 export const $: Shell & Options = new Proxy<Shell & Options>(
   function (pieces: TemplateStringsArray | Partial<Options>, ...args: any) {
@@ -192,7 +194,7 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
       args
     ) as string
     const sync = snapshot[SYNC]
-    bound.push([cmd, from, snapshot])
+    boundCtxs.push([cmd, from, snapshot])
     const process = new ProcessPromise(noop)
 
     if (!process.isHalted() || sync) process.run()
@@ -259,8 +261,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       executor(...args)
     })
 
-    if (bound.length) {
-      const [cmd, from, snapshot] = bound.pop()!
+    if (boundCtxs.length) {
+      const [cmd, from, snapshot] = boundCtxs.pop()!
       this._command = cmd
       this._from = from
       this._resolve = resolve!
@@ -571,8 +573,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this.then((p) => p.text(encoding))
   }
 
-  lines(): Promise<string[]> {
-    return this.then((p) => p.lines())
+  lines(delimiter?: string | RegExp): Promise<string[]> {
+    return this.then((p) => p.lines(delimiter))
   }
 
   buffer(): Promise<Buffer> {
@@ -634,15 +636,16 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   // Async iterator API
   async *[Symbol.asyncIterator](): AsyncIterator<string> {
     const memo: (string | undefined)[] = []
+    const dlmtr = this._snapshot.delimiter || $.delimiter || DLMTR
 
     for (const chunk of this._zurk!.store.stdout) {
-      yield* getLines(chunk, memo)
+      yield* getLines(chunk, memo, dlmtr)
     }
 
     for await (const chunk of this.stdout[Symbol.asyncIterator]
       ? this.stdout
       : VoidStream.from(this.stdout)) {
-      yield* getLines(chunk, memo)
+      yield* getLines(chunk, memo, dlmtr)
     }
 
     if (memo[0]) yield memo[0]
@@ -697,6 +700,7 @@ type ProcessDto = {
   error: any
   from: string
   store: TSpawnStore
+  delimiter?: string | RegExp
 }
 
 export class ProcessOutput extends Error {
@@ -798,7 +802,8 @@ export class ProcessOutput extends Error {
       : this.buffer().toString(encoding)
   }
 
-  lines(): string[] {
+  lines(delimiter?: string | RegExp): string[] {
+    delimiters.push(delimiter)
     return [...this]
   }
 
@@ -808,9 +813,11 @@ export class ProcessOutput extends Error {
 
   *[Symbol.iterator](): Iterator<string> {
     const memo: (string | undefined)[] = []
+    const dlmtr =
+      delimiters.pop() || this._dto.delimiter || $.delimiter || DLMTR
 
     for (const chunk of this._dto.store.stdall) {
-      yield* getLines(chunk, memo)
+      yield* getLines(chunk, memo, dlmtr)
     }
 
     if (memo[0]) yield memo[0]

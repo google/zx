@@ -172,9 +172,10 @@ export const parseBool = (v: string): boolean | string =>
 
 export const getLines = (
   chunk: Buffer | string,
-  next: (string | undefined)[]
+  next: (string | undefined)[],
+  delimiter: string | RegExp
 ) => {
-  const lines = ((next.pop() || '') + bufToString(chunk)).split(/\r?\n/)
+  const lines = ((next.pop() || '') + bufToString(chunk)).split(delimiter)
   next.push(lines.pop())
   return lines
 }

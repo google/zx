@@ -26,4 +26,4 @@ export declare const once: <T extends (...args: any[]) => any>(fn: T) => (...arg
 export declare const proxyOverride: <T extends object>(origin: T, ...fallbacks: any) => T;
 export declare const toCamelCase: (str: string) => string;
 export declare const parseBool: (v: string) => boolean | string;
-export declare const getLines: (chunk: Buffer | string, next: (string | undefined)[]) => string[];
+export declare const getLines: (chunk: Buffer | string, next: (string | undefined)[], delimiter: string | RegExp) => string[];
