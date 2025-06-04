@@ -70,20 +70,34 @@ Output formatters collection.
 const p = $`echo 'foo\nbar'`
 
 await p.text()        // foo\n\bar\n
-await p.text('hex')   //  666f6f0a0861720a
-await p.buffer()      //  Buffer.from('foo\n\bar\n')
+await p.text('hex')   // 666f6f0a0861720a
+await p.buffer()      // Buffer.from('foo\n\bar\n')
 await p.lines()       // ['foo', 'bar']
-await $`echo '{"foo": "bar"}'`.json() // {foo: 'bar'}
+
+// You can specify a custom lines delimiter if necessary:
+await $`touch foo bar baz; find ./ -type f -print0`
+  .lines('\0')        // ['./bar', './baz', './foo']
+
+// If the output is a valid JSON, parse it in place:
+await $`echo '{"foo": "bar"}'`
+  .json()             // {foo: 'bar'}
 ```
 
 ## `[Symbol.asyncIterator]`
 
-Returns an async iterator of the stdout process.
+Returns an async iterator for the process stdout.
 
 ```js
 const p = $`echo "Line1\nLine2\nLine3"`
 for await (const line of p) {
-  console.log()
+  console.log(line)
+}
+
+// Custom delimiter can be specified:
+for await (const line of $({
+  delimiter: '\0'
+})`touch foo bar baz; find ./ -type f -print0`) {
+  console.log(line)
 }
 ```
 
