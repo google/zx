@@ -324,7 +324,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           !sync && timeout && self.timeout(timeout, timeoutSignal)
         },
         stdout: (data) => {
-          // If process is piped, don't print output.
+          // If the process is piped, don't print its output.
           if (self._piped) return
           $.log({ kind: 'stdout', data, verbose: self.isVerbose(), id })
         },
