@@ -9,3 +9,10 @@ temp
 test/fixtures/ts-project/build/
 jsr.json
 .npmrc
+
+build/*.js
+!build/cli.js
+!build/core.js
+!build/index.js
+!build/globals.js
+!build/deno.js

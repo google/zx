@@ -466,8 +466,8 @@ var require_to_regex_range = __commonJS({
       let relax = String(opts.relaxZeros);
       let shorthand = String(opts.shorthand);
       let capture = String(opts.capture);
-      let wrap = String(opts.wrap);
-      let cacheKey = min + ":" + max + "=" + relax + shorthand + capture + wrap;
+      let wrap3 = String(opts.wrap);
+      let cacheKey = min + ":" + max + "=" + relax + shorthand + capture + wrap3;
       if (toRegexRange.cache.hasOwnProperty(cacheKey)) {
         return toRegexRange.cache[cacheKey].result;
       }
@@ -737,9 +737,9 @@ var require_fill_range = __commonJS({
     };
     var toRegex = (start, end, options) => {
       if (Array.isArray(start)) {
-        let wrap = options.wrap === true;
+        let wrap3 = options.wrap === true;
         let prefix = options.capture ? "" : "?:";
-        return wrap ? `(${prefix}${start.join("|")})` : start.join("|");
+        return wrap3 ? `(${prefix}${start.join("|")})` : start.join("|");
       }
       return toRegexRange(start, end, options);
     };
@@ -12247,13 +12247,12 @@ var vendor_extra_exports = {};
 __export(vendor_extra_exports, {
   YAML: () => YAML,
   createRequire: () => createRequire,
-  depseek: () => depseekSync,
-  dotenv: () => index_default,
+  depseek: () => depseek,
+  dotenv: () => dotenv,
   fs: () => fs5,
   glob: () => glob,
-  globbyModule: () => globbyModule,
-  minimist: () => import_minimist.default,
-  nodeFetch: () => s
+  minimist: () => minimist,
+  nodeFetch: () => nodeFetch
 });
 module.exports = __toCommonJS(vendor_extra_exports);
 
@@ -19652,7 +19651,29 @@ var populate = (env, extra) => Object.assign(env, extra);
 var config = (def = DOTENV, ...files) => populate(process.env, loadSafe(def, ...files));
 var index_default = { parse: parse2, stringify: stringify4, load, loadSafe, config };
 
+// src/internals.ts
+var store = /* @__PURE__ */ new Map();
+var override = store.set.bind(store);
+var wrap = (name, api) => {
+  override(name, api);
+  return new Proxy(api, {
+    get(_, key) {
+      var _a2, _b2;
+      return store.get(name)[key] || ((_b2 = (_a2 = store.get(name)) == null ? void 0 : _a2.default) == null ? void 0 : _b2[key]);
+    },
+    apply(_, self2, args) {
+      return store.get(name).apply(self2, args);
+    }
+  });
+};
+var bus = {
+  override,
+  store,
+  wrap
+};
+
 // src/vendor-extra.ts
+var { wrap: wrap2 } = bus;
 var globalVar = "Deno" in globalThis ? globalThis : global;
 globalVar.AbortController = globalVar.AbortController || A;
 var createRequire = import_create_require.default;
@@ -19668,11 +19689,17 @@ var globbyModule = {
   isGitIgnored,
   isDynamicPattern
 };
-var glob = Object.assign(function globby2(patterns, options) {
+var _glob = Object.assign(function globby2(patterns, options) {
   return globbyModule.globby(patterns, options);
 }, globbyModule);
-var YAML = browser_exports;
-var fs5 = _fs;
+var _YAML = browser_exports;
+var depseek = wrap2("depseek", depseekSync);
+var dotenv = wrap2("dotenv", index_default);
+var fs5 = wrap2("fs", _fs);
+var YAML = wrap2("YAML", _YAML);
+var glob = wrap2("glob", _glob);
+var nodeFetch = wrap2("nodeFetch", s);
+var minimist = wrap2("minimist", import_minimist.default);
 /* c8 ignore next 100 */
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
@@ -19682,7 +19709,6 @@ var fs5 = _fs;
   dotenv,
   fs,
   glob,
-  globbyModule,
   minimist,
   nodeFetch
 });

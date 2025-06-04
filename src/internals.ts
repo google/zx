@@ -1,4 +1,4 @@
-// Copyright 2024 Google LLC
+// Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,6 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from './vendor-core.ts'
-export * from './vendor-extra.ts'
-export { createRequire } from './vendor-extra.ts'
+type TCallable = (...args: any[]) => any
+
+const store = new Map<string, any>()
+const override = store.set.bind(store)
+const wrap = <T extends object>(name: string, api: T): T => {
+  override(name, api)
+  return new Proxy<T>(api, {
+    get(_, key) {
+      return store.get(name)[key] || store.get(name)?.default?.[key]
+    },
+    apply(_, self, args) {
+      return (store.get(name) as TCallable).apply(self, args)
+    },
+  })
+}
+
+export const bus = {
+  override,
+  store,
+  wrap,
+}
