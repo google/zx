@@ -121,7 +121,7 @@ import { $ } from 'zx'
 const { $ } = require('zx')
 ```
 
-It has also built-in TypeScript libdefs. But `@types/fs-extra` and `@types/node` are required to be installed on user's side.
+It also contains built-in TypeScript libdefs. But `@types/fs-extra` and `@types/node` are required to be installed on user's side.
 
 ```bash
 npm i -D @types/fs-extra @types/node
@@ -141,7 +141,7 @@ const opts: Options = {
 We use [esbuild](https://dev.to/antongolub/how-and-why-do-we-bundle-zx-1ca6) to produce a static build that allows us to solve several issues at once:
 * Reduce the pkg size and install time.
 * Make npx (yarn dlx / bunx) invocations reproducible.
-* Provide support for wide range of Node.js versions: from 12 to 23.
+* Provide support for a wide range of Node.js versions: from [12 to 25](https://github.com/google/zx/blob/61d03329349770d90fda3c9e26f7ef09f869a096/.github/workflows/test.yml#L195).
 * Make auditing easier: complete code is in one place.
 
 ### Composite
