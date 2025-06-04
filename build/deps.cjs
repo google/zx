@@ -22,9 +22,7 @@ function installDeps(dependencies, prefix, registry) {
     const packages = Object.entries(dependencies).map(
       ([name, version]) => `${name}@${version}`
     );
-    if (packages.length === 0) {
-      return;
-    }
+    if (packages.length === 0) return;
     yield (0, import_index.spinner)(
       `npm i ${packages.join(" ")}`,
       () => import_index.$`npm install --no-save --no-audit --no-fund ${registryFlag} ${prefixFlag} ${packages}`.nothrow()
@@ -106,9 +104,7 @@ function parsePackageName(path) {
   var _a, _b;
   if (!path) return;
   const name = (_b = (_a = nameRe.exec(path)) == null ? void 0 : _a.groups) == null ? void 0 : _b.name;
-  if (name && !builtins.has(name)) {
-    return name;
-  }
+  if (name && !builtins.has(name)) return name;
 }
 function parseVersion(line) {
   var _a, _b;

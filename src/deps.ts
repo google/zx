@@ -31,9 +31,8 @@ export async function installDeps(
   const packages = Object.entries(dependencies).map(
     ([name, version]) => `${name}@${version}`
   )
-  if (packages.length === 0) {
-    return
-  }
+  if (packages.length === 0) return
+
   await spinner(`npm i ${packages.join(' ')}`, () =>
     $`npm install --no-save --no-audit --no-fund ${registryFlag} ${prefixFlag} ${packages}`.nothrow()
   )
@@ -119,10 +118,9 @@ export function parseDeps(content: string): Record<string, string> {
 
 function parsePackageName(path?: string): string | undefined {
   if (!path) return
+
   const name = nameRe.exec(path)?.groups?.name
-  if (name && !builtins.has(name)) {
-    return name
-  }
+  if (name && !builtins.has(name)) return name
 }
 
 function parseVersion(line: string) {
