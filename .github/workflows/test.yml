@@ -192,7 +192,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        node-version: [12, 14, 16, 18, 20, 22, 22-nightly, 23]
+        node-version: [12, 14, 16, 18, 20, 22, 24, 25-nightly]
     steps:
       - uses: actions/checkout@v4
         with:
