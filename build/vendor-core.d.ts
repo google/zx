@@ -341,11 +341,6 @@ export declare class VoidStream extends Transform {
  * @returns TSpawnCtxNormalized
  */
 export declare const exec: (ctx: TSpawnCtx) => TSpawnCtxNormalized;
-export declare const bus: {
-	override: (key: string, value: any) => Map<string, any>;
-	store: Map<string, any>;
-	wrap: <T extends object>(name: string, api: T) => T;
-};
 export type RequestInfo = Parameters<typeof globalThis.fetch>[0];
 type RequestInit$1 = Parameters<typeof globalThis.fetch>[1] & {
 	signal?: AbortSignal;

@@ -266,7 +266,6 @@ var vendor_core_exports = {};
 __export(vendor_core_exports, {
   VoidStream: () => VoidStream,
   buildCmd: () => buildCmd,
-  bus: () => bus,
   chalk: () => chalk2,
   exec: () => exec,
   isStringLiteral: () => isStringLiteral,
@@ -1371,7 +1370,7 @@ var noop2 = () => {
 var identity = (v) => v;
 var index_default = { kill, lookup, lookupSync, tree, treeSync };
 
-// src/vendor-core.ts
+// src/internals.ts
 var store = /* @__PURE__ */ new Map();
 var override = store.set.bind(store);
 var wrap = (name, api) => {
@@ -1391,15 +1390,16 @@ var bus = {
   store,
   wrap
 };
-var chalk2 = wrap("chalk", source_default);
-var which = wrap("which", import_which.default);
-var ps = wrap("ps", index_default);
+
+// src/vendor-core.ts
+var chalk2 = bus.wrap("chalk", source_default);
+var which = bus.wrap("which", import_which.default);
+var ps = bus.wrap("ps", index_default);
 /* c8 ignore next 100 */
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   VoidStream,
   buildCmd,
-  bus,
   chalk,
   exec,
   isStringLiteral,
