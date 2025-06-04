@@ -30,7 +30,7 @@ interface ProcessOutput extends Error {
   text(encoding: Encoding = 'utf8'): string
 
   // Output lines splitted by newline
-  lines(): string[]
+  lines(delimiter?: string | RegExp): string[]
   
   // combined stdout and stderr
   toString(): string
