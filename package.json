@@ -53,7 +53,14 @@
   },
   "man": "./man/zx.1",
   "files": [
-    "build",
+    "3rd-party-licenses",
+    "build/cli.js",
+    "build/core.js",
+    "build/deno.js",
+    "build/globals.js",
+    "build/index.js",
+    "build/*.cjs",
+    "build/*.d.ts",
     "man"
   ],
   "engines": {
