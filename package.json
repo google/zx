@@ -72,7 +72,7 @@
     "prebuild": "rm -rf build",
     "build": "npm run build:js && npm run build:dts && npm run build:tests",
     "build:js": "node scripts/build-js.mjs --format=cjs --hybrid --entry=src/*.ts:!src/error.ts:!src/repl.ts:!src/md.ts:!src/log.ts:!src/globals-jsr.ts:!src/goods.ts && npm run build:vendor",
-    "build:vendor": "node scripts/build-js.mjs --format=cjs --entry=src/vendor-*.ts --bundle=all",
+    "build:vendor": "node scripts/build-js.mjs --format=cjs --entry=src/vendor-*.ts --bundle=all --external='./internals.ts'",
     "build:tests": "node scripts/build-tests.mjs",
     "build:dts": "tsc --project tsconfig.json && rm build/error.d.ts build/repl.d.ts build/globals-jsr.d.ts && node scripts/build-dts.mjs",
     "build:dcr": "docker build -f ./dcr/Dockerfile . -t zx",
