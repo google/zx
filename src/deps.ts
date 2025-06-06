@@ -20,23 +20,42 @@ import { depseek } from './vendor.ts'
  * @param dependencies object of dependencies
  * @param prefix  path to the directory where npm should install the dependencies
  * @param registry custom npm registry URL when installing dependencies
+ * @param installerType package manager: npm, yarn, pnpm, bun, etc.
  */
 export async function installDeps(
   dependencies: Record<string, string>,
   prefix?: string,
-  registry?: string
+  registry?: string,
+  installerType = 'npm'
 ): Promise<void> {
-  const prefixFlag = prefix ? `--prefix=${prefix}` : ''
-  const registryFlag = registry ? `--registry=${registry}` : ''
+  const installer = installers[installerType]
   const packages = Object.entries(dependencies).map(
     ([name, version]) => `${name}@${version}`
   )
-  if (packages.length === 0) {
-    return
+  if (packages.length === 0) return
+  if (!installer) {
+    throw new Error(
+      `Unsupported installer type: ${installerType}. Supported types: ${Object.keys(installers).join(', ')}`
+    )
   }
-  await spinner(`npm i ${packages.join(' ')}`, () =>
-    $`npm install --no-save --no-audit --no-fund ${registryFlag} ${prefixFlag} ${packages}`.nothrow()
+
+  await spinner(`${installerType} i ${packages.join(' ')}`, () =>
+    installer({ packages, prefix, registry })
   )
+}
+
+type DepsInstaller = (opts: {
+  packages: string[]
+  registry?: string
+  prefix?: string
+}) => Promise<void>
+
+const installers: Record<any, DepsInstaller> = {
+  npm: async ({ packages, prefix, registry }) => {
+    const prefixFlag = prefix ? `--prefix=${prefix}` : ''
+    const registryFlag = registry ? `--registry=${registry}` : ''
+    await $`npm install --no-save --no-audit --no-fund ${registryFlag} ${prefixFlag} ${packages}`.nothrow()
+  },
 }
 
 const builtins = new Set([
@@ -119,10 +138,9 @@ export function parseDeps(content: string): Record<string, string> {
 
 function parsePackageName(path?: string): string | undefined {
   if (!path) return
+
   const name = nameRe.exec(path)?.groups?.name
-  if (name && !builtins.has(name)) {
-    return name
-  }
+  if (name && !builtins.has(name)) return name
 }
 
 function parseVersion(line: string) {

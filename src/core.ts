@@ -494,8 +494,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   get exitCode(): Promise<number | null> {
     return this.then(
-      (p) => p.exitCode,
-      (p) => p.exitCode
+      (o) => o.exitCode,
+      (o) => o.exitCode
     )
   }
 
@@ -566,23 +566,23 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   // Output formatters
   json<T = any>(): Promise<T> {
-    return this.then((p) => p.json<T>())
+    return this.then((o) => o.json<T>())
   }
 
   text(encoding?: Encoding): Promise<string> {
-    return this.then((p) => p.text(encoding))
+    return this.then((o) => o.text(encoding))
   }
 
   lines(delimiter?: string | RegExp): Promise<string[]> {
-    return this.then((p) => p.lines(delimiter))
+    return this.then((o) => o.lines(delimiter))
   }
 
   buffer(): Promise<Buffer> {
-    return this.then((p) => p.buffer())
+    return this.then((o) => o.buffer())
   }
 
   blob(type?: string): Promise<Blob> {
-    return this.then((p) => p.blob(type))
+    return this.then((o) => o.blob(type))
   }
 
   // Status checkers

@@ -689,8 +689,8 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
   }
   get exitCode() {
     return this.then(
-      (p) => p.exitCode,
-      (p) => p.exitCode
+      (o) => o.exitCode,
+      (o) => o.exitCode
     );
   }
   get signal() {
@@ -742,19 +742,19 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
   }
   // Output formatters
   json() {
-    return this.then((p) => p.json());
+    return this.then((o) => o.json());
   }
   text(encoding) {
-    return this.then((p) => p.text(encoding));
+    return this.then((o) => o.text(encoding));
   }
   lines(delimiter) {
-    return this.then((p) => p.lines(delimiter));
+    return this.then((o) => o.lines(delimiter));
   }
   buffer() {
-    return this.then((p) => p.buffer());
+    return this.then((o) => o.buffer());
   }
   blob(type) {
-    return this.then((p) => p.blob(type));
+    return this.then((o) => o.blob(type));
   }
   // Status checkers
   isQuiet() {

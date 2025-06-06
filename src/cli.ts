@@ -15,6 +15,7 @@
 // limitations under the License.
 
 import url from 'node:url'
+import process from 'node:process'
 import {
   $,
   ProcessOutput,
@@ -34,7 +35,6 @@ import { startRepl } from './repl.ts'
 import { randomId } from './util.ts'
 import { transformMarkdown } from './md.ts'
 import { createRequire, type minimist } from './vendor.ts'
-import process from 'node:process'
 
 const EXT = '.mjs'
 const EXT_RE = /^\.[mc]?[jt]sx?$/
