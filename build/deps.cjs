@@ -15,20 +15,31 @@ __export(deps_exports, {
 module.exports = __toCommonJS(deps_exports);
 var import_index = require("./index.cjs");
 var import_vendor = require("./vendor.cjs");
-function installDeps(dependencies, prefix, registry) {
+function installDeps(dependencies, prefix, registry, installerType = "npm") {
   return __async(this, null, function* () {
-    const prefixFlag = prefix ? `--prefix=${prefix}` : "";
-    const registryFlag = registry ? `--registry=${registry}` : "";
+    const installer = installers[installerType];
     const packages = Object.entries(dependencies).map(
       ([name, version]) => `${name}@${version}`
     );
     if (packages.length === 0) return;
+    if (!installer) {
+      throw new Error(
+        `Unsupported installer type: ${installerType}. Supported types: ${Object.keys(installers).join(", ")}`
+      );
+    }
     yield (0, import_index.spinner)(
-      `npm i ${packages.join(" ")}`,
-      () => import_index.$`npm install --no-save --no-audit --no-fund ${registryFlag} ${prefixFlag} ${packages}`.nothrow()
+      `${installerType} i ${packages.join(" ")}`,
+      () => installer({ packages, prefix, registry })
     );
   });
 }
+var installers = {
+  npm: (_0) => __async(null, [_0], function* ({ packages, prefix, registry }) {
+    const prefixFlag = prefix ? `--prefix=${prefix}` : "";
+    const registryFlag = registry ? `--registry=${registry}` : "";
+    yield import_index.$`npm install --no-save --no-audit --no-fund ${registryFlag} ${prefixFlag} ${packages}`.nothrow();
+  })
+};
 var builtins = /* @__PURE__ */ new Set([
   "_http_agent",
   "_http_client",

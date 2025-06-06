@@ -74,6 +74,16 @@ describe('deps', () => {
       out = await t$`node ${cli}  -i --registry=https://npm.jsr.io <<< ${code}`
       assert.match(out.stdout, /true/)
     })
+
+    test('throws on invalid installer type', async () => {
+      await assert.rejects(
+        () =>
+          installDeps({ foo: 'latest' }, cwd, 'https://npm.jsr.io', 'invalid'),
+        {
+          message: /Unsupported installer type: invalid. Supported types: npm/,
+        }
+      )
+    })
   })
 
   describe('parseDeps()', () => {

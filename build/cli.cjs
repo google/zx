@@ -27,6 +27,7 @@ __export(cli_exports, {
 });
 module.exports = __toCommonJS(cli_exports);
 var import_node_url = __toESM(require("url"), 1);
+var import_node_process2 = __toESM(require("process"), 1);
 var import_index = require("./index.cjs");
 var import_deps = require("./deps.cjs");
 
@@ -136,7 +137,6 @@ function transformMarkdown(buf) {
 
 // src/cli.ts
 var import_vendor = require("./vendor.cjs");
-var import_node_process2 = __toESM(require("process"), 1);
 var import_meta = {};
 var EXT = ".mjs";
 var EXT_RE = /^\.[mc]?[jt]sx?$/;
