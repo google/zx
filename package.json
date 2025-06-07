@@ -127,7 +127,7 @@
     "madge": "8.0.0",
     "minimist": "1.2.8",
     "node-fetch-native": "1.6.4",
-    "prettier": "3.5.3",
+    "prettier": "^3.5.3",
     "size-limit": "11.2.0",
     "ts-node": "10.9.2",
     "tsd": "0.32.0",
