@@ -129,11 +129,8 @@ export const YAML: typeof _YAML = wrap('YAML', _YAML)
 export const glob: typeof _glob = wrap('glob', _glob)
 export const nodeFetch: typeof _nodeFetch = wrap('nodeFetch', _nodeFetch)
 
-type Minimist = typeof _minimist
-type MinimistOpts = Parameters<Minimist>[1]
-type MinimistParsedArgs = ReturnType<Minimist>
-export const minimist: Minimist = wrap('minimist', _minimist)
+export const minimist: typeof _minimist = wrap('minimist', _minimist)
 export namespace minimist {
-  export type Opts = MinimistOpts
-  export type ParsedArgs = MinimistParsedArgs
+  export interface Opts extends _minimist.Opts {}
+  export interface ParsedArgs extends _minimist.ParsedArgs {}
 }

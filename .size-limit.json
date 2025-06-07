@@ -36,14 +36,14 @@
   {
     "name": "libdefs",
     "path": "build/*.d.ts",
-    "limit": "39.15 kB",
+    "limit": "39.05 kB",
     "brotli": false,
     "gzip": false
   },
   {
     "name": "vendor",
     "path": "build/vendor-*.{cjs,d.ts}",
-    "limit": "765.65 kB",
+    "limit": "765.55 kB",
     "brotli": false,
     "gzip": false
   },
@@ -62,7 +62,7 @@
       "README.md",
       "LICENSE"
     ],
-    "limit": "868.45 kB",
+    "limit": "868.40 kB",
     "brotli": false,
     "gzip": false
   }

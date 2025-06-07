@@ -457,13 +457,12 @@ declare const fs$1: typeof import("fs-extra");
 export declare const YAML: typeof _YAML;
 export declare const glob: typeof _glob;
 export declare const nodeFetch: typeof fetch$1;
-type Minimist = typeof minimist;
-type MinimistOpts = Parameters<Minimist>[1];
-type MinimistParsedArgs = ReturnType<Minimist>;
-declare const minimist$1: Minimist;
+declare const minimist$1: typeof minimist;
 declare namespace minimist$1 {
-	type Opts = MinimistOpts;
-	type ParsedArgs = MinimistParsedArgs;
+	interface Opts extends minimist.Opts {
+	}
+	interface ParsedArgs extends minimist.ParsedArgs {
+	}
 }
 
 export {
