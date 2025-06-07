@@ -324,34 +324,10 @@ type TOptsNormalized = {
 };
 type TOpts = Partial<TOptsNormalized>;
 declare const depseekSync: (input: string | Buffer, opts?: TOpts) => TCodeRef[];
-/**
- * Return an argument object populated with the array arguments from args
- *
- * @param [args] An optional argument array (typically `process.argv.slice(2)`)
- * @param [opts] An optional options object to customize the parsing
- */
-export declare function minimist(args?: string[], opts?: minimist.Opts): minimist.ParsedArgs;
-/**
- * Return an argument object populated with the array arguments from args. Strongly-typed
- * to be the intersect of type T with minimist.ParsedArgs.
- *
- * `T` The type that will be intersected with minimist.ParsedArgs to represent the argument object
- *
- * @param [args] An optional argument array (typically `process.argv.slice(2)`)
- * @param [opts] An optional options object to customize the parsing
- */
-export declare function minimist<T>(args?: string[], opts?: minimist.Opts): T & minimist.ParsedArgs;
-/**
- * Return an argument object populated with the array arguments from args. Strongly-typed
- * to be the the type T which should extend minimist.ParsedArgs
- *
- * `T` The type that extends minimist.ParsedArgs and represents the argument object
- *
- * @param [args] An optional argument array (typically `process.argv.slice(2)`)
- * @param [opts] An optional options object to customize the parsing
- */
-export declare function minimist<T extends minimist.ParsedArgs>(args?: string[], opts?: minimist.Opts): T;
-export declare namespace minimist {
+declare function minimist(args?: string[], opts?: minimist.Opts): minimist.ParsedArgs;
+declare function minimist<T>(args?: string[], opts?: minimist.Opts): T & minimist.ParsedArgs;
+declare function minimist<T extends minimist.ParsedArgs>(args?: string[], opts?: minimist.Opts): T;
+declare namespace minimist {
 	interface Opts {
 		/**
 		 * A string or array of strings argument names to always treat as strings
@@ -409,7 +385,7 @@ declare const _default: {
 	config: (def?: string, ...files: string[]) => NodeJS.ProcessEnv;
 };
 export declare const createRequire: (filename: string | URL$1) => NodeJS.Require;
-export declare const globbyModule: {
+declare const globbyModule: {
 	convertPathToPattern: typeof convertPathToPattern;
 	globby: typeof globby;
 	sync: typeof globbySync;
@@ -421,8 +397,8 @@ export declare const globbyModule: {
 	isGitIgnored: typeof isGitIgnored;
 	isDynamicPattern: typeof isDynamicPattern;
 };
-export declare const glob: (typeof globbyModule)["globby"] & typeof globbyModule;
-export declare const YAML: YAML;
+declare const _glob: (typeof globbyModule)["globby"] & typeof globbyModule;
+declare const _YAML: YAML;
 export interface YAML {
 	parse(text: string): any;
 	stringify(object: any): string;
@@ -475,13 +451,23 @@ export interface YAML {
 	/** @deprecated */
 	Parser: any;
 }
+export declare const depseek: typeof depseekSync;
+export declare const dotenv: typeof _default;
 declare const fs$1: typeof import("fs-extra");
+export declare const YAML: typeof _YAML;
+export declare const glob: typeof _glob;
+export declare const nodeFetch: typeof fetch$1;
+declare const minimist$1: typeof minimist;
+declare namespace minimist$1 {
+	interface Opts extends minimist.Opts {
+	}
+	interface ParsedArgs extends minimist.ParsedArgs {
+	}
+}
 
 export {
-	_default as dotenv,
-	depseekSync as depseek,
-	fetch$1 as nodeFetch,
 	fs$1 as fs,
+	minimist$1 as minimist,
 };
 
 export {};

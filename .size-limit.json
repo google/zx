@@ -9,43 +9,60 @@
       "build/deno.js",
       "build/esblib.cjs",
       "build/util.cjs",
-      "build/util.js",
       "build/util.d.ts",
       "build/vendor-core.cjs",
-      "build/vendor-core.js",
       "build/vendor-core.d.ts",
       "README.md",
       "LICENSE"
     ],
-    "limit": "122.25 kB",
+    "limit": "120.60 kB",
     "brotli": false,
     "gzip": false
   },
   {
     "name": "js parts",
-    "path": "build/*.{js,cjs}",
-    "limit": "817.2 kB",
+    "path": [
+      "build/*.cjs",
+      "build/cli.js",
+      "build/core.js",
+      "build/index.js",
+      "build/globals.js",
+      "build/deno.js"
+    ],
+    "limit": "813.0 kB",
     "brotli": false,
     "gzip": false
   },
   {
     "name": "libdefs",
     "path": "build/*.d.ts",
-    "limit": "40.36 kB",
+    "limit": "39.05 kB",
     "brotli": false,
     "gzip": false
   },
   {
     "name": "vendor",
-    "path": "build/vendor-*",
-    "limit": "769.45 kB",
+    "path": "build/vendor-*.{cjs,d.ts}",
+    "limit": "765.55 kB",
     "brotli": false,
     "gzip": false
   },
   {
     "name": "all",
-    "path": ["build/*", "man/*", "README.md", "LICENSE"],
-    "limit": "873.95 kB",
+    "path": [
+      "build/3rd-party-licenses",
+      "build/*.cjs",
+      "build/*.d.ts",
+      "build/cli.js",
+      "build/core.js",
+      "build/index.js",
+      "build/globals.js",
+      "build/deno.js",
+      "man/*",
+      "README.md",
+      "LICENSE"
+    ],
+    "limit": "868.40 kB",
     "brotli": false,
     "gzip": false
   }

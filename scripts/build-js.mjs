@@ -160,6 +160,7 @@ plugins.push(
               'yield import("zx/globals")',
               'yield require("./globals.cjs")'
             )
+            .replace('require("./internals.ts")', 'require("./internals.cjs")')
         },
       },
     ],

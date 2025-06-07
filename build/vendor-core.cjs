@@ -266,7 +266,6 @@ var vendor_core_exports = {};
 __export(vendor_core_exports, {
   VoidStream: () => VoidStream,
   buildCmd: () => buildCmd,
-  bus: () => bus,
   chalk: () => chalk2,
   exec: () => exec,
   isStringLiteral: () => isStringLiteral,
@@ -921,12 +920,10 @@ var parse = (input, { format = "unix" } = {}) => {
 var cp = __toESM(require("child_process"), 1);
 var import_node_process3 = __toESM(require("process"), 1);
 var import_node_events = __toESM(require("events"), 1);
-var import_node_stream2 = require("stream");
+var import_node_stream = require("stream");
 
 // node_modules/zurk/target/esm/util.mjs
-var import_node_stream = require("stream");
 var import_node_process2 = __toESM(require("process"), 1);
-var import_node_buffer = require("buffer");
 var g = !import_node_process2.default.versions.deno && global || globalThis;
 var immediate = g.setImmediate || ((f) => g.setTimeout(f, 0));
 var noop = () => {
@@ -1008,7 +1005,7 @@ var normalizeCtx = (...ctxs) => assign(
 );
 var processInput = (child, input) => {
   if (input && child.stdin && !child.stdin.destroyed) {
-    if (input instanceof import_node_stream2.Readable) {
+    if (input instanceof import_node_stream.Readable) {
       input.pipe(child.stdin);
     } else {
       child.stdin.write(input);
@@ -1016,7 +1013,7 @@ var processInput = (child, input) => {
     }
   }
 };
-var VoidStream = class extends import_node_stream2.Transform {
+var VoidStream = class extends import_node_stream.Transform {
   _transform(chunk, _, cb) {
     this.emit("data", chunk);
     cb();
@@ -1372,34 +1369,15 @@ var identity = (v) => v;
 var index_default = { kill, lookup, lookupSync, tree, treeSync };
 
 // src/vendor-core.ts
-var store = /* @__PURE__ */ new Map();
-var override = store.set.bind(store);
-var wrap = (name, api) => {
-  override(name, api);
-  return new Proxy(api, {
-    get(_, key) {
-      var _a, _b;
-      return store.get(name)[key] || ((_b = (_a = store.get(name)) == null ? void 0 : _a.default) == null ? void 0 : _b[key]);
-    },
-    apply(_, self, args) {
-      return store.get(name).apply(self, args);
-    }
-  });
-};
-var bus = {
-  override,
-  store,
-  wrap
-};
-var chalk2 = wrap("chalk", source_default);
-var which = wrap("which", import_which.default);
-var ps = wrap("ps", index_default);
+var import_internals = require("./internals.cjs");
+var chalk2 = import_internals.bus.wrap("chalk", source_default);
+var which = import_internals.bus.wrap("which", import_which.default);
+var ps = import_internals.bus.wrap("ps", index_default);
 /* c8 ignore next 100 */
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   VoidStream,
   buildCmd,
-  bus,
   chalk,
   exec,
   isStringLiteral,

@@ -28,9 +28,14 @@ import {
 import * as _yaml from 'yaml'
 import * as _fs from 'fs-extra'
 import _createRequire from 'create-require'
-import { AbortController } from 'node-fetch-native'
+import { fetch as _nodeFetch, AbortController } from 'node-fetch-native'
+import { depseekSync as _depseek } from 'depseek'
+import { default as _minimist } from 'minimist'
+import { default as _dotenv } from 'envapi'
 
-export { fetch as nodeFetch } from 'node-fetch-native'
+import { bus } from './internals.ts'
+
+const { wrap } = bus
 
 // Calculate a global variable for use (Deno/NodeJS) runtime.
 // deno-lint-ignore no-node-globals
@@ -42,7 +47,7 @@ export const createRequire = _createRequire as unknown as (
   filename: string | URL
 ) => NodeJS.Require
 
-export const globbyModule = {
+const globbyModule = {
   convertPathToPattern,
   globby,
   sync: globbySync,
@@ -55,14 +60,14 @@ export const globbyModule = {
   isDynamicPattern,
 }
 
-export const glob = Object.assign(function globby(
+const _glob = Object.assign(function globby(
   patterns: string | readonly string[],
   options?: GlobbyOptions
 ) {
   return globbyModule.globby(patterns, options)
 }, globbyModule) as (typeof globbyModule)['globby'] & typeof globbyModule
 
-export const YAML: YAML = _yaml
+const _YAML: YAML = _yaml
 
 export interface YAML {
   parse(text: string): any
@@ -117,8 +122,15 @@ export interface YAML {
   Parser: any
 }
 
-export const fs: typeof import('fs-extra') = _fs
+export const depseek: typeof _depseek = wrap('depseek', _depseek)
+export const dotenv: typeof _dotenv = wrap('dotenv', _dotenv)
+export const fs: typeof import('fs-extra') = wrap('fs', _fs)
+export const YAML: typeof _YAML = wrap('YAML', _YAML)
+export const glob: typeof _glob = wrap('glob', _glob)
+export const nodeFetch: typeof _nodeFetch = wrap('nodeFetch', _nodeFetch)
 
-export { depseekSync as depseek } from 'depseek'
-export { default as minimist } from 'minimist'
-export { default as dotenv } from 'envapi'
+export const minimist: typeof _minimist = wrap('minimist', _minimist)
+export namespace minimist {
+  export interface Opts extends _minimist.Opts {}
+  export interface ParsedArgs extends _minimist.ParsedArgs {}
+}
