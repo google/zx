@@ -120,9 +120,9 @@ export const log: Log = function (entry) {
   stream.write(data)
 }
 
-const SYNTAX = '()[]{}<>;:+|&='
-const CMD_BREAK = new Set(['|', '&', ';', '>', '<'])
 const SPACE_RE = /\s/
+const SYNTAX = '()[]{}<>;:+|&='
+const CMD_BREAK = '|&;><'
 const RESERVED_WORDS = new Set([
   'if',
   'then',
@@ -153,7 +153,7 @@ export function formatCmd(cmd: string): string {
     if (word) {
       pos++
       if (mode === 'syntax') {
-        if (CMD_BREAK.has(word)) {
+        if (CMD_BREAK.includes(word)) {
           pos = 0
         }
         out += chalk.red(buf)
