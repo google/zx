@@ -1,6 +1,6 @@
 {
   "name": "zx",
-  "version": "8.5.5",
+  "version": "8.5.6",
   "description": "A tool for writing better scripts",
   "type": "module",
   "main": "./build/index.cjs",
@@ -107,7 +107,7 @@
     "@size-limit/file": "11.2.0",
     "@types/fs-extra": "11.0.4",
     "@types/minimist": "1.2.5",
-    "@types/node": "22.15.29",
+    "@types/node": "22.15.30",
     "@types/which": "3.0.4",
     "@webpod/ingrid": "0.0.0-beta.3",
     "@webpod/ps": "0.1.1",
