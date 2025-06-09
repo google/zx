@@ -14,4 +14,3 @@
 
 export * from './vendor-core.ts'
 export * from './vendor-extra.ts'
-export { createRequire } from './vendor-extra.ts'

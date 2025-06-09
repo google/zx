@@ -297,9 +297,9 @@ var log = function(entry) {
   const data = format(entry);
   stream.write(data);
 };
-var SYNTAX = "()[]{}<>;:+|&=";
-var CMD_BREAK = /* @__PURE__ */ new Set(["|", "&", ";", ">", "<"]);
 var SPACE_RE = /\s/;
+var SYNTAX = "()[]{}<>;:+|&=";
+var CMD_BREAK = "|&;><";
 var RESERVED_WORDS = /* @__PURE__ */ new Set([
   "if",
   "then",
@@ -329,7 +329,7 @@ function formatCmd(cmd) {
     if (word) {
       pos++;
       if (mode === "syntax") {
-        if (CMD_BREAK.has(word)) {
+        if (CMD_BREAK.includes(word)) {
           pos = 0;
         }
         out += import_vendor_core.chalk.red(buf);
