@@ -287,8 +287,7 @@ var log = function(entry) {
   const stream = log.output || import_node_process.default.stderr;
   const format = ((_a = log.formatters) == null ? void 0 : _a[entry.kind]) || formatters[entry.kind];
   if (!format) return;
-  const data = format(entry);
-  stream.write(data);
+  stream.write(format(entry));
 };
 var SPACE_RE = /\s/;
 var SYNTAX = "()[]{}<>;:+|&=";

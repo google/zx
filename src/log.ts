@@ -116,8 +116,8 @@ export const log: Log = function (entry) {
     entry: LogEntry
   ) => string | Buffer
   if (!format) return // ignore unknown log entries
-  const data = format(entry)
-  stream.write(data)
+
+  stream.write(format(entry))
 }
 
 const SPACE_RE = /\s/

@@ -125,12 +125,25 @@ describe('goods', () => {
     })
 
     test('works with custom delay and limit', async () => {
+      const now = Date.now()
+      let count = 0
       try {
         await retry(3, '2ms', () => {
+          count++
           throw new Error('fail')
         })
       } catch (e) {
         assert.match(e.message, /fail/)
+        assert.ok(Date.now() >= now + 4)
+        assert.equal(count, 3)
+      }
+    })
+
+    test('trows undefined on count misconfiguration', async () => {
+      try {
+        await retry(0, () => 'ok')
+      } catch (e) {
+        assert.equal(e, undefined)
       }
     })
 

@@ -34,11 +34,11 @@ var import_deps = require("./deps.cjs");
 // src/repl.ts
 var import_node_os = __toESM(require("os"), 1);
 var import_node_path = __toESM(require("path"), 1);
+var import_node_process = __toESM(require("process"), 1);
 var import_node_repl = __toESM(require("repl"), 1);
 var import_node_util = require("util");
 var import_core = require("./core.cjs");
 var import_vendor_core = require("./vendor-core.cjs");
-var import_node_process = __toESM(require("process"), 1);
 var _a;
 var HISTORY = (_a = import_node_process.default.env.ZX_REPL_HISTORY) != null ? _a : import_node_path.default.join(import_node_os.default.homedir(), ".zx_repl_history");
 function startRepl() {

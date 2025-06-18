@@ -29,7 +29,7 @@
       "build/globals.js",
       "build/deno.js"
     ],
-    "limit": "812.15 kB",
+    "limit": "811.90 kB",
     "brotli": false,
     "gzip": false
   },
@@ -62,7 +62,7 @@
       "README.md",
       "LICENSE"
     ],
-    "limit": "867.65 kB",
+    "limit": "867.40 kB",
     "brotli": false,
     "gzip": false
   }
