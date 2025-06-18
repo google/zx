@@ -175,9 +175,11 @@ export declare class ProcessOutput extends Error {
     lines(delimiter?: string | RegExp): string[];
     valueOf(): string;
     [Symbol.iterator](): Iterator<string>;
+    [inspect.custom](): string;
     static getExitMessage: (code: number | null, signal: NodeJS.Signals | null, stderr: string, from: string, details?: string) => string;
     static getErrorMessage: (err: NodeJS.ErrnoException, from: string) => string;
-    [inspect.custom](): string;
+    static getErrorDetails: (lines?: string[], lim?: number) => string;
+    static getExitCodeInfo: (exitCode: number | null) => string | undefined;
 }
 export declare function usePowerShell(): void;
 export declare function usePwsh(): void;

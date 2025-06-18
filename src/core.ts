@@ -29,7 +29,7 @@ import { EventEmitter } from 'node:events'
 import { Buffer } from 'node:buffer'
 import process from 'node:process'
 import {
-  findErrors,
+  formatErrorDetails,
   formatErrorMessage,
   formatExitMessage,
   getCallerLocation,
@@ -746,7 +746,13 @@ export class ProcessOutput extends Error {
       message: { get: once(() =>
           message || dto.error
             ? ProcessOutput.getErrorMessage(dto.error || new Error(message), dto.from)
-            : ProcessOutput.getExitMessage(dto.code, dto.signal, this.stderr, dto.from, this.stderr.trim() ? '' : findErrors(this.lines()))
+            : ProcessOutput.getExitMessage(
+              dto.code,
+              dto.signal,
+              this.stderr,
+              dto.from,
+              this.stderr.trim() ? '' : ProcessOutput.getErrorDetails(this.lines())
+            )
         ),
       },
     })
@@ -823,25 +829,27 @@ export class ProcessOutput extends Error {
     if (memo[0]) yield memo[0]
   }
 
-  static getExitMessage = formatExitMessage
-
-  static getErrorMessage = formatErrorMessage;
-
   [inspect.custom](): string {
-    const stringify = (s: string, c: ChalkInstance) =>
-      s.length === 0 ? "''" : c(inspect(s))
+    const codeInfo = ProcessOutput.getExitCodeInfo(this.exitCode)
+
     return `ProcessOutput {
-  stdout: ${stringify(this.stdout, chalk.green)},
-  stderr: ${stringify(this.stderr, chalk.red)},
+  stdout: ${chalk.green(inspect(this.stdout))},
+  stderr: ${chalk.red(inspect(this.stderr))},
   signal: ${inspect(this.signal)},
-  exitCode: ${(this.exitCode === 0 ? chalk.green : chalk.red)(this.exitCode)}${
-    getExitCodeInfo(this.exitCode)
-      ? chalk.grey(' (' + getExitCodeInfo(this.exitCode) + ')')
-      : ''
+  exitCode: ${(this.ok ? chalk.green : chalk.red)(this.exitCode)}${
+    codeInfo ? chalk.grey(' (' + codeInfo + ')') : ''
   },
   duration: ${this.duration}
 }`
   }
+
+  static getExitMessage = formatExitMessage
+
+  static getErrorMessage = formatErrorMessage
+
+  static getErrorDetails = formatErrorDetails
+
+  static getExitCodeInfo = getExitCodeInfo
 }
 
 export function usePowerShell() {
