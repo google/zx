@@ -174,33 +174,23 @@ function stdin() {
     return buf;
   });
 }
-function retry(count, a, b) {
+function retry(count, d, cb) {
   return __async(this, null, function* () {
+    if (typeof d === "function") return retry(count, 0, d);
+    (0, import_node_assert.default)(cb);
     const total = count;
-    let callback;
-    let delayStatic = 0;
-    let delayGen;
-    if (typeof a === "function") {
-      callback = a;
-    } else {
-      if (typeof a === "object") {
-        delayGen = a;
-      } else {
-        delayStatic = (0, import_util.parseDuration)(a);
-      }
-      (0, import_node_assert.default)(b);
-      callback = b;
-    }
-    let lastErr;
+    const getDelay = typeof d === "object" ? d : function* () {
+      while (true) yield (0, import_util.parseDuration)(d);
+    }();
     let attempt = 0;
+    let lastErr;
     while (count-- > 0) {
       attempt++;
       try {
-        return yield callback();
+        return yield cb();
       } catch (err) {
-        let delay = 0;
-        if (delayStatic > 0) delay = delayStatic;
-        if (delayGen) delay = delayGen.next().value;
+        lastErr = err;
+        const delay = getDelay.next().value;
         import_core.$.log({
           kind: "retry",
           total,
@@ -211,9 +201,7 @@ function retry(count, a, b) {
           error: `FAIL Attempt: ${attempt}/${total}, next: ${delay}`
           // legacy
         });
-        lastErr = err;
-        if (count == 0) break;
-        if (delay) yield sleep(delay);
+        if (delay > 0) yield sleep(delay);
       }
     }
     throw lastErr;

@@ -174,34 +174,31 @@ export async function retry<T>(
 ): Promise<T>
 export async function retry<T>(
   count: number,
-  a: Duration | Generator<number> | (() => T),
-  b?: () => T
+  d: Duration | Generator<number> | (() => T),
+  cb?: () => T
 ): Promise<T> {
+  if (typeof d === 'function') return retry(count, 0, d)
+
+  assert(cb)
+
   const total = count
-  let callback: () => T
-  let delayStatic = 0
-  let delayGen: Generator<number> | undefined
-  if (typeof a === 'function') {
-    callback = a
-  } else {
-    if (typeof a === 'object') {
-      delayGen = a
-    } else {
-      delayStatic = parseDuration(a)
-    }
-    assert(b)
-    callback = b
-  }
-  let lastErr: unknown
+  const getDelay =
+    typeof d === 'object'
+      ? d
+      : (function* () {
+          while (true) yield parseDuration(d)
+        })()
+
   let attempt = 0
+  let lastErr: unknown
   while (count-- > 0) {
     attempt++
     try {
-      return await callback()
+      return await cb()
     } catch (err) {
-      let delay = 0
-      if (delayStatic > 0) delay = delayStatic
-      if (delayGen) delay = delayGen.next().value
+      lastErr = err
+      const delay = getDelay.next().value
+
       $.log({
         kind: 'retry',
         total,
@@ -211,9 +208,7 @@ export async function retry<T>(
         verbose: !$.quiet && $.verbose,
         error: `FAIL Attempt: ${attempt}/${total}, next: ${delay}`, // legacy
       })
-      lastErr = err
-      if (count == 0) break
-      if (delay) await sleep(delay)
+      if (delay > 0) await sleep(delay)
     }
   }
   throw lastErr

@@ -96,9 +96,11 @@ describe('error', () => {
     })
   })
 
+  // prettier-ignore
   test('getExitMessage()', () => {
     assert.match(formatExitMessage(2, null, '', ''), /Misuse of shell builtins/)
-    assert.match(formatExitMessage(1, 'SIGKILL', '', ''), /SIGKILL/)
+    assert.equal(formatExitMessage(1, 'SIGKILL', '', '', 'data'), `\n    at \n    exit code: 1\n    signal: SIGKILL\n    details: \ndata`)
+    assert.equal(formatExitMessage(0, null, '', ''), 'exit code: 0')
   })
 
   test('getErrorMessage()', () => {

@@ -14,11 +14,11 @@
 
 import os from 'node:os'
 import path from 'node:path'
+import process from 'node:process'
 import repl from 'node:repl'
 import { inspect } from 'node:util'
 import { ProcessOutput, defaults } from './core.ts'
 import { chalk } from './vendor-core.ts'
-import process from 'node:process'
 
 const HISTORY =
   process.env.ZX_REPL_HISTORY ?? path.join(os.homedir(), '.zx_repl_history')
