@@ -205,25 +205,18 @@ var ERRNO_CODES = {
 function getErrnoMessage(errno) {
   return ERRNO_CODES[-errno] || "Unknown error";
 }
-function getExitCodeInfo(exitCode) {
-  return EXIT_CODES[exitCode];
-}
+var getExitCodeInfo = (exitCode) => EXIT_CODES[exitCode];
 var formatExitMessage = (code, signal, stderr, from, details = "") => {
-  let message = `exit code: ${code}`;
-  if (code != 0 || signal != null) {
-    message = `${stderr || "\n"}    at ${from}`;
-    message += `
-    exit code: ${code}${getExitCodeInfo(code) ? " (" + getExitCodeInfo(code) + ")" : ""}`;
-    if (signal != null) {
-      message += `
+  if (code == 0 && signal == null) return `exit code: ${code}`;
+  const codeInfo = getExitCodeInfo(code);
+  let message = `${stderr}
+    at ${from}
+    exit code: ${code}${codeInfo ? " (" + codeInfo + ")" : ""}`;
+  if (signal != null) message += `
     signal: ${signal}`;
-    }
-    if (details) {
-      message += `
+  if (details) message += `
     details: 
 ${details}`;
-    }
-  }
   return message;
 };
 var formatErrorMessage = (err, from) => {
@@ -241,12 +234,12 @@ function getCallerLocationFromString(stackString = "unknown") {
   const offset = i < 0 ? i : i + 2;
   return (lines.find((l) => l.includes("file://")) || lines[offset] || stackString).trim();
 }
-function findErrors(lines = []) {
-  if (lines.length < 20) return lines.join("\n");
+var formatErrorDetails = (lines = [], lim = 20) => {
+  if (lines.length < lim) return lines.join("\n");
   let errors = lines.filter((l) => /(fail|error|not ok|exception)/i.test(l));
   if (errors.length === 0) errors = lines;
-  return errors.slice(0, 20).join("\n") + (errors.length > 20 ? "\n..." : "");
-}
+  return errors.slice(0, lim).join("\n") + (errors.length > lim ? "\n..." : "");
+};
 
 // src/core.ts
 var import_vendor_core2 = require("./vendor-core.cjs");
@@ -873,7 +866,13 @@ var _ProcessOutput = class _ProcessOutput extends Error {
       stdall: { get: (0, import_util.once)(() => (0, import_util.bufArrJoin)(dto.store.stdall)) },
       message: {
         get: (0, import_util.once)(
-          () => message || dto.error ? _ProcessOutput.getErrorMessage(dto.error || new Error(message), dto.from) : _ProcessOutput.getExitMessage(dto.code, dto.signal, this.stderr, dto.from, this.stderr.trim() ? "" : findErrors(this.lines()))
+          () => message || dto.error ? _ProcessOutput.getErrorMessage(dto.error || new Error(message), dto.from) : _ProcessOutput.getExitMessage(
+            dto.code,
+            dto.signal,
+            this.stderr,
+            dto.from,
+            this.stderr.trim() ? "" : _ProcessOutput.getErrorDetails(this.lines())
+          )
         )
       }
     });
@@ -931,18 +930,20 @@ var _ProcessOutput = class _ProcessOutput extends Error {
     if (memo[0]) yield memo[0];
   }
   [import_node_util2.inspect.custom]() {
-    const stringify = (s, c) => s.length === 0 ? "''" : c((0, import_node_util2.inspect)(s));
+    const codeInfo = _ProcessOutput.getExitCodeInfo(this.exitCode);
     return `ProcessOutput {
-  stdout: ${stringify(this.stdout, import_vendor_core2.chalk.green)},
-  stderr: ${stringify(this.stderr, import_vendor_core2.chalk.red)},
+  stdout: ${import_vendor_core2.chalk.green((0, import_node_util2.inspect)(this.stdout))},
+  stderr: ${import_vendor_core2.chalk.red((0, import_node_util2.inspect)(this.stderr))},
   signal: ${(0, import_node_util2.inspect)(this.signal)},
-  exitCode: ${(this.exitCode === 0 ? import_vendor_core2.chalk.green : import_vendor_core2.chalk.red)(this.exitCode)}${getExitCodeInfo(this.exitCode) ? import_vendor_core2.chalk.grey(" (" + getExitCodeInfo(this.exitCode) + ")") : ""},
+  exitCode: ${(this.ok ? import_vendor_core2.chalk.green : import_vendor_core2.chalk.red)(this.exitCode)}${codeInfo ? import_vendor_core2.chalk.grey(" (" + codeInfo + ")") : ""},
   duration: ${this.duration}
 }`;
   }
 };
 _ProcessOutput.getExitMessage = formatExitMessage;
 _ProcessOutput.getErrorMessage = formatErrorMessage;
+_ProcessOutput.getErrorDetails = formatErrorDetails;
+_ProcessOutput.getExitCodeInfo = getExitCodeInfo;
 var ProcessOutput = _ProcessOutput;
 function usePowerShell() {
   $.shell = import_vendor_core2.which.sync("powershell.exe");

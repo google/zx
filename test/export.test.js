@@ -24,7 +24,9 @@ describe('core', () => {
   test('exports', () => {
     assert.equal(typeof core.$, 'function', 'core.$')
     assert.equal(typeof core.ProcessOutput, 'function', 'core.ProcessOutput')
+    assert.equal(typeof core.ProcessOutput.getErrorDetails, 'function', 'core.ProcessOutput.getErrorDetails')
     assert.equal(typeof core.ProcessOutput.getErrorMessage, 'function', 'core.ProcessOutput.getErrorMessage')
+    assert.equal(typeof core.ProcessOutput.getExitCodeInfo, 'function', 'core.ProcessOutput.getExitCodeInfo')
     assert.equal(typeof core.ProcessOutput.getExitMessage, 'function', 'core.ProcessOutput.getExitMessage')
     assert.equal(typeof core.ProcessPromise, 'function', 'core.ProcessPromise')
     assert.equal(typeof core.cd, 'function', 'core.cd')
@@ -144,7 +146,9 @@ describe('index', () => {
   test('exports', () => {
     assert.equal(typeof index.$, 'function', 'index.$')
     assert.equal(typeof index.ProcessOutput, 'function', 'index.ProcessOutput')
+    assert.equal(typeof index.ProcessOutput.getErrorDetails, 'function', 'index.ProcessOutput.getErrorDetails')
     assert.equal(typeof index.ProcessOutput.getErrorMessage, 'function', 'index.ProcessOutput.getErrorMessage')
+    assert.equal(typeof index.ProcessOutput.getExitCodeInfo, 'function', 'index.ProcessOutput.getExitCodeInfo')
     assert.equal(typeof index.ProcessOutput.getExitMessage, 'function', 'index.ProcessOutput.getExitMessage')
     assert.equal(typeof index.ProcessPromise, 'function', 'index.ProcessPromise')
     assert.equal(typeof index.VERSION, 'string', 'index.VERSION')

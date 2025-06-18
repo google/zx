@@ -176,9 +176,8 @@ export function getErrnoMessage(errno?: number): string {
   )
 }
 
-export function getExitCodeInfo(exitCode: number | null): string | undefined {
-  return EXIT_CODES[exitCode as keyof typeof EXIT_CODES]
-}
+export const getExitCodeInfo = (exitCode: number | null): string | undefined =>
+  EXIT_CODES[exitCode as keyof typeof EXIT_CODES]
 
 export const formatExitMessage = (
   code: number | null,
@@ -187,19 +186,16 @@ export const formatExitMessage = (
   from: string,
   details: string = ''
 ): string => {
-  let message = `exit code: ${code}`
-  if (code != 0 || signal != null) {
-    message = `${stderr || '\n'}    at ${from}`
-    message += `\n    exit code: ${code}${
-      getExitCodeInfo(code) ? ' (' + getExitCodeInfo(code) + ')' : ''
-    }`
-    if (signal != null) {
-      message += `\n    signal: ${signal}`
-    }
-    if (details) {
-      message += `\n    details: \n${details}`
-    }
-  }
+  if (code == 0 && signal == null) return `exit code: ${code}`
+
+  const codeInfo = getExitCodeInfo(code)
+  let message = `${stderr}
+    at ${from}
+    exit code: ${code}${codeInfo ? ' (' + codeInfo + ')' : ''}`
+
+  if (signal != null) message += `\n    signal: ${signal}`
+
+  if (details) message += `\n    details: \n${details}`
 
   return message
 }
@@ -208,12 +204,10 @@ export const formatErrorMessage = (
   err: NodeJS.ErrnoException,
   from: string
 ): string => {
-  return (
-    `${err.message}\n` +
-    `    errno: ${err.errno} (${getErrnoMessage(err.errno)})\n` +
-    `    code: ${err.code}\n` +
-    `    at ${from}`
-  )
+  return `${err.message}
+    errno: ${err.errno} (${getErrnoMessage(err.errno)})
+    code: ${err.code}
+    at ${from}`
 }
 
 export function getCallerLocation(err = new Error('zx error')): string {
@@ -234,10 +228,10 @@ export function getCallerLocationFromString(stackString = 'unknown'): string {
   ).trim()
 }
 
-export function findErrors(lines: string[] = []): string {
-  if (lines.length < 20) return lines.join('\n')
+export const formatErrorDetails = (lines: string[] = [], lim = 20): string => {
+  if (lines.length < lim) return lines.join('\n')
 
   let errors = lines.filter((l) => /(fail|error|not ok|exception)/i.test(l))
   if (errors.length === 0) errors = lines
-  return errors.slice(0, 20).join('\n') + (errors.length > 20 ? '\n...' : '')
+  return errors.slice(0, lim).join('\n') + (errors.length > lim ? '\n...' : '')
 }

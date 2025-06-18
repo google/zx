@@ -21,7 +21,7 @@ import {
   getCallerLocationFromString,
   formatExitMessage,
   formatErrorMessage,
-  findErrors,
+  formatErrorDetails,
 } from '../src/error.ts'
 
 describe('error', () => {
@@ -119,15 +119,19 @@ describe('error', () => {
   test('findErrors()', () => {
     const lines = [...Array(40).keys()].map((v) => v + '')
 
-    assert.equal(findErrors([]), '', 'empty returns empty')
-    assert.equal(findErrors(['foo', 'bar']), 'foo\nbar', 'squashes a few')
+    assert.equal(formatErrorDetails([]), '', 'empty returns empty')
     assert.equal(
-      findErrors(['failure: foo', 'NOT OK smth', ...lines]),
+      formatErrorDetails(['foo', 'bar']),
+      'foo\nbar',
+      'squashes a few'
+    )
+    assert.equal(
+      formatErrorDetails(['failure: foo', 'NOT OK smth', ...lines]),
       'failure: foo\nNOT OK smth',
       'extracts errors'
     )
     assert.equal(
-      findErrors(lines),
+      formatErrorDetails(lines),
       '0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n...',
       'shows a sample'
     )
