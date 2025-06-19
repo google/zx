@@ -162,8 +162,8 @@ This mechanism allows you to easily split streams to multiple consumers:
 ```js
 const p = $`some-command`
 const [o1, o2] = await Process.all([
-  await p.pipe`log`,
-  await p.pipe`extract`
+  p.pipe`log`,
+  p.pipe`extract`
 ])
 ```
 
