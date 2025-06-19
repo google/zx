@@ -179,7 +179,7 @@ function retry(count, d, cb) {
     if (typeof d === "function") return retry(count, 0, d);
     (0, import_node_assert.default)(cb);
     const total = count;
-    const getDelay = typeof d === "object" ? d : function* () {
+    const gen = typeof d === "object" ? d : function* () {
       while (true) yield (0, import_util.parseDuration)(d);
     }();
     let attempt = 0;
@@ -190,7 +190,7 @@ function retry(count, d, cb) {
         return yield cb();
       } catch (err) {
         lastErr = err;
-        const delay = getDelay.next().value;
+        const delay = gen.next().value;
         import_core.$.log({
           kind: "retry",
           total,
@@ -217,10 +217,7 @@ function* expBackoff(max = "60s", delay = "100ms") {
 }
 function spinner(title, callback) {
   return __async(this, null, function* () {
-    if (typeof title === "function") {
-      callback = title;
-      title = "";
-    }
+    if (typeof title === "function") return spinner("", title);
     if (import_core.$.quiet || import_node_process.default.env.CI) return callback();
     let i = 0;
     const stream = import_core.$.log.output || import_node_process.default.stderr;

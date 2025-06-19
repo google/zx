@@ -139,7 +139,7 @@ describe('goods', () => {
       }
     })
 
-    test('trows undefined on count misconfiguration', async () => {
+    test('throws undefined on count misconfiguration', async () => {
       try {
         await retry(0, () => 'ok')
       } catch (e) {

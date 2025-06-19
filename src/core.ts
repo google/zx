@@ -42,7 +42,6 @@ import {
   which,
   ps,
   VoidStream,
-  type ChalkInstance,
   type TSpawnStore,
 } from './vendor-core.ts'
 import {
