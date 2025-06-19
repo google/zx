@@ -147,6 +147,15 @@ describe('goods', () => {
       }
     })
 
+    test('throws err on empty callback', async () => {
+      try {
+        // @ts-ignore
+        await retry(5)
+      } catch (e) {
+        assert.match(e.message, /Callback is required for retry/)
+      }
+    })
+
     test('supports expBackoff', async () => {
       const result = await retry(5, expBackoff('10ms'), () => {
         if (Math.random() < 0.1) throw new Error('fail')
