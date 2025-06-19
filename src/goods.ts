@@ -182,7 +182,7 @@ export async function retry<T>(
   assert(cb)
 
   const total = count
-  const getDelay =
+  const gen =
     typeof d === 'object'
       ? d
       : (function* () {
@@ -197,7 +197,7 @@ export async function retry<T>(
       return await cb()
     } catch (err) {
       lastErr = err
-      const delay = getDelay.next().value
+      const delay = gen.next().value
 
       $.log({
         kind: 'retry',
@@ -232,10 +232,7 @@ export async function spinner<T>(
   title: string | (() => T),
   callback?: () => T
 ): Promise<T> {
-  if (typeof title === 'function') {
-    callback = title
-    title = ''
-  }
+  if (typeof title === 'function') return spinner('', title)
   if ($.quiet || process.env.CI) return callback!()
 
   let i = 0
