@@ -69,6 +69,7 @@ export default defineConfig({
             { text: 'Process Output', link: '/process-output' },
             { text: 'Contribution Guide', link: '/contribution' },
             { text: 'Migration from v7', link: '/migration-from-v7' },
+            { text: '⚡ zx@lite ', link: '/lite' },
           ],
         },
         {

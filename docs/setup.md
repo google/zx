@@ -62,7 +62,7 @@ brew install zx
 ### Channels
 
 zx is distributed in several versions, each with its own set of features.
-* Extracted zx core functions go to the [`lite`](https://www.npmjs.com/package/zx?activeTab=versions) channel: `npm i zx@lite`.  
+* Extracted zx core functions go to the [`lite`](./lite) channel: `npm i zx@lite`.  
 * Dev snapshots are published to npm under the [`dev` tag](https://www.npmjs.com/package/zx?activeTab=versions): `npm i zx@dev`.  
 
 Detailed comparison: [versions](./versions).

@@ -120,7 +120,7 @@ await $`echo "Hello, stdout!"`
   .pipe('/tmp/output.txt')
 ```
 
-Chained streams becomes _thenables_, so you can `await` them:
+Chained streams become _thenables_, so you can `await` them:
 
 ```js
 const p = $`echo "hello"`
@@ -156,6 +156,15 @@ setTimeout(() => { piped2 = result.pipe`cat` }, 1500)
   
 (await piped1).toString()  // '1\n2\n3\n'
 (await piped2).toString()  // '1\n2\n3\n'
+```
+
+This mechanism allows you to easily split streams to multiple consumers:
+```js
+const p = $`some-command`
+const [o1, o2] = await Process.all([
+  await p.pipe`log`,
+  await p.pipe`extract`
+])
 ```
 
 The `pipe()` method can combine `$` processes. Same as `|` in bash:
