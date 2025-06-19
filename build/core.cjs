@@ -857,9 +857,10 @@ var _ProcessOutput = class _ProcessOutput extends Error {
   // prettier-ignore
   constructor(code, signal = null, stdout = "", stderr = "", stdall = "", message = "", duration = 0, error = null, from = "", store = { stdout: [stdout], stderr: [stderr], stdall: [stdall] }) {
     super(message);
-    const dto = this._dto = code !== null && typeof code === "object" ? code : { code, signal, duration, error, from, store };
+    const dto = code !== null && typeof code === "object" ? code : { code, signal, duration, error, from, store };
     Object.defineProperties(this, {
-      cause: { value: dto.error, enumerable: false, writable: true, configurable: true },
+      _dto: { value: dto, enumerable: false },
+      cause: { value: dto.error, enumerable: false },
       stdout: { get: (0, import_util.once)(() => (0, import_util.bufArrJoin)(dto.store.stdout)) },
       stderr: { get: (0, import_util.once)(() => (0, import_util.bufArrJoin)(dto.store.stderr)) },
       stdall: { get: (0, import_util.once)(() => (0, import_util.bufArrJoin)(dto.store.stdall)) },

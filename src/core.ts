@@ -703,7 +703,7 @@ type ProcessDto = {
 }
 
 export class ProcessOutput extends Error {
-  private readonly _dto: ProcessDto
+  private readonly _dto!: ProcessDto
   cause!: Error | null
   message!: string
   stdout!: string
@@ -733,12 +733,13 @@ export class ProcessOutput extends Error {
     store: TSpawnStore = { stdout: [stdout], stderr: [stderr], stdall: [stdall], }
   ) {
     super(message)
-    const dto = this._dto = code !== null && typeof code === 'object'
+    const dto = code !== null && typeof code === 'object'
       ? code
       : { code, signal, duration, error, from, store }
 
     Object.defineProperties(this, {
-      cause: { value: dto.error, enumerable: false, writable: true, configurable: true },
+      _dto: { value: dto, enumerable: false },
+      cause: { value: dto.error, enumerable: false },
       stdout: { get: once(() => bufArrJoin(dto.store.stdout)) },
       stderr: { get: once(() => bufArrJoin(dto.store.stderr)) },
       stdall: { get: once(() => bufArrJoin(dto.store.stdall)) },
