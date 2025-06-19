@@ -52,7 +52,6 @@ var import_vendor2 = require("./vendor.cjs");
 __reExport(index_exports, require("./core.cjs"), module.exports);
 
 // src/goods.ts
-var import_node_assert = __toESM(require("assert"), 1);
 var import_node_readline = require("readline");
 var import_node_stream = require("stream");
 var import_core = require("./core.cjs");
@@ -177,11 +176,11 @@ function stdin() {
 function retry(count, d, cb) {
   return __async(this, null, function* () {
     if (typeof d === "function") return retry(count, 0, d);
-    (0, import_node_assert.default)(cb);
+    if (!cb) throw new Error("Callback is required for retry");
     const total = count;
-    const gen = typeof d === "object" ? d : function* () {
-      while (true) yield (0, import_util.parseDuration)(d);
-    }();
+    const gen = typeof d === "object" ? d : function* (d2) {
+      while (true) yield d2;
+    }((0, import_util.parseDuration)(d));
     let attempt = 0;
     let lastErr;
     while (count-- > 0) {

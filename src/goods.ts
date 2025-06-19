@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import assert from 'node:assert'
 import { createInterface } from 'node:readline'
 import { Readable } from 'node:stream'
 import { $, within, ProcessOutput, type ProcessPromise } from './core.ts'
@@ -178,16 +177,15 @@ export async function retry<T>(
   cb?: () => T
 ): Promise<T> {
   if (typeof d === 'function') return retry(count, 0, d)
-
-  assert(cb)
+  if (!cb) throw new Error('Callback is required for retry')
 
   const total = count
   const gen =
     typeof d === 'object'
       ? d
-      : (function* () {
-          while (true) yield parseDuration(d)
-        })()
+      : (function* (d) {
+          while (true) yield d
+        })(parseDuration(d))
 
   let attempt = 0
   let lastErr: unknown
