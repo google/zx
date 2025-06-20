@@ -64,7 +64,7 @@ import {
 } from './util.ts'
 import { log } from './log.ts'
 
-export { default as path } from 'node:path'
+export * as path from 'node:path'
 export * as os from 'node:os'
 export { log, type LogEntry } from './log.ts'
 export { chalk, which, ps } from './vendor-core.ts'
