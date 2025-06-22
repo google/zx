@@ -43,6 +43,7 @@ import {
   ps,
   VoidStream,
   type TSpawnStore,
+  type TSpawnResult,
 } from './vendor-core.ts'
 import {
   type Duration,
@@ -316,7 +317,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           ctx.cmd = self.fullCmd
           cb()
         }, error => {
-          ctx.on.end?.({error, status: null, signal: null, duration: 0, ctx} as Parameters<typeof ctx.on.end>[0], ctx)
+          ctx.on.end!({error, status: null, signal: null, duration: 0, ctx} as TSpawnResult, ctx)
         }) || cb()
       },
       on: {
