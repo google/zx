@@ -525,12 +525,6 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       const dirs = $2.preferLocal === true ? [$2.cwd, $2[CWD]] : [$2.preferLocal].flat();
       $2.env = (0, import_util.preferLocalBin)($2.env, ...dirs);
     }
-    $2.log({
-      kind: "cmd",
-      cmd: self.cmd,
-      verbose: self.isVerbose(),
-      id
-    });
     this._zurk = (0, import_vendor_core2.exec)({
       sync,
       id,
@@ -548,9 +542,27 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       stdio: (_g = self._stdio) != null ? _g : $2.stdio,
       detached: $2.detached,
       ee: self._ee,
-      run: (cb) => cb(),
+      run(cb, ctx) {
+        var _a2, _b2;
+        ((_b2 = (_a2 = self.cmd).then) == null ? void 0 : _b2.call(_a2, (_cmd) => {
+          self._command = _cmd;
+          ctx.cmd = self.fullCmd;
+          cb();
+        }, (err) => {
+          ctx.spawn = () => {
+            throw err;
+          };
+          cb();
+        })) || cb();
+      },
       on: {
         start: () => {
+          $2.log({
+            kind: "cmd",
+            cmd: self.cmd,
+            verbose: self.isVerbose(),
+            id
+          });
           !sync && timeout && self.timeout(timeout, timeoutSignal);
         },
         stdout: (data) => {

@@ -170,7 +170,7 @@ const boundCtxs: [string, string, Options][] = []
 const delimiters: Array<string | RegExp | undefined> = []
 
 export const $: Shell & Options = new Proxy<Shell & Options>(
-  function (pieces: TemplateStringsArray | Partial<Options>, ...args: any) {
+  function (pieces: TemplateStringsArray | Partial<Options>, ...args: any[]) {
     const snapshot = getStore()
     if (!Array.isArray(pieces)) {
       return function (this: any, ...args: any) {
@@ -292,13 +292,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       $.env = preferLocalBin($.env, ...dirs)
     }
 
-    $.log({
-      kind: 'cmd',
-      cmd: self.cmd,
-      verbose: self.isVerbose(),
-      id,
-    })
-
     // prettier-ignore
     this._zurk = exec({
       sync,
@@ -317,9 +310,25 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       stdio:    self._stdio ?? $.stdio,
       detached: $.detached,
       ee:       self._ee,
-      run: (cb) => cb(),
+      run(cb, ctx){
+        (self.cmd as unknown as Promise<string>).then?.(_cmd => {
+          self._command = _cmd
+          ctx.cmd = self.fullCmd
+          cb()
+        }, err => {
+          ctx.spawn = () => { throw err }
+          cb()
+        }) || cb()
+      },
       on: {
         start: () => {
+          $.log({
+            kind: 'cmd',
+            cmd: self.cmd,
+            verbose: self.isVerbose(),
+            id,
+          })
+
           !sync && timeout && self.timeout(timeout, timeoutSignal)
         },
         stdout: (data) => {
