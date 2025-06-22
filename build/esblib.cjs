@@ -69,16 +69,16 @@ var __typeError = (msg) => {
 
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 
-var __spreadValues = (a2, b) => {
+var __spreadValues = (a, b) => {
   for (var prop in b || (b = {}))
     if (__hasOwnProp.call(b, prop))
-      __defNormalProp(a2, prop, b[prop]);
+      __defNormalProp(a, prop, b[prop]);
   if (__getOwnPropSymbols)
     for (var prop of __getOwnPropSymbols(b)) {
       if (__propIsEnum.call(b, prop))
-        __defNormalProp(a2, prop, b[prop]);
+        __defNormalProp(a, prop, b[prop]);
     }
-  return a2;
+  return a;
 };
 
 var __await = function(promise, isYieldStar) {
@@ -137,7 +137,7 @@ var __defProps = Object.defineProperties;
 
 var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
 
-var __spreadProps = (a2, b) => __defProps(a2, __getOwnPropDescs(b));
+var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
 
 var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
