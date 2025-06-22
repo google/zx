@@ -1,6 +1,6 @@
 # TypeScript
 
-zx is written in TypeScript and provides the corresponding libdefs out of box. Typings are TS 4+ compatible.
+zx is written in TypeScript and provides the corresponding libdefs out of the box. Types are TS 4+ compatible. Write code in any suitable format `.ts`, `.mts`, `.cts` or add [a custom loader](./cli#non-standard-extension).
 
 ```ts
 // script.ts

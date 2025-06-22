@@ -38,7 +38,7 @@ or many [other ways](/setup)
 
 Write your scripts in a file with an `.mjs` extension in order to
 use `await` at the top level. If you prefer the `.js` extension,
-wrap your scripts in something like `void async function () {...}()`.
+wrap your scripts in something like `void async function () {...}()`. [TypeScript](./typescript.md) is also supported.
 
 Add the following shebang to the beginning of your `zx` scripts:
 
@@ -102,7 +102,7 @@ await $`git log ${flags}`
 In async mode, zx awaits any `thenable` in literal before executing the command.
 ```js
 const a1 = $`echo foo`
-const a2 = new Promise((resolve) => setTimeout(() => resolve(['bar', 'baz']), 20))
+const a2 = new Promise((resolve) => setTimeout(resolve, 20, ['bar', 'baz']))
 
 await $`echo ${a1} ${a2}` // foo bar baz
 ```
@@ -127,8 +127,9 @@ class ProcessOutput {
   readonly stderr: string
   readonly signal: string
   readonly exitCode: number
-
+  // ...
   toString(): string // Combined stdout & stderr.
+  valueOf(): string  // Returns .toString().trim()
 }
 ```
 
