@@ -113,6 +113,19 @@ describe('core', () => {
       assert.equal((await $`echo -n ${''}`).toString(), '')
     })
 
+    test('accepts thenable arguments', async () => {
+      const p1 = $`echo foo`
+      const arg = new Promise((resolve) => {
+        setTimeout(() => resolve(['thenable', 'args']), 20)
+      })
+      const p2 = $`echo ${arg} ${p1}`
+      assert(p2.cmd instanceof Promise)
+
+      const o = await p2
+      assert.equal(o.stdout.trim(), 'thenable args foo')
+      assert.equal(p2.cmd, 'echo thenable args foo')
+    })
+
     test.skip('handles multiline literals', async () => {
       assert.equal(
         (
