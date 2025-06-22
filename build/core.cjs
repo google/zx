@@ -549,8 +549,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
           ctx.cmd = self.fullCmd;
           cb();
         }, (error) => {
-          var _a3, _b3;
-          (_b3 = (_a3 = ctx.on).end) == null ? void 0 : _b3.call(_a3, { error, status: null, signal: null, duration: 0, ctx }, ctx);
+          ctx.on.end({ error, status: null, signal: null, duration: 0, ctx }, ctx);
         })) || cb();
       },
       on: {
