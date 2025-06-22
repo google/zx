@@ -99,6 +99,14 @@ const flags = [
 await $`git log ${flags}`
 ```
 
+In async mode, zx awaits any `thenable` in literal before executing the command.
+```js
+const a1 = $`echo foo`
+const a2 = new Promise((resolve) => setTimeout(() => resolve(['bar', 'baz']), 20))
+
+await $`echo ${a1} ${a2}` // foo bar baz
+```
+
 If the executed program returns a non-zero exit code,
 [`ProcessOutput`](#processoutput) will be thrown.
 
