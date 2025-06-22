@@ -114,16 +114,35 @@ describe('core', () => {
     })
 
     test('accepts thenable arguments', async () => {
-      const p1 = $`echo foo`
-      const arg = new Promise((resolve) => {
-        setTimeout(() => resolve(['thenable', 'args']), 20)
-      })
-      const p2 = $`echo ${arg} ${p1}`
-      assert(p2.cmd instanceof Promise)
+      const a1 = $`echo foo`
+      const a2 = new Promise((res) => setTimeout(res, 10, ['bar', 'baz']))
+      const a3 = new Promise((_, rej) => setTimeout(rej, 20, 'failure'))
 
-      const o = await p2
-      assert.equal(o.stdout.trim(), 'thenable args foo')
-      assert.equal(p2.cmd, 'echo thenable args foo')
+      const p1 = $`echo ${a1} ${a2}`
+      assert(p1.cmd instanceof Promise)
+      const o1 = await p1
+      assert(o1 instanceof ProcessOutput)
+      assert.equal(o1.stdout.trim(), 'foo bar baz')
+      assert.equal(p1.cmd, 'echo foo bar baz')
+
+      try {
+        await $`echo ${a3}`
+      } catch (e) {
+        assert.ok(e instanceof ProcessOutput)
+        assert.equal(e.exitCode, null)
+        assert.equal(e.cause, 'failure')
+      }
+
+      try {
+        await $`echo ${$`exit 1`}`
+      } catch (e) {
+        assert.ok(e instanceof ProcessOutput)
+        assert.ok(e.cause instanceof ProcessOutput)
+        assert.equal(e.exitCode, null)
+        assert.equal(e.cause.exitCode, 1)
+      }
+
+      await Promise.allSettled([a3])
     })
 
     test.skip('handles multiline literals', async () => {
