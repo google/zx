@@ -548,21 +548,14 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
           self._command = _cmd;
           ctx.cmd = self.fullCmd;
           cb();
-        }, (err) => {
-          ctx.spawn = () => {
-            throw err;
-          };
-          cb();
+        }, (error) => {
+          var _a3, _b3;
+          (_b3 = (_a3 = ctx.on).end) == null ? void 0 : _b3.call(_a3, { error, status: null, signal: null, duration: 0, ctx }, ctx);
         })) || cb();
       },
       on: {
         start: () => {
-          $2.log({
-            kind: "cmd",
-            cmd: self.cmd,
-            verbose: self.isVerbose(),
-            id
-          });
+          $2.log({ kind: "cmd", cmd: self.cmd, verbose: self.isVerbose(), id });
           !sync && timeout && self.timeout(timeout, timeoutSignal);
         },
         stdout: (data) => {

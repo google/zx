@@ -315,20 +315,13 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           self._command = _cmd
           ctx.cmd = self.fullCmd
           cb()
-        }, err => {
-          ctx.spawn = () => { throw err }
-          cb()
+        }, error => {
+          ctx.on.end?.({error, status: null, signal: null, duration: 0, ctx} as Parameters<typeof ctx.on.end>[0], ctx)
         }) || cb()
       },
       on: {
         start: () => {
-          $.log({
-            kind: 'cmd',
-            cmd: self.cmd,
-            verbose: self.isVerbose(),
-            id,
-          })
-
+          $.log({ kind: 'cmd', cmd: self.cmd, verbose: self.isVerbose(), id })
           !sync && timeout && self.timeout(timeout, timeoutSignal)
         },
         stdout: (data) => {
