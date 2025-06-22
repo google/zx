@@ -29,7 +29,7 @@
       "build/globals.js",
       "build/deno.js"
     ],
-    "limit": "811.85 kB",
+    "limit": "811.80 kB",
     "brotli": false,
     "gzip": false
   },
@@ -43,7 +43,7 @@
   {
     "name": "vendor",
     "path": "build/vendor-*.{cjs,d.ts}",
-    "limit": "765.55 kB",
+    "limit": "765.50 kB",
     "brotli": false,
     "gzip": false
   },
@@ -62,7 +62,7 @@
       "README.md",
       "LICENSE"
     ],
-    "limit": "867.35 kB",
+    "limit": "867.25 kB",
     "brotli": false,
     "gzip": false
   }
