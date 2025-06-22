@@ -89,7 +89,7 @@ npm i --registry=https://npm.pkg.github.com @google/zx
 
 ### Docker
 If you'd prefer to run scripts in a container, you can pull the zx image from the [ghcr.io](https://ghcr.io).
-[node:22-alpine](https://hub.docker.com/_/node) is used as [a base](https://github.com/google/zx/blob/main/dcr/Dockerfile).
+[node:24-alpine](https://hub.docker.com/_/node) is used as [a base](https://github.com/google/zx/blob/main/dcr/Dockerfile).
 
 ```shell
 docker pull ghcr.io/google/zx:8.5.0

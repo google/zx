@@ -18,11 +18,14 @@ import assert from 'node:assert'
 
 describe('docker container', () => {
   test('works', async () => {
-    const p = $({
+    const hello = await $({
       input: 'await $({verbose: true})`echo hello`',
     })`docker run -i zx`
-    const o = await p
+    assert.equal(hello.stderr, '$ echo hello\nhello\n')
 
-    assert.equal(o.stderr, '$ echo hello\nhello\n')
+    const node = await $({
+      input: 'console.log((await $`node -v`).valueOf())',
+    })`docker run -i zx`
+    assert.match(node.stdout, /^v24\./)
   })
 })
