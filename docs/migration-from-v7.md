@@ -1,6 +1,6 @@
 # Migration from v7 to v8
 
-[v8.0.0 release](https://github.com/google/zx/releases/tag/8.0.0) brought many features, improvements and fixes, but also has introduced a few breaking changes.
+[v8.0.0 release](https://github.com/google/zx/releases/tag/8.0.0) brought many features, improvements, optimizations and fixes, but also has introduced a few breaking changes. Fortunately, everything can be restored and legacy v7 scripts can still run with minor configurations.
 
 1. `$.verbose` is set to `false` by default, but errors are still printed to `stderr`. Set `$.quiet = true` to suppress any output.
 ```js
@@ -42,3 +42,6 @@ import { syncProcessCwd } from 'zx'
 
 syncProcessCwd() // restores legacy v7 behavior
 ```
+
+# 🚀
+Keep in mind, v7 is in maintenance mode, so it will not receive any new enhancements. We encourage you to upgrade to the latest: it's [16x smaller](https://dev.to/antongolub/how-and-why-do-we-bundle-zx-1ca6), faster, safer, more reliable and useful in a [wider range of practical scenarios](https://github.com/google/zx/releases).
