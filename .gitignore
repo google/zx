@@ -6,3 +6,6 @@ reports/
 .stryker-tmp/
 yarn.lock
 test/fixtures/ts-project/package-lock.json
+temp
+docs
+jsr.json
