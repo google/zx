@@ -1,7 +1,9 @@
-name: zx@7 Manual Publish
+name: zx@7 Publish
 
 on:
   workflow_dispatch:
+  release:
+    types: [created]
 
 jobs:
   publish:
