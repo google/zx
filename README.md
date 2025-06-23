@@ -1,5 +1,3 @@
-<a href="https://webpod.dev/?from=zx"><img src="https://webpod.dev/img/banner.png" alt="Webpod - deploy JavaScript apps" width="190" align="right"></a>
-
 # 🐚 zx
 
 ```js
@@ -7,7 +5,7 @@
 
 await $`cat package.json | grep name`
 
-let branch = await $`git branch --show-current`
+const branch = await $`git branch --show-current`
 await $`dep deploy --branch=${branch}`
 
 await Promise.all([
@@ -16,7 +14,7 @@ await Promise.all([
   $`sleep 3; echo 3`,
 ])
 
-let name = 'foo bar'
+const name = 'foo bar'
 await $`mkdir /tmp/${name}`
 ```
 
