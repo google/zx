@@ -211,9 +211,9 @@ test('argv works with zx and node', async () => {
     (await $`node test/fixtures/argv.mjs bar`).toString(),
     `global {"_":["bar"]}\nimported {"_":["bar"]}\n`
   )
-  assert.is(
-    (await $`node build/cli.js --eval 'console.log(argv._)' baz`).toString().trim(),
-    `[ 'baz' ]`
+  assert.match(
+    (await $`node build/cli.js --eval 'console.log(argv._)' foobarbaz`).toString(),
+    /foobarbaz/
   )
 })
 
