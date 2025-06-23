@@ -1,8 +1,8 @@
 # 🐚 zx
 
 > [!TIP]
-> **zx@7** is no longer actively maintained. Critical bug fixes and vulnerability fixes only considered. 
-> 
+> **zx@7** is no longer actively maintained. Critical bug fixes and vulnerability fixes only considered.
+>
 > Check this out: [**zx@8**](https://github.com/google/zx/releases/tag/8.0.0) is a giant leap forward. [There are a lot](https://github.com/google/zx/releases) of cool features, improvements, compatibility enhancements 🚀
 > Please follow the [migration guide](https://google.github.io/zx/migration-from-v7) to upgrade to the latest. If something doesn't work, feel free to start a new [issue](https://github.com/google/zx/issues) or [discussion](https://github.com/google/zx/discussions).
 

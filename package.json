@@ -1,6 +1,6 @@
 {
   "name": "zx",
-  "version": "7.2.3",
+  "version": "7.2.4",
   "description": "A tool for writing better scripts",
   "type": "module",
   "main": "./build/index.js",
@@ -46,9 +46,9 @@
     "test": "npm run build && npm run test:unit",
     "test:unit": "uvu test -i fixtures",
     "test:types": "tsd",
-    "coverage": "c8 --check-coverage npm test -- -i package",
-    "mutation": "stryker run",
-    "circular": "madge --circular src/*",
+    "test:coverage": "c8 --check-coverage npm run test:unit -- -i package",
+    "test:mutation": "stryker run",
+    "test:circular": "madge --circular src/*",
     "version": "cat package.json | fx .version"
   },
   "dependencies": {
@@ -88,7 +88,8 @@
   "prettier": {
     "semi": false,
     "singleQuote": true,
-    "endOfLine": "lf"
+    "endOfLine": "lf",
+    "trailingComma": "es5"
   },
   "repository": "google/zx",
   "author": "Anton Medvedev <anton@medv.io>",

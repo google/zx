@@ -114,8 +114,7 @@ test('scripts from https', async () => {
   const resp = await fs.readFile(path.resolve('test/fixtures/echo.http'))
   const port = await getPort()
   const server = await getServer([resp]).start(port)
-  const out =
-    await $`node build/cli.js http://127.0.0.1:${port}/script.mjs`
+  const out = await $`node build/cli.js http://127.0.0.1:${port}/script.mjs`
 
   assert.match(out.toString(), /test/)
   await server.stop()
@@ -123,8 +122,10 @@ test('scripts from https', async () => {
 
 test('scripts from https not ok', async () => {
   const port = await getPort()
-  const server = await getServer(['HTTP/1.1 500\n\n']).listen(port)
+  const resp = await fs.readFile(path.resolve('test/fixtures/500.http'))
+  const server = await getServer([resp]).start(port)
   const out = await $`node build/cli.js http://127.0.0.1:${port}`.nothrow()
+
   assert.match(out.stderr, /Error: Can't get/)
   await server.stop()
 })
@@ -212,7 +213,9 @@ test('argv works with zx and node', async () => {
     `global {"_":["bar"]}\nimported {"_":["bar"]}\n`
   )
   assert.match(
-    (await $`node build/cli.js --eval 'console.log(argv._)' foobarbaz`).toString(),
+    (
+      await $`node build/cli.js --eval 'console.log(argv._)' foobarbaz`
+    ).toString(),
     /foobarbaz/
   )
 })
