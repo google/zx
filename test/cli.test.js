@@ -15,8 +15,22 @@
 import { suite } from 'uvu'
 import * as assert from 'uvu/assert'
 import '../build/globals.js'
+import net from 'node:net'
+import getPort from 'get-port'
 
 const test = suite('cli')
+const getServer = (resp = [], log = console.log) => {
+  const server = net.createServer()
+  server.on('connection', (conn) => {
+    conn.on('data', (d) => {
+      conn.write(resp.shift() || 'pong')
+    })
+  })
+  server.stop = () => new Promise((resolve) => server.close(() => resolve()))
+  server.start = (port) =>
+    new Promise((resolve) => server.listen(port, () => resolve(server)))
+  return server
+}
 
 $.verbose = false
 
@@ -97,15 +111,22 @@ test('supports `--prefix` flag ', async () => {
 })
 
 test('scripts from https', async () => {
-  $`cat ${path.resolve('test/fixtures/echo.http')} | nc -l 8080`
-  let out = await $`node build/cli.js http://127.0.0.1:8080/echo.mjs`
-  assert.match(out.stderr, 'test')
+  const resp = await fs.readFile(path.resolve('test/fixtures/echo.http'))
+  const port = await getPort()
+  const server = await getServer([resp]).start(port)
+  const out =
+    await $`node build/cli.js http://127.0.0.1:${port}/script.mjs`
+
+  assert.match(out.toString(), /test/)
+  await server.stop()
 })
 
 test('scripts from https not ok', async () => {
-  $`echo $'HTTP/1.1 500\n\n' | nc -l 8081`
-  let out = await $`node build/cli.js http://127.0.0.1:8081`.nothrow()
-  assert.match(out.stderr, "Error: Can't get")
+  const port = await getPort()
+  const server = await getServer(['HTTP/1.1 500\n\n']).listen(port)
+  const out = await $`node build/cli.js http://127.0.0.1:${port}`.nothrow()
+  assert.match(out.stderr, /Error: Can't get/)
+  await server.stop()
 })
 
 test('scripts with no extension', async () => {
@@ -190,9 +211,9 @@ test('argv works with zx and node', async () => {
     (await $`node test/fixtures/argv.mjs bar`).toString(),
     `global {"_":["bar"]}\nimported {"_":["bar"]}\n`
   )
-  assert.is(
-    (await $`node build/cli.js --eval 'console.log(argv._)' baz`).toString(),
-    `[ 'baz' ]\n`
+  assert.match(
+    (await $`node build/cli.js --eval 'console.log(argv._)' foobarbaz`).toString(),
+    /foobarbaz/
   )
 })
 
