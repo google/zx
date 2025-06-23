@@ -938,7 +938,7 @@ var isStringLiteral = (pieces, ...rest) => {
 var assign = (target, ...extras) => Object.defineProperties(target, extras.reduce((m, extra) => __spreadValues(__spreadValues({}, m), Object.fromEntries(Object.entries(Object.getOwnPropertyDescriptors(extra)).filter(([, v]) => !Object.prototype.hasOwnProperty.call(v, "value") || v.value !== void 0))), {}));
 var buildCmd = (quote2, pieces, args, subs = substitute) => {
   if (args.some(isPromiseLike))
-    return Promise.all(args).then((args2) => buildCmd(quote2, pieces, args2));
+    return Promise.all(args).then((args2) => buildCmd(quote2, pieces, args2, subs));
   let cmd = pieces[0], i = 0;
   while (i < args.length) {
     const s = Array.isArray(args[i]) ? args[i].map((x) => quote2(subs(x))).join(" ") : quote2(subs(args[i]));
