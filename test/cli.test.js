@@ -123,9 +123,9 @@ test('scripts from https', async () => {
 test('scripts from https not ok', async () => {
   const port = await getPort()
   const resp = await fs.readFile(path.resolve('test/fixtures/500.http'))
-  const server = await getServer([resp]).listen(port)
+  const server = await getServer([resp]).start(port)
   const out = await $`node build/cli.js http://127.0.0.1:${port}`.nothrow()
-  console.log(out.toString())
+
   assert.match(out.stderr, /Error: Can't get/)
   await server.stop()
 })
