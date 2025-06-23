@@ -20,7 +20,12 @@ import { globby } from 'globby'
 const test = suite('extra')
 
 test('every file should have a license', async () => {
-  const files = await globby(['**/*.{ts,js,mjs}'], { gitignore: true })
+  const files = await globby(['**/*.{ts,js,mjs}'], {
+    gitignore: true,
+    onlyFiles: true,
+    cwd: process.cwd(),
+    followSymbolicLinks: false,
+  })
   for (const file of files) {
     const content = fs.readFileSync(file).toString()
     assert.match(

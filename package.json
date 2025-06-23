@@ -43,7 +43,8 @@
     "fmt:check": "prettier --check .",
     "build": "tsc --project tsconfig.prod.json",
     "build:check": "tsc",
-    "test": "npm run build && uvu test -i fixtures",
+    "test": "npm run build && npm run test:unit",
+    "test:unit": "uvu test -i fixtures",
     "test:types": "tsd",
     "coverage": "c8 --check-coverage npm test -- -i package",
     "mutation": "stryker run",
@@ -70,6 +71,7 @@
   "devDependencies": {
     "@stryker-mutator/core": "^6.4.2",
     "c8": "^7.13.0",
+    "get-port": "^7.1.0",
     "madge": "^6.0.0",
     "prettier": "^2.8.8",
     "tsd": "^0.28.1",
