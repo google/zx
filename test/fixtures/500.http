@@ -1,0 +1,6 @@
+HTTP/1.1 500 Internal Server Error
+Content-Type: text/plain; charset=UTF-8
+Content-Length: 15
+Server: netcat!
+
+Error

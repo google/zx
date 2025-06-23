@@ -1,0 +1,30 @@
+name: zx@7 Manual Publish
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/v7'
+    runs-on: ubuntu-latest
+    permissions:
+      checks: read
+      statuses: write
+      contents: write
+      packages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - run: npm ci
+      - run: npm run build
+      - run: npm run test:unit
+        env:
+          FORCE_COLOR: 3
+
+      - run: echo "//wombat-dressing-room.appspot.com/:_authToken=$AUTH_TOKEN" >> .npmrc
+        env:
+          AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
+      - run: npm publish --provenance --access=public --no-git-tag-version --tag v7

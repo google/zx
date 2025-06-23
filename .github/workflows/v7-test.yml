@@ -1,0 +1,117 @@
+name: zx@7 Test
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 12 */4 * *'
+
+permissions:
+  contents: read
+
+env:
+  FORCE_COLOR: 3
+  NODE_OPTIONS: '--http-parser=legacy'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+          cache: 'npm'
+
+      - run: npm ci
+      - run: |
+          npm run build
+          cd build && ls -l
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v7
+          path: |
+            build
+            package.json
+          retention-days: 1
+
+  fast-check:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: v7
+      - run: npm ci
+
+      - name: Code-style
+        run: npm run fmt:check
+
+      - name: Types
+        run: npm run test:types
+
+      - name: Circular
+        run: npm run test:circular
+
+  unit:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16, 18, 24]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: v7
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Run units with coverage
+        if: matrix.node-version == '18'
+        run: npm run test:coverage
+        timeout-minutes: 1
+
+      - name: Run units
+        if: matrix.node-version != '18'
+        run: npm run test:unit
+        timeout-minutes: 1
+
+  win32:
+    needs: build
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: v7
+
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 16.x
+
+      - run: npm ci
+
+      - run: npx uvu test win32
+        timeout-minutes: 1
