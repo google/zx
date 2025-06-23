@@ -40,8 +40,7 @@ export const globby = Object.assign(function globby(
   options?: globbyModule.Options
 ) {
   return globbyModule.globby(patterns, options)
-},
-globbyModule)
+}, globbyModule)
 export const glob = globby
 
 export function sleep(duration: Duration) {

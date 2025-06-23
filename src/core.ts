@@ -425,10 +425,10 @@ export class ProcessOutput extends Error {
   stderr: ${stringify(this.stderr, chalk.red)},
   signal: ${inspect(this.signal)},
   exitCode: ${(this.exitCode === 0 ? chalk.green : chalk.red)(this.exitCode)}${
-      exitCodeInfo(this.exitCode)
-        ? chalk.grey(' (' + exitCodeInfo(this.exitCode) + ')')
-        : ''
-    }
+    exitCodeInfo(this.exitCode)
+      ? chalk.grey(' (' + exitCodeInfo(this.exitCode) + ')')
+      : ''
+  }
 }`
   }
 }
