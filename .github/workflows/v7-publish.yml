@@ -7,7 +7,7 @@ on:
 
 jobs:
   publish:
-    if: github.ref == 'refs/heads/v7'
+    if: github.event_name == 'release' || github.ref == 'refs/heads/v7'
     runs-on: ubuntu-latest
     permissions:
       checks: read
@@ -29,4 +29,4 @@ jobs:
       - run: echo "//wombat-dressing-room.appspot.com/:_authToken=$AUTH_TOKEN" >> .npmrc
         env:
           AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
-      - run: npm publish --provenance --access=public --no-git-tag-version --tag v7
+      - run: npm publish --provenance --access=public --no-git-tag-version --tag v-7
