@@ -128,9 +128,19 @@ $.timeoutSignal= 'SIGKILL'
 await $`sleep 999`
 ```
 
+## `$.delimiter`
+Specifies a delimiter for splitting command output into lines.
+Defaults to `\r?\n` (newline or carriage return + newline).
+
+```js
+$.delimiter = /\0/        // null character
+
+await $`find ./ -type f -print0 -maxdepth 1`
+```
+
 ## `$.defaults`
 
-Holds the default configuration values. They will be used if the corresponding
+Holds default configuration values. They will be used if the corresponding
 `$` options are not specified.
 
 ```ts
@@ -151,6 +161,7 @@ $.defaults = {
   spawnSync:      childProcess.spawnSync,
   log:            $.log,
   killSignal:     'SIGTERM',
-  timeoutSignal:  'SIGTERM'
+  timeoutSignal:  'SIGTERM',
+  delimiter:      /\r?\n/,
 }
 ```

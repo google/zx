@@ -391,7 +391,7 @@ var BR_CC = "\n".charCodeAt(0);
 var DLMTR = /\r?\n/;
 var SIGTERM = "SIGTERM";
 var ENV_PREFIX = "ZX_";
-var ENV_ALLOWED = /* @__PURE__ */ new Set([
+var ENV_OPTS = /* @__PURE__ */ new Set([
   "cwd",
   "preferLocal",
   "detached",
@@ -1044,7 +1044,7 @@ var promisifyStream = (stream, from) => (0, import_util.proxyOverride)(stream, {
     return piped instanceof ProcessPromise ? piped : promisifyStream(piped, from);
   }
 });
-function resolveDefaults(defs = defaults, prefix = ENV_PREFIX, env = import_node_process2.default.env, allowed = ENV_ALLOWED) {
+function resolveDefaults(defs = defaults, prefix = ENV_PREFIX, env = import_node_process2.default.env, allowed = ENV_OPTS) {
   return Object.entries(env).reduce((m, [k, v]) => {
     if (v && k.startsWith(prefix)) {
       const _k = (0, import_util.toCamelCase)(k.slice(prefix.length));

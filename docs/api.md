@@ -111,6 +111,7 @@ interface Options {
   kill:           typeof kill
   killSignal:     NodeJS.Signals
   halt:           boolean
+  delimiter:      string | RegExp
 }
 ```
 See also [Configuration](./configuration).

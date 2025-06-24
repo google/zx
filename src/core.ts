@@ -78,7 +78,7 @@ const BR_CC = '\n'.charCodeAt(0)
 const DLMTR = /\r?\n/
 const SIGTERM = 'SIGTERM'
 const ENV_PREFIX = 'ZX_'
-const ENV_ALLOWED: Set<string> = new Set([
+const ENV_OPTS: Set<string> = new Set([
   'cwd',
   'preferLocal',
   'detached',
@@ -971,7 +971,7 @@ export function resolveDefaults(
   defs: Options = defaults,
   prefix: string = ENV_PREFIX,
   env = process.env,
-  allowed = ENV_ALLOWED
+  allowed = ENV_OPTS
 ): Options {
   return Object.entries(env).reduce<Options>((m, [k, v]) => {
     if (v && k.startsWith(prefix)) {
