@@ -1,7 +1,6 @@
 node_modules/
 build/
 coverage/
-package-lock.json
 yarn.lock
 temp
 jsr.json
