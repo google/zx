@@ -15,6 +15,21 @@
 import { test } from 'uvu'
 import * as assert from 'uvu/assert'
 import '../build/globals.js'
+import net from 'node:net'
+import getPort from 'get-port'
+
+const getServer = (resp = [], log = console.log) => {
+  const server = net.createServer()
+  server.on('connection', (conn) => {
+    conn.on('data', (d) => {
+      conn.write(resp.shift() || 'pong')
+    })
+  })
+  server.stop = () => new Promise((resolve) => server.close(() => resolve()))
+  server.start = (port) =>
+    new Promise((resolve) => server.listen(port, () => resolve(server)))
+  return server
+}
 
 $.verbose = 0
 
@@ -58,12 +73,13 @@ test('supports `--prefix` flag ', async () => {
 })
 
 test('scripts from https', async () => {
-  let script = path.resolve('test/fixtures/echo.http')
-  let server = quiet($`while true; do cat ${script} | nc -l 8080; done`)
-  let p = await quiet($`node build/cli.js http://127.0.0.1:8080/echo.mjs`)
+  const resp = await fs.readFile(path.resolve('test/fixtures/echo.http'))
+  const port = await getPort()
+  const server = await getServer([resp]).start(port)
+  let p = await quiet($`node build/cli.js http://127.0.0.1:${port}/echo.mjs`)
 
   assert.ok(p.stdout.includes('test'))
-  server.kill()
+  server.stop()
 
   let err
   try {

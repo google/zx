@@ -14,7 +14,7 @@
 
 import { getCtx, getRootCtx } from './context.js'
 import { chalk } from './goods.js'
-import { default as ignore } from 'ignore'
+import ignore from 'ignore'
 import { asArray } from './util.js'
 
 export function printStd(data: any, err?: any) {
