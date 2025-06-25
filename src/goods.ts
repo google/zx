@@ -166,13 +166,15 @@ export async function retry<T>(
   throw lastErr
 }
 
-export function* expBackoff(max: Duration = '60s', rand: Duration = '100ms') {
+export function* expBackoff(
+  max: Duration = '60s',
+  delay: Duration = '100ms'
+): Generator<number, void, unknown> {
   const maxMs = parseDuration(max)
-  const randMs = parseDuration(rand)
-  let n = 1
+  const randMs = parseDuration(delay)
+  let n = 0
   while (true) {
-    const ms = Math.floor(Math.random() * randMs)
-    yield Math.min(2 ** n++, maxMs) + ms
+    yield Math.min(randMs * 2 ** n++, maxMs)
   }
 }
 
