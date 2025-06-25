@@ -37,7 +37,7 @@ gives sensible defaults.
 ## Install
 
 ```bash
-npm install zx@7 # or npm install zx@v-7
+npm install zx
 ```
 **Requirement**: Node.js >= 16.0.0
 
