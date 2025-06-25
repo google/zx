@@ -29,4 +29,4 @@ jobs:
       - run: echo "//wombat-dressing-room.appspot.com/:_authToken=$AUTH_TOKEN" >> .npmrc
         env:
           AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
-      - run: npm publish --provenance --access=public --no-git-tag-version --tag v-7
+      - run: npm publish --provenance --access=public --no-git-tag-version --tag legacy
