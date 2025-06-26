@@ -1,0 +1,32 @@
+name: zx@6 Publish
+
+on:
+  workflow_dispatch:
+  release:
+    types: [created]
+
+jobs:
+  publish:
+    if: github.event_name == 'release' || github.ref == 'refs/heads/v6'
+    runs-on: ubuntu-latest
+    permissions:
+      checks: read
+      statuses: write
+      contents: write
+      packages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - run: npm ci
+      - run: npm test
+        env:
+          FORCE_COLOR: 3
+
+      - run: echo "//wombat-dressing-room.appspot.com/:_authToken=$AUTH_TOKEN" >> .npmrc
+        env:
+          AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
+      - run: npm publish --provenance --access=public --no-git-tag-version --tag legacy
+

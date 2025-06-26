@@ -1,10 +1,10 @@
-name: Test
+name: zx@6 Test
 
 on:
   push:
-    branches: [main, v6]
+    branches: [v6]
   pull_request:
-    branches: [main, v6]
+    branches: [v6]
 
 jobs:
   test:
@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x, 18.x]
+        node-version: [16, 18, 24]
 
     steps:
       - uses: actions/checkout@v3
