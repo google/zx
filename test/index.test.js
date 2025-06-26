@@ -194,12 +194,12 @@ test('ProcessPromise: ctx is protected from removal', async () => {
 test('ProcessOutput thrown as error', async () => {
   let err
   try {
-    await $`wtf`
+    await $`unknown`
   } catch (p) {
     err = p
   }
   assert.ok(err.exitCode > 0)
-  assert.ok(err.stderr.includes('/bin/bash: wtf: command not found\n'))
+  assert.match(err.stderr, /unknown: command not found/)
   assert.ok(err[inspect.custom]().includes('Command not found'))
 })
 

@@ -29,6 +29,8 @@ import chalk from 'chalk'
 
 $.verbose = false
 
+const nodev = +process.versions.node.split('.')[0]
+
 test('retry works', async () => {
   let exitCode = 0
   let now = Date.now()
@@ -119,10 +121,9 @@ test('ctx accepts optional ref', () => {
   }, ref)
 })
 
-test('bound ctx is attached to Promise', async () => {
-  const kResourceStoreSymbol = Object.getOwnPropertySymbols(
-    new Promise(() => {})
-  )[2]
+;(nodev < 24) && test('bound ctx is attached to Promise', async () => {
+  const pSymbols = Object.getOwnPropertySymbols(new Promise(() => {}))
+  const [_, __, kResourceStoreSymbol] = pSymbols
   assert.is(new Promise(() => {})[kResourceStoreSymbol], undefined)
 
   await ctx(async ($) => {

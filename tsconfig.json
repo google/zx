@@ -7,8 +7,10 @@
     "strict": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
+    "allowSyntheticDefaultImports": true,
     "outDir": "./build",
-    "declaration": true
+    "declaration": true,
+    "skipLibCheck": true
   },
   "include": ["./src/**/*"]
 }

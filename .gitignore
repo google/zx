@@ -1,5 +1,8 @@
-/node_modules/
-/build/
-/coverage/
-package-lock.json
+node_modules/
+build/
+coverage/
 yarn.lock
+temp
+jsr.json
+test/fixtures/ts-project/build/
+docs/.vitepress/cache/

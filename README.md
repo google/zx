@@ -1,5 +1,11 @@
 # 🐚 zx
 
+> [!TIP]
+> **zx@6** development has been discontinued. Critical bug fixes and vulnerability fixes only considered.
+>
+> But the project is moving forward. [There are a lot](https://github.com/google/zx/releases) of cool features, improvements, compatibility enhancements 🚀
+> Please follow the [migration guide](https://google.github.io/zx/migration-from-v7) to upgrade to the latest. If something doesn't work, feel free to start a new [issue](https://github.com/google/zx/issues) or [discussion](https://github.com/google/zx/discussions).
+
 ```js
 #!/usr/bin/env zx
 
