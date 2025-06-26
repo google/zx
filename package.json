@@ -163,18 +163,21 @@
     "registry": "https://wombat-dressing-room.appspot.com"
   },
   "keywords": [
-    "shell",
-    "script",
     "bash",
     "bin",
     "binary",
+    "call",
     "child",
-    "process",
+    "child_process",
     "exec",
     "execute",
     "invoke",
-    "call",
-    "spawn"
+    "pipe",
+    "process",
+    "script",
+    "shell",
+    "spawn",
+    "zx"
   ],
   "prettier": {
     "semi": false,
