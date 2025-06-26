@@ -4,6 +4,12 @@ pre-commit:
     format:
       glob: '*.{js,ts,md,yml}'
       run: npm run fmt && git add {staged_files}
+
+commit-msg:
+  commands:
+    lint-commit-msg:
+      run: npx commitlint --edit
+
 pre-push:
   parallel: true
   commands:

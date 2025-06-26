@@ -104,6 +104,8 @@
     "test:workflow": "zizmor .github/workflows -v -p --min-severity=medium"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
     "@size-limit/file": "11.2.0",
     "@types/fs-extra": "11.0.4",
     "@types/minimist": "1.2.5",
