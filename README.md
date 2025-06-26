@@ -30,7 +30,13 @@ gives sensible defaults.
 ```bash
 npm install zx
 ```
-Other options: [zx/setup](https://google.github.io/zx/setup)
+All setup options: [zx/setup](https://google.github.io/zx/setup).
+See also [**zx@lite**](https://google.github.io/zx/lite).
+
+## Usage
+
+* [Documentation at google.github.io/zx/](https://google.github.io/zx/)
+* [Code examples](https://github.com/google/zx/tree/main/examples)
 
 ## Compatibility
 * Linux, macOS, or Windows
@@ -42,10 +48,6 @@ Other options: [zx/setup](https://google.github.io/zx/setup)
 * Some kind of bash or PowerShell
 * [Both CJS or ESM](https://google.github.io/zx/setup#hybrid) modules in [JS or TS](https://google.github.io/zx/typescript)
 
-## Usage
-
-* [Documentation at google.github.io/zx/](https://google.github.io/zx/)
-* [Code examples](https://github.com/google/zx/tree/main/examples)
 
 ## License
 
