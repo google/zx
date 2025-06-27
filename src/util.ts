@@ -125,18 +125,22 @@ export function quotePowerShell(arg: string): string {
   return `'` + arg.replace(/'/g, "''") + `'`
 }
 
-export type Duration = number | `${number}m` | `${number}s` | `${number}ms`
+export type Duration =
+  | number
+  | `${number}`
+  | `${number}m`
+  | `${number}s`
+  | `${number}ms`
 
 export function parseDuration(d: Duration) {
   if (typeof d === 'number') {
     if (isNaN(d) || d < 0) throw new Error(`Invalid duration: "${d}".`)
     return d
   }
-  if (/^\d+s$/.test(d)) return +d.slice(0, -1) * 1000
-  if (/^\d+ms$/.test(d)) return +d.slice(0, -2)
-  if (/^\d+m$/.test(d)) return +d.slice(0, -1) * 1000 * 60
+  const [m, v, u] = d.match(/^(\d+)(m?s?)$/) || []
+  if (!m) throw new Error(`Unknown duration: "${d}".`)
 
-  throw new Error(`Unknown duration: "${d}".`)
+  return +v * ({ s: 1000, ms: 1, m: 60_000 }[u] || 1)
 }
 
 export const once = <T extends (...args: any[]) => any>(fn: T) => {
