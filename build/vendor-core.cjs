@@ -772,6 +772,7 @@ var import_node_os2 = require("os");
 // node_modules/@webpod/ingrid/target/esm/index.mjs
 var EOL = /\r?\n|\r|\n/;
 var parseLine = (line, sep = " ") => {
+  if (typeof line !== "string") throw new Error("parseLine: line must be a string");
   const result = {
     spaces: [],
     words: []
@@ -805,10 +806,8 @@ var parseLine = (line, sep = " ") => {
       capture();
       continue;
     }
-    if (s === -1)
-      s = +i;
-    if (char === '"' || char === "'")
-      bb = char;
+    if (s === -1) s = +i;
+    if (char === '"' || char === "'") bb = char;
     word += char;
   }
   capture();
@@ -836,11 +835,9 @@ var parseUnixGrid = (input) => {
       for (const _b in _borders) {
         const a = _borders[+_b];
         const b = _borders[+_b + 1];
-        if (b === void 0)
-          break;
+        if (b === void 0) break;
         const block = row[_b] || (row[_b] = []);
-        if (s > a && e < b)
-          block.push(w);
+        if (s > a && e < b) block.push(w);
       }
     }
   }
@@ -854,8 +851,7 @@ var gridToData = (grid) => {
     data.push(entry);
     for (const i in headers) {
       const keys = headers[i];
-      if (keys.length === 0)
-        continue;
+      if (keys.length === 0) continue;
       if (keys.length > row[i].length) {
         throw new Error("Malformed grid: row has more columns than headers");
       }
@@ -885,8 +881,7 @@ var parseWinGrid = (input) => {
   const data = [];
   let memo = null;
   for (const line of lines.slice(1)) {
-    if (!line)
-      continue;
+    if (!line) continue;
     const { spaces } = parseLine(line);
     const borders = spaces.filter((s, i) => spaces[i + 1] === s + 1 && spaces[i + 2] !== s + 2);
     let chunks = (borders.length > 0 ? cut(line, borders, 2) : [line]).map((l) => l.trim());
@@ -899,7 +894,7 @@ var parseWinGrid = (input) => {
       chunks = [...memo || ["<unknown>"], ...chunks].filter(Boolean);
     }
     const entry = Object.fromEntries(headers.map(
-      (header, i) => [header, parseLine(chunks[i]).words.map(({ w }) => w)]
+      (header, i) => [header, parseLine(chunks[i] || "").words.map(({ w }) => w)]
     ));
     data.push(entry);
   }
@@ -911,8 +906,7 @@ var parsers = {
 };
 var parse = (input, { format = "unix" } = {}) => {
   const parser = parsers[format];
-  if (!parser)
-    throw new Error(`unsupported format: ${format}`);
+  if (!parser) throw new Error(`unsupported format: ${format}`);
   return parser(input);
 };
 
@@ -1166,8 +1160,8 @@ var invoke = (c) => {
 var exec = (ctx) => invoke(normalizeCtx(ctx));
 
 // node_modules/@webpod/ps/target/esm/index.mjs
-var EOL2 = /\n\r?|\r\n?/;
 var IS_WIN = import_node_process4.default.platform === "win32";
+var WMIC_INPUT = "wmic process get ProcessId,ParentProcessId,CommandLine" + import_node_os2.EOL;
 var isBin = (f) => {
   if (f === "") return false;
   if (!f.includes("/")) return true;
@@ -1187,21 +1181,21 @@ var _lookup = ({
   const { promise, resolve, reject } = pFactory();
   const { psargs = ["-lx"] } = query;
   const args = Array.isArray(psargs) ? psargs : psargs.split(/\s+/);
-  const extract = IS_WIN ? extractWmic : identity;
-  let result = [];
+  const result = [];
+  const extract = IS_WIN ? removeWmicPrefix : identity;
   const callback = (err, { stdout }) => {
     if (err) {
       reject(err);
       cb(err);
       return;
     }
-    result = parseProcessList(extract(stdout), query);
+    result.push(...parseProcessList(extract(stdout), query));
     resolve(result);
     cb(null, result);
   };
   const ctx = IS_WIN ? {
     cmd: "cmd",
-    input: "wmic process get ProcessId,ParentProcessId,CommandLine \n",
+    input: `wmic process get ProcessId,ParentProcessId,CommandLine${import_node_os2.EOL}`,
     callback,
     sync,
     run(cb2) {
@@ -1231,10 +1225,10 @@ var parseProcessList = (output, query = {}) => {
     (p) => (pidList.length === 0 || pidList.includes(p.pid)) && filters.every((f) => f(p))
   );
 };
-var extractWmic = (stdout) => {
-  const _stdout = stdout.split(EOL2);
-  const beginRow = _stdout.findIndex((out) => out.startsWith("CommandLine"));
-  return _stdout.slice(beginRow + 1, -1).join(import_node_os2.EOL);
+var removeWmicPrefix = (stdout) => {
+  const s = stdout.indexOf(WMIC_INPUT);
+  const e = stdout.lastIndexOf(import_node_os2.EOL);
+  return (s > 0 ? stdout.slice(s + WMIC_INPUT.length, e) : stdout.slice(0, e)).trim();
 };
 var pickTree = (list, pid, recursive = false) => {
   const children = list.filter((p) => p.ppid === pid + "");

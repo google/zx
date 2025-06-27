@@ -20,7 +20,7 @@ THIRD PARTY LICENSES
   sindresorhus/merge-streams
   MIT
 
-@webpod/ps@0.1.1
+@webpod/ps@0.1.2
   <unknown>
   git://github.com/webpod/ps.git
   MIT
@@ -145,7 +145,7 @@ yaml@2.8.0
   github:eemeli/yaml
   ISC
 
-zurk@0.11.3
+zurk@0.11.4
   Anton Golub <antongolub@antongolub.com>
   git+https://github.com/webpod/zurk.git
   MIT
