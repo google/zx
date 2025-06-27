@@ -301,23 +301,26 @@ Changes behavior of `$` to not throw an exception on non-zero exit codes. Equiva
 await $`grep something from-file`.nothrow()
 
 // Inside a pipe():
-
 await $`find ./examples -type f -print0`
   .pipe($`xargs -0 grep something`.nothrow())
   .pipe($`wc -l`)
+
+// Accepts a flag to switch nothrow mode for the specific command
+$.nothrow = true
+await $`echo foo`.nothrow(false)
 ```
 
 If only the `exitCode` is needed, you can use [`exitCode`](#exitcode) directly:
 
 ```js
 if (await $`[[ -d path ]]`.exitCode == 0) {
-...
+//...
 }
 
 // Equivalent of:
 
 if ((await $`[[ -d path ]]`.nothrow()).exitCode == 0) {
-...
+//...
 }
 ```
 
