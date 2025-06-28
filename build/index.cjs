@@ -52,13 +52,13 @@ var import_vendor2 = require("./vendor.cjs");
 __reExport(index_exports, require("./core.cjs"), module.exports);
 
 // src/goods.ts
+var import_node_buffer = require("buffer");
+var import_node_process = __toESM(require("process"), 1);
 var import_node_readline = require("readline");
 var import_node_stream = require("stream");
 var import_core = require("./core.cjs");
 var import_util = require("./util.cjs");
 var import_vendor = require("./vendor.cjs");
-var import_node_buffer = require("buffer");
-var import_node_process = __toESM(require("process"), 1);
 var parseArgv = (args = import_node_process.default.argv.slice(2), opts = {}, defs = {}) => Object.entries((0, import_vendor.minimist)(args, opts)).reduce(
   (m, [k, v]) => {
     const kTrans = opts.camelCase ? import_util.toCamelCase : import_util.identity;

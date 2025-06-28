@@ -20,7 +20,7 @@ export declare function preferLocalBin(env: NodeJS.ProcessEnv, ...dirs: (string 
 };
 export declare function quote(arg: string): string;
 export declare function quotePowerShell(arg: string): string;
-export type Duration = number | `${number}m` | `${number}s` | `${number}ms`;
+export type Duration = number | `${number}` | `${number}m` | `${number}s` | `${number}ms`;
 export declare function parseDuration(d: Duration): number;
 export declare const once: <T extends (...args: any[]) => any>(fn: T) => (...args: Parameters<T>) => ReturnType<T>;
 export declare const proxyOverride: <T extends object>(origin: T, ...fallbacks: any) => T;

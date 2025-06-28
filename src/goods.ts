@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { Buffer } from 'node:buffer'
+import process from 'node:process'
 import { createInterface } from 'node:readline'
 import { Readable } from 'node:stream'
 import { $, within, ProcessOutput, type ProcessPromise } from './core.ts'
@@ -30,8 +32,6 @@ import {
   nodeFetch,
   minimist,
 } from './vendor.ts'
-import { Buffer } from 'node:buffer'
-import process from 'node:process'
 
 type ArgvOpts = minimist.Opts & { camelCase?: boolean; parseBoolean?: boolean }
 

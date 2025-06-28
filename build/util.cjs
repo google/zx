@@ -90,10 +90,9 @@ function parseDuration(d) {
     if (isNaN(d) || d < 0) throw new Error(`Invalid duration: "${d}".`);
     return d;
   }
-  if (/^\d+s$/.test(d)) return +d.slice(0, -1) * 1e3;
-  if (/^\d+ms$/.test(d)) return +d.slice(0, -2);
-  if (/^\d+m$/.test(d)) return +d.slice(0, -1) * 1e3 * 60;
-  throw new Error(`Unknown duration: "${d}".`);
+  const [m, v, u] = d.match(/^(\d+)(m?s?)$/) || [];
+  if (!m) throw new Error(`Unknown duration: "${d}".`);
+  return +v * ({ s: 1e3, ms: 1, m: 6e4 }[u] || 1);
 }
 var once = (fn) => {
   let called = false;
