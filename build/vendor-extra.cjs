@@ -5516,9 +5516,9 @@ var require_out4 = __commonJS({
   }
 });
 
-// node_modules/globby/node_modules/ignore/index.js
+// node_modules/ignore/index.js
 var require_ignore = __commonJS({
-  "node_modules/globby/node_modules/ignore/index.js"(exports2, module2) {
+  "node_modules/ignore/index.js"(exports2, module2) {
     "use strict";
     function makeArray(subject) {
       return Array.isArray(subject) ? subject : [subject];
@@ -5532,7 +5532,7 @@ var require_ignore = __commonJS({
     var REGEX_REPLACE_LEADING_EXCAPED_EXCLAMATION = /^\\!/;
     var REGEX_REPLACE_LEADING_EXCAPED_HASH = /^\\#/;
     var REGEX_SPLITALL_CRLF = /\r?\n/g;
-    var REGEX_TEST_INVALID_PATH = /^\.*\/|^\.+$/;
+    var REGEX_TEST_INVALID_PATH = /^\.{0,2}\/|^\.{1,2}$/;
     var REGEX_TEST_TRAILING_SLASH = /\/$/;
     var SLASH = "/";
     var TMP_KEY_IGNORE = "node-ignore";
@@ -5955,18 +5955,22 @@ var require_ignore = __commonJS({
     };
     var factory = (options) => new Ignore(options);
     var isPathValid = (path3) => checkPath(path3 && checkPath.convert(path3), path3, RETURN_FALSE);
-    if (
-      // Detect `process` so that it can run in browsers.
-      typeof process !== "undefined" && (process.env && process.env.IGNORE_TEST_WIN32 || process.platform === "win32")
-    ) {
+    var setupWindows = () => {
       const makePosix = (str) => /^\\\\\?\\/.test(str) || /["<>|\u0000-\u001F]+/u.test(str) ? str : str.replace(/\\/g, "/");
       checkPath.convert = makePosix;
       const REGEX_TEST_WINDOWS_PATH_ABSOLUTE = /^[a-z]:\//i;
       checkPath.isNotRelative = (path3) => REGEX_TEST_WINDOWS_PATH_ABSOLUTE.test(path3) || isNotRelative(path3);
+    };
+    if (
+      // Detect `process` so that it can run in browsers.
+      typeof process !== "undefined" && process.platform === "win32"
+    ) {
+      setupWindows();
     }
     module2.exports = factory;
     factory.default = factory;
     module2.exports.isPathValid = isPathValid;
+    define(module2.exports, Symbol.for("setupWindows"), setupWindows);
   }
 });
 
