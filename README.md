@@ -21,7 +21,7 @@ await $`mkdir /tmp/${name}`
 Bash is great, but when it comes to writing more complex scripts,
 many people prefer a more convenient programming language.
 JavaScript is a perfect choice, but the Node.js standard library
-requires additional hassle before using. The `zx` package provides
+requires additional hassle before using. No compromise, take the best of both. The `zx` package provides
 useful cross-platform wrappers around `child_process`, escapes arguments and
 gives sensible defaults.
 
@@ -45,7 +45,7 @@ See also [**zx@lite**](https://google.github.io/zx/lite).
     * Bun >= 1.0.0
     * Deno 1.x, 2.x
     * GraalVM Node.js
-* Some kind of bash or PowerShell
+* Some kind of [bash or PowerShell](https://google.github.io/zx/shell)
 * [Both CJS or ESM](https://google.github.io/zx/setup#hybrid) modules in [JS or TS](https://google.github.io/zx/typescript)
 
 
