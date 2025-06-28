@@ -30,11 +30,24 @@ gives sensible defaults.
 ```bash
 npm install zx
 ```
-Complete installation instructions: [zx/setup](https://google.github.io/zx/setup)
+All setup options: [zx/setup](https://google.github.io/zx/setup).
+See also [**zx@lite**](https://google.github.io/zx/lite).
 
-## Documentation
+## Usage
 
-Read documentation on [google.github.io/zx](https://google.github.io/zx/).
+* [Documentation at google.github.io/zx/](https://google.github.io/zx/)
+* [Code examples](https://github.com/google/zx/tree/main/examples)
+
+## Compatibility
+* Linux, macOS, or Windows
+* JavaScript Runtime:
+    * Node.js >= 12.17.0
+    * Bun >= 1.0.0
+    * Deno 1.x, 2.x
+    * GraalVM Node.js
+* Some kind of bash or PowerShell
+* [Both CJS or ESM](https://google.github.io/zx/setup#hybrid) modules in [JS or TS](https://google.github.io/zx/typescript)
+
 
 ## License
 
