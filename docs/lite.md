@@ -18,5 +18,5 @@ import { $ } from 'zx'
 await $`echo foo`
 ```
 
-### Range of choices
+### Range of choice
 **tool size ← [`child_process`](https://nodejs.org/api/child_process.html) [`zurk`](https://github.com/webpod/zurk) `zx@lite` `zx`  → built-in functionality** 
