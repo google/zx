@@ -139,7 +139,7 @@ export const defaults: Options = resolveDefaults({
   verbose:        false,
   env:            process.env,
   sync:           false,
-  shell:          true,
+  shell:          process.env.SHELL || true,
   stdio:          'pipe',
   nothrow:        false,
   quiet:          false,
@@ -877,7 +877,9 @@ export function useBash() {
 }
 
 try {
+  const { shell } = $
   useBash()
+  if (isString(shell)) $.shell = shell
 } catch (err) {}
 
 function checkShell() {

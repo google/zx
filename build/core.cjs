@@ -417,7 +417,7 @@ var defaults = resolveDefaults({
   verbose: false,
   env: import_node_process2.default.env,
   sync: false,
-  shell: true,
+  shell: import_node_process2.default.env.SHELL || true,
   stdio: "pipe",
   nothrow: false,
   quiet: false,
@@ -968,7 +968,9 @@ function useBash() {
   $.quote = import_util.quote;
 }
 try {
+  const { shell } = $;
   useBash();
+  if ((0, import_util.isString)(shell)) $.shell = shell;
 } catch (err) {
 }
 function checkShell() {
