@@ -34,7 +34,7 @@ jobs:
         run: npm i
 
       - name: Add additional deps
-        run: npm i @rollup/rollup-linux-x64-gnu@4.32.1
+        run: npm i @rollup/rollup-linux-x64-gnu@4.44.1
 
       - name: Build docs
         run: npm run docs:build
