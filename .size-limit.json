@@ -15,7 +15,7 @@
       "README.md",
       "LICENSE"
     ],
-    "limit": "121.75 kB",
+    "limit": "121.80 kB",
     "brotli": false,
     "gzip": false
   },
@@ -62,7 +62,7 @@
       "README.md",
       "LICENSE"
     ],
-    "limit": "868.25 kB",
+    "limit": "868.35 kB",
     "brotli": false,
     "gzip": false
   }
