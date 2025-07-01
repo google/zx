@@ -58,6 +58,12 @@ import 'zx/globals'
       await w
     })
   }
+
+  // ps works fine
+  {
+    const [root] = await ps.lookup({ pid: process.pid })
+    assert.equal(root.pid, process.pid)
+  }
 })()
 
 console.log('smoke mjs: ok')
