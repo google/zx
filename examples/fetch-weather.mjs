@@ -14,69 +14,88 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// This script requires an OpenWeatherMap API key to be set in the environment variable OPENWEATHER_API_KEY.
+/**
+ * Helper function to handle errors.
+ */
+function exit(msg, code = 1) {
+  echo(chalk.red(msg))
+  process.exit(code)
+}
 
+/**
+ * Main function to fetch weather data.
+ */
 async function main() {
-  let args = process.argv.slice(2)
+  const argv = minimist(process.argv.slice(2), {
+    boolean: ['help'],
+    alias: { h: 'help' },
+  })
 
-  // Remove script filename if passed via zx
-  if (
-    args.length > 0 &&
-    (args[0].endsWith('fetch-weather.mjs') || args[0] === './fetch-weather.mjs')
-  ) {
-    args = args.slice(1)
-  }
-
-  if (args.length === 0 || args.includes('-h') || args.includes('--help')) {
+  if (argv.help) {
     echo(`
 ${chalk.bold('Usage:')} zx fetch-weather.mjs [city name]
 
-Fetches weather data from OpenWeatherMap.
-
-${chalk.bold('Environment:')}
-  Requires OPENWEATHER_API_KEY to be set.
+Fetches weather data using wttr.in with a neat two-column colored table format.
 
 ${chalk.bold('Examples:')}
-  OPENWEATHER_API_KEY=your_key zx fetch-weather.mjs London
+  zx fetch-weather.mjs London
   ./fetch-weather.mjs "New York"
 `)
     process.exit(0)
   }
 
-  const city = args.join(' ')
-  const apiKey = process.env.OPENWEATHER_API_KEY
+  let args = argv._
 
-  if (!apiKey) {
-    echo(chalk.red('❌ OPENWEATHER_API_KEY not set'))
-    process.exit(1)
+  // Remove script filename if passed via zx
+  if (args.length > 0 && args[0].includes('fetch-weather')) {
+    args = args.slice(1)
   }
 
-  echo(`📡 Fetching weather for "${city}"...`)
+  const city = args.join(' ')
+
+  if (!city) {
+    exit('❌ No city provided. Use -h for help.')
+  }
+
+  let data
 
   try {
-    const res = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric`
+    data = await spinner(
+      `📡 Fetching weather for "${city}" from wttr.in...`,
+      async () => {
+        const res = await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=j1`)
+        if (!res.ok) throw new Error(`API error: ${res.status} ${res.statusText}`)
+        return await res.json()
+      }
     )
-
-    if (!res.ok) {
-      echo(chalk.red(`❌ API error: ${res.status} ${res.statusText}`))
-      process.exit(1)
-    }
-
-    const data = await res.json()
-
-    if (!data?.main || !data?.weather?.[0]) {
-      echo(chalk.red('❌ Invalid response from API.'))
-      process.exit(1)
-    }
-
-    echo(
-      chalk.yellow(`🌤️ Weather in ${data.name}: ${data.weather[0].description}`)
-    )
-    echo(chalk.red(`🌡️ Temperature: ${data.main.temp}°C`))
-    echo(chalk.blue(`💧 Humidity: ${data.main.humidity}%`))
   } catch (err) {
-    echo(chalk.red(`❌ Failed to fetch weather: ${err.message}`))
-    process.exit(1)
+    exit(`❌ Error fetching weather: ${err.message}`)
   }
+
+  const area = data.nearest_area[0]
+  const current = data.current_condition[0]
+
+  if (!area || !current) {
+    exit('❌ Missing weather data in API response.')
+  }
+
+  const location = area.areaName[0].value
+  const condition = current.weatherDesc[0].value
+  const temperature = `${current.temp_C}°C`
+  const humidity = `${current.humidity}%`
+
+  echo(chalk.yellow(`🌤️ Weather in ${location}: ${condition}`))
+  echo(chalk.red(`🌡️ Temperature: ${temperature}`))
+  echo(chalk.blue(`💧 Humidity: ${humidity}`))
 }
+
+await main()
+
+// Here's how to add this script to your shell as a bash alias. This assumes you have zx installed globally.
+// 1. Save this script as `fetch-weather.mjs`.
+// 2. Add the following line to your .bashrc file, replacing the path with your own:
+// alias weather='zx /full/path/to/fetch-weather.mjs'
+// 3. Then reload your shell using the following command:
+// source ~/.bashrc
+// Now you can use the `weather` command to fetch weather data for any city.
+// Example usage: `weather London`
