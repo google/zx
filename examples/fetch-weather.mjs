@@ -14,17 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * Helper function to handle errors.
- */
-function exit(msg, code = 1) {
-  echo(chalk.red(msg))
-  process.exit(code)
-}
-
-/**
- * Main function to fetch weather data.
- */
 async function main() {
   const argv = minimist(process.argv.slice(2), {
     boolean: ['help'],
@@ -44,52 +33,59 @@ ${chalk.bold('Examples:')}
     process.exit(0)
   }
 
-  let args = argv._
-
-  // Remove script filename if passed via zx
-  if (args.length > 0 && args[0].includes('fetch-weather')) {
-    args = args.slice(1)
-  }
-
+  const args = argv._.slice(__filename === process.argv[1] ? 0 : 1)
   const city = args.join(' ')
 
-  if (!city) {
-    exit('❌ No city provided. Use -h for help.')
-  }
+  if (!city) throw 'No city provided. Use -h for help.'
 
-  let data
+  const svc_url = 'https://wttr.in'
 
-  try {
-    data = await spinner(
-      `📡 Fetching weather for "${city}" from wttr.in...`,
-      async () => {
-        const res = await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=j1`)
-        if (!res.ok) throw new Error(`API error: ${res.status} ${res.statusText}`)
-        return await res.json()
+  const data = await spinner(
+    `📡 Fetching weather for "${city}" from ${svc_url}...`,
+    async () => {
+      try {
+        const res = await fetch(
+          `${svc_url}/${encodeURIComponent(city)}?format=j1`,
+          {
+            signal: AbortSignal.timeout(5000),
+          }
+        )
+        if (!res.ok) throw `API error: ${res.status} ${res.statusText}`
+        return res.json()
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          throw 'Request timed out after 5 seconds.'
+        }
+        throw err
       }
-    )
-  } catch (err) {
-    exit(`❌ Error fetching weather: ${err.message}`)
-  }
+    }
+  )
 
   const area = data.nearest_area[0]
   const current = data.current_condition[0]
 
   if (!area || !current) {
-    exit('❌ Missing weather data in API response.')
+    throw '❌ Missing weather data in API response.'
   }
 
   const location = area.areaName[0].value
   const condition = current.weatherDesc[0].value
-  const temperature = `${current.temp_C}°C`
-  const humidity = `${current.humidity}%`
+  const temperature = current.temp_C
+  const humidity = current.humidity
 
-  echo(chalk.yellow(`🌤️ Weather in ${location}: ${condition}`))
-  echo(chalk.red(`🌡️ Temperature: ${temperature}`))
-  echo(chalk.blue(`💧 Humidity: ${humidity}`))
+  echo(chalk.yellow(`🌤️  Weather in ${location}: ${condition}`))
+  echo(chalk.red(`🌡️  Temperature: ${temperature}°C`))
+  echo(chalk.blue(`💧 Humidity: ${humidity}%`))
 }
 
-await main()
+await main().then(
+  () => process.exit(0),
+  (err) => {
+    const msg = typeof err === 'string' ? err : err.message
+    echo(chalk.red(`❌ ${msg}`))
+    process.exit(1)
+  }
+)
 
 // Here's how to add this script to your shell as a bash alias. This assumes you have zx installed globally.
 // 1. Save this script as `fetch-weather.mjs`.
