@@ -140,8 +140,12 @@ A wrapper around the [node-fetch-native](https://www.npmjs.com/package/node-fetc
 package.
 
 ```js
-const resp = await fetch('https://medv.io')
-const json = await resp.json()
+const r1 = await fetch('https://example.com')
+const json = await r1.json()
+
+const r2 = await fetch('https://example.com', {
+  signal: AbortSignal.timeout(5000),
+})
 ```
 
 For some cases, `text()` or `json()` can produce extremely large output that exceeds the string size limit.
