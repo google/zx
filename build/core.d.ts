@@ -32,8 +32,8 @@ export interface Options {
     env: NodeJS.ProcessEnv;
     shell: string | true;
     nothrow: boolean;
-    prefix: string;
-    postfix: string;
+    prefix?: string;
+    postfix?: string;
     quote?: typeof quote;
     quiet: boolean;
     detached: boolean;

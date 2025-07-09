@@ -116,8 +116,8 @@ export interface Options {
   env:            NodeJS.ProcessEnv
   shell:          string | true
   nothrow:        boolean
-  prefix:         string
-  postfix:        string
+  prefix?:        string
+  postfix?:       string
   quote?:         typeof quote
   quiet:          boolean
   detached:       boolean
@@ -139,12 +139,10 @@ export const defaults: Options = resolveDefaults({
   verbose:        false,
   env:            process.env,
   sync:           false,
-  shell:          process.env.SHELL || true,
+  shell:          true,
   stdio:          'pipe',
   nothrow:        false,
   quiet:          false,
-  prefix:         '',
-  postfix:        '',
   detached:       false,
   preferLocal:    false,
   spawn,
@@ -475,7 +473,9 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   get fullCmd(): string {
-    return this._snapshot.prefix + this.cmd + this._snapshot.postfix
+    return (
+      (this._snapshot.prefix || '') + this.cmd + (this._snapshot.postfix || '')
+    )
   }
 
   get child(): ChildProcess | undefined {
@@ -877,9 +877,10 @@ export function useBash() {
 }
 
 try {
-  const { shell } = $
+  const { shell, prefix } = $
   useBash()
   if (isString(shell)) $.shell = shell
+  if (isString(prefix)) $.prefix = prefix
 } catch (err) {}
 
 function checkShell() {

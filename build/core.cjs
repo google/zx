@@ -417,12 +417,10 @@ var defaults = resolveDefaults({
   verbose: false,
   env: import_node_process2.default.env,
   sync: false,
-  shell: import_node_process2.default.env.SHELL || true,
+  shell: true,
   stdio: "pipe",
   nothrow: false,
   quiet: false,
-  prefix: "",
-  postfix: "",
   detached: false,
   preferLocal: false,
   spawn: import_node_child_process.spawn,
@@ -665,7 +663,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     return this._command;
   }
   get fullCmd() {
-    return this._snapshot.prefix + this.cmd + this._snapshot.postfix;
+    return (this._snapshot.prefix || "") + this.cmd + (this._snapshot.postfix || "");
   }
   get child() {
     var _a;
@@ -968,9 +966,10 @@ function useBash() {
   $.quote = import_util.quote;
 }
 try {
-  const { shell } = $;
+  const { shell, prefix } = $;
   useBash();
   if ((0, import_util.isString)(shell)) $.shell = shell;
+  if ((0, import_util.isString)(prefix)) $.prefix = prefix;
 } catch (err) {
 }
 function checkShell() {
