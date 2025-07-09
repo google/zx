@@ -877,10 +877,11 @@ export function useBash() {
 }
 
 try {
-  const { shell, prefix } = $
+  const { shell, prefix, postfix } = $
   useBash()
   if (isString(shell)) $.shell = shell
   if (isString(prefix)) $.prefix = prefix
+  if (isString(postfix)) $.postfix = postfix
 } catch (err) {}
 
 function checkShell() {
