@@ -633,6 +633,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
   }
   abort(reason) {
     var _a, _b;
+    if (this.isSettled()) throw new Error("Too late to abort the process.");
     if (this.signal !== ((_a = this._snapshot.ac) == null ? void 0 : _a.signal))
       throw new Error("The signal is controlled by another process.");
     if (!this.child)
@@ -640,6 +641,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     (_b = this._zurk) == null ? void 0 : _b.ac.abort(reason);
   }
   kill(signal = $.killSignal) {
+    if (this.isSettled()) throw new Error("Too late to kill the process.");
     if (!this.child)
       throw new Error("Trying to kill a process without creating one.");
     if (!this.child.pid) throw new Error("The process pid is undefined.");

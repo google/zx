@@ -961,6 +961,17 @@ describe('core', () => {
         }
       })
 
+      test('throws if too late', async () => {
+        const p = $`echo foo`
+        await p
+
+        try {
+          p.abort()
+        } catch ({ message }) {
+          assert.match(message, /Too late to abort the process/)
+        }
+      })
+
       test('abort signal is transmittable through pipe', async () => {
         const ac = new AbortController()
         const { signal } = ac
@@ -997,6 +1008,27 @@ describe('core', () => {
           signal = p.signal
         }
         assert.equal(signal, 'SIGKILL')
+      })
+
+      test('throws if too late', async () => {
+        const p = $`echo foo`
+        await p
+
+        try {
+          p.kill()
+        } catch ({ message }) {
+          assert.match(message, /Too late to kill the process/)
+        }
+      })
+
+      test('throws if too early', async () => {
+        const p = $({ halt: true })`echo foo`
+
+        try {
+          p.kill()
+        } catch ({ message }) {
+          assert.match(message, /Trying to kill a process without creating one/)
+        }
       })
     })
 

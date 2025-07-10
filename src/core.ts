@@ -435,9 +435,9 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   abort(reason?: string) {
+    if (this.isSettled()) throw new Error('Too late to abort the process.')
     if (this.signal !== this._snapshot.ac?.signal)
       throw new Error('The signal is controlled by another process.')
-
     if (!this.child)
       throw new Error('Trying to abort a process without creating one.')
 
@@ -445,6 +445,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   kill(signal = $.killSignal): Promise<void> {
+    if (this.isSettled()) throw new Error('Too late to kill the process.')
     if (!this.child)
       throw new Error('Trying to kill a process without creating one.')
     if (!this.child.pid) throw new Error('The process pid is undefined.')
