@@ -771,6 +771,7 @@ var import_node_os2 = require("os");
 
 // node_modules/@webpod/ingrid/target/esm/index.mjs
 var EOL = /\r?\n|\r|\n/;
+var EMPTY = "-";
 var parseLine = (line, sep = " ") => {
   if (typeof line !== "string") throw new Error("parseLine: line must be a string");
   const result = {
@@ -813,7 +814,7 @@ var parseLine = (line, sep = " ") => {
   capture();
   return result;
 };
-var parseLines = (input, sep) => input.split(EOL).map((l) => parseLine(l, sep));
+var parseLines = (input, sep) => input.split(EOL).filter(Boolean).map((l) => parseLine(l, sep));
 var countWordsByIndex = ({ words }, index) => words.filter(({ e }) => e < index).length;
 var getBorders = (lines) => lines[0].spaces.reduce((m, i) => {
   const c = countWordsByIndex(lines[0], i);
@@ -864,40 +865,64 @@ var gridToData = (grid) => {
   }
   return data;
 };
-var cut = (line, points, pad = 2) => {
-  const chunks = [];
-  let s = 0;
-  for (const i in [...points, Number.POSITIVE_INFINITY]) {
-    const chunk = line.slice(s, points[i]);
-    chunks.push(chunk);
-    s = points[i] + pad;
-  }
-  return chunks;
-};
 var parseWinGrid = (input) => {
-  var _a;
-  const lines = input.split(EOL);
-  const headers = lines[0].trim().split(/\s+/);
-  const data = [];
-  let memo = null;
-  for (const line of lines.slice(1)) {
-    if (!line) continue;
-    const { spaces } = parseLine(line);
-    const borders = spaces.filter((s, i) => spaces[i + 1] === s + 1 && spaces[i + 2] !== s + 2);
-    let chunks = (borders.length > 0 ? cut(line, borders, 2) : [line]).map((l) => l.trim());
-    if (chunks.length < headers.length) {
-      memo = chunks;
-      continue;
-    } else if ((_a = chunks[0]) == null ? void 0 : _a.trim()) {
-      memo = null;
-    } else {
-      chunks = [...memo || ["<unknown>"], ...chunks].filter(Boolean);
+  const _lines = input.split(/\r?\n/);
+  const lines = _lines.filter(Boolean);
+  const headline = lines.shift();
+  const headers = headline.split(/\s+/);
+  const ll = lines[0].length;
+  const hl = headers.length;
+  if (lines.every((l) => l.length === ll)) {
+    const spaces = Array.from({ length: ll }).map(
+      (_, i) => lines.every((l) => l[i] === " ")
+    );
+    const borders = spaces.reduce((m, v, i, a) => {
+      if (v && !a[i - 1]) m.push(i);
+      return m;
+    }, [0]);
+    const data2 = [];
+    for (const line of lines) {
+      const props = [];
+      for (const i in headers) {
+        const k = headers[i];
+        const s = borders[i];
+        const e = borders[+i + 1] || ll;
+        const v = line.slice(s, e).trim();
+        props.push([k, [v || EMPTY]]);
+      }
+      data2.push(Object.fromEntries(props));
     }
-    const entry = Object.fromEntries(headers.map(
-      (header, i) => [header, parseLine(chunks[i] || "").words.map(({ w }) => w)]
-    ));
-    data.push(entry);
+    return data2;
   }
+  let w = "";
+  let p;
+  const body = input.slice(headline.length);
+  const vals = [];
+  const data = [];
+  const cap = (v) => {
+    const _v = w.trim() || (vals.length === 0 ? v : w.trim());
+    if (!_v) return;
+    vals.push(_v);
+    if (vals.length === hl) {
+      data.push(Object.fromEntries(headers.map((h, i) => [h, [vals[i]]])));
+      vals.length = 0;
+    }
+    w = "";
+  };
+  for (const c of body) {
+    w += c;
+    if (c === " ") {
+      if (p === "\n") {
+        cap(EMPTY);
+      } else if (p === " ") {
+        cap();
+      }
+    } else if (c === "\n") {
+      cap();
+    }
+    p = c;
+  }
+  cap();
   return data;
 };
 var parsers = {

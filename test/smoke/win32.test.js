@@ -14,6 +14,8 @@
 
 import assert from 'node:assert'
 import { test, describe } from 'node:test'
+import cp from 'child_process'
+import { EOL as SystemEOL } from 'node:os'
 import '../../build/globals.js'
 
 const _describe = process.platform === 'win32' ? describe : describe.skip
@@ -64,5 +66,21 @@ _describe('win32', () => {
 
     assert.match(stdout, /AA-zx-test/)
     assert.match(stdout, /BB-zx-test/)
+  })
+
+  test('ps detects self process', async () => {
+    const fixture = cp.spawnSync('cmd', {
+      input: `wmic process get ProcessId,ParentProcessId,CommandLine${SystemEOL}`,
+    })
+    // console.log('fixture:', fixture.stdout.toString('utf8'))
+    // console.log('fixture base64:', fixture.stdout.toString('base64'))
+    const [root] = await ps.lookup({ pid: process.pid })
+    assert.equal(root.pid, process.pid)
+    // console.log(
+    //   'process.pid:',
+    //   process.pid,
+    //   'process list:',
+    //   JSON.stringify(await ps.lookup(), null, 2)
+    // )
   })
 })
