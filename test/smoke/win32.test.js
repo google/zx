@@ -14,8 +14,7 @@
 
 import assert from 'node:assert'
 import { test, describe } from 'node:test'
-import cp from 'child_process'
-import { EOL as SystemEOL } from 'node:os'
+import process from 'node:process'
 import '../../build/globals.js'
 
 const _describe = process.platform === 'win32' ? describe : describe.skip
@@ -70,6 +69,9 @@ _describe('win32', () => {
 
   test('ps detects self process', async () => {
     const [root] = await ps.lookup({ pid: process.pid })
+    console.log('process.pid:', process.pid)
+    console.log('process list', JSON.stringify(await ps.lookup(), null, 2))
+
     assert.equal(root.pid, process.pid)
   })
 

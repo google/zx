@@ -65,6 +65,7 @@ import 'zx/globals'
     assert.equal(root.pid, process.pid)
   }
 
+  // abort controller
   {
     const ac = new AbortController()
     const { signal } = ac
