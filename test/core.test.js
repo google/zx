@@ -965,11 +965,7 @@ describe('core', () => {
         const p = $`echo foo`
         await p
 
-        try {
-          p.abort()
-        } catch ({ message }) {
-          assert.match(message, /Too late to abort the process/)
-        }
+        assert.throws(() => p.abort(), /Too late to abort the process/)
       })
 
       test('abort signal is transmittable through pipe', async () => {
@@ -1014,21 +1010,16 @@ describe('core', () => {
         const p = $`echo foo`
         await p
 
-        try {
-          p.kill()
-        } catch ({ message }) {
-          assert.match(message, /Too late to kill the process/)
-        }
+        assert.throws(() => p.kill(), /Too late to kill the process/)
       })
 
       test('throws if too early', async () => {
         const p = $({ halt: true })`echo foo`
 
-        try {
-          p.kill()
-        } catch ({ message }) {
-          assert.match(message, /Trying to kill a process without creating one/)
-        }
+        assert.throws(
+          () => p.kill(),
+          /Trying to kill a process without creating one/
+        )
       })
     })
 
