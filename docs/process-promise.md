@@ -255,6 +255,13 @@ setTimeout(() => p.kill('SIGINT'), 100)
 await p
 ```
 
+Killing the expired process raises an error:
+
+```js
+const p = await $`sleep 999`
+p.kill() // Error: Too late to kill the process.
+```
+
 ## `abort()`
 
 Terminates the process via an `AbortController` signal.
@@ -276,6 +283,16 @@ const {signal} = p
 
 const res = fetch('https://example.com', {signal})
 p.abort('reason')
+```
+
+The process may be aborted while executing, the method raises an error otherwise:
+
+```js
+const p = $({nothrow: true})`sleep 999`
+p.abort() // ok
+
+await p
+p.abort() // Error: Too late to abort the process.
 ```
 
 ## `stdio()`

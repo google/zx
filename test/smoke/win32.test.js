@@ -69,9 +69,6 @@ _describe('win32', () => {
 
   test('ps detects self process', async () => {
     const [root] = await ps.lookup({ pid: process.pid })
-    console.log('process.pid:', process.pid)
-    console.log('process list', JSON.stringify(await ps.lookup(), null, 2))
-
     assert.equal(root.pid, process.pid)
   })
 
