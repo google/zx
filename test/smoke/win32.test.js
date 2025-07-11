@@ -14,6 +14,7 @@
 
 import assert from 'node:assert'
 import { test, describe } from 'node:test'
+import process from 'node:process'
 import '../../build/globals.js'
 
 const _describe = process.platform === 'win32' ? describe : describe.skip
@@ -64,5 +65,38 @@ _describe('win32', () => {
 
     assert.match(stdout, /AA-zx-test/)
     assert.match(stdout, /BB-zx-test/)
+  })
+
+  test('ps detects self process', async () => {
+    const [root] = await ps.lookup({ pid: process.pid })
+    console.log('process.pid:', process.pid)
+    console.log('process list', JSON.stringify(await ps.lookup(), null, 2))
+
+    assert.equal(root.pid, process.pid)
+  })
+
+  test('abort controller works', async () => {
+    const ac = new AbortController()
+    const { signal } = ac
+    const p = $({
+      signal,
+      timeout: '5s',
+      nothrow: true,
+      killSignal: 'SIGKILL',
+    })`sleep 10`
+
+    setTimeout(async () => {
+      assert.throws(
+        () => p.abort('SIGINT'),
+        /signal is controlled by another process/
+      )
+      setTimeout(() => {
+        ac.abort('stop')
+      }, 500)
+    }, 500)
+
+    const o = await p
+    assert.equal(o.signal, 'SIGTERM')
+    assert.throws(() => p.kill(), /Too late to kill the process/)
   })
 })

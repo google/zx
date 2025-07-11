@@ -58,6 +58,38 @@ import 'zx/globals'
       await w
     })
   }
+
+  // ps works fine
+  {
+    const [root] = await ps.lookup({ pid: process.pid })
+    assert.equal(root.pid, process.pid)
+  }
+
+  // abort controller
+  {
+    const ac = new AbortController()
+    const { signal } = ac
+    const p = $({
+      signal,
+      timeout: '5s',
+      nothrow: true,
+      killSignal: 'SIGKILL',
+    })`sleep 10`
+
+    setTimeout(async () => {
+      assert.throws(
+        () => p.abort('SIGINT'),
+        /signal is controlled by another process/
+      )
+      setTimeout(() => {
+        ac.abort('stop')
+      }, 500)
+    }, 500)
+
+    const o = await p
+    assert.equal(o.signal, 'SIGTERM')
+    assert.throws(() => p.kill(), /Too late to kill the process/)
+  }
 })()
 
 console.log('smoke mjs: ok')
