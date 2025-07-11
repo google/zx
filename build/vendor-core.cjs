@@ -865,14 +865,17 @@ var gridToData = (grid) => {
   }
   return data;
 };
-var parseWinGrid = (input) => {
-  const _lines = input.split(/\r?\n/);
-  const lines = _lines.filter(Boolean);
+var parseWinGrid = (input, debug = false) => {
+  const lines = input.split(/\r*\n+/).filter(Boolean);
   const headline = lines.shift();
-  const headers = headline.split(/\s+/);
-  const ll = lines[0].length;
+  const headers = headline.trim().split(/\s\s+/);
   const hl = headers.length;
-  if (lines.every((l) => l.length === ll)) {
+  const ll = headline.length;
+  if (debug) {
+    console.log("Headers:", headers);
+    console.log("Line lengths:", lines.map((l) => l.length));
+  }
+  if (lines.every((l) => ll / l.length < 2)) {
     const spaces = Array.from({ length: ll }).map(
       (_, i) => lines.every((l) => l[i] === " ")
     );
@@ -881,6 +884,7 @@ var parseWinGrid = (input) => {
       return m;
     }, [0]);
     const data2 = [];
+    debug && console.log("Borders:", borders);
     for (const line of lines) {
       const props = [];
       for (const i in headers) {
@@ -929,10 +933,10 @@ var parsers = {
   unix: parseUnixGrid,
   win: parseWinGrid
 };
-var parse = (input, { format = "unix" } = {}) => {
+var parse = (input, { format = "unix", debug = false } = {}) => {
   const parser = parsers[format];
   if (!parser) throw new Error(`unsupported format: ${format}`);
-  return parser(input);
+  return parser(input, debug);
 };
 
 // node_modules/zurk/target/esm/spawn.mjs
@@ -1186,10 +1190,13 @@ var exec = (ctx) => invoke(normalizeCtx(ctx));
 
 // node_modules/@webpod/ps/target/esm/index.mjs
 var IS_WIN = import_node_process4.default.platform === "win32";
-var WMIC_INPUT = "wmic process get ProcessId,ParentProcessId,CommandLine" + import_node_os2.EOL;
+var WMIC_INPUT = "wmic process get ProcessId,ParentProcessId,CommandLine";
 var isBin = (f) => {
   if (f === "") return false;
   if (!f.includes("/")) return true;
+  if (!f.includes("\\")) return true;
+  if (f.length > 3 && f[0] === '"')
+    return f[f.length - 1] === '"' ? isBin(f.slice(1, -1)) : false;
   if (!import_node_fs.default.existsSync(f)) return false;
   const stat = import_node_fs.default.lstatSync(f);
   return stat.isFile() || stat.isSymbolicLink();
@@ -1219,8 +1226,8 @@ var _lookup = ({
     cb(null, result);
   };
   const ctx = IS_WIN ? {
-    cmd: "cmd",
-    input: `wmic process get ProcessId,ParentProcessId,CommandLine${import_node_os2.EOL}`,
+    cmd: WMIC_INPUT,
+    args: [],
     callback,
     sync,
     run(cb2) {
@@ -1239,7 +1246,7 @@ var _lookup = ({
   return Object.assign(promise, result);
 };
 var parseProcessList = (output, query = {}) => {
-  const processList = parseGrid(output.trim());
+  const processList = parseGrid(output);
   const pidList = (query.pid === void 0 ? [] : [query.pid].flat(1)).map((v) => v + "");
   const filters = [
     (p) => query.command ? new RegExp(query.command, "i").test(p.command) : true,
@@ -1251,9 +1258,9 @@ var parseProcessList = (output, query = {}) => {
   );
 };
 var removeWmicPrefix = (stdout) => {
-  const s = stdout.indexOf(WMIC_INPUT);
-  const e = stdout.lastIndexOf(import_node_os2.EOL);
-  return (s > 0 ? stdout.slice(s + WMIC_INPUT.length, e) : stdout.slice(0, e)).trim();
+  const s = stdout.indexOf(WMIC_INPUT + import_node_os2.EOL);
+  const e = stdout.includes(">") ? stdout.trimEnd().lastIndexOf(import_node_os2.EOL) : stdout.length;
+  return (s > 0 ? stdout.slice(s + WMIC_INPUT.length, e) : stdout.slice(0, e)).trimStart();
 };
 var pickTree = (list, pid, recursive = false) => {
   const children = list.filter((p) => p.ppid === pid + "");
@@ -1352,7 +1359,8 @@ var formatOutput = (data) => data.reduce((m, d) => {
   var _a, _b, _c, _d;
   const pid = ((_a = d.PID) == null ? void 0 : _a[0]) || ((_b = d.ProcessId) == null ? void 0 : _b[0]);
   const ppid = ((_c = d.PPID) == null ? void 0 : _c[0]) || ((_d = d.ParentProcessId) == null ? void 0 : _d[0]);
-  const cmd = d.CMD || d.CommandLine || d.COMMAND || [];
+  const _cmd = d.CMD || d.CommandLine || d.COMMAND || [];
+  const cmd = _cmd.length === 1 ? _cmd[0].split(/\s+/) : _cmd;
   if (pid && cmd.length > 0) {
     const c = cmd.findIndex((_v, i) => isBin(cmd.slice(0, i).join(" ")));
     const command = cmd.slice(0, c).join(" ");
