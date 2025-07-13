@@ -1193,13 +1193,16 @@ var IS_WIN = import_node_process4.default.platform === "win32";
 var WMIC_INPUT = "wmic process get ProcessId,ParentProcessId,CommandLine";
 var isBin = (f) => {
   if (f === "") return false;
-  if (!f.includes("/")) return true;
-  if (!f.includes("\\")) return true;
+  if (!f.includes("/") && !f.includes("\\")) return true;
   if (f.length > 3 && f[0] === '"')
     return f[f.length - 1] === '"' ? isBin(f.slice(1, -1)) : false;
-  if (!import_node_fs.default.existsSync(f)) return false;
-  const stat = import_node_fs.default.lstatSync(f);
-  return stat.isFile() || stat.isSymbolicLink();
+  try {
+    if (!import_node_fs.default.existsSync(f)) return false;
+    const stat = import_node_fs.default.lstatSync(f);
+    return stat.isFile() || stat.isSymbolicLink();
+  } catch (e) {
+    return false;
+  }
 };
 var lookup = (query = {}, cb = noop2) => _lookup({ query, cb, sync: false });
 var lookupSync = (query = {}, cb = noop2) => _lookup({ query, cb, sync: true });
@@ -1363,8 +1366,8 @@ var formatOutput = (data) => data.reduce((m, d) => {
   const cmd = _cmd.length === 1 ? _cmd[0].split(/\s+/) : _cmd;
   if (pid && cmd.length > 0) {
     const c = cmd.findIndex((_v, i) => isBin(cmd.slice(0, i).join(" ")));
-    const command = cmd.slice(0, c).join(" ");
-    const args = cmd.length > 1 ? cmd.slice(c) : [];
+    const command = (c === -1 ? cmd : cmd.slice(0, c)).join(" ");
+    const args = c === -1 ? [] : cmd.slice(c);
     m.push({
       pid,
       ppid,
