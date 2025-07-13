@@ -1,6 +1,6 @@
 {
   "name": "zx",
-  "version": "8.7.0",
+  "version": "8.7.1",
   "description": "A tool for writing better scripts",
   "type": "module",
   "main": "./build/index.cjs",
@@ -112,7 +112,7 @@
     "@types/node": "24.0.13",
     "@types/which": "3.0.4",
     "@webpod/ingrid": "1.1.1",
-    "@webpod/ps": "0.1.3",
+    "@webpod/ps": "0.1.4",
     "c8": "10.1.3",
     "chalk": "5.4.1",
     "create-require": "1.1.1",
