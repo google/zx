@@ -928,8 +928,22 @@ export function cd(dir: string | ProcessOutput) {
 }
 
 export async function kill(pid: number, signal = $.killSignal) {
-  const children = await ps.tree({ pid, recursive: true })
-  for (const p of children) {
+  if (
+    process.platform === 'win32' &&
+    (await new Promise((resolve) => {
+      exec({
+        cmd: `taskkill /pid ${pid} /t /f`,
+        on: {
+          end({ error }) {
+            resolve(!error)
+          },
+        },
+      })
+    }))
+  )
+    return
+
+  for (const p of await ps.tree({ pid, recursive: true })) {
     try {
       process.kill(+p.pid, signal)
     } catch (e) {}
