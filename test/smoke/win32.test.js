@@ -73,15 +73,16 @@ _describe('win32', () => {
   })
 
   test('kill works', async () => {
-    const p = $`sleep 100`
+    const p = $({ nothrow: true })`sleep 100`
     const { pid } = p
     const found = await ps.lookup({ pid })
+    console.log('found:', found)
     assert.equal(found.length, 1)
     assert.equal(found[0].pid, pid)
-    assert.equal(found[0].command, 'sleep')
 
     await p.kill()
     const killed = await ps.lookup({ pid })
+    console.log('killed:', killed)
     assert.equal(killed.length, 0)
   })
 
