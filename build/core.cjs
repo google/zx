@@ -1010,8 +1010,18 @@ function cd(dir) {
 }
 function kill(_0) {
   return __async(this, arguments, function* (pid, signal = $.killSignal) {
-    const children = yield import_vendor_core2.ps.tree({ pid, recursive: true });
-    for (const p of children) {
+    if (import_node_process2.default.platform === "win32" && (yield new Promise((resolve) => {
+      (0, import_vendor_core2.exec)({
+        cmd: `taskkill /pid ${pid} /t /f`,
+        on: {
+          end({ error }) {
+            resolve(!error);
+          }
+        }
+      });
+    })))
+      return;
+    for (const p of yield import_vendor_core2.ps.tree({ pid, recursive: true })) {
       try {
         import_node_process2.default.kill(+p.pid, signal);
       } catch (e) {

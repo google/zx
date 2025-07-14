@@ -64,6 +64,7 @@ import {
   bufArrJoin,
 } from './util.ts'
 import { log } from './log.ts'
+import * as child_process from 'node:child_process'
 
 export { default as path } from 'node:path'
 export * as os from 'node:os'
@@ -928,8 +929,15 @@ export function cd(dir: string | ProcessOutput) {
 }
 
 export async function kill(pid: number, signal = $.killSignal) {
-  const children = await ps.tree({ pid, recursive: true })
-  for (const p of children) {
+  if (
+    process.platform === 'win32' &&
+    (await new Promise((resolve) => {
+      child_process.exec(`taskkill /pid ${pid} /t /f`, (err) => resolve(!err))
+    }))
+  )
+    return
+
+  for (const p of await ps.tree({ pid, recursive: true })) {
     try {
       process.kill(+p.pid, signal)
     } catch (e) {}

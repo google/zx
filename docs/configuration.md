@@ -12,9 +12,25 @@ Or use a CLI argument: `--shell=/bin/bash`
 
 ## `$.spawn`
 
-Specifies a `spawn` api. Defaults to `require('child_process').spawn`.
+Specifies a `spawn` api. Defaults to native `child_process.spawn`.
 
 To override a sync API implementation, set `$.spawnSync` correspondingly.
+
+## `$.kill`
+Specifies a `kill` function. The default implements _half-graceful shutdown_ via `ps.tree()`. You can override with more sophisticated logic.
+
+```js
+import treekill from 'tree-kill'
+
+$.kill = (pid, signal = 'SIGTERM') => {
+  return new Promise((resolve, reject) => {
+    treekill(pid, signal, (err) => {
+      if (err) reject(err)
+      else resolve()
+    })
+  })
+}
+```
 
 ## `$.prefix`
 
@@ -160,6 +176,7 @@ $.defaults = {
   spawn:          childProcess.spawn,
   spawnSync:      childProcess.spawnSync,
   log:            $.log,
+  kill:           $.kill,
   killSignal:     'SIGTERM',
   timeoutSignal:  'SIGTERM',
   delimiter:      /\r?\n/,
