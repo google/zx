@@ -1178,15 +1178,16 @@ describe('core', () => {
 
     describe('timeout()', () => {
       test('expiration works', async () => {
+        await $`sleep 1`.timeout(1000)
         let exitCode, signal
         try {
-          await $`sleep 1`.timeout(999)
+          await $`sleep 1`.timeout(200)
         } catch (p) {
           exitCode = p.exitCode
           signal = p.signal
         }
-        assert.equal(exitCode, undefined)
-        assert.equal(signal, undefined)
+        assert.equal(exitCode, null)
+        assert.equal(signal, 'SIGTERM')
       })
 
       test('accepts a signal opt', async () => {

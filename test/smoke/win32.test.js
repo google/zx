@@ -72,6 +72,20 @@ _describe('win32', () => {
     assert.equal(root.pid, process.pid)
   })
 
+  test('kill works', async () => {
+    const p = $({ nothrow: true })`sleep 100`
+    const { pid } = p
+    const found = await ps.lookup({ pid })
+    console.log('found:', found)
+    assert.equal(found.length, 1)
+    assert.equal(found[0].pid, pid)
+
+    await p.kill()
+    const killed = await ps.lookup({ pid })
+    console.log('killed:', killed)
+    assert.equal(killed.length, 0)
+  })
+
   test('abort controller works', async () => {
     const ac = new AbortController()
     const { signal } = ac
@@ -94,6 +108,7 @@ _describe('win32', () => {
 
     const o = await p
     assert.equal(o.signal, 'SIGTERM')
+    assert.throws(() => p.abort(), /Too late to abort the process/)
     assert.throws(() => p.kill(), /Too late to kill the process/)
   })
 })
