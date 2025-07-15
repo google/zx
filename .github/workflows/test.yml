@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  # Install dependencies once and share across jobs
+  # Install dependencies once and share cache across jobs
   dependencies:
     runs-on: ubuntu-latest
     steps:
@@ -25,13 +25,6 @@ jobs:
           cache: 'npm'
 
       - run: npm ci
-      - uses: actions/upload-artifact@v4
-        with:
-          name: dependencies
-          path: |
-            node_modules
-            package-lock.json
-          retention-days: 1
 
   build:
     needs: dependencies
@@ -45,11 +38,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22.x
+          cache: 'npm'
 
-      - uses: actions/download-artifact@v4
-        with:
-          name: dependencies
-
+      - run: npm ci
       - run: |
           npm run build
           cd build && ls -l
@@ -74,13 +65,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22.x
+          cache: 'npm'
 
       - uses: actions/download-artifact@v4
         with:
-          name: dependencies
-      - uses: actions/download-artifact@v4
-        with:
           name: build
+      - run: npm ci
 
       - name: Format
         run: npm run fmt:check
@@ -123,13 +113,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22.x
+          cache: 'npm'
 
       - uses: actions/download-artifact@v4
         with:
-          name: dependencies
-      - uses: actions/download-artifact@v4
-        with:
           name: build
+      - run: npm ci
 
       - name: Unit tests
         run: npm run test:coverage
@@ -285,9 +274,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22.x
-      - uses: actions/download-artifact@v4
-        with:
-          name: dependencies
+          cache: 'npm'
+      - run: npm ci
       - name: Install TypeScript ${{ matrix.ts }}
         run: npm i --force --no-package-lock --no-fund typescript@${{ matrix.ts }}
       - uses: actions/download-artifact@v4
