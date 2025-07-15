@@ -20,6 +20,7 @@ declare global {
     var minimist: typeof _.minimist;
     var nothrow: typeof _.nothrow;
     var os: typeof _.os;
+    var parseArgv: typeof _.parseArgv;
     var path: typeof _.path;
     var ps: typeof _.ps;
     var question: typeof _.question;

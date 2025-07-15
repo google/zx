@@ -500,13 +500,13 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       const [cmd, from, snapshot] = boundCtxs.pop();
       this._command = cmd;
       this._from = from;
+      this._snapshot = __spreadValues({ ac: new AbortController() }, snapshot);
       this._resolve = resolve;
       this._reject = (v) => {
         reject(v);
         if (snapshot[SYNC]) throw v;
       };
-      this._snapshot = __spreadValues({ ac: new AbortController() }, snapshot);
-      if (this._snapshot.halt) this._stage = "halted";
+      if (snapshot.halt) this._stage = "halted";
     } else _ProcessPromise.disarm(this);
   }
   run() {
@@ -897,12 +897,6 @@ var _ProcessOutput = class _ProcessOutput extends Error {
   get ok() {
     return !this._dto.error && this.exitCode === 0;
   }
-  [Symbol.toPrimitive]() {
-    return this.valueOf();
-  }
-  toString() {
-    return this.stdall;
-  }
   json() {
     return JSON.parse(this.stdall);
   }
@@ -923,8 +917,14 @@ var _ProcessOutput = class _ProcessOutput extends Error {
     delimiters.push(delimiter);
     return [...this];
   }
+  toString() {
+    return this.stdall;
+  }
   valueOf() {
     return this.stdall.trim();
+  }
+  [Symbol.toPrimitive]() {
+    return this.valueOf();
   }
   *[Symbol.iterator]() {
     const memo = [];

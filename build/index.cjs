@@ -54,21 +54,18 @@ var import_node_buffer = require("buffer");
 var import_node_process = __toESM(require("process"), 1);
 var import_node_readline = require("readline");
 var import_node_stream = require("stream");
-var import_node_fs = __toESM(require("fs"), 1);
-var import_node_path = __toESM(require("path"), 1);
-var import_node_os = __toESM(require("os"), 1);
 var import_core = require("./core.cjs");
 var import_util = require("./util.cjs");
 var import_vendor = require("./vendor.cjs");
 function tempdir(prefix = `zx-${(0, import_util.randomId)()}`, mode) {
-  const dirpath = import_node_path.default.join(import_node_os.default.tmpdir(), prefix);
-  import_node_fs.default.mkdirSync(dirpath, { recursive: true, mode });
+  const dirpath = import_core.path.join(import_core.os.tmpdir(), prefix);
+  import_vendor.fs.mkdirSync(dirpath, { recursive: true, mode });
   return dirpath;
 }
 function tempfile(name, data, mode) {
-  const filepath = name ? import_node_path.default.join(tempdir(), name) : import_node_path.default.join(import_node_os.default.tmpdir(), `zx-${(0, import_util.randomId)()}`);
-  if (data === void 0) import_node_fs.default.closeSync(import_node_fs.default.openSync(filepath, "w", mode));
-  else import_node_fs.default.writeFileSync(filepath, data, { mode });
+  const filepath = name ? import_core.path.join(tempdir(), name) : import_core.path.join(import_core.os.tmpdir(), `zx-${(0, import_util.randomId)()}`);
+  if (data === void 0) import_vendor.fs.closeSync(import_vendor.fs.openSync(filepath, "w", mode));
+  else import_vendor.fs.writeFileSync(filepath, data, { mode });
   return filepath;
 }
 var parseArgv = (args = import_node_process.default.argv.slice(2), opts = {}, defs = {}) => Object.entries((0, import_vendor.minimist)(args, opts)).reduce(
@@ -100,8 +97,7 @@ var responseToReadable = (response, rs) => {
   }
   rs._read = () => __async(null, null, function* () {
     const result = yield reader.read();
-    if (!result.done) rs.push(import_node_buffer.Buffer.from(result.value));
-    else rs.push(null);
+    rs.push(result.done ? null : import_node_buffer.Buffer.from(result.value));
   });
   return rs;
 };
@@ -142,13 +138,10 @@ function question(_0) {
     input = import_node_process.default.stdin,
     output = import_node_process.default.stdout
   } = {}) {
-    let completer = void 0;
-    if (Array.isArray(choices)) {
-      completer = function completer2(line) {
-        const hits = choices.filter((c) => c.startsWith(line));
-        return [hits.length ? hits : choices, line];
-      };
-    }
+    const completer = Array.isArray(choices) ? (line) => {
+      const hits = choices.filter((c) => c.startsWith(line));
+      return [hits.length ? hits : choices, line];
+    } : void 0;
     const rl = (0, import_node_readline.createInterface)({
       input,
       output,
