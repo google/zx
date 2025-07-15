@@ -16,6 +16,9 @@ import { Buffer } from 'node:buffer'
 import process from 'node:process'
 import { createInterface } from 'node:readline'
 import { Readable } from 'node:stream'
+import fs, { type Mode } from 'node:fs'
+import path from 'node:path'
+import os from 'node:os'
 import { $, within, ProcessOutput, type ProcessPromise } from './core.ts'
 import {
   type Duration,
@@ -24,6 +27,7 @@ import {
   isStringLiteral,
   parseBool,
   parseDuration,
+  randomId,
   toCamelCase,
 } from './util.ts'
 import {
@@ -32,6 +36,33 @@ import {
   nodeFetch,
   minimist,
 } from './vendor.ts'
+
+export function tempdir(
+  prefix: string = `zx-${randomId()}`,
+  mode?: Mode
+): string {
+  const dirpath = path.join(os.tmpdir(), prefix)
+  fs.mkdirSync(dirpath, { recursive: true, mode })
+
+  return dirpath
+}
+
+export function tempfile(
+  name?: string,
+  data?: string | Buffer,
+  mode?: Mode
+): string {
+  const filepath = name
+    ? path.join(tempdir(), name)
+    : path.join(os.tmpdir(), `zx-${randomId()}`)
+
+  if (data === undefined) fs.closeSync(fs.openSync(filepath, 'w', mode))
+  else fs.writeFileSync(filepath, data, { mode })
+
+  return filepath
+}
+
+export { tempdir as tmpdir, tempfile as tmpfile }
 
 type ArgvOpts = minimist.Opts & { camelCase?: boolean; parseBoolean?: boolean }
 

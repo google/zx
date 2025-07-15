@@ -13,7 +13,7 @@ export { default as path } from 'node:path';
 export * as os from 'node:os';
 export { log, type LogEntry } from './log.js';
 export { chalk, which, ps } from './vendor-core.js';
-export { quote, quotePowerShell } from './util.js';
+export { type Duration, quote, quotePowerShell } from './util.js';
 declare const CWD: unique symbol;
 declare const SYNC: unique symbol;
 export declare function within<R>(callback: () => R): R;
