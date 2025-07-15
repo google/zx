@@ -27,27 +27,12 @@ __export(util_exports, {
   quote: () => quote,
   quotePowerShell: () => quotePowerShell,
   randomId: () => randomId,
-  tempdir: () => tempdir,
-  tempfile: () => tempfile,
   toCamelCase: () => toCamelCase
 });
 module.exports = __toCommonJS(util_exports);
-var import_node_os = __toESM(require("os"), 1);
 var import_node_path = __toESM(require("path"), 1);
-var import_node_fs = __toESM(require("fs"), 1);
 var import_node_process = __toESM(require("process"), 1);
 var import_vendor_core = require("./vendor-core.cjs");
-function tempdir(prefix = `zx-${randomId()}`, mode) {
-  const dirpath = import_node_path.default.join(import_node_os.default.tmpdir(), prefix);
-  import_node_fs.default.mkdirSync(dirpath, { recursive: true, mode });
-  return dirpath;
-}
-function tempfile(name, data, mode) {
-  const filepath = name ? import_node_path.default.join(tempdir(), name) : import_node_path.default.join(import_node_os.default.tmpdir(), `zx-${randomId()}`);
-  if (data === void 0) import_node_fs.default.closeSync(import_node_fs.default.openSync(filepath, "w", mode));
-  else import_node_fs.default.writeFileSync(filepath, data, { mode });
-  return filepath;
-}
 function noop() {
 }
 function identity(v) {
@@ -135,7 +120,5 @@ var getLines = (chunk, next, delimiter) => {
   quote,
   quotePowerShell,
   randomId,
-  tempdir,
-  tempfile,
   toCamelCase
 });

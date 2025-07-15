@@ -1,7 +1,12 @@
+import { Buffer } from 'node:buffer';
 import { Readable } from 'node:stream';
+import { type Mode } from 'node:fs';
 import { type ProcessPromise } from './core.js';
 import { type Duration } from './util.js';
 import { type RequestInfo, type RequestInit, minimist } from './vendor.js';
+export declare function tempdir(prefix?: string, mode?: Mode): string;
+export declare function tempfile(name?: string, data?: string | Buffer, mode?: Mode): string;
+export { tempdir as tmpdir, tempfile as tmpfile };
 type ArgvOpts = minimist.Opts & {
     camelCase?: boolean;
     parseBoolean?: boolean;
@@ -28,4 +33,3 @@ export declare function retry<T>(count: number, duration: Duration | Generator<n
 export declare function expBackoff(max?: Duration, delay?: Duration): Generator<number, void, unknown>;
 export declare function spinner<T>(callback: () => T): Promise<T>;
 export declare function spinner<T>(title: string, callback: () => T): Promise<T>;
-export {};

@@ -26,16 +26,6 @@ export const VERSION: string =
 
 export const version: string = VERSION
 
-export {
-  type Duration,
-  quote,
-  quotePowerShell,
-  tempdir,
-  tempdir as tmpdir,
-  tempfile,
-  tempfile as tmpfile,
-} from './util.ts'
-
 /**
  *  @deprecated Use $`cmd`.nothrow() instead.
  */

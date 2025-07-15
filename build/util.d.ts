@@ -1,9 +1,6 @@
-import { type Mode } from 'node:fs';
 import { type Buffer } from 'node:buffer';
 import { type TSpawnStoreChunks } from './vendor-core.js';
 export { isStringLiteral } from './vendor-core.js';
-export declare function tempdir(prefix?: string, mode?: Mode): string;
-export declare function tempfile(name?: string, data?: string | Buffer, mode?: Mode): string;
 export declare function noop(): void;
 export declare function identity<T>(v: T): T;
 export declare function randomId(): string;
