@@ -12,13 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import os from 'node:os'
-import path from 'node:path'
 import process from 'node:process'
 import repl from 'node:repl'
 import { inspect } from 'node:util'
-import { ProcessOutput, defaults } from './core.ts'
-import { chalk } from './vendor-core.ts'
+import { ProcessOutput, defaults, chalk, path, os } from './core.ts'
 
 const HISTORY =
   process.env.ZX_REPL_HISTORY ?? path.join(os.homedir(), '.zx_repl_history')

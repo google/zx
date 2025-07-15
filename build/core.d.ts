@@ -166,14 +166,14 @@ export declare class ProcessOutput extends Error {
     get duration(): number;
     get [Symbol.toStringTag](): string;
     get ok(): boolean;
-    [Symbol.toPrimitive](): string;
-    toString(): string;
     json<T = any>(): T;
     buffer(): Buffer;
     blob(type?: string): Blob;
     text(encoding?: Encoding): string;
     lines(delimiter?: string | RegExp): string[];
+    toString(): string;
     valueOf(): string;
+    [Symbol.toPrimitive](): string;
     [Symbol.iterator](): Iterator<string>;
     [inspect.custom](): string;
     static getExitMessage: (code: number | null, signal: NodeJS.Signals | null, stderr: string, from: string, details?: string) => string;

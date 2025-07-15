@@ -125,6 +125,7 @@ export async function main(): Promise<void> {
   await runScript(script, scriptPath, tempPath)
 }
 
+const rmrf = (p: string) => p && fs.rmSync(p, { force: true, recursive: true })
 async function runScript(
   script: string,
   scriptPath: string,
@@ -132,8 +133,8 @@ async function runScript(
 ): Promise<void> {
   let nmLink = ''
   const rmTemp = () => {
-    fs.rmSync(tempPath, { force: true, recursive: true })
-    nmLink && fs.rmSync(nmLink, { force: true, recursive: true })
+    rmrf(tempPath)
+    rmrf(nmLink)
   }
   try {
     if (tempPath) {

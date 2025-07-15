@@ -16,10 +16,15 @@ import { Buffer } from 'node:buffer'
 import process from 'node:process'
 import { createInterface } from 'node:readline'
 import { Readable } from 'node:stream'
-import fs, { type Mode } from 'node:fs'
-import path from 'node:path'
-import os from 'node:os'
-import { $, within, ProcessOutput, type ProcessPromise } from './core.ts'
+import { type Mode } from 'node:fs'
+import {
+  $,
+  within,
+  ProcessOutput,
+  type ProcessPromise,
+  path,
+  os,
+} from './core.ts'
 import {
   type Duration,
   getLast,
@@ -35,6 +40,7 @@ import {
   type RequestInit,
   nodeFetch,
   minimist,
+  fs,
 } from './vendor.ts'
 
 export function tempdir(
@@ -103,8 +109,7 @@ const responseToReadable = (response: Response, rs: Readable) => {
   }
   rs._read = async () => {
     const result = await reader.read()
-    if (!result.done) rs.push(Buffer.from(result.value))
-    else rs.push(null)
+    rs.push(result.done ? null : Buffer.from(result.value))
   }
   return rs
 }
@@ -164,14 +169,13 @@ export async function question(
     output?: NodeJS.WriteStream
   } = {}
 ): Promise<string> {
-  let completer = undefined
-  if (Array.isArray(choices)) {
-    /* c8 ignore next 5 */
-    completer = function completer(line: string) {
-      const hits = choices.filter((c) => c.startsWith(line))
-      return [hits.length ? hits : choices, line]
-    }
-  }
+  /* c8 ignore next 5 */
+  const completer = Array.isArray(choices)
+    ? (line: string) => {
+        const hits = choices.filter((c) => c.startsWith(line))
+        return [hits.length ? hits : choices, line]
+      }
+    : undefined
   const rl = createInterface({
     input,
     output,

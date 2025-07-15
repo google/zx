@@ -264,13 +264,13 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       const [cmd, from, snapshot] = boundCtxs.pop()!
       this._command = cmd
       this._from = from
+      this._snapshot = { ac: new AbortController(), ...snapshot }
       this._resolve = resolve!
       this._reject = (v: ProcessOutput) => {
         reject!(v)
         if (snapshot[SYNC]) throw v
       }
-      this._snapshot = { ac: new AbortController(), ...snapshot }
-      if (this._snapshot.halt) this._stage = 'halted'
+      if (snapshot.halt) this._stage = 'halted'
     } else ProcessPromise.disarm(this)
   }
 
@@ -783,14 +783,6 @@ export class ProcessOutput extends Error {
     return !this._dto.error && this.exitCode === 0
   }
 
-  [Symbol.toPrimitive](): string {
-    return this.valueOf()
-  }
-
-  override toString(): string {
-    return this.stdall
-  }
-
   json<T = any>(): T {
     return JSON.parse(this.stdall)
   }
@@ -818,8 +810,16 @@ export class ProcessOutput extends Error {
     return [...this]
   }
 
+  override toString(): string {
+    return this.stdall
+  }
+
   override valueOf(): string {
     return this.stdall.trim()
+  }
+
+  [Symbol.toPrimitive](): string {
+    return this.valueOf()
   }
 
   *[Symbol.iterator](): Iterator<string> {

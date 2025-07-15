@@ -32,20 +32,17 @@ var import_index = require("./index.cjs");
 var import_deps = require("./deps.cjs");
 
 // src/repl.ts
-var import_node_os = __toESM(require("os"), 1);
-var import_node_path = __toESM(require("path"), 1);
 var import_node_process = __toESM(require("process"), 1);
 var import_node_repl = __toESM(require("repl"), 1);
 var import_node_util = require("util");
 var import_core = require("./core.cjs");
-var import_vendor_core = require("./vendor-core.cjs");
 var _a;
-var HISTORY = (_a = import_node_process.default.env.ZX_REPL_HISTORY) != null ? _a : import_node_path.default.join(import_node_os.default.homedir(), ".zx_repl_history");
+var HISTORY = (_a = import_node_process.default.env.ZX_REPL_HISTORY) != null ? _a : import_core.path.join(import_core.os.homedir(), ".zx_repl_history");
 function startRepl() {
   return __async(this, arguments, function* (history = HISTORY) {
     import_core.defaults.verbose = false;
     const r = import_node_repl.default.start({
-      prompt: import_vendor_core.chalk.greenBright.bold("\u276F "),
+      prompt: import_core.chalk.greenBright.bold("\u276F "),
       useGlobal: true,
       preview: false,
       writer(output) {
@@ -220,12 +217,13 @@ function main() {
     yield runScript(script, scriptPath, tempPath);
   });
 }
+var rmrf = (p) => p && import_index.fs.rmSync(p, { force: true, recursive: true });
 function runScript(script, scriptPath, tempPath) {
   return __async(this, null, function* () {
     let nmLink = "";
     const rmTemp = () => {
-      import_index.fs.rmSync(tempPath, { force: true, recursive: true });
-      nmLink && import_index.fs.rmSync(nmLink, { force: true, recursive: true });
+      rmrf(tempPath);
+      rmrf(nmLink);
     };
     try {
       if (tempPath) {
