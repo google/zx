@@ -15,7 +15,7 @@
 import assert from 'node:assert'
 import { test, describe, after } from 'node:test'
 import { Duplex } from 'node:stream'
-import { $, chalk, fs, path, tempfile, dotenv } from '../src/index.ts'
+import { $, chalk, fs, path, dotenv } from '../src/index.ts'
 import {
   echo,
   sleep,
@@ -28,6 +28,10 @@ import {
   retry,
   question,
   expBackoff,
+  tempfile,
+  tempdir,
+  tmpdir,
+  tmpfile,
 } from '../src/goods.ts'
 import { Writable } from 'node:stream'
 import process from 'node:process'
@@ -440,6 +444,24 @@ ENV5=v5 # comment
         assert.equal(process.env.ENV1, 'value1')
         delete process.env.ENV1
       })
+    })
+  })
+
+  describe('temp*', () => {
+    test('tempdir() creates temporary folders', () => {
+      assert.equal(tmpdir, tempdir)
+      assert.match(tempdir(), /\/zx-/)
+      assert.match(tempdir('foo'), /\/foo$/)
+    })
+
+    test('tempfile() creates temporary files', () => {
+      assert.equal(tmpfile, tempfile)
+      assert.match(tempfile(), /\/zx-.+/)
+      assert.match(tempfile('foo.txt'), /\/zx-.+\/foo\.txt$/)
+
+      const tf = tempfile('bar.txt', 'bar')
+      assert.match(tf, /\/zx-.+\/bar\.txt$/)
+      assert.equal(fs.readFileSync(tf, 'utf-8'), 'bar')
     })
   })
 })

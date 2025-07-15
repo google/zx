@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import assert from 'node:assert'
-import fs from 'node:fs'
 import { test, describe } from 'node:test'
 import {
   isString,
@@ -25,8 +24,6 @@ import {
   quotePowerShell,
   randomId,
   // normalizeMultilinePieces,
-  tempdir,
-  tempfile,
   preferLocalBin,
   toCamelCase,
   getLast,
@@ -90,20 +87,6 @@ describe('util', () => {
   //     ' a ,b c d, e'
   //   )
   // })
-
-  test('tempdir() creates temporary folders', () => {
-    assert.match(tempdir(), /\/zx-/)
-    assert.match(tempdir('foo'), /\/foo$/)
-  })
-
-  test('tempfile() creates temporary files', () => {
-    assert.match(tempfile(), /\/zx-.+/)
-    assert.match(tempfile('foo.txt'), /\/zx-.+\/foo\.txt$/)
-
-    const tf = tempfile('bar.txt', 'bar')
-    assert.match(tf, /\/zx-.+\/bar\.txt$/)
-    assert.equal(fs.readFileSync(tf, 'utf-8'), 'bar')
-  })
 
   test('preferLocalBin()', () => {
     const env = {
