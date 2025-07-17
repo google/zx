@@ -74,11 +74,27 @@ export function preferLocalBin(
 
 export function quote(arg: string): string {
   if (arg === '') return `$''`
-  if (/^[\w/.\-@:=]+$/.test(arg)) return arg
+
+  let processedArg = arg
+  if (process.platform === 'win32') {
+    const msystem = process.env.MSYSTEM
+    if (msystem && (msystem.startsWith('MINGW') || msystem === 'MSYS')) {
+      const absoluteMatch = arg.match(/^([A-Za-z]):[\\/](.*)/)
+      if (absoluteMatch) {
+        const [, drive, rest] = absoluteMatch
+        const posixRest = rest.replace(/\\/g, '/')
+        processedArg = `/${drive.toLowerCase()}/${posixRest}`
+      } else {
+        processedArg = arg.replace(/\\/g, '/')
+      }
+    }
+  }
+
+  if (/^[\w/.\-@:=]+$/.test(processedArg)) return processedArg
 
   return (
     `$'` +
-    arg
+    processedArg
       .replace(/\\/g, '\\\\')
       .replace(/'/g, "\\'")
       .replace(/\f/g, '\\f')
