@@ -192,13 +192,12 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
       pieces as TemplateStringsArray,
       args
     ) as string
-    const sync = snapshot[SYNC]
     boundCtxs.push([cmd, from, snapshot])
     const process = new ProcessPromise(noop)
 
-    if (!process.isHalted() || sync) process.run()
+    if (!process.isHalted()) process.run()
 
-    return sync ? process.output : process
+    return process.output || process
   } as Shell & Options,
   {
     set(_, key, value) {
@@ -268,7 +267,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       this._resolve = resolve!
       this._reject = (v: ProcessOutput) => {
         reject!(v)
-        if (snapshot[SYNC]) throw v
+        if (this.isSync()) throw v
       }
       if (snapshot.halt) this._stage = 'halted'
     } else ProcessPromise.disarm(this)
@@ -282,7 +281,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     const self = this
     const $ = self._snapshot
     const id = self.id
-    const sync = $[SYNC]
     const timeout = self._timeout ?? $.timeout
     const timeoutSignal = self._timeoutSignal ?? $.timeoutSignal
 
@@ -294,8 +292,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
     // prettier-ignore
     this._zurk = exec({
-      sync,
       id,
+      sync:     self.isSync(),
       cmd:      self.fullCmd,
       cwd:      $.cwd ?? $[CWD],
       input:    ($.input as ProcessPromise | ProcessOutput)?.stdout ?? $.input,
@@ -322,7 +320,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       on: {
         start: () => {
           $.log({ kind: 'cmd', cmd: self.cmd, verbose: self.isVerbose(), id })
-          !sync && timeout && self.timeout(timeout, timeoutSignal)
+          self.timeout(timeout, timeoutSignal)
         },
         stdout: (data) => {
           // If the process is piped, don't print its output.
@@ -437,12 +435,13 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   abort(reason?: string) {
     if (this.isSettled()) throw new Error('Too late to abort the process.')
-    if (this.signal !== this._snapshot.ac?.signal)
+    const { ac } = this._snapshot
+    if (this.signal !== ac!.signal)
       throw new Error('The signal is controlled by another process.')
     if (!this.child)
       throw new Error('Trying to abort a process without creating one.')
 
-    this._zurk?.ac.abort(reason)
+    ac!.abort(reason)
   }
 
   kill(signal = $.killSignal): Promise<void> {
@@ -549,7 +548,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   timeout(
-    d: Duration,
+    d: Duration = 0,
     signal = this._timeoutSignal || $.timeoutSignal
   ): ProcessPromise {
     if (this.isSettled()) return this
@@ -603,7 +602,11 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   isHalted(): boolean {
-    return this.stage === 'halted'
+    return this.stage === 'halted' && !this.isSync()
+  }
+
+  private isSync(): boolean {
+    return this._snapshot[SYNC]
   }
 
   private isSettled(): boolean {

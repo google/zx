@@ -70,6 +70,7 @@ describe('util', () => {
   })
 
   test('duration parsing works', () => {
+    assert.equal(parseDuration(0), 0)
     assert.equal(parseDuration(1000), 1000)
     assert.equal(parseDuration('100'), 100)
     assert.equal(parseDuration('2s'), 2000)

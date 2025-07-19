@@ -119,7 +119,7 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     nothrow(v?: boolean): ProcessPromise;
     quiet(v?: boolean): ProcessPromise;
     verbose(v?: boolean): ProcessPromise;
-    timeout(d: Duration, signal?: NodeJS.Signals | undefined): ProcessPromise;
+    timeout(d?: Duration, signal?: NodeJS.Signals | undefined): ProcessPromise;
     json<T = any>(): Promise<T>;
     text(encoding?: Encoding): Promise<string>;
     lines(delimiter?: string | RegExp): Promise<string[]>;
@@ -129,6 +129,7 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     isVerbose(): boolean;
     isNothrow(): boolean;
     isHalted(): boolean;
+    private isSync;
     private isSettled;
     private isRunning;
     then<R = ProcessOutput, E = ProcessOutput>(onfulfilled?: ((value: ProcessOutput) => PromiseLike<R> | R) | undefined | null, onrejected?: ((reason: ProcessOutput) => PromiseLike<E> | E) | undefined | null): Promise<R | E>;

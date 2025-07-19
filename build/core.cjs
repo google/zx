@@ -454,11 +454,10 @@ var $ = new Proxy(
       pieces,
       args
     );
-    const sync = snapshot[SYNC];
     boundCtxs.push([cmd, from, snapshot]);
     const process3 = new ProcessPromise(import_util.noop);
-    if (!process3.isHalted() || sync) process3.run();
-    return sync ? process3.output : process3;
+    if (!process3.isHalted()) process3.run();
+    return process3.output || process3;
   },
   {
     set(_, key, value) {
@@ -504,7 +503,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       this._resolve = resolve;
       this._reject = (v) => {
         reject(v);
-        if (snapshot[SYNC]) throw v;
+        if (this.isSync()) throw v;
       };
       if (snapshot.halt) this._stage = "halted";
     } else _ProcessPromise.disarm(this);
@@ -517,7 +516,6 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     const self = this;
     const $2 = self._snapshot;
     const id = self.id;
-    const sync = $2[SYNC];
     const timeout = (_b = self._timeout) != null ? _b : $2.timeout;
     const timeoutSignal = (_c = self._timeoutSignal) != null ? _c : $2.timeoutSignal;
     if ($2.preferLocal) {
@@ -525,8 +523,8 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       $2.env = (0, import_util.preferLocalBin)($2.env, ...dirs);
     }
     this._zurk = (0, import_vendor_core2.exec)({
-      sync,
       id,
+      sync: self.isSync(),
       cmd: self.fullCmd,
       cwd: (_d = $2.cwd) != null ? _d : $2[CWD],
       input: (_f = (_e = $2.input) == null ? void 0 : _e.stdout) != null ? _f : $2.input,
@@ -554,7 +552,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       on: {
         start: () => {
           $2.log({ kind: "cmd", cmd: self.cmd, verbose: self.isVerbose(), id });
-          !sync && timeout && self.timeout(timeout, timeoutSignal);
+          self.timeout(timeout, timeoutSignal);
         },
         stdout: (data) => {
           if (self._piped) return;
@@ -633,13 +631,13 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     return promisifyStream(dest, this);
   }
   abort(reason) {
-    var _a, _b;
     if (this.isSettled()) throw new Error("Too late to abort the process.");
-    if (this.signal !== ((_a = this._snapshot.ac) == null ? void 0 : _a.signal))
+    const { ac } = this._snapshot;
+    if (this.signal !== ac.signal)
       throw new Error("The signal is controlled by another process.");
     if (!this.child)
       throw new Error("Trying to abort a process without creating one.");
-    (_b = this._zurk) == null ? void 0 : _b.ac.abort(reason);
+    ac.abort(reason);
   }
   kill(signal = $.killSignal) {
     if (this.isSettled()) throw new Error("Too late to kill the process.");
@@ -723,7 +721,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     this._verbose = v;
     return this;
   }
-  timeout(d, signal = this._timeoutSignal || $.timeoutSignal) {
+  timeout(d = 0, signal = this._timeoutSignal || $.timeoutSignal) {
     if (this.isSettled()) return this;
     this._timeout = (0, import_util.parseDuration)(d);
     this._timeoutSignal = signal;
@@ -767,7 +765,10 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     return (_a = this._nothrow) != null ? _a : this._snapshot.nothrow;
   }
   isHalted() {
-    return this.stage === "halted";
+    return this.stage === "halted" && !this.isSync();
+  }
+  isSync() {
+    return this._snapshot[SYNC];
   }
   isSettled() {
     return !!this.output;
