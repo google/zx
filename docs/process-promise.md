@@ -366,7 +366,7 @@ await $`echo foo`.verbose(false) // Turn off verbose mode once
 
 ## `timeout()`
 
-Kills the process after a specified timeout.
+Kills the process after a specified period.
 
 ```js
 await $`sleep 999`.timeout('5s')
@@ -374,3 +374,5 @@ await $`sleep 999`.timeout('5s')
 // Or with a specific signal.
 await $`sleep 999`.timeout('5s', 'SIGKILL')
 ```
+
+If the process is already settled, the method does nothing. Passing nullish value will disable the timeout.
