@@ -488,6 +488,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     this._snapshot = getStore();
     this._piped = false;
     this._ee = new import_node_events.EventEmitter();
+    this._ac = new AbortController();
     this._stdin = new import_vendor_core2.VoidStream();
     this._zurk = null;
     this._output = null;
@@ -499,7 +500,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       const [cmd, from, snapshot] = boundCtxs.pop();
       this._command = cmd;
       this._from = from;
-      this._snapshot = __spreadValues({ ac: new AbortController() }, snapshot);
+      this._snapshot = __spreadValues({}, snapshot);
       this._resolve = resolve;
       this._reject = (v) => {
         reject(v);
@@ -528,8 +529,8 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       cmd: self.fullCmd,
       cwd: (_d = $2.cwd) != null ? _d : $2[CWD],
       input: (_f = (_e = $2.input) == null ? void 0 : _e.stdout) != null ? _f : $2.input,
-      ac: $2.ac,
-      signal: $2.signal,
+      ac: self.ac,
+      signal: self.signal,
       shell: (0, import_util.isString)($2.shell) ? $2.shell : true,
       env: $2.env,
       spawn: $2.spawn,
@@ -592,8 +593,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       return this.pipe[source](
         $({
           halt: true,
-          ac: this._snapshot.ac,
-          signal: this._snapshot.signal
+          signal: this.signal
         })(dest, ...args)
       );
     this._piped = true;
@@ -632,12 +632,11 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
   }
   abort(reason) {
     if (this.isSettled()) throw new Error("Too late to abort the process.");
-    const { ac } = this._snapshot;
-    if (this.signal !== ac.signal)
+    if (this.signal !== this.ac.signal)
       throw new Error("The signal is controlled by another process.");
     if (!this.child)
       throw new Error("Trying to abort a process without creating one.");
-    ac.abort(reason);
+    this.ac.abort(reason);
   }
   kill(signal = $.killSignal) {
     if (this.isSettled()) throw new Error("Too late to kill the process.");
@@ -689,8 +688,10 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     );
   }
   get signal() {
-    var _a;
-    return this._snapshot.signal || ((_a = this._snapshot.ac) == null ? void 0 : _a.signal);
+    return this._snapshot.signal || this.ac.signal;
+  }
+  get ac() {
+    return this._snapshot.ac || this._ac;
   }
   get output() {
     return this._output;

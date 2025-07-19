@@ -84,6 +84,7 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     private _piped;
     private _pipedFrom?;
     private _ee;
+    private _ac;
     private _stdin;
     private _zurk;
     private _output;
@@ -110,7 +111,8 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     get stdout(): Readable;
     get stderr(): Readable;
     get exitCode(): Promise<number | null>;
-    get signal(): AbortSignal | undefined;
+    get signal(): AbortSignal;
+    get ac(): AbortController;
     get output(): ProcessOutput | null;
     get stage(): ProcessStage;
     get [Symbol.toStringTag](): string;
