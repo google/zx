@@ -245,6 +245,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _piped = false
   private _pipedFrom?: ProcessPromise
   private _ee = new EventEmitter()
+  private _ac = new AbortController()
   private _stdin = new VoidStream()
   private _zurk: ReturnType<typeof exec> | null = null
   private _output: ProcessOutput | null = null
@@ -263,7 +264,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       const [cmd, from, snapshot] = boundCtxs.pop()!
       this._command = cmd
       this._from = from
-      this._snapshot = { ac: new AbortController(), ...snapshot }
+      this._snapshot = { ...snapshot }
       this._resolve = resolve!
       this._reject = (v: ProcessOutput) => {
         reject!(v)
@@ -297,8 +298,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       cmd:      self.fullCmd,
       cwd:      $.cwd ?? $[CWD],
       input:    ($.input as ProcessPromise | ProcessOutput)?.stdout ?? $.input,
-      ac:       $.ac,
-      signal:   $.signal,
+      ac:       self.ac,
+      signal:   self.signal,
       shell:    isString($.shell) ? $.shell : true,
       env:      $.env,
       spawn:    $.spawn,
@@ -387,8 +388,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       return this.pipe[source](
         $({
           halt: true,
-          ac: this._snapshot.ac,
-          signal: this._snapshot.signal,
+          signal: this.signal,
         })(dest as TemplateStringsArray, ...args)
       )
 
@@ -435,13 +435,12 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   abort(reason?: string) {
     if (this.isSettled()) throw new Error('Too late to abort the process.')
-    const { ac } = this._snapshot
-    if (this.signal !== ac!.signal)
+    if (this.signal !== this.ac.signal)
       throw new Error('The signal is controlled by another process.')
     if (!this.child)
       throw new Error('Trying to abort a process without creating one.')
 
-    ac!.abort(reason)
+    this.ac.abort(reason)
   }
 
   kill(signal = $.killSignal): Promise<void> {
@@ -502,8 +501,12 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     )
   }
 
-  get signal(): AbortSignal | undefined {
-    return this._snapshot.signal || this._snapshot.ac?.signal
+  get signal(): AbortSignal {
+    return this._snapshot.signal || this.ac.signal
+  }
+
+  get ac(): AbortController {
+    return this._snapshot.ac || this._ac
   }
 
   get output(): ProcessOutput | null {
