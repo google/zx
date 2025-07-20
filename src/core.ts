@@ -232,7 +232,7 @@ type PipeMethod = {
 export class ProcessPromise extends Promise<ProcessOutput> {
   private _stage: ProcessStage = 'initial'
   private _id = randomId()
-  private _command = ''
+  private _cmd = ''
   private _from = ''
   private _snapshot = getStore()
   private _stdio?: StdioOptions
@@ -262,7 +262,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
     if (boundCtxs.length) {
       const [cmd, from, snapshot] = boundCtxs.pop()!
-      this._command = cmd
+      this._cmd = cmd
       this._from = from
       this._snapshot = { ...snapshot }
       this._resolve = resolve!
@@ -298,7 +298,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       cmd:      self.fullCmd,
       cwd:      $.cwd ?? $[CWD],
       input:    ($.input as ProcessPromise | ProcessOutput)?.stdout ?? $.input,
-      ac:       self.ac,
       signal:   self.signal,
       shell:    isString($.shell) ? $.shell : true,
       env:      $.env,
@@ -312,7 +311,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       run(cb, ctx){
         (self.cmd as unknown as Promise<string>).then?.(
           _cmd => {
-            self._command = _cmd
+            self._cmd = _cmd
             ctx.cmd = self.fullCmd
             cb()
           },
@@ -470,7 +469,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   get cmd(): string {
-    return this._command
+    return this._cmd
   }
 
   get fullCmd(): string {

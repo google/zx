@@ -530,7 +530,7 @@ describe('core', () => {
         ProcessPromise.disarm(p, false)
         assert.equal(p.stage, 'initial')
 
-        p._command = 'echo foo'
+        p._cmd = 'echo foo'
         p._from = 'test'
         p._resolve = resolve
         p._reject = reject

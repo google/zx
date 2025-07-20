@@ -71,7 +71,7 @@ type PipeMethod = {
 export declare class ProcessPromise extends Promise<ProcessOutput> {
     private _stage;
     private _id;
-    private _command;
+    private _cmd;
     private _from;
     private _snapshot;
     private _stdio?;
