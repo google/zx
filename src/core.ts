@@ -74,6 +74,7 @@ export { type Duration, quote, quotePowerShell } from './util.ts'
 
 const CWD = Symbol('processCwd')
 const SYNC = Symbol('syncExec')
+const EPF = Symbol('end-piped-from')
 const EOL = Buffer.from(_EOL)
 const BR_CC = '\n'.charCodeAt(0)
 const DLMTR = /\r?\n/
@@ -427,7 +428,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       return dest
     }
 
-    from.once('end', () => dest.emit('end-piped-from')).pipe(dest)
+    from.once('end', () => dest.emit(EPF)).pipe(dest)
     fillEnd()
     return promisifyStream(dest, this) as Writable &
       PromiseLike<ProcessOutput & Writable>
@@ -961,16 +962,13 @@ const promisifyStream = <S extends Writable>(
 ): S & PromiseLike<ProcessOutput & S> =>
   proxyOverride(stream as S & PromiseLike<ProcessOutput & S>, {
     then(res: any = noop, rej: any = noop) {
-      return new Promise((_res, _rej) =>
+      return new Promise((_res, _rej) => {
+        const onend = () => _res(res(proxyOverride(stream, from.output)))
         stream
           .once('error', (e) => _rej(rej(e)))
-          .once('finish', () =>
-            _res(res(proxyOverride(stream, (from as any)._output)))
-          )
-          .once('end-piped-from', () =>
-            _res(res(proxyOverride(stream, (from as any)._output)))
-          )
-      )
+          .once('finish', onend)
+          .once(EPF, onend)
+      })
     },
     run() {
       return from.run()
