@@ -17,6 +17,8 @@ import { test, describe } from 'node:test'
 import {
   isString,
   isStringLiteral,
+  identity,
+  once,
   noop,
   parseDuration,
   parseBool,
@@ -39,6 +41,14 @@ describe('util', () => {
 
   test('noop()', () => {
     assert.ok(noop() === undefined)
+  })
+
+  test('once()', () => {
+    const fn = once(identity)
+    assert.equal(identity(1), 1)
+    assert.equal(identity(2), 2)
+    assert.equal(fn(1), 1)
+    assert.equal(fn(2), 1)
   })
 
   test('isString()', () => {

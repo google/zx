@@ -82,11 +82,7 @@ function parseDuration(d) {
 var once = (fn) => {
   let called = false;
   let result;
-  return (...args) => {
-    if (called) return result;
-    called = true;
-    return result = fn(...args);
-  };
+  return (...args) => called ? result : (called = true, result = fn(...args));
 };
 var proxyOverride = (origin, ...fallbacks) => new Proxy(origin, {
   get(target, key) {

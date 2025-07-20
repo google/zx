@@ -438,9 +438,8 @@ var $ = new Proxy(
     const snapshot = getStore();
     if (!Array.isArray(pieces)) {
       return function(...args2) {
-        const self = this;
         return within(
-          () => Object.assign($, snapshot, pieces).apply(self, args2)
+          () => Object.assign($, snapshot, pieces).apply(this, args2)
         );
       };
     }
@@ -542,13 +541,15 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       ee: self._ee,
       run(cb, ctx) {
         var _a2, _b2;
-        ((_b2 = (_a2 = self.cmd).then) == null ? void 0 : _b2.call(_a2, (_cmd) => {
-          self._command = _cmd;
-          ctx.cmd = self.fullCmd;
-          cb();
-        }, (error) => {
-          ctx.on.end({ error, status: null, signal: null, duration: 0, ctx }, ctx);
-        })) || cb();
+        ((_b2 = (_a2 = self.cmd).then) == null ? void 0 : _b2.call(
+          _a2,
+          (_cmd) => {
+            self._command = _cmd;
+            ctx.cmd = self.fullCmd;
+            cb();
+          },
+          (error) => ctx.on.end({ error, status: null, signal: null, duration: 0, ctx }, ctx)
+        )) || cb();
       },
       on: {
         start: () => {
@@ -576,12 +577,12 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
           $2.log({ kind: "end", signal, exitCode: status, duration, error, verbose: self.isVerbose(), id });
           if (stdout.length && (0, import_util.getLast)((0, import_util.getLast)(stdout)) !== BR_CC) c.on.stdout(EOL, c);
           if (stderr.length && (0, import_util.getLast)((0, import_util.getLast)(stderr)) !== BR_CC) c.on.stderr(EOL, c);
-          if (!output.ok && !self.isNothrow()) {
-            self._stage = "rejected";
-            self._reject(output);
-          } else {
+          if (output.ok || self.isNothrow()) {
             self._stage = "fulfilled";
             self._resolve(output);
+          } else {
+            self._stage = "rejected";
+            self._reject(output);
           }
         }
       }
@@ -809,7 +810,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       }
       if (memo[0]) yield memo[0];
       if (this.isNothrow()) return;
-      if ((yield new __await(this.exitCode)) !== 0) throw this._output;
+      if (!(yield new __await(this)).ok) throw this.output;
     });
   }
   emit(event, ...args) {
