@@ -387,6 +387,7 @@ var import_vendor_core3 = require("./vendor-core.cjs");
 var import_util2 = require("./util.cjs");
 var CWD = Symbol("processCwd");
 var SYNC = Symbol("syncExec");
+var EPF = Symbol("end-piped-from");
 var EOL = import_node_buffer.Buffer.from(import_node_os.EOL);
 var BR_CC = "\n".charCodeAt(0);
 var DLMTR = /\r?\n/;
@@ -627,7 +628,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       fillEnd();
       return dest;
     }
-    from.once("end", () => dest.emit("end-piped-from")).pipe(dest);
+    from.once("end", () => dest.emit(EPF)).pipe(dest);
     fillEnd();
     return promisifyStream(dest, this);
   }
@@ -1035,15 +1036,10 @@ function kill(_0) {
 }
 var promisifyStream = (stream, from) => (0, import_util.proxyOverride)(stream, {
   then(res = import_util.noop, rej = import_util.noop) {
-    return new Promise(
-      (_res, _rej) => stream.once("error", (e) => _rej(rej(e))).once(
-        "finish",
-        () => _res(res((0, import_util.proxyOverride)(stream, from._output)))
-      ).once(
-        "end-piped-from",
-        () => _res(res((0, import_util.proxyOverride)(stream, from._output)))
-      )
-    );
+    return new Promise((_res, _rej) => {
+      const onend = () => _res(res((0, import_util.proxyOverride)(stream, from.output)));
+      stream.once("error", (e) => _rej(rej(e))).once("finish", onend).once(EPF, onend);
+    });
   },
   run() {
     return from.run();
