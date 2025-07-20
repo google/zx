@@ -809,8 +809,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
         }
       }
       if (memo[0]) yield memo[0];
-      if (this.isNothrow()) return;
-      if (!(yield new __await(this)).ok) throw this.output;
+      yield new __await(this);
     });
   }
   emit(event, ...args) {
