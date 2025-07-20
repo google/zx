@@ -483,7 +483,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     });
     this._stage = "initial";
     this._id = (0, import_util.randomId)();
-    this._command = "";
+    this._cmd = "";
     this._from = "";
     this._snapshot = getStore();
     this._piped = false;
@@ -498,7 +498,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     this.writable = true;
     if (boundCtxs.length) {
       const [cmd, from, snapshot] = boundCtxs.pop();
-      this._command = cmd;
+      this._cmd = cmd;
       this._from = from;
       this._snapshot = __spreadValues({}, snapshot);
       this._resolve = resolve;
@@ -529,7 +529,6 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       cmd: self.fullCmd,
       cwd: (_d = $2.cwd) != null ? _d : $2[CWD],
       input: (_f = (_e = $2.input) == null ? void 0 : _e.stdout) != null ? _f : $2.input,
-      ac: self.ac,
       signal: self.signal,
       shell: (0, import_util.isString)($2.shell) ? $2.shell : true,
       env: $2.env,
@@ -545,7 +544,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
         ((_b2 = (_a2 = self.cmd).then) == null ? void 0 : _b2.call(
           _a2,
           (_cmd) => {
-            self._command = _cmd;
+            self._cmd = _cmd;
             ctx.cmd = self.fullCmd;
             cb();
           },
@@ -662,7 +661,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     return (_a = this.child) == null ? void 0 : _a.pid;
   }
   get cmd() {
-    return this._command;
+    return this._cmd;
   }
   get fullCmd() {
     return (this._snapshot.prefix || "") + this.cmd + (this._snapshot.postfix || "");
