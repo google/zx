@@ -174,9 +174,8 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
     const snapshot = getStore()
     if (!Array.isArray(pieces)) {
       return function (this: any, ...args: any) {
-        const self = this
         return within(() =>
-          Object.assign($, snapshot, pieces).apply(self, args)
+          Object.assign($, snapshot, pieces).apply(this, args)
         )
       }
     }
@@ -310,13 +309,14 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       detached: $.detached,
       ee:       self._ee,
       run(cb, ctx){
-        (self.cmd as unknown as Promise<string>).then?.(_cmd => {
-          self._command = _cmd
-          ctx.cmd = self.fullCmd
-          cb()
-        }, error => {
-          ctx.on.end!({error, status: null, signal: null, duration: 0, ctx} as TSpawnResult, ctx)
-        }) || cb()
+        (self.cmd as unknown as Promise<string>).then?.(
+          _cmd => {
+            self._command = _cmd
+            ctx.cmd = self.fullCmd
+            cb()
+          },
+          error => ctx.on.end!({ error, status: null, signal: null, duration: 0, ctx } as TSpawnResult, ctx)
+        ) || cb()
       },
       on: {
         start: () => {
@@ -350,12 +350,12 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           if (stdout.length && getLast(getLast(stdout)) !== BR_CC) c.on.stdout!(EOL, c)
           if (stderr.length && getLast(getLast(stderr)) !== BR_CC) c.on.stderr!(EOL, c)
 
-          if (!output.ok && !self.isNothrow()) {
-            self._stage = 'rejected'
-            self._reject(output)
-          } else {
+          if (output.ok || self.isNothrow()) {
             self._stage = 'fulfilled'
             self._resolve(output)
+          } else {
+            self._stage = 'rejected'
+            self._reject(output)
           }
         },
       },
@@ -660,9 +660,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
     if (memo[0]) yield memo[0]
 
-    if (this.isNothrow()) return
-
-    if ((await this.exitCode) !== 0) throw this._output
+    await this
   }
 
   // Stream-like API

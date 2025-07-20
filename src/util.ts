@@ -119,11 +119,9 @@ export function parseDuration(d: Duration) {
 export const once = <T extends (...args: any[]) => any>(fn: T) => {
   let called = false
   let result: ReturnType<T>
-  return (...args: Parameters<T>): ReturnType<T> => {
-    if (called) return result
-    called = true
-    return (result = fn(...args))
-  }
+
+  return (...args: Parameters<T>): ReturnType<T> =>
+    called ? result : ((called = true), (result = fn(...args)))
 }
 
 export const proxyOverride = <T extends object>(
