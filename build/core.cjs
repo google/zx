@@ -462,9 +462,9 @@ var $ = new Proxy(
       args
     );
     snapshots.push(getSnapshot(snapshot, from, cmd));
-    const process3 = new ProcessPromise(import_util.noop);
-    if (!process3.isHalted()) process3.run();
-    return process3.output || process3;
+    const pp = new ProcessPromise(import_util.noop);
+    if (!pp.isHalted()) pp.run();
+    return pp.sync ? pp.output : pp;
   },
   {
     set(_, key, value) {
@@ -503,7 +503,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       this._resolve = resolve;
       this._reject = (v) => {
         reject(v);
-        if (this.isSync()) throw v;
+        if (this.sync) throw v;
       };
       if (this._snapshot.halt) this._stage = "halted";
     } else _ProcessPromise.disarm(this);
@@ -525,7 +525,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       cwd: (_b = $2.cwd) != null ? _b : $2[CWD],
       input: (_d = (_c = $2.input) == null ? void 0 : _c.stdout) != null ? _d : $2.input,
       stdin: self._stdin,
-      sync: self.isSync(),
+      sync: self.sync,
       signal: self.signal,
       shell: (0, import_util.isString)($2.shell) ? $2.shell : true,
       id,
@@ -698,6 +698,9 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
   get stage() {
     return this._stage;
   }
+  get sync() {
+    return this._snapshot[SYNC];
+  }
   get [Symbol.toStringTag]() {
     return "ProcessPromise";
   }
@@ -760,10 +763,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     return this._snapshot.nothrow;
   }
   isHalted() {
-    return this.stage === "halted" && !this.isSync();
-  }
-  isSync() {
-    return this._snapshot[SYNC];
+    return this.stage === "halted" && !this.sync;
   }
   isSettled() {
     return !!this.output;

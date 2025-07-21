@@ -212,11 +212,11 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
       args
     ) as string
     snapshots.push(getSnapshot(snapshot, from, cmd))
-    const process = new ProcessPromise(noop)
+    const pp = new ProcessPromise(noop)
 
-    if (!process.isHalted()) process.run()
+    if (!pp.isHalted()) pp.run()
 
-    return process.output || process
+    return pp.sync ? pp.output : pp
   } as Shell & Options,
   {
     set(_, key, value) {
@@ -274,7 +274,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       this._resolve = resolve!
       this._reject = (v: ProcessOutput) => {
         reject!(v)
-        if (this.isSync()) throw v
+        if (this.sync) throw v
       }
       if (this._snapshot.halt) this._stage = 'halted'
     } else ProcessPromise.disarm(this)
@@ -301,7 +301,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       cwd:      $.cwd ?? $[CWD],
       input:    ($.input as ProcessPromise | ProcessOutput)?.stdout ?? $.input,
       stdin:    self._stdin,
-      sync:     self.isSync(),
+      sync:     self.sync,
       signal:   self.signal,
       shell:    isString($.shell) ? $.shell : true,
       id,
@@ -520,6 +520,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this._stage
   }
 
+  get sync(): boolean {
+    return this._snapshot[SYNC]
+  }
+
   override get [Symbol.toStringTag](): string {
     return 'ProcessPromise'
   }
@@ -603,11 +607,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   isHalted(): boolean {
-    return this.stage === 'halted' && !this.isSync()
-  }
-
-  private isSync(): boolean {
-    return this._snapshot[SYNC]
+    return this.stage === 'halted' && !this.sync
   }
 
   private isSettled(): boolean {

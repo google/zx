@@ -1026,6 +1026,16 @@ describe('core', () => {
           /Trying to kill a process without creating one/
         )
       })
+
+      test('throws if pid is empty', async () => {
+        const p = $({
+          spawn() {
+            return new EventEmitter()
+          },
+        })`echo foo`
+
+        assert.throws(() => p.kill(), /The process pid is undefined/)
+      })
     })
 
     describe('[Symbol.asyncIterator]', () => {

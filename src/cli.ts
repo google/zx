@@ -219,7 +219,7 @@ async function readScript() {
 }
 
 async function readScriptFromStdin(): Promise<string> {
-  return !process.stdin.isTTY ? stdin() : ''
+  return process.stdin.isTTY ? '' : stdin()
 }
 
 async function readScriptFromHttp(remote: string): Promise<string> {

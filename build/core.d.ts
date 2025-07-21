@@ -105,6 +105,7 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     get ac(): AbortController;
     get output(): ProcessOutput | null;
     get stage(): ProcessStage;
+    get sync(): boolean;
     get [Symbol.toStringTag](): string;
     [Symbol.toPrimitive](): string;
     stdio(stdin: IOType, stdout?: IOType, stderr?: IOType): ProcessPromise;
@@ -121,7 +122,6 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     isVerbose(): boolean;
     isNothrow(): boolean;
     isHalted(): boolean;
-    private isSync;
     private isSettled;
     private isRunning;
     then<R = ProcessOutput, E = ProcessOutput>(onfulfilled?: ((value: ProcessOutput) => PromiseLike<R> | R) | undefined | null, onrejected?: ((reason: ProcessOutput) => PromiseLike<E> | E) | undefined | null): Promise<R | E>;
