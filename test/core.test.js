@@ -46,6 +46,7 @@ import {
   fetch,
 } from '../build/index.js'
 import { noop } from '../build/util.js'
+import { EventEmitter } from 'node:events'
 
 describe('core', () => {
   describe('resolveDefaults()', () => {
@@ -530,12 +531,16 @@ describe('core', () => {
         ProcessPromise.disarm(p, false)
         assert.equal(p.stage, 'initial')
 
-        p._cmd = 'echo foo'
-        p._from = 'test'
         p._resolve = resolve
         p._reject = reject
-        p._snapshot = { ...defaults }
         p._stage = 'halted'
+        p._snapshot = {
+          ...defaults,
+          ac: new AbortController(),
+          from: 'test',
+          cmd: 'echo foo',
+          ee: new EventEmitter(),
+        }
 
         assert.equal(p.stage, 'halted')
         p.run()
@@ -1020,6 +1025,16 @@ describe('core', () => {
           () => p.kill(),
           /Trying to kill a process without creating one/
         )
+      })
+
+      test('throws if pid is empty', async () => {
+        const p = $({
+          spawn() {
+            return new EventEmitter()
+          },
+        })`echo foo`
+
+        assert.throws(() => p.kill(), /The process pid is undefined/)
       })
     })
 

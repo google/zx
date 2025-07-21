@@ -36,6 +36,8 @@ import { randomId } from './util.ts'
 import { transformMarkdown } from './md.ts'
 import { createRequire, type minimist } from './vendor.ts'
 
+export { transformMarkdown } from './md.ts'
+
 const EXT = '.mjs'
 const EXT_RE = /^\.[mc]?[jt]sx?$/
 
@@ -217,7 +219,7 @@ async function readScript() {
 }
 
 async function readScriptFromStdin(): Promise<string> {
-  return !process.stdin.isTTY ? stdin() : ''
+  return process.stdin.isTTY ? '' : stdin()
 }
 
 async function readScriptFromHttp(remote: string): Promise<string> {
@@ -228,8 +230,6 @@ async function readScriptFromHttp(remote: string): Promise<string> {
   }
   return res.text()
 }
-
-export { transformMarkdown }
 
 export function injectGlobalRequire(origin: string): void {
   const __filename = path.resolve(origin)

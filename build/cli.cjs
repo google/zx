@@ -294,7 +294,7 @@ function readScript() {
 }
 function readScriptFromStdin() {
   return __async(this, null, function* () {
-    return !import_node_process2.default.stdin.isTTY ? (0, import_index.stdin)() : "";
+    return import_node_process2.default.stdin.isTTY ? "" : (0, import_index.stdin)();
   });
 }
 function readScriptFromHttp(remote) {

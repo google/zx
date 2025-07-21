@@ -1,6 +1,7 @@
 "use strict";
 const {
   __spreadValues,
+  __spreadProps,
   __export,
   __toESM,
   __toCommonJS,
@@ -432,8 +433,14 @@ var defaults = resolveDefaults({
   killSignal: SIGTERM,
   timeoutSignal: SIGTERM
 });
-var boundCtxs = [];
+var snapshots = [];
 var delimiters = [];
+var getSnapshot = (snapshot, from, cmd) => __spreadProps(__spreadValues({}, snapshot), {
+  ac: snapshot.ac || new AbortController(),
+  ee: new import_node_events.EventEmitter(),
+  from,
+  cmd
+});
 var $ = new Proxy(
   function(pieces, ...args) {
     const snapshot = getStore();
@@ -445,7 +452,7 @@ var $ = new Proxy(
       };
     }
     const from = getCallerLocation();
-    if (pieces.some((p) => p == void 0))
+    if (pieces.some((p) => p == null))
       throw new Error(`Malformed command at ${from}`);
     checkShell();
     checkQuote();
@@ -454,10 +461,10 @@ var $ = new Proxy(
       pieces,
       args
     );
-    boundCtxs.push([cmd, from, snapshot]);
-    const process3 = new ProcessPromise(import_util.noop);
-    if (!process3.isHalted()) process3.run();
-    return process3.output || process3;
+    snapshots.push(getSnapshot(snapshot, from, cmd));
+    const pp = new ProcessPromise(import_util.noop);
+    if (!pp.isHalted()) pp.run();
+    return pp.sync ? pp.output : pp;
   },
   {
     set(_, key, value) {
@@ -483,12 +490,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     });
     this._stage = "initial";
     this._id = (0, import_util.randomId)();
-    this._cmd = "";
-    this._from = "";
-    this._snapshot = getStore();
     this._piped = false;
-    this._ee = new import_node_events.EventEmitter();
-    this._ac = new AbortController();
     this._stdin = new import_vendor_core2.VoidStream();
     this._zurk = null;
     this._output = null;
@@ -496,55 +498,50 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     this._resolve = import_util.noop;
     // Stream-like API
     this.writable = true;
-    if (boundCtxs.length) {
-      const [cmd, from, snapshot] = boundCtxs.pop();
-      this._cmd = cmd;
-      this._from = from;
-      this._snapshot = __spreadValues({}, snapshot);
+    if (snapshots.length) {
+      this._snapshot = snapshots.pop();
       this._resolve = resolve;
       this._reject = (v) => {
         reject(v);
-        if (this.isSync()) throw v;
+        if (this.sync) throw v;
       };
-      if (snapshot.halt) this._stage = "halted";
+      if (this._snapshot.halt) this._stage = "halted";
     } else _ProcessPromise.disarm(this);
   }
   run() {
-    var _a, _b, _c, _d, _e, _f, _g;
+    var _a, _b, _c, _d;
     if (this.isRunning() || this.isSettled()) return this;
     this._stage = "running";
     (_a = this._pipedFrom) == null ? void 0 : _a.run();
     const self = this;
     const $2 = self._snapshot;
     const id = self.id;
-    const timeout = (_b = self._timeout) != null ? _b : $2.timeout;
-    const timeoutSignal = (_c = self._timeoutSignal) != null ? _c : $2.timeoutSignal;
     if ($2.preferLocal) {
       const dirs = $2.preferLocal === true ? [$2.cwd, $2[CWD]] : [$2.preferLocal].flat();
       $2.env = (0, import_util.preferLocalBin)($2.env, ...dirs);
     }
     this._zurk = (0, import_vendor_core2.exec)({
-      id,
-      sync: self.isSync(),
       cmd: self.fullCmd,
-      cwd: (_d = $2.cwd) != null ? _d : $2[CWD],
-      input: (_f = (_e = $2.input) == null ? void 0 : _e.stdout) != null ? _f : $2.input,
+      cwd: (_b = $2.cwd) != null ? _b : $2[CWD],
+      input: (_d = (_c = $2.input) == null ? void 0 : _c.stdout) != null ? _d : $2.input,
+      stdin: self._stdin,
+      sync: self.sync,
       signal: self.signal,
       shell: (0, import_util.isString)($2.shell) ? $2.shell : true,
+      id,
       env: $2.env,
       spawn: $2.spawn,
       spawnSync: $2.spawnSync,
       store: $2.store,
-      stdin: self._stdin,
-      stdio: (_g = self._stdio) != null ? _g : $2.stdio,
+      stdio: $2.stdio,
       detached: $2.detached,
-      ee: self._ee,
+      ee: $2.ee,
       run(cb, ctx) {
         var _a2, _b2;
         ((_b2 = (_a2 = self.cmd).then) == null ? void 0 : _b2.call(
           _a2,
-          (_cmd) => {
-            self._cmd = _cmd;
+          (cmd) => {
+            $2.cmd = cmd;
             ctx.cmd = self.fullCmd;
             cb();
           },
@@ -554,7 +551,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       on: {
         start: () => {
           $2.log({ kind: "cmd", cmd: self.cmd, verbose: self.isVerbose(), id });
-          self.timeout(timeout, timeoutSignal);
+          self.timeout($2.timeout, $2.timeoutSignal);
         },
         stdout: (data) => {
           if (self._piped) return;
@@ -572,7 +569,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
             error,
             duration,
             store,
-            from: self._from
+            from: $2.from
           });
           $2.log({ kind: "end", signal, exitCode: status, duration, error, verbose: self.isVerbose(), id });
           if (stdout.length && (0, import_util.getLast)((0, import_util.getLast)(stdout)) !== BR_CC) c.on.stdout(EOL, c);
@@ -598,7 +595,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
         })(dest, ...args)
       );
     this._piped = true;
-    const ee = this._ee;
+    const { ee } = this._snapshot;
     const from = new import_vendor_core2.VoidStream();
     const fill = () => {
       for (const chunk of this._zurk.store[source]) from.write(chunk);
@@ -661,10 +658,11 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     return (_a = this.child) == null ? void 0 : _a.pid;
   }
   get cmd() {
-    return this._cmd;
+    return this._snapshot.cmd;
   }
   get fullCmd() {
-    return (this._snapshot.prefix || "") + this.cmd + (this._snapshot.postfix || "");
+    const { prefix = "", postfix = "", cmd } = this._snapshot;
+    return prefix + cmd + postfix;
   }
   get child() {
     var _a;
@@ -692,13 +690,16 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     return this._snapshot.signal || this.ac.signal;
   }
   get ac() {
-    return this._snapshot.ac || this._ac;
+    return this._snapshot.ac;
   }
   get output() {
     return this._output;
   }
   get stage() {
     return this._stage;
+  }
+  get sync() {
+    return this._snapshot[SYNC];
   }
   get [Symbol.toStringTag]() {
     return "ProcessPromise";
@@ -708,31 +709,29 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
   }
   // Configurators
   stdio(stdin, stdout = "pipe", stderr = "pipe") {
-    this._stdio = [stdin, stdout, stderr];
+    this._snapshot.stdio = [stdin, stdout, stderr];
     return this;
   }
   nothrow(v = true) {
-    this._nothrow = v;
+    this._snapshot.nothrow = v;
     return this;
   }
   quiet(v = true) {
-    this._quiet = v;
+    this._snapshot.quiet = v;
     return this;
   }
   verbose(v = true) {
-    this._verbose = v;
+    this._snapshot.verbose = v;
     return this;
   }
-  timeout(d = 0, signal = this._timeoutSignal || $.timeoutSignal) {
+  timeout(d = 0, signal = $.timeoutSignal) {
     if (this.isSettled()) return this;
-    this._timeout = (0, import_util.parseDuration)(d);
-    this._timeoutSignal = signal;
+    const $2 = this._snapshot;
+    $2.timeout = (0, import_util.parseDuration)(d);
+    $2.timeoutSignal = signal;
     if (this._timeoutId) clearTimeout(this._timeoutId);
-    if (this._timeout && this.isRunning()) {
-      this._timeoutId = setTimeout(
-        () => this.kill(this._timeoutSignal),
-        this._timeout
-      );
+    if ($2.timeout && this.isRunning()) {
+      this._timeoutId = setTimeout(() => this.kill($2.timeoutSignal), $2.timeout);
       this.finally(() => clearTimeout(this._timeoutId)).catch(import_util.noop);
     }
     return this;
@@ -755,22 +754,16 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
   }
   // Status checkers
   isQuiet() {
-    var _a;
-    return (_a = this._quiet) != null ? _a : this._snapshot.quiet;
+    return this._snapshot.quiet;
   }
   isVerbose() {
-    var _a;
-    return ((_a = this._verbose) != null ? _a : this._snapshot.verbose) && !this.isQuiet();
+    return this._snapshot.verbose && !this.isQuiet();
   }
   isNothrow() {
-    var _a;
-    return (_a = this._nothrow) != null ? _a : this._snapshot.nothrow;
+    return this._snapshot.nothrow;
   }
   isHalted() {
-    return this.stage === "halted" && !this.isSync();
-  }
-  isSync() {
-    return this._snapshot[SYNC];
+    return this.stage === "halted" && !this.sync;
   }
   isSettled() {
     return !!this.output;

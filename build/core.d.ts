@@ -71,20 +71,10 @@ type PipeMethod = {
 export declare class ProcessPromise extends Promise<ProcessOutput> {
     private _stage;
     private _id;
-    private _cmd;
-    private _from;
     private _snapshot;
-    private _stdio?;
-    private _nothrow?;
-    private _quiet?;
-    private _verbose?;
-    private _timeout?;
-    private _timeoutSignal?;
     private _timeoutId?;
     private _piped;
     private _pipedFrom?;
-    private _ee;
-    private _ac;
     private _stdin;
     private _zurk;
     private _output;
@@ -115,6 +105,7 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     get ac(): AbortController;
     get output(): ProcessOutput | null;
     get stage(): ProcessStage;
+    get sync(): boolean;
     get [Symbol.toStringTag](): string;
     [Symbol.toPrimitive](): string;
     stdio(stdin: IOType, stdout?: IOType, stderr?: IOType): ProcessPromise;
@@ -124,14 +115,13 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     timeout(d?: Duration, signal?: NodeJS.Signals | undefined): ProcessPromise;
     json<T = any>(): Promise<T>;
     text(encoding?: Encoding): Promise<string>;
-    lines(delimiter?: string | RegExp): Promise<string[]>;
+    lines(delimiter?: Options['delimiter']): Promise<string[]>;
     buffer(): Promise<Buffer>;
     blob(type?: string): Promise<Blob>;
     isQuiet(): boolean;
     isVerbose(): boolean;
     isNothrow(): boolean;
     isHalted(): boolean;
-    private isSync;
     private isSettled;
     private isRunning;
     then<R = ProcessOutput, E = ProcessOutput>(onfulfilled?: ((value: ProcessOutput) => PromiseLike<R> | R) | undefined | null, onrejected?: ((reason: ProcessOutput) => PromiseLike<E> | E) | undefined | null): Promise<R | E>;
