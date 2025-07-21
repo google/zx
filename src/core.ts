@@ -167,8 +167,27 @@ export interface Shell<
     (opts: Partial<Omit<Options, 'sync'>>): Shell<true>
   }
 }
-const boundCtxs: [string, string, Options][] = []
+const snapshots: Snapshot[] = []
 const delimiters: Array<string | RegExp | undefined> = []
+
+type Snapshot = Options & {
+  from: string
+  cmd: string
+  ee: EventEmitter
+  ac: AbortController
+}
+
+const getSnapshot = (
+  snapshot: Options = getStore(),
+  from: string,
+  cmd: string
+): Snapshot => ({
+  ...snapshot,
+  ac: snapshot.ac || new AbortController(),
+  from,
+  cmd,
+  ee: new EventEmitter(),
+})
 
 export const $: Shell & Options = new Proxy<Shell & Options>(
   function (pieces: TemplateStringsArray | Partial<Options>, ...args: any[]) {
@@ -192,7 +211,7 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
       pieces as TemplateStringsArray,
       args
     ) as string
-    boundCtxs.push([cmd, from, snapshot])
+    snapshots.push(getSnapshot(snapshot, from, cmd))
     const process = new ProcessPromise(noop)
 
     if (!process.isHalted()) process.run()
@@ -232,20 +251,10 @@ type PipeMethod = {
 export class ProcessPromise extends Promise<ProcessOutput> {
   private _stage: ProcessStage = 'initial'
   private _id = randomId()
-  private _cmd = ''
-  private _from = ''
-  private _snapshot = getStore()
-  private _stdio?: StdioOptions
-  private _nothrow?: boolean
-  private _quiet?: boolean
-  private _verbose?: boolean
-  private _timeout?: number
-  private _timeoutSignal?: NodeJS.Signals
+  private _snapshot!: Snapshot
   private _timeoutId?: ReturnType<typeof setTimeout>
   private _piped = false
   private _pipedFrom?: ProcessPromise
-  private _ee = new EventEmitter()
-  private _ac = new AbortController()
   private _stdin = new VoidStream()
   private _zurk: ReturnType<typeof exec> | null = null
   private _output: ProcessOutput | null = null
@@ -260,17 +269,14 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       executor(...args)
     })
 
-    if (boundCtxs.length) {
-      const [cmd, from, snapshot] = boundCtxs.pop()!
-      this._cmd = cmd
-      this._from = from
-      this._snapshot = { ...snapshot }
+    if (snapshots.length) {
+      this._snapshot = snapshots.pop()!
       this._resolve = resolve!
       this._reject = (v: ProcessOutput) => {
         reject!(v)
         if (this.isSync()) throw v
       }
-      if (snapshot.halt) this._stage = 'halted'
+      if (this._snapshot.halt) this._stage = 'halted'
     } else ProcessPromise.disarm(this)
   }
 
@@ -282,8 +288,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     const self = this
     const $ = self._snapshot
     const id = self.id
-    const timeout = self._timeout ?? $.timeout
-    const timeoutSignal = self._timeoutSignal ?? $.timeoutSignal
 
     if ($.preferLocal) {
       const dirs =
@@ -293,25 +297,25 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
     // prettier-ignore
     this._zurk = exec({
-      id,
-      sync:     self.isSync(),
       cmd:      self.fullCmd,
       cwd:      $.cwd ?? $[CWD],
       input:    ($.input as ProcessPromise | ProcessOutput)?.stdout ?? $.input,
+      stdin:    self._stdin,
+      sync:     self.isSync(),
       signal:   self.signal,
       shell:    isString($.shell) ? $.shell : true,
+      id,
       env:      $.env,
       spawn:    $.spawn,
       spawnSync:$.spawnSync,
       store:    $.store,
-      stdin:    self._stdin,
-      stdio:    self._stdio ?? $.stdio,
+      stdio:    $.stdio,
       detached: $.detached,
-      ee:       self._ee,
+      ee:       $.ee,
       run(cb, ctx){
         (self.cmd as unknown as Promise<string>).then?.(
-          _cmd => {
-            self._cmd = _cmd
+          cmd => {
+            $.cmd = cmd
             ctx.cmd = self.fullCmd
             cb()
           },
@@ -321,7 +325,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       on: {
         start: () => {
           $.log({ kind: 'cmd', cmd: self.cmd, verbose: self.isVerbose(), id })
-          self.timeout(timeout, timeoutSignal)
+          self.timeout($.timeout, $.timeoutSignal)
         },
         stdout: (data) => {
           // If the process is piped, don't print its output.
@@ -341,7 +345,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
             error,
             duration,
             store,
-            from: self._from,
+            from: $.from,
           })
 
           $.log({ kind: 'end', signal, exitCode: status, duration, error, verbose: self.isVerbose(), id })
@@ -393,7 +397,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       )
 
     this._piped = true
-    const ee = this._ee
+    const { ee } = this._snapshot
     const from = new VoidStream()
     const fill = () => {
       for (const chunk of this._zurk!.store[source]) from.write(chunk)
@@ -469,13 +473,12 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   get cmd(): string {
-    return this._cmd
+    return this._snapshot.cmd
   }
 
   get fullCmd(): string {
-    return (
-      (this._snapshot.prefix || '') + this.cmd + (this._snapshot.postfix || '')
-    )
+    const { prefix = '', postfix = '', cmd } = this._snapshot
+    return prefix + cmd + postfix
   }
 
   get child(): ChildProcess | undefined {
@@ -506,7 +509,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   get ac(): AbortController {
-    return this._snapshot.ac || this._ac
+    return this._snapshot.ac
   }
 
   get output(): ProcessOutput | null {
@@ -531,40 +534,35 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     stdout: IOType = 'pipe',
     stderr: IOType = 'pipe'
   ): ProcessPromise {
-    this._stdio = [stdin, stdout, stderr]
+    this._snapshot.stdio = [stdin, stdout, stderr]
     return this
   }
 
   nothrow(v = true): ProcessPromise {
-    this._nothrow = v
+    this._snapshot.nothrow = v
     return this
   }
 
   quiet(v = true): ProcessPromise {
-    this._quiet = v
+    this._snapshot.quiet = v
     return this
   }
 
   verbose(v = true): ProcessPromise {
-    this._verbose = v
+    this._snapshot.verbose = v
     return this
   }
 
-  timeout(
-    d: Duration = 0,
-    signal = this._timeoutSignal || $.timeoutSignal
-  ): ProcessPromise {
+  timeout(d: Duration = 0, signal?: NodeJS.Signals): ProcessPromise {
     if (this.isSettled()) return this
 
-    this._timeout = parseDuration(d)
-    this._timeoutSignal = signal
+    const $ = this._snapshot
+    $.timeout = parseDuration(d)
+    $.timeoutSignal = signal || $.timeoutSignal || SIGTERM
 
     if (this._timeoutId) clearTimeout(this._timeoutId)
-    if (this._timeout && this.isRunning()) {
-      this._timeoutId = setTimeout(
-        () => this.kill(this._timeoutSignal),
-        this._timeout
-      )
+    if ($.timeout && this.isRunning()) {
+      this._timeoutId = setTimeout(() => this.kill($.timeoutSignal), $.timeout)
       this.finally(() => clearTimeout(this._timeoutId)).catch(noop)
     }
     return this
@@ -593,15 +591,15 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   // Status checkers
   isQuiet(): boolean {
-    return this._quiet ?? this._snapshot.quiet
+    return this._snapshot.quiet
   }
 
   isVerbose(): boolean {
-    return (this._verbose ?? this._snapshot.verbose) && !this.isQuiet()
+    return this._snapshot.verbose && !this.isQuiet()
   }
 
   isNothrow(): boolean {
-    return this._nothrow ?? this._snapshot.nothrow
+    return this._snapshot.nothrow
   }
 
   isHalted(): boolean {

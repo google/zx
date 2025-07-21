@@ -71,20 +71,10 @@ type PipeMethod = {
 export declare class ProcessPromise extends Promise<ProcessOutput> {
     private _stage;
     private _id;
-    private _cmd;
-    private _from;
     private _snapshot;
-    private _stdio?;
-    private _nothrow?;
-    private _quiet?;
-    private _verbose?;
-    private _timeout?;
-    private _timeoutSignal?;
     private _timeoutId?;
     private _piped;
     private _pipedFrom?;
-    private _ee;
-    private _ac;
     private _stdin;
     private _zurk;
     private _output;
@@ -121,7 +111,7 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     nothrow(v?: boolean): ProcessPromise;
     quiet(v?: boolean): ProcessPromise;
     verbose(v?: boolean): ProcessPromise;
-    timeout(d?: Duration, signal?: NodeJS.Signals | undefined): ProcessPromise;
+    timeout(d?: Duration, signal?: NodeJS.Signals): ProcessPromise;
     json<T = any>(): Promise<T>;
     text(encoding?: Encoding): Promise<string>;
     lines(delimiter?: string | RegExp): Promise<string[]>;
