@@ -553,12 +553,12 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this
   }
 
-  timeout(d: Duration = 0, signal?: NodeJS.Signals): ProcessPromise {
+  timeout(d: Duration = 0, signal: NodeJS.Signals = SIGTERM): ProcessPromise {
     if (this.isSettled()) return this
 
     const $ = this._snapshot
     $.timeout = parseDuration(d)
-    $.timeoutSignal = signal || $.timeoutSignal || SIGTERM
+    $.timeoutSignal = signal
 
     if (this._timeoutId) clearTimeout(this._timeoutId)
     if ($.timeout && this.isRunning()) {

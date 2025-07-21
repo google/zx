@@ -721,11 +721,11 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     this._snapshot.verbose = v;
     return this;
   }
-  timeout(d = 0, signal) {
+  timeout(d = 0, signal = SIGTERM) {
     if (this.isSettled()) return this;
     const $2 = this._snapshot;
     $2.timeout = (0, import_util.parseDuration)(d);
-    $2.timeoutSignal = signal || $2.timeoutSignal || SIGTERM;
+    $2.timeoutSignal = signal;
     if (this._timeoutId) clearTimeout(this._timeoutId);
     if ($2.timeout && this.isRunning()) {
       this._timeoutId = setTimeout(() => this.kill($2.timeoutSignal), $2.timeout);
