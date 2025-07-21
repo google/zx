@@ -168,7 +168,7 @@ export interface Shell<
   }
 }
 const snapshots: Snapshot[] = []
-const delimiters: Array<string | RegExp | undefined> = []
+const delimiters: Options['delimiter'][] = []
 
 type Snapshot = Options & {
   from: string
@@ -178,15 +178,15 @@ type Snapshot = Options & {
 }
 
 const getSnapshot = (
-  snapshot: Options = getStore(),
+  snapshot: Options,
   from: string,
   cmd: string
 ): Snapshot => ({
   ...snapshot,
   ac: snapshot.ac || new AbortController(),
+  ee: new EventEmitter(),
   from,
   cmd,
-  ee: new EventEmitter(),
 })
 
 export const $: Shell & Options = new Proxy<Shell & Options>(
@@ -200,7 +200,7 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
       }
     }
     const from = getCallerLocation()
-    if (pieces.some((p) => p == undefined))
+    if (pieces.some((p) => p == null))
       throw new Error(`Malformed command at ${from}`)
 
     checkShell()
@@ -553,7 +553,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this
   }
 
-  timeout(d: Duration = 0, signal: NodeJS.Signals = SIGTERM): ProcessPromise {
+  timeout(d: Duration = 0, signal = $.timeoutSignal): ProcessPromise {
     if (this.isSettled()) return this
 
     const $ = this._snapshot
@@ -577,7 +577,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this.then((o) => o.text(encoding))
   }
 
-  lines(delimiter?: string | RegExp): Promise<string[]> {
+  lines(delimiter?: Options['delimiter']): Promise<string[]> {
     return this.then((o) => o.lines(delimiter))
   }
 

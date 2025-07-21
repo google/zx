@@ -435,11 +435,11 @@ var defaults = resolveDefaults({
 });
 var snapshots = [];
 var delimiters = [];
-var getSnapshot = (snapshot = getStore(), from, cmd) => __spreadProps(__spreadValues({}, snapshot), {
+var getSnapshot = (snapshot, from, cmd) => __spreadProps(__spreadValues({}, snapshot), {
   ac: snapshot.ac || new AbortController(),
+  ee: new import_node_events.EventEmitter(),
   from,
-  cmd,
-  ee: new import_node_events.EventEmitter()
+  cmd
 });
 var $ = new Proxy(
   function(pieces, ...args) {
@@ -452,7 +452,7 @@ var $ = new Proxy(
       };
     }
     const from = getCallerLocation();
-    if (pieces.some((p) => p == void 0))
+    if (pieces.some((p) => p == null))
       throw new Error(`Malformed command at ${from}`);
     checkShell();
     checkQuote();
@@ -721,7 +721,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     this._snapshot.verbose = v;
     return this;
   }
-  timeout(d = 0, signal = SIGTERM) {
+  timeout(d = 0, signal = $.timeoutSignal) {
     if (this.isSettled()) return this;
     const $2 = this._snapshot;
     $2.timeout = (0, import_util.parseDuration)(d);

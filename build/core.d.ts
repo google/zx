@@ -111,10 +111,10 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     nothrow(v?: boolean): ProcessPromise;
     quiet(v?: boolean): ProcessPromise;
     verbose(v?: boolean): ProcessPromise;
-    timeout(d?: Duration, signal?: NodeJS.Signals): ProcessPromise;
+    timeout(d?: Duration, signal?: NodeJS.Signals | undefined): ProcessPromise;
     json<T = any>(): Promise<T>;
     text(encoding?: Encoding): Promise<string>;
-    lines(delimiter?: string | RegExp): Promise<string[]>;
+    lines(delimiter?: Options['delimiter']): Promise<string[]>;
     buffer(): Promise<Buffer>;
     blob(type?: string): Promise<Blob>;
     isQuiet(): boolean;
