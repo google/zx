@@ -427,8 +427,8 @@ var storage = new import_node_async_hooks.AsyncLocalStorage();
 var snapshots = [];
 var delimiters = [];
 var getStore = () => storage.getStore() || defaults;
-var getSnapshot = (snapshot, from, cmd) => __spreadProps(__spreadValues({}, snapshot), {
-  ac: snapshot.ac || new AbortController(),
+var getSnapshot = (options, from, cmd) => __spreadProps(__spreadValues({}, options), {
+  ac: options.ac || new AbortController(),
   ee: new import_node_events.EventEmitter(),
   from,
   cmd

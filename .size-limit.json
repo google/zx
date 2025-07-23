@@ -15,7 +15,7 @@
       "README.md",
       "LICENSE"
     ],
-    "limit": "121.15 kB",
+    "limit": "121.303 kB",
     "brotli": false,
     "gzip": false
   },
@@ -36,7 +36,7 @@
   {
     "name": "libdefs",
     "path": "build/*.d.ts",
-    "limit": "39.00 kB",
+    "limit": "39.20 kB",
     "brotli": false,
     "gzip": false
   },
@@ -62,7 +62,7 @@
       "README.md",
       "LICENSE"
     ],
-    "limit": "867.95 kB",
+    "limit": "868.15 kB",
     "brotli": false,
     "gzip": false
   }

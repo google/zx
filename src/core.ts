@@ -93,39 +93,55 @@ const ENV_OPTS: Set<string> = new Set([
 ])
 
 // prettier-ignore
-export interface Options {
-  [CWD]:          string
-  [SYNC]:         boolean
-  cwd?:           string
-  ac?:            AbortController
-  signal?:        AbortSignal
-  input?:         string | Buffer | Readable | ProcessOutput | ProcessPromise
-  timeout?:       Duration
-  timeoutSignal?: NodeJS.Signals
+export interface Options extends Partial<{
+  cwd:            string
+  cmd:            string
+  prefix:         string
+  postfix:        string
+  ac:             AbortController
+  signal:         AbortSignal
+  input:          string | Buffer | Readable | ProcessOutput | ProcessPromise
+  timeout:        Duration
+  timeoutSignal:  NodeJS.Signals
   stdio:          StdioOptions
   verbose:        boolean
   sync:           boolean
   env:            NodeJS.ProcessEnv
   shell:          string | true
   nothrow:        boolean
-  prefix?:        string
-  postfix?:       string
-  quote?:         typeof quote
+  quote:          typeof quote
   quiet:          boolean
   detached:       boolean
   preferLocal:    boolean | string | string[]
   spawn:          typeof cp.spawn
   spawnSync:      typeof cp.spawnSync
-  store?:         TSpawnStore
+  store:          TSpawnStore
   log:            typeof log
   kill:           typeof kill
-  killSignal?:    NodeJS.Signals
-  halt?:          boolean
-  delimiter?:     string | RegExp
+  killSignal:     NodeJS.Signals
+  halt:           boolean
+  delimiter:      string | RegExp
+}> {}
+
+// prettier-ignore
+interface Defaults
+  extends Required<Omit<Options, 'ac' | 'cmd' | 'cwd' | 'prefix' | 'postfix' | 'delimiter' | 'halt' | 'input' | 'quote' | 'signal' | 'store' | 'timeout'>> {
+  [CWD]: string
+  [SYNC]: boolean
+}
+
+type NormalizedOpts = Options & Defaults
+
+// prettier-ignore
+type Snapshot = NormalizedOpts & {
+  from: string
+  cmd: string
+  ac: AbortController
+  ee: EventEmitter
 }
 
 // prettier-ignore
-export const defaults: Options = resolveDefaults({
+export const defaults: Defaults = resolveDefaults({
   [CWD]:          process.cwd(),
   [SYNC]:         false,
   verbose:        false,
@@ -145,40 +161,33 @@ export const defaults: Options = resolveDefaults({
   timeoutSignal:  SIGTERM,
 })
 
-type Snapshot = Options & {
-  from: string
-  cmd: string
-  ee: EventEmitter
-  ac: AbortController
-}
-
 // prettier-ignore
 export interface Shell<
   S = false,
   R = S extends true ? ProcessOutput : ProcessPromise,
 > {
   (pieces: TemplateStringsArray, ...args: any[]): R
-  <O extends Partial<Options> = Partial<Options>, R = O extends { sync: true } ? Shell<true> : Shell>(opts: O): R
+  <O extends Options = Options, R = O extends { sync: true } ? Shell<true> : Shell>(opts: O): R
   sync: {
     (pieces: TemplateStringsArray, ...args: any[]): ProcessOutput
-    (opts: Partial<Omit<Options, 'sync'>>): Shell<true>
+    (opts: Omit<Options, 'sync'>): Shell<true>
   }
 }
 
 // Internal storages
-const storage = new AsyncLocalStorage<Options>()
+const storage = new AsyncLocalStorage<NormalizedOpts>()
 const snapshots: Snapshot[] = []
 const delimiters: Options['delimiter'][] = []
 
 const getStore = () => storage.getStore() || defaults
 
 const getSnapshot = (
-  snapshot: Options,
+  options: NormalizedOpts,
   from: string,
   cmd: string
 ): Snapshot => ({
-  ...snapshot,
-  ac: snapshot.ac || new AbortController(),
+  ...options,
+  ac: options.ac || new AbortController(),
   ee: new EventEmitter(),
   from,
   cmd,
@@ -189,10 +198,10 @@ export function within<R>(callback: () => R): R {
 }
 
 // The zx
-export type $ = Shell & Options
+export type $ = Shell & NormalizedOpts
 
 export const $: $ = new Proxy<$>(
-  function (pieces: TemplateStringsArray | Partial<Options>, ...args: any[]) {
+  function (pieces: TemplateStringsArray | Options, ...args: any[]) {
     const snapshot = getStore()
     if (!Array.isArray(pieces)) {
       return function (this: any, ...args: any) {
@@ -450,7 +459,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     this.ac.abort(reason)
   }
 
-  kill(signal = $.killSignal): Promise<void> {
+  kill(signal: NodeJS.Signals = $.killSignal): Promise<void> {
     if (this.isSettled()) throw new Error('Too late to kill the process.')
     if (!this.child)
       throw new Error('Trying to kill a process without creating one.')
@@ -560,7 +569,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this
   }
 
-  timeout(d: Duration = 0, signal = $.timeoutSignal): ProcessPromise {
+  timeout(
+    d: Duration = 0,
+    signal: NodeJS.Signals = $.timeoutSignal
+  ): ProcessPromise {
     if (this.isSettled()) return this
 
     const $ = this._snapshot
@@ -933,7 +945,7 @@ export function cd(dir: string | ProcessOutput) {
   $[CWD] = process.cwd()
 }
 
-export async function kill(pid: number, signal = $.killSignal) {
+export async function kill(pid: number, signal: NodeJS.Signals = $.killSignal) {
   if (
     process.platform === 'win32' &&
     (await new Promise((resolve) => {
@@ -983,12 +995,12 @@ const promisifyStream = <S extends Writable>(
   })
 
 export function resolveDefaults(
-  defs: Options = defaults,
+  defs: Defaults = defaults,
   prefix: string = ENV_PREFIX,
   env = process.env,
   allowed = ENV_OPTS
-): Options {
-  return Object.entries(env).reduce<Options>((m, [k, v]) => {
+): Defaults {
+  return Object.entries(env).reduce<Defaults>((m, [k, v]) => {
     if (v && k.startsWith(prefix)) {
       const _k = toCamelCase(k.slice(prefix.length))
       const _v = parseBool(v)
