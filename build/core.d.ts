@@ -1,14 +1,14 @@
 /// <reference types="node" />
 /// <reference types="fs-extra" />
 
-import { type ChildProcess, type IOType, type StdioOptions, spawn, spawnSync } from 'node:child_process';
+import { Buffer } from 'node:buffer';
+import cp, { type ChildProcess, type IOType, type StdioOptions } from 'node:child_process';
 import { type Encoding } from 'node:crypto';
 import { type Readable, type Writable } from 'node:stream';
 import { inspect } from 'node:util';
-import { Buffer } from 'node:buffer';
+import { log } from './log.js';
 import { type TSpawnStore } from './vendor-core.js';
 import { type Duration, quote } from './util.js';
-import { log } from './log.js';
 export { default as path } from 'node:path';
 export * as os from 'node:os';
 export { log, type LogEntry } from './log.js';
@@ -16,7 +16,6 @@ export { chalk, which, ps } from './vendor-core.js';
 export { type Duration, quote, quotePowerShell } from './util.js';
 declare const CWD: unique symbol;
 declare const SYNC: unique symbol;
-export declare function within<R>(callback: () => R): R;
 export interface Options {
     [CWD]: string;
     [SYNC]: boolean;
@@ -38,8 +37,8 @@ export interface Options {
     quiet: boolean;
     detached: boolean;
     preferLocal: boolean | string | string[];
-    spawn: typeof spawn;
-    spawnSync: typeof spawnSync;
+    spawn: typeof cp.spawn;
+    spawnSync: typeof cp.spawnSync;
     store?: TSpawnStore;
     log: typeof log;
     kill: typeof kill;
@@ -58,6 +57,7 @@ export interface Shell<S = false, R = S extends true ? ProcessOutput : ProcessPr
         (opts: Partial<Omit<Options, 'sync'>>): Shell<true>;
     };
 }
+export declare function within<R>(callback: () => R): R;
 export declare const $: Shell & Options;
 type ProcessStage = 'initial' | 'halted' | 'running' | 'fulfilled' | 'rejected';
 type Resolve = (out: ProcessOutput) => void;

@@ -12,22 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
+import { type AsyncHook, AsyncLocalStorage, createHook } from 'node:async_hooks'
+import { Buffer } from 'node:buffer'
+import cp, {
   type ChildProcess,
   type IOType,
   type StdioOptions,
-  spawn,
-  spawnSync,
 } from 'node:child_process'
 import { type Encoding } from 'node:crypto'
-import { type AsyncHook, AsyncLocalStorage, createHook } from 'node:async_hooks'
-import { type Readable, type Writable } from 'node:stream'
-import fs from 'node:fs'
-import { inspect } from 'node:util'
-import { EOL as _EOL } from 'node:os'
 import { EventEmitter } from 'node:events'
-import { Buffer } from 'node:buffer'
+import fs from 'node:fs'
+import { EOL as _EOL } from 'node:os'
 import process from 'node:process'
+import { type Readable, type Writable } from 'node:stream'
+import { inspect } from 'node:util'
+
 import {
   formatErrorDetails,
   formatErrorMessage,
@@ -35,6 +34,7 @@ import {
   getCallerLocation,
   getExitCodeInfo,
 } from './error.ts'
+import { log } from './log.ts'
 import {
   exec,
   buildCmd,
@@ -63,8 +63,6 @@ import {
   randomId,
   bufArrJoin,
 } from './util.ts'
-import { log } from './log.ts'
-import * as child_process from 'node:child_process'
 
 export { default as path } from 'node:path'
 export * as os from 'node:os'
@@ -93,15 +91,7 @@ const ENV_OPTS: Set<string> = new Set([
   'postfix',
   'shell',
 ])
-const storage = new AsyncLocalStorage<Options>()
 
-function getStore() {
-  return storage.getStore() || defaults
-}
-
-export function within<R>(callback: () => R): R {
-  return storage.run({ ...getStore() }, callback)
-}
 // prettier-ignore
 export interface Options {
   [CWD]:          string
@@ -124,8 +114,8 @@ export interface Options {
   quiet:          boolean
   detached:       boolean
   preferLocal:    boolean | string | string[]
-  spawn:          typeof spawn
-  spawnSync:      typeof spawnSync
+  spawn:          typeof cp.spawn
+  spawnSync:      typeof cp.spawnSync
   store?:         TSpawnStore
   log:            typeof log
   kill:           typeof kill
@@ -147,13 +137,20 @@ export const defaults: Options = resolveDefaults({
   quiet:          false,
   detached:       false,
   preferLocal:    false,
-  spawn,
-  spawnSync,
+  spawn:          cp.spawn,
+  spawnSync:      cp.spawnSync,
   log,
   kill,
   killSignal:     SIGTERM,
   timeoutSignal:  SIGTERM,
 })
+
+type Snapshot = Options & {
+  from: string
+  cmd: string
+  ee: EventEmitter
+  ac: AbortController
+}
 
 // prettier-ignore
 export interface Shell<
@@ -167,15 +164,13 @@ export interface Shell<
     (opts: Partial<Omit<Options, 'sync'>>): Shell<true>
   }
 }
+
+// Internal storages
+const storage = new AsyncLocalStorage<Options>()
 const snapshots: Snapshot[] = []
 const delimiters: Options['delimiter'][] = []
 
-type Snapshot = Options & {
-  from: string
-  cmd: string
-  ee: EventEmitter
-  ac: AbortController
-}
+const getStore = () => storage.getStore() || defaults
 
 const getSnapshot = (
   snapshot: Options,
@@ -189,6 +184,11 @@ const getSnapshot = (
   cmd,
 })
 
+export function within<R>(callback: () => R): R {
+  return storage.run({ ...getStore() }, callback)
+}
+
+// The zx
 export const $: Shell & Options = new Proxy<Shell & Options>(
   function (pieces: TemplateStringsArray | Partial<Options>, ...args: any[]) {
     const snapshot = getStore()
@@ -219,17 +219,18 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
     return pp.sync ? pp.output : pp
   } as Shell & Options,
   {
-    set(_, key, value) {
-      const target = key in Function.prototype ? _ : getStore()
-      Reflect.set(target, key === 'sync' ? SYNC : key, value)
-
+    set(t, key, value) {
+      Reflect.set(
+        key in Function.prototype ? t : getStore(),
+        key === 'sync' ? SYNC : key,
+        value
+      )
       return true
     },
-    get(_, key) {
-      if (key === 'sync') return $({ sync: true })
-
-      const target = key in Function.prototype ? _ : getStore()
-      return Reflect.get(target, key)
+    get(t, key) {
+      return key === 'sync'
+        ? $({ sync: true })
+        : Reflect.get(key in Function.prototype ? t : getStore(), key)
     },
   }
 )
@@ -288,6 +289,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     const self = this
     const $ = self._snapshot
     const id = self.id
+    const cwd = $.cwd ?? $[CWD]
 
     if ($.preferLocal) {
       const dirs =
@@ -298,7 +300,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     // prettier-ignore
     this._zurk = exec({
       cmd:      self.fullCmd,
-      cwd:      $.cwd ?? $[CWD],
+      cwd,
       input:    ($.input as ProcessPromise | ProcessOutput)?.stdout ?? $.input,
       stdin:    self._stdin,
       sync:     self.sync,
@@ -424,7 +426,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       if (dest.isHalted() && this.isHalted()) {
         ee.once('start', () => from.pipe(dest.run()._stdin))
       } else {
-        this.catch((e) => (dest.isNothrow() ? noop : dest._reject(e)))
+        this.catch((e) => !dest.isNothrow() && dest._reject(e))
         from.pipe(dest.run()._stdin)
       }
       fillEnd()
@@ -934,7 +936,7 @@ export async function kill(pid: number, signal = $.killSignal) {
   if (
     process.platform === 'win32' &&
     (await new Promise((resolve) => {
-      child_process.exec(`taskkill /pid ${pid} /t /f`, (err) => resolve(!err))
+      cp.exec(`taskkill /pid ${pid} /t /f`, (err) => resolve(!err))
     }))
   )
     return
