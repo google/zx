@@ -23,6 +23,7 @@ export type LogEntry = {
   | {
       kind: 'cmd'
       cmd: string
+      cwd: string
       id: string
     }
   | {

@@ -449,11 +449,13 @@ describe('core', () => {
       const p = $({ log })`echo foo`
       const { id } = p
       const { duration } = await p
+      const cwd = process.cwd()
 
       assert.equal(entries.length, 3)
       assert.deepEqual(entries[0], {
         kind: 'cmd',
         cmd: 'echo foo',
+        cwd,
         verbose: false,
         id,
       })

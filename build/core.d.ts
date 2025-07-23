@@ -58,7 +58,8 @@ export interface Shell<S = false, R = S extends true ? ProcessOutput : ProcessPr
     };
 }
 export declare function within<R>(callback: () => R): R;
-export declare const $: Shell & Options;
+export type $ = Shell & Options;
+export declare const $: $;
 type ProcessStage = 'initial' | 'halted' | 'running' | 'fulfilled' | 'rejected';
 type Resolve = (out: ProcessOutput) => void;
 type PromisifiedStream<D extends Writable> = D & PromiseLike<ProcessOutput & D>;

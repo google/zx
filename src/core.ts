@@ -189,7 +189,9 @@ export function within<R>(callback: () => R): R {
 }
 
 // The zx
-export const $: Shell & Options = new Proxy<Shell & Options>(
+export type $ = Shell & Options
+
+export const $: $ = new Proxy<$>(
   function (pieces: TemplateStringsArray | Partial<Options>, ...args: any[]) {
     const snapshot = getStore()
     if (!Array.isArray(pieces)) {
@@ -217,15 +219,14 @@ export const $: Shell & Options = new Proxy<Shell & Options>(
     if (!pp.isHalted()) pp.run()
 
     return pp.sync ? pp.output : pp
-  } as Shell & Options,
+  } as $,
   {
     set(t, key, value) {
-      Reflect.set(
+      return Reflect.set(
         key in Function.prototype ? t : getStore(),
         key === 'sync' ? SYNC : key,
         value
       )
-      return true
     },
     get(t, key) {
       return key === 'sync'
@@ -326,7 +327,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       },
       on: {
         start: () => {
-          $.log({ kind: 'cmd', cmd: self.cmd, verbose: self.isVerbose(), id })
+          $.log({ kind: 'cmd', cmd: self.cmd, cwd, verbose: self.isVerbose(), id })
           self.timeout($.timeout, $.timeoutSignal)
         },
         stdout: (data) => {
