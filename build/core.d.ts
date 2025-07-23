@@ -16,49 +16,54 @@ export { chalk, which, ps } from './vendor-core.js';
 export { type Duration, quote, quotePowerShell } from './util.js';
 declare const CWD: unique symbol;
 declare const SYNC: unique symbol;
-export interface Options {
-    [CWD]: string;
-    [SYNC]: boolean;
-    cwd?: string;
-    ac?: AbortController;
-    signal?: AbortSignal;
-    input?: string | Buffer | Readable | ProcessOutput | ProcessPromise;
-    timeout?: Duration;
-    timeoutSignal?: NodeJS.Signals;
+export interface Options extends Partial<{
+    cwd: string;
+    cmd: string;
+    prefix: string;
+    postfix: string;
+    ac: AbortController;
+    signal: AbortSignal;
+    input: string | Buffer | Readable | ProcessOutput | ProcessPromise;
+    timeout: Duration;
+    timeoutSignal: NodeJS.Signals;
     stdio: StdioOptions;
     verbose: boolean;
     sync: boolean;
     env: NodeJS.ProcessEnv;
     shell: string | true;
     nothrow: boolean;
-    prefix?: string;
-    postfix?: string;
-    quote?: typeof quote;
+    quote: typeof quote;
     quiet: boolean;
     detached: boolean;
     preferLocal: boolean | string | string[];
     spawn: typeof cp.spawn;
     spawnSync: typeof cp.spawnSync;
-    store?: TSpawnStore;
+    store: TSpawnStore;
     log: typeof log;
     kill: typeof kill;
-    killSignal?: NodeJS.Signals;
-    halt?: boolean;
-    delimiter?: string | RegExp;
+    killSignal: NodeJS.Signals;
+    halt: boolean;
+    delimiter: string | RegExp;
+}> {
 }
-export declare const defaults: Options;
+interface Defaults extends Required<Omit<Options, 'ac' | 'cmd' | 'cwd' | 'prefix' | 'postfix' | 'delimiter' | 'halt' | 'input' | 'quote' | 'signal' | 'store' | 'timeout'>> {
+    [CWD]: string;
+    [SYNC]: boolean;
+}
+type NormalizedOpts = Options & Defaults;
+export declare const defaults: Defaults;
 export interface Shell<S = false, R = S extends true ? ProcessOutput : ProcessPromise> {
     (pieces: TemplateStringsArray, ...args: any[]): R;
-    <O extends Partial<Options> = Partial<Options>, R = O extends {
+    <O extends Options = Options, R = O extends {
         sync: true;
     } ? Shell<true> : Shell>(opts: O): R;
     sync: {
         (pieces: TemplateStringsArray, ...args: any[]): ProcessOutput;
-        (opts: Partial<Omit<Options, 'sync'>>): Shell<true>;
+        (opts: Omit<Options, 'sync'>): Shell<true>;
     };
 }
 export declare function within<R>(callback: () => R): R;
-export type $ = Shell & Options;
+export type $ = Shell & NormalizedOpts;
 export declare const $: $;
 type ProcessStage = 'initial' | 'halted' | 'running' | 'fulfilled' | 'rejected';
 type Resolve = (out: ProcessOutput) => void;
@@ -88,7 +93,7 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     };
     private _pipe;
     abort(reason?: string): void;
-    kill(signal?: NodeJS.Signals | undefined): Promise<void>;
+    kill(signal?: NodeJS.Signals): Promise<void>;
     /**
      *  @deprecated Use $({halt: true})`cmd` instead.
      */
@@ -113,7 +118,7 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     nothrow(v?: boolean): ProcessPromise;
     quiet(v?: boolean): ProcessPromise;
     verbose(v?: boolean): ProcessPromise;
-    timeout(d?: Duration, signal?: NodeJS.Signals | undefined): ProcessPromise;
+    timeout(d?: Duration, signal?: NodeJS.Signals): ProcessPromise;
     json<T = any>(): Promise<T>;
     text(encoding?: Encoding): Promise<string>;
     lines(delimiter?: Options['delimiter']): Promise<string[]>;
@@ -180,5 +185,5 @@ export declare function usePwsh(): void;
 export declare function useBash(): void;
 export declare function syncProcessCwd(flag?: boolean): void;
 export declare function cd(dir: string | ProcessOutput): void;
-export declare function kill(pid: number, signal?: NodeJS.Signals | undefined): Promise<void>;
-export declare function resolveDefaults(defs?: Options, prefix?: string, env?: NodeJS.ProcessEnv, allowed?: Set<string>): Options;
+export declare function kill(pid: number, signal?: NodeJS.Signals): Promise<void>;
+export declare function resolveDefaults(defs?: Defaults, prefix?: string, env?: NodeJS.ProcessEnv, allowed?: Set<string>): Defaults;
