@@ -38,14 +38,14 @@ __export(core_exports, {
   within: () => within
 });
 module.exports = __toCommonJS(core_exports);
-var import_node_child_process = require("child_process");
 var import_node_async_hooks = require("async_hooks");
-var import_node_fs = __toESM(require("fs"), 1);
-var import_node_util2 = require("util");
-var import_node_os = require("os");
-var import_node_events = require("events");
 var import_node_buffer = require("buffer");
+var import_node_child_process = __toESM(require("child_process"), 1);
+var import_node_events = require("events");
+var import_node_fs = __toESM(require("fs"), 1);
+var import_node_os = require("os");
 var import_node_process2 = __toESM(require("process"), 1);
+var import_node_util2 = require("util");
 
 // src/error.ts
 var EXIT_CODES = {
@@ -242,10 +242,6 @@ var formatErrorDetails = (lines = [], lim = 20) => {
   return errors.slice(0, lim).join("\n") + (errors.length > lim ? "\n..." : "");
 };
 
-// src/core.ts
-var import_vendor_core2 = require("./vendor-core.cjs");
-var import_util = require("./util.cjs");
-
 // src/log.ts
 var import_vendor_core = require("./vendor-core.cjs");
 var import_node_util = require("util");
@@ -381,7 +377,8 @@ function formatCmd(cmd) {
 }
 
 // src/core.ts
-var child_process = __toESM(require("child_process"), 1);
+var import_vendor_core2 = require("./vendor-core.cjs");
+var import_util = require("./util.cjs");
 var import_node_path = __toESM(require("path"), 1);
 var os = __toESM(require("os"), 1);
 var import_vendor_core3 = require("./vendor-core.cjs");
@@ -407,13 +404,6 @@ var ENV_OPTS = /* @__PURE__ */ new Set([
   "postfix",
   "shell"
 ]);
-var storage = new import_node_async_hooks.AsyncLocalStorage();
-function getStore() {
-  return storage.getStore() || defaults;
-}
-function within(callback) {
-  return storage.run(__spreadValues({}, getStore()), callback);
-}
 var defaults = resolveDefaults({
   [CWD]: import_node_process2.default.cwd(),
   [SYNC]: false,
@@ -426,21 +416,26 @@ var defaults = resolveDefaults({
   quiet: false,
   detached: false,
   preferLocal: false,
-  spawn: import_node_child_process.spawn,
-  spawnSync: import_node_child_process.spawnSync,
+  spawn: import_node_child_process.default.spawn,
+  spawnSync: import_node_child_process.default.spawnSync,
   log,
   kill,
   killSignal: SIGTERM,
   timeoutSignal: SIGTERM
 });
+var storage = new import_node_async_hooks.AsyncLocalStorage();
 var snapshots = [];
 var delimiters = [];
+var getStore = () => storage.getStore() || defaults;
 var getSnapshot = (snapshot, from, cmd) => __spreadProps(__spreadValues({}, snapshot), {
   ac: snapshot.ac || new AbortController(),
   ee: new import_node_events.EventEmitter(),
   from,
   cmd
 });
+function within(callback) {
+  return storage.run(__spreadValues({}, getStore()), callback);
+}
 var $ = new Proxy(
   function(pieces, ...args) {
     const snapshot = getStore();
@@ -467,15 +462,16 @@ var $ = new Proxy(
     return pp.sync ? pp.output : pp;
   },
   {
-    set(_, key, value) {
-      const target = key in Function.prototype ? _ : getStore();
-      Reflect.set(target, key === "sync" ? SYNC : key, value);
+    set(t, key, value) {
+      Reflect.set(
+        key in Function.prototype ? t : getStore(),
+        key === "sync" ? SYNC : key,
+        value
+      );
       return true;
     },
-    get(_, key) {
-      if (key === "sync") return $({ sync: true });
-      const target = key in Function.prototype ? _ : getStore();
-      return Reflect.get(target, key);
+    get(t, key) {
+      return key === "sync" ? $({ sync: true }) : Reflect.get(key in Function.prototype ? t : getStore(), key);
     }
   }
 );
@@ -516,13 +512,14 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     const self = this;
     const $2 = self._snapshot;
     const id = self.id;
+    const cwd = (_b = $2.cwd) != null ? _b : $2[CWD];
     if ($2.preferLocal) {
       const dirs = $2.preferLocal === true ? [$2.cwd, $2[CWD]] : [$2.preferLocal].flat();
       $2.env = (0, import_util.preferLocalBin)($2.env, ...dirs);
     }
     this._zurk = (0, import_vendor_core2.exec)({
       cmd: self.fullCmd,
-      cwd: (_b = $2.cwd) != null ? _b : $2[CWD],
+      cwd,
       input: (_d = (_c = $2.input) == null ? void 0 : _c.stdout) != null ? _d : $2.input,
       stdin: self._stdin,
       sync: self.sync,
@@ -618,7 +615,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       if (dest.isHalted() && this.isHalted()) {
         ee.once("start", () => from.pipe(dest.run()._stdin));
       } else {
-        this.catch((e) => dest.isNothrow() ? import_util.noop : dest._reject(e));
+        this.catch((e) => !dest.isNothrow() && dest._reject(e));
         from.pipe(dest.run()._stdin);
       }
       fillEnd();
@@ -1007,7 +1004,7 @@ function cd(dir) {
 function kill(_0) {
   return __async(this, arguments, function* (pid, signal = $.killSignal) {
     if (import_node_process2.default.platform === "win32" && (yield new Promise((resolve) => {
-      child_process.exec(`taskkill /pid ${pid} /t /f`, (err) => resolve(!err));
+      import_node_child_process.default.exec(`taskkill /pid ${pid} /t /f`, (err) => resolve(!err));
     })))
       return;
     for (const p of yield import_vendor_core2.ps.tree({ pid, recursive: true })) {
