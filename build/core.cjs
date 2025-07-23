@@ -463,12 +463,11 @@ var $ = new Proxy(
   },
   {
     set(t, key, value) {
-      Reflect.set(
+      return Reflect.set(
         key in Function.prototype ? t : getStore(),
         key === "sync" ? SYNC : key,
         value
       );
-      return true;
     },
     get(t, key) {
       return key === "sync" ? $({ sync: true }) : Reflect.get(key in Function.prototype ? t : getStore(), key);
@@ -547,7 +546,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       },
       on: {
         start: () => {
-          $2.log({ kind: "cmd", cmd: self.cmd, verbose: self.isVerbose(), id });
+          $2.log({ kind: "cmd", cmd: self.cmd, cwd, verbose: self.isVerbose(), id });
           self.timeout($2.timeout, $2.timeoutSignal);
         },
         stdout: (data) => {
