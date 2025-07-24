@@ -6,11 +6,13 @@ import cp, { type ChildProcess, type IOType, type StdioOptions } from 'node:chil
 import { type Encoding } from 'node:crypto';
 import { type Readable, type Writable } from 'node:stream';
 import { inspect } from 'node:util';
+import { Fail } from './error.js';
 import { log } from './log.js';
 import { type TSpawnStore } from './vendor-core.js';
 import { type Duration, quote } from './util.js';
 export { default as path } from 'node:path';
 export * as os from 'node:os';
+export { Fail } from './error.js';
 export { log, type LogEntry } from './log.js';
 export { chalk, which, ps } from './vendor-core.js';
 export { type Duration, quote, quotePowerShell } from './util.js';
@@ -170,10 +172,10 @@ export declare class ProcessOutput extends Error {
     [Symbol.toPrimitive](): string;
     [Symbol.iterator](): Iterator<string>;
     [inspect.custom](): string;
-    static getExitMessage: (code: number | null, signal: NodeJS.Signals | null, stderr: string, from: string, details?: string) => string;
-    static getErrorMessage: (err: NodeJS.ErrnoException, from: string) => string;
-    static getErrorDetails: (lines?: string[], lim?: number) => string;
-    static getExitCodeInfo: (exitCode: number | null) => string | undefined;
+    static getExitMessage: typeof Fail.formatExitMessage;
+    static getErrorMessage: typeof Fail.formatErrorMessage;
+    static getErrorDetails: typeof Fail.formatErrorDetails;
+    static getExitCodeInfo: typeof Fail.getExitCodeInfo;
 }
 export declare function usePowerShell(): void;
 export declare function usePwsh(): void;
