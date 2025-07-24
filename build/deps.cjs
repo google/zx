@@ -24,7 +24,7 @@ function installDeps(dependencies, prefix, registry, installerType = "npm") {
     );
     if (packages.length === 0) return;
     if (!installer) {
-      throw new Error(
+      throw new import_index.Fail(
         `Unsupported installer type: ${installerType}. Supported types: ${Object.keys(installers).join(", ")}`
       );
     }

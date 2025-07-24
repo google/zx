@@ -14,7 +14,9 @@
 
 import assert from 'node:assert'
 import { test, describe } from 'node:test'
-import {
+import { Fail } from '../src/error.ts'
+
+const {
   getErrnoMessage,
   getExitCodeInfo,
   getCallerLocation,
@@ -22,7 +24,7 @@ import {
   formatExitMessage,
   formatErrorMessage,
   formatErrorDetails,
-} from '../src/error.ts'
+} = Fail
 
 describe('error', () => {
   test('getExitCodeInfo()', () => {

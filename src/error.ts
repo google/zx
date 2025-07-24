@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const EXIT_CODES = {
+const EXIT_CODES: Record<number, string> = {
   2: 'Misuse of shell builtins',
   126: 'Invoked command cannot execute',
   127: 'Command not found',
@@ -47,7 +47,7 @@ const EXIT_CODES = {
   159: 'Bad syscall',
 }
 
-const ERRNO_CODES = {
+const ERRNO_CODES: Record<number, string> = {
   0: 'Success',
   1: 'Not super-user',
   2: 'No such file or directory',
@@ -169,69 +169,77 @@ const ERRNO_CODES = {
   131: 'State not recoverable',
 }
 
-export function getErrnoMessage(errno?: number): string {
-  return (
-    ERRNO_CODES[-(errno as number) as keyof typeof ERRNO_CODES] ||
-    'Unknown error'
-  )
-}
+const DOCS_URL = 'https://google.github.io/zx'
 
-export const getExitCodeInfo = (exitCode: number | null): string | undefined =>
-  EXIT_CODES[exitCode as keyof typeof EXIT_CODES]
+export class Fail extends Error {
+  static DOCS_URL = DOCS_URL
+  static EXIT_CODES = EXIT_CODES
+  static ERRNO_CODES = ERRNO_CODES
 
-export const formatExitMessage = (
-  code: number | null,
-  signal: NodeJS.Signals | null,
-  stderr: string,
-  from: string,
-  details: string = ''
-): string => {
-  if (code == 0 && signal == null) return `exit code: ${code}`
+  static formatExitMessage(
+    code: number | null,
+    signal: NodeJS.Signals | null,
+    stderr: string,
+    from: string,
+    details: string = ''
+  ): string {
+    if (code == 0 && signal == null) return `exit code: ${code}`
 
-  const codeInfo = getExitCodeInfo(code)
-  let message = `${stderr}
+    const codeInfo = Fail.getExitCodeInfo(code)
+    let message = `${stderr}
     at ${from}
     exit code: ${code}${codeInfo ? ' (' + codeInfo + ')' : ''}`
 
-  if (signal != null) message += `\n    signal: ${signal}`
+    if (signal != null) message += `\n    signal: ${signal}`
 
-  if (details) message += `\n    details: \n${details}`
+    if (details) message += `\n    details: \n${details}`
 
-  return message
-}
+    return message
+  }
 
-export const formatErrorMessage = (
-  err: NodeJS.ErrnoException,
-  from: string
-): string => {
-  return `${err.message}
-    errno: ${err.errno} (${getErrnoMessage(err.errno)})
+  static formatErrorMessage(err: NodeJS.ErrnoException, from: string): string {
+    return `${err.message}
+    errno: ${err.errno} (${Fail.getErrnoMessage(err.errno)})
     code: ${err.code}
     at ${from}`
-}
+  }
 
-export function getCallerLocation(err = new Error('zx error')): string {
-  return getCallerLocationFromString(err.stack)
-}
+  static formatErrorDetails(lines: string[] = [], lim = 20): string {
+    if (lines.length < lim) return lines.join('\n')
 
-export function getCallerLocationFromString(stackString = 'unknown'): string {
-  const lines = stackString
-    .split(/^\s*(at\s)?/m)
-    .filter((s) => s?.includes(':'))
-  const i = lines.findIndex((l) => l.includes('Proxy.set'))
-  const offset = i < 0 ? i : i + 2
+    let errors = lines.filter((l) => /(fail|error|not ok|exception)/i.test(l))
+    if (errors.length === 0) errors = lines
+    return (
+      errors.slice(0, lim).join('\n') + (errors.length > lim ? '\n...' : '')
+    )
+  }
 
-  return (
-    lines.find((l) => l.includes('file://')) ||
-    lines[offset] ||
-    stackString
-  ).trim()
-}
+  static getExitCodeInfo(exitCode: number | null): string | undefined {
+    return EXIT_CODES[exitCode as keyof typeof EXIT_CODES]
+  }
 
-export const formatErrorDetails = (lines: string[] = [], lim = 20): string => {
-  if (lines.length < lim) return lines.join('\n')
+  static getCallerLocationFromString(stackString = 'unknown'): string {
+    const lines = stackString
+      .split(/^\s*(at\s)?/m)
+      .filter((s) => s?.includes(':'))
+    const i = lines.findIndex((l) => l.includes('Proxy.set'))
+    const offset = i < 0 ? i : i + 2
 
-  let errors = lines.filter((l) => /(fail|error|not ok|exception)/i.test(l))
-  if (errors.length === 0) errors = lines
-  return errors.slice(0, lim).join('\n') + (errors.length > lim ? '\n...' : '')
+    return (
+      lines.find((l) => l.includes('file://')) ||
+      lines[offset] ||
+      stackString
+    ).trim()
+  }
+
+  static getCallerLocation(err: Error = new Error('zx error')): string {
+    return Fail.getCallerLocationFromString(err.stack)
+  }
+
+  static getErrnoMessage(errno?: number): string {
+    return (
+      ERRNO_CODES[-(errno as number) as keyof typeof ERRNO_CODES] ||
+      'Unknown error'
+    )
+  }
 }

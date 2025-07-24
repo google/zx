@@ -29,6 +29,7 @@ import {
   path,
   stdin,
   VERSION,
+  Fail,
 } from './index.ts'
 import { installDeps, parseDeps } from './deps.ts'
 import { startRepl } from './repl.ts'
@@ -90,7 +91,7 @@ export function printUsage() {
    --env=<path>         path to env file
    --experimental       enables experimental features (deprecated)
 
- ${chalk.italic('Full documentation:')} ${chalk.underline('https://google.github.io/zx/')}
+ ${chalk.italic('Full documentation:')} ${chalk.underline(Fail.DOCS_URL)}
 `)
 }
 
@@ -192,7 +193,7 @@ async function readScript() {
     if (script.length === 0) {
       printUsage()
       process.exitCode = 1
-      throw new Error('No script provided')
+      throw new Fail('No script provided')
     }
   } else if (/^https?:/.test(firstArg)) {
     const { name, ext = argv.ext } = path.parse(new URL(firstArg).pathname)

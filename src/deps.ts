@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import { builtinModules } from 'node:module'
-import { $, spinner } from './index.ts'
+import { $, spinner, Fail } from './index.ts'
 import { depseek } from './vendor.ts'
 
 /**
@@ -35,7 +35,7 @@ export async function installDeps(
   )
   if (packages.length === 0) return
   if (!installer) {
-    throw new Error(
+    throw new Fail(
       `Unsupported installer type: ${installerType}. Supported types: ${Object.keys(installers).join(', ')}`
     )
   }

@@ -27,13 +27,7 @@ import process from 'node:process'
 import { type Readable, type Writable } from 'node:stream'
 import { inspect } from 'node:util'
 
-import {
-  formatErrorDetails,
-  formatErrorMessage,
-  formatExitMessage,
-  getCallerLocation,
-  getExitCodeInfo,
-} from './error.ts'
+import { Fail } from './error.ts'
 import { log } from './log.ts'
 import {
   exec,
@@ -66,6 +60,7 @@ import {
 
 export { default as path } from 'node:path'
 export * as os from 'node:os'
+export { Fail } from './error.ts'
 export { log, type LogEntry } from './log.ts'
 export { chalk, which, ps } from './vendor-core.ts'
 export { type Duration, quote, quotePowerShell } from './util.ts'
@@ -172,13 +167,9 @@ const delimiters: Options['delimiter'][] = []
 
 const getStore = () => storage.getStore() || defaults
 
-const getSnapshot = (
-  snapshot: Options,
-  from: string,
-  cmd: string
-): Snapshot => ({
-  ...snapshot,
-  ac: snapshot.ac || new AbortController(),
+const getSnapshot = (opts: Options, from: string, cmd: string): Snapshot => ({
+  ...opts,
+  ac: opts.ac || new AbortController(),
   ee: new EventEmitter(),
   from,
   cmd,
@@ -193,17 +184,15 @@ export type $ = Shell & Options
 
 export const $: $ = new Proxy<$>(
   function (pieces: TemplateStringsArray | Partial<Options>, ...args: any[]) {
-    const snapshot = getStore()
+    const opts = getStore()
     if (!Array.isArray(pieces)) {
       return function (this: any, ...args: any) {
-        return within(() =>
-          Object.assign($, snapshot, pieces).apply(this, args)
-        )
+        return within(() => Object.assign($, opts, pieces).apply(this, args))
       }
     }
-    const from = getCallerLocation()
+    const from = Fail.getCallerLocation()
     if (pieces.some((p) => p == null))
-      throw new Error(`Malformed command at ${from}`)
+      throw new Fail(`Malformed command at ${from}`)
 
     checkShell()
     checkQuote()
@@ -213,7 +202,7 @@ export const $: $ = new Proxy<$>(
       pieces as TemplateStringsArray,
       args
     ) as string
-    snapshots.push(getSnapshot(snapshot, from, cmd))
+    snapshots.push(getSnapshot(opts, from, cmd))
     const pp = new ProcessPromise(noop)
 
     if (!pp.isHalted()) pp.run()
@@ -327,7 +316,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       },
       on: {
         start: () => {
-          $.log({ kind: 'cmd', cmd: self.cmd, cwd, verbose: self.isVerbose(), id })
+          $.log({ kind: 'cmd', cmd: $.cmd, cwd, verbose: self.isVerbose(), id })
           self.timeout($.timeout, $.timeoutSignal)
         },
         stdout: (data) => {
@@ -441,22 +430,22 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   abort(reason?: string) {
-    if (this.isSettled()) throw new Error('Too late to abort the process.')
+    if (this.isSettled()) throw new Fail('Too late to abort the process.')
     if (this.signal !== this.ac.signal)
-      throw new Error('The signal is controlled by another process.')
+      throw new Fail('The signal is controlled by another process.')
     if (!this.child)
-      throw new Error('Trying to abort a process without creating one.')
+      throw new Fail('Trying to abort a process without creating one.')
 
     this.ac.abort(reason)
   }
 
   kill(signal = $.killSignal): Promise<void> {
-    if (this.isSettled()) throw new Error('Too late to kill the process.')
+    if (this.isSettled()) throw new Fail('Too late to kill the process.')
     if (!this.child)
-      throw new Error('Trying to kill a process without creating one.')
-    if (!this.child.pid) throw new Error('The process pid is undefined.')
+      throw new Fail('Trying to kill a process without creating one.')
+    if (!this.pid) throw new Fail('The process pid is undefined.')
 
-    return $.kill(this.child.pid, signal)
+    return $.kill(this.pid, signal)
   }
 
   /**
@@ -696,7 +685,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       if (k in Promise.prototype) return
       if (!toggle) { Reflect.deleteProperty(p, k); return }
       Object.defineProperty(p, k, { configurable: true, get() {
-        throw new Error('Inappropriate usage. Apply $ instead of direct instantiation.')
+        throw new Fail('Inappropriate usage. Apply $ instead of direct instantiation.')
       }})
     })
   }
@@ -798,7 +787,7 @@ export class ProcessOutput extends Error {
 
   blob(type = 'text/plain'): Blob {
     if (!globalThis.Blob)
-      throw new Error(
+      throw new Fail(
         'Blob is not supported in this environment. Provide a polyfill'
       )
     return new Blob([this.buffer()], { type })
@@ -853,13 +842,13 @@ export class ProcessOutput extends Error {
 }`
   }
 
-  static getExitMessage = formatExitMessage
+  static getExitMessage = Fail.formatExitMessage
 
-  static getErrorMessage = formatErrorMessage
+  static getErrorMessage = Fail.formatErrorMessage
 
-  static getErrorDetails = formatErrorDetails
+  static getErrorDetails = Fail.formatErrorDetails
 
-  static getExitCodeInfo = getExitCodeInfo
+  static getExitCodeInfo = Fail.getExitCodeInfo
 }
 
 export function usePowerShell() {
@@ -892,15 +881,12 @@ try {
 } catch (err) {}
 
 function checkShell() {
-  if (!$.shell)
-    throw new Error(`No shell is available: https://google.github.io/zx/shell`)
+  if (!$.shell) throw new Fail(`No shell is available: ${Fail.DOCS_URL}/shell`)
 }
 
 function checkQuote() {
   if (!$.quote)
-    throw new Error(
-      'No quote function is defined: https://google.github.io/zx/quotes'
-    )
+    throw new Fail(`No quote function is defined: ${Fail.DOCS_URL}/quotes`)
 }
 
 let cwdSyncHook: AsyncHook

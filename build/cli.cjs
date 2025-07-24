@@ -181,7 +181,7 @@ function printUsage() {
    --env=<path>         path to env file
    --experimental       enables experimental features (deprecated)
 
- ${import_index.chalk.italic("Full documentation:")} ${import_index.chalk.underline("https://google.github.io/zx/")}
+ ${import_index.chalk.italic("Full documentation:")} ${import_index.chalk.underline(import_index.Fail.DOCS_URL)}
 `);
 }
 function main() {
@@ -270,7 +270,7 @@ function readScript() {
       if (script.length === 0) {
         printUsage();
         import_node_process2.default.exitCode = 1;
-        throw new Error("No script provided");
+        throw new import_index.Fail("No script provided");
       }
     } else if (/^https?:/.test(firstArg)) {
       const { name, ext: ext2 = argv.ext } = import_index.path.parse(new URL(firstArg).pathname);

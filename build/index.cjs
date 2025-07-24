@@ -159,9 +159,8 @@ function question(_0) {
 function stdin() {
   return __async(this, arguments, function* (stream = import_node_process.default.stdin) {
     let buf = "";
-    stream.setEncoding("utf8");
     try {
-      for (var iter = __forAwait(stream), more, temp, error; more = !(temp = yield iter.next()).done; more = false) {
+      for (var iter = __forAwait(stream.setEncoding("utf8")), more, temp, error; more = !(temp = yield iter.next()).done; more = false) {
         const chunk = temp.value;
         buf += chunk;
       }
@@ -181,7 +180,7 @@ function stdin() {
 function retry(count, d, cb) {
   return __async(this, null, function* () {
     if (typeof d === "function") return retry(count, 0, d);
-    if (!cb) throw new Error("Callback is required for retry");
+    if (!cb) throw new import_core.Fail("Callback is required for retry");
     const total = count;
     const gen = typeof d === "object" ? d : function* (d2) {
       while (true) yield d2;

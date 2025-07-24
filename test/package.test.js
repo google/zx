@@ -51,6 +51,7 @@ describe('package', () => {
         'build/deno.js',
         'build/deps.cjs',
         'build/deps.d.ts',
+        'build/error.d.ts',
         'build/esblib.cjs',
         'build/globals.cjs',
         'build/globals.d.ts',
