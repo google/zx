@@ -976,14 +976,11 @@ try {
 } catch (err) {
 }
 function checkShell() {
-  if (!$.shell)
-    throw new Fail(`No shell is available: ${Fail.DOCS_URL}/shell`);
+  if (!$.shell) throw new Fail(`No shell is available: ${Fail.DOCS_URL}/shell`);
 }
 function checkQuote() {
   if (!$.quote)
-    throw new Fail(
-      `No quote function is defined: ${Fail.DOCS_URL}/quotes`
-    );
+    throw new Fail(`No quote function is defined: ${Fail.DOCS_URL}/quotes`);
 }
 var cwdSyncHook;
 function syncProcessCwd(flag = true) {

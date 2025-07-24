@@ -232,7 +232,7 @@ export class Fail extends Error {
     ).trim()
   }
 
-  static getCallerLocation(err = new Error('zx error')): string {
+  static getCallerLocation(err: Error = new Error('zx error')): string {
     return Fail.getCallerLocationFromString(err.stack)
   }
 
