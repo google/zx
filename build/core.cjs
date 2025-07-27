@@ -17,6 +17,7 @@ const {
 var core_exports = {};
 __export(core_exports, {
   $: () => $,
+  Fail: () => Fail,
   ProcessOutput: () => ProcessOutput,
   ProcessPromise: () => ProcessPromise,
   cd: () => cd,
@@ -203,44 +204,53 @@ var ERRNO_CODES = {
   130: "Previous owner died",
   131: "State not recoverable"
 };
-function getErrnoMessage(errno) {
-  return ERRNO_CODES[-errno] || "Unknown error";
-}
-var getExitCodeInfo = (exitCode) => EXIT_CODES[exitCode];
-var formatExitMessage = (code, signal, stderr, from, details = "") => {
-  if (code == 0 && signal == null) return `exit code: ${code}`;
-  const codeInfo = getExitCodeInfo(code);
-  let message = `${stderr}
+var DOCS_URL = "https://google.github.io/zx";
+var _Fail = class _Fail extends Error {
+  static formatExitMessage(code, signal, stderr, from, details = "") {
+    if (code == 0 && signal == null) return `exit code: ${code}`;
+    const codeInfo = _Fail.getExitCodeInfo(code);
+    let message = `${stderr}
     at ${from}
     exit code: ${code}${codeInfo ? " (" + codeInfo + ")" : ""}`;
-  if (signal != null) message += `
+    if (signal != null) message += `
     signal: ${signal}`;
-  if (details) message += `
+    if (details) message += `
     details: 
 ${details}`;
-  return message;
-};
-var formatErrorMessage = (err, from) => {
-  return `${err.message}
-    errno: ${err.errno} (${getErrnoMessage(err.errno)})
+    return message;
+  }
+  static formatErrorMessage(err, from) {
+    return `${err.message}
+    errno: ${err.errno} (${_Fail.getErrnoMessage(err.errno)})
     code: ${err.code}
     at ${from}`;
+  }
+  static formatErrorDetails(lines = [], lim = 20) {
+    if (lines.length < lim) return lines.join("\n");
+    let errors = lines.filter((l) => /(fail|error|not ok|exception)/i.test(l));
+    if (errors.length === 0) errors = lines;
+    return errors.slice(0, lim).join("\n") + (errors.length > lim ? "\n..." : "");
+  }
+  static getExitCodeInfo(exitCode) {
+    return EXIT_CODES[exitCode];
+  }
+  static getCallerLocationFromString(stackString = "unknown") {
+    const lines = stackString.split(/^\s*(at\s)?/m).filter((s) => s == null ? void 0 : s.includes(":"));
+    const i = lines.findIndex((l) => l.includes("Proxy.set"));
+    const offset = i < 0 ? i : i + 2;
+    return (lines.find((l) => l.includes("file://")) || lines[offset] || stackString).trim();
+  }
+  static getCallerLocation(err = new Error("zx error")) {
+    return _Fail.getCallerLocationFromString(err.stack);
+  }
+  static getErrnoMessage(errno) {
+    return ERRNO_CODES[-errno] || "Unknown error";
+  }
 };
-function getCallerLocation(err = new Error("zx error")) {
-  return getCallerLocationFromString(err.stack);
-}
-function getCallerLocationFromString(stackString = "unknown") {
-  const lines = stackString.split(/^\s*(at\s)?/m).filter((s) => s == null ? void 0 : s.includes(":"));
-  const i = lines.findIndex((l) => l.includes("Proxy.set"));
-  const offset = i < 0 ? i : i + 2;
-  return (lines.find((l) => l.includes("file://")) || lines[offset] || stackString).trim();
-}
-var formatErrorDetails = (lines = [], lim = 20) => {
-  if (lines.length < lim) return lines.join("\n");
-  let errors = lines.filter((l) => /(fail|error|not ok|exception)/i.test(l));
-  if (errors.length === 0) errors = lines;
-  return errors.slice(0, lim).join("\n") + (errors.length > lim ? "\n..." : "");
-};
+_Fail.DOCS_URL = DOCS_URL;
+_Fail.EXIT_CODES = EXIT_CODES;
+_Fail.ERRNO_CODES = ERRNO_CODES;
+var Fail = _Fail;
 
 // src/log.ts
 var import_vendor_core = require("./vendor-core.cjs");
@@ -427,8 +437,8 @@ var storage = new import_node_async_hooks.AsyncLocalStorage();
 var snapshots = [];
 var delimiters = [];
 var getStore = () => storage.getStore() || defaults;
-var getSnapshot = (snapshot, from, cmd) => __spreadProps(__spreadValues({}, snapshot), {
-  ac: snapshot.ac || new AbortController(),
+var getSnapshot = (opts, from, cmd) => __spreadProps(__spreadValues({}, opts), {
+  ac: opts.ac || new AbortController(),
   ee: new import_node_events.EventEmitter(),
   from,
   cmd
@@ -438,17 +448,15 @@ function within(callback) {
 }
 var $ = new Proxy(
   function(pieces, ...args) {
-    const snapshot = getStore();
+    const opts = getStore();
     if (!Array.isArray(pieces)) {
       return function(...args2) {
-        return within(
-          () => Object.assign($, snapshot, pieces).apply(this, args2)
-        );
+        return within(() => Object.assign($, opts, pieces).apply(this, args2));
       };
     }
-    const from = getCallerLocation();
+    const from = Fail.getCallerLocation();
     if (pieces.some((p) => p == null))
-      throw new Error(`Malformed command at ${from}`);
+      throw new Fail(`Malformed command at ${from}`);
     checkShell();
     checkQuote();
     const cmd = (0, import_vendor_core2.buildCmd)(
@@ -456,7 +464,7 @@ var $ = new Proxy(
       pieces,
       args
     );
-    snapshots.push(getSnapshot(snapshot, from, cmd));
+    snapshots.push(getSnapshot(opts, from, cmd));
     const pp = new ProcessPromise(import_util.noop);
     if (!pp.isHalted()) pp.run();
     return pp.sync ? pp.output : pp;
@@ -546,7 +554,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       },
       on: {
         start: () => {
-          $2.log({ kind: "cmd", cmd: self.cmd, cwd, verbose: self.isVerbose(), id });
+          $2.log({ kind: "cmd", cmd: $2.cmd, cwd, verbose: self.isVerbose(), id });
           self.timeout($2.timeout, $2.timeoutSignal);
         },
         stdout: (data) => {
@@ -625,19 +633,19 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     return promisifyStream(dest, this);
   }
   abort(reason) {
-    if (this.isSettled()) throw new Error("Too late to abort the process.");
+    if (this.isSettled()) throw new Fail("Too late to abort the process.");
     if (this.signal !== this.ac.signal)
-      throw new Error("The signal is controlled by another process.");
+      throw new Fail("The signal is controlled by another process.");
     if (!this.child)
-      throw new Error("Trying to abort a process without creating one.");
+      throw new Fail("Trying to abort a process without creating one.");
     this.ac.abort(reason);
   }
   kill(signal = $.killSignal) {
-    if (this.isSettled()) throw new Error("Too late to kill the process.");
+    if (this.isSettled()) throw new Fail("Too late to kill the process.");
     if (!this.child)
-      throw new Error("Trying to kill a process without creating one.");
-    if (!this.child.pid) throw new Error("The process pid is undefined.");
-    return $.kill(this.child.pid, signal);
+      throw new Fail("Trying to kill a process without creating one.");
+    if (!this.pid) throw new Fail("The process pid is undefined.");
+    return $.kill(this.pid, signal);
   }
   /**
    *  @deprecated Use $({halt: true})`cmd` instead.
@@ -833,7 +841,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
         return;
       }
       Object.defineProperty(p, k, { configurable: true, get() {
-        throw new Error("Inappropriate usage. Apply $ instead of direct instantiation.");
+        throw new Fail("Inappropriate usage. Apply $ instead of direct instantiation.");
       } });
     });
   }
@@ -896,7 +904,7 @@ var _ProcessOutput = class _ProcessOutput extends Error {
   }
   blob(type = "text/plain") {
     if (!globalThis.Blob)
-      throw new Error(
+      throw new Fail(
         "Blob is not supported in this environment. Provide a polyfill"
       );
     return new Blob([this.buffer()], { type });
@@ -936,10 +944,10 @@ var _ProcessOutput = class _ProcessOutput extends Error {
 }`;
   }
 };
-_ProcessOutput.getExitMessage = formatExitMessage;
-_ProcessOutput.getErrorMessage = formatErrorMessage;
-_ProcessOutput.getErrorDetails = formatErrorDetails;
-_ProcessOutput.getExitCodeInfo = getExitCodeInfo;
+_ProcessOutput.getExitMessage = Fail.formatExitMessage;
+_ProcessOutput.getErrorMessage = Fail.formatErrorMessage;
+_ProcessOutput.getErrorDetails = Fail.formatErrorDetails;
+_ProcessOutput.getExitCodeInfo = Fail.getExitCodeInfo;
 var ProcessOutput = _ProcessOutput;
 function usePowerShell() {
   $.shell = import_vendor_core2.which.sync("powershell.exe");
@@ -968,14 +976,11 @@ try {
 } catch (err) {
 }
 function checkShell() {
-  if (!$.shell)
-    throw new Error(`No shell is available: https://google.github.io/zx/shell`);
+  if (!$.shell) throw new Fail(`No shell is available: ${Fail.DOCS_URL}/shell`);
 }
 function checkQuote() {
   if (!$.quote)
-    throw new Error(
-      "No quote function is defined: https://google.github.io/zx/quotes"
-    );
+    throw new Fail(`No quote function is defined: ${Fail.DOCS_URL}/quotes`);
 }
 var cwdSyncHook;
 function syncProcessCwd(flag = true) {
@@ -1052,6 +1057,7 @@ function resolveDefaults(defs = defaults, prefix = ENV_PREFIX, env = import_node
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   $,
+  Fail,
   ProcessOutput,
   ProcessPromise,
   cd,

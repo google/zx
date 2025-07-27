@@ -24,6 +24,7 @@ import {
   type ProcessPromise,
   path,
   os,
+  Fail,
 } from './core.ts'
 import {
   type Duration,
@@ -153,7 +154,7 @@ export function echo(pieces: TemplateStringsArray, ...args: any[]) {
   console.log(msg)
 }
 
-function stringify(arg: ProcessOutput | any) {
+function stringify(arg: any) {
   return arg instanceof ProcessOutput ? arg.toString().trimEnd() : `${arg}`
 }
 
@@ -193,8 +194,7 @@ export async function question(
 
 export async function stdin(stream: Readable = process.stdin): Promise<string> {
   let buf = ''
-  stream.setEncoding('utf8')
-  for await (const chunk of stream) {
+  for await (const chunk of stream.setEncoding('utf8')) {
     buf += chunk
   }
   return buf
@@ -212,7 +212,7 @@ export async function retry<T>(
   cb?: () => T
 ): Promise<T> {
   if (typeof d === 'function') return retry(count, 0, d)
-  if (!cb) throw new Error('Callback is required for retry')
+  if (!cb) throw new Fail('Callback is required for retry')
 
   const total = count
   const gen =

@@ -3,6 +3,7 @@ import "./deno.js"
 import * as __module__ from "./core.cjs"
 const {
   $,
+  Fail,
   ProcessOutput,
   ProcessPromise,
   cd,
@@ -25,6 +26,7 @@ const {
 } = globalThis.Deno ? globalThis.require("./core.cjs") : __module__
 export {
   $,
+  Fail,
   ProcessOutput,
   ProcessPromise,
   cd,

@@ -23,6 +23,10 @@ import * as vendor from '../build/vendor.js'
 describe('core', () => {
   test('exports', () => {
     assert.equal(typeof core.$, 'function', 'core.$')
+    assert.equal(typeof core.Fail, 'function', 'core.Fail')
+    assert.equal(typeof core.Fail.DOCS_URL, 'string', 'core.Fail.DOCS_URL')
+    assert.equal(typeof core.Fail.ERRNO_CODES, 'object', 'core.Fail.ERRNO_CODES')
+    assert.equal(typeof core.Fail.EXIT_CODES, 'object', 'core.Fail.EXIT_CODES')
     assert.equal(typeof core.ProcessOutput, 'function', 'core.ProcessOutput')
     assert.equal(typeof core.ProcessOutput.getErrorDetails, 'function', 'core.ProcessOutput.getErrorDetails')
     assert.equal(typeof core.ProcessOutput.getErrorMessage, 'function', 'core.ProcessOutput.getErrorMessage')
@@ -145,6 +149,10 @@ describe('cli', () => {
 describe('index', () => {
   test('exports', () => {
     assert.equal(typeof index.$, 'function', 'index.$')
+    assert.equal(typeof index.Fail, 'function', 'index.Fail')
+    assert.equal(typeof index.Fail.DOCS_URL, 'string', 'index.Fail.DOCS_URL')
+    assert.equal(typeof index.Fail.ERRNO_CODES, 'object', 'index.Fail.ERRNO_CODES')
+    assert.equal(typeof index.Fail.EXIT_CODES, 'object', 'index.Fail.EXIT_CODES')
     assert.equal(typeof index.ProcessOutput, 'function', 'index.ProcessOutput')
     assert.equal(typeof index.ProcessOutput.getErrorDetails, 'function', 'index.ProcessOutput.getErrorDetails')
     assert.equal(typeof index.ProcessOutput.getErrorMessage, 'function', 'index.ProcessOutput.getErrorMessage')

@@ -32,6 +32,7 @@ import {
   usePowerShell,
   usePwsh,
   useBash,
+  Fail,
 } from '../build/core.js'
 import {
   tempfile,
@@ -215,6 +216,14 @@ describe('core', () => {
 
     test('malformed cmd error', async () => {
       assert.throws(() => $`\033`, /malformed/i)
+
+      try {
+        $([null])
+        throw new Err('unreachable')
+      } catch (e) {
+        assert.ok(e instanceof Fail)
+        assert.match(e.message, /malformed/i)
+      }
     })
 
     test('snapshots works', async () => {
