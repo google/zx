@@ -162,10 +162,11 @@ export interface Shell<
 
 // Internal storages
 const storage = new AsyncLocalStorage<Options>()
-const box = Object.assign([] as any[], {
-  loot<T>(): T | undefined {
+type BoxItem = Snapshot | Options['delimiter']
+const box = Object.assign([] as BoxItem[], {
+  loot<T extends BoxItem, R = T | undefined>(): R {
     if (box.length > 1) throw new Fail(`Broken box: ${box.join()}`)
-    return box.pop()
+    return box.pop() as R
   },
 })
 
