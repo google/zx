@@ -90,7 +90,7 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     };
     private _pipe;
     abort(reason?: string): void;
-    kill(signal?: NodeJS.Signals | undefined): Promise<void>;
+    kill(signal?: NodeJS.Signals): Promise<void>;
     /**
      *  @deprecated Use $({halt: true})`cmd` instead.
      */

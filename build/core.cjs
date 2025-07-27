@@ -646,12 +646,12 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       throw new Fail("Trying to abort a process without creating one.");
     this.ac.abort(reason);
   }
-  kill(signal = $.killSignal) {
+  kill(signal) {
     if (this.isSettled()) throw new Fail("Too late to kill the process.");
     if (!this.child)
       throw new Fail("Trying to kill a process without creating one.");
     if (!this.pid) throw new Fail("The process pid is undefined.");
-    return $.kill(this.pid, signal);
+    return $.kill(this.pid, signal || this._snapshot.killSignal || $.killSignal);
   }
   /**
    *  @deprecated Use $({halt: true})`cmd` instead.
