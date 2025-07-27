@@ -1010,9 +1010,21 @@ describe('core', () => {
         assert.ok(o.duration >= 100 && o.duration < 1000)
       })
 
-      test('a signal is passed with kill() method', async () => {
+      test('applies custom signal if passed', async () => {
         const p = $`while true; do :; done`
         setTimeout(() => p.kill('SIGKILL'), 100)
+        let signal
+        try {
+          await p
+        } catch (p) {
+          signal = p.signal
+        }
+        assert.equal(signal, 'SIGKILL')
+      })
+
+      test('applies `$.killSignal` if defined', async () => {
+        const p = $({ killSignal: 'SIGKILL' })`while true; do :; done`
+        setTimeout(() => p.kill(), 100)
         let signal
         try {
           await p
