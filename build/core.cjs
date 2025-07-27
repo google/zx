@@ -434,12 +434,13 @@ var defaults = resolveDefaults({
   timeoutSignal: SIGTERM
 });
 var storage = new import_node_async_hooks.AsyncLocalStorage();
-var box = Object.assign([], {
-  loot() {
-    if (box.length > 1) throw new Fail(`Broken box: ${box.join()}`);
-    return box.pop();
-  }
-});
+var box = ((box2 = []) => ({
+  fill(item) {
+    if (box2.length > 0) throw new Fail(`Box is busy`);
+    box2.push(item);
+  },
+  loot: box2.pop.bind(box2)
+}))();
 var getStore = () => storage.getStore() || defaults;
 var getSnapshot = (opts, from, cmd) => __spreadProps(__spreadValues({}, opts), {
   ac: opts.ac || new AbortController(),
@@ -468,7 +469,7 @@ var $ = new Proxy(
       pieces,
       args
     );
-    box.push(getSnapshot(opts, from, cmd));
+    box.fill(getSnapshot(opts, from, cmd));
     const pp = new ProcessPromise(import_util.noop);
     if (!pp.isHalted()) pp.run();
     return pp.sync ? pp.output : pp;
@@ -918,7 +919,7 @@ var _ProcessOutput = class _ProcessOutput extends Error {
     return encoding === "utf8" ? this.toString() : this.buffer().toString(encoding);
   }
   lines(delimiter) {
-    box.push(delimiter);
+    box.fill(delimiter);
     return [...this];
   }
   toString() {
