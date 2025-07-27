@@ -434,8 +434,13 @@ var defaults = resolveDefaults({
   timeoutSignal: SIGTERM
 });
 var storage = new import_node_async_hooks.AsyncLocalStorage();
-var snapshots = [];
-var delimiters = [];
+var box = ((box2 = []) => ({
+  push(item) {
+    if (box2.length > 0) throw new Fail(`Box is busy`);
+    box2.push(item);
+  },
+  loot: box2.pop.bind(box2)
+}))();
 var getStore = () => storage.getStore() || defaults;
 var getSnapshot = (opts, from, cmd) => __spreadProps(__spreadValues({}, opts), {
   ac: opts.ac || new AbortController(),
@@ -464,7 +469,7 @@ var $ = new Proxy(
       pieces,
       args
     );
-    snapshots.push(getSnapshot(opts, from, cmd));
+    box.push(getSnapshot(opts, from, cmd));
     const pp = new ProcessPromise(import_util.noop);
     if (!pp.isHalted()) pp.run();
     return pp.sync ? pp.output : pp;
@@ -501,14 +506,15 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     this._resolve = import_util.noop;
     // Stream-like API
     this.writable = true;
-    if (snapshots.length) {
-      this._snapshot = snapshots.pop();
+    const snapshot = box.loot();
+    if (snapshot) {
+      this._snapshot = snapshot;
       this._resolve = resolve;
       this._reject = (v) => {
         reject(v);
         if (this.sync) throw v;
       };
-      if (this._snapshot.halt) this._stage = "halted";
+      if (snapshot.halt) this._stage = "halted";
     } else _ProcessPromise.disarm(this);
   }
   run() {
@@ -913,7 +919,7 @@ var _ProcessOutput = class _ProcessOutput extends Error {
     return encoding === "utf8" ? this.toString() : this.buffer().toString(encoding);
   }
   lines(delimiter) {
-    delimiters.push(delimiter);
+    box.push(delimiter);
     return [...this];
   }
   toString() {
@@ -927,7 +933,7 @@ var _ProcessOutput = class _ProcessOutput extends Error {
   }
   *[Symbol.iterator]() {
     const memo = [];
-    const dlmtr = delimiters.pop() || this._dto.delimiter || $.delimiter || DLMTR;
+    const dlmtr = box.loot() || this._dto.delimiter || $.delimiter || DLMTR;
     for (const chunk of this._dto.store.stdall) {
       yield* __yieldStar((0, import_util.getLines)(chunk, memo, dlmtr));
     }
