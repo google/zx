@@ -162,8 +162,12 @@ export interface Shell<
 
 // Internal storages
 const storage = new AsyncLocalStorage<Options>()
-const snapshots: Snapshot[] = []
-const delimiters: Options['delimiter'][] = []
+const box = Object.assign([] as any[], {
+  loot<T>(): T | undefined {
+    if (box.length > 1) throw new Fail(`Broken box: ${box.join()}`)
+    return box.pop()
+  },
+})
 
 const getStore = () => storage.getStore() || defaults
 
@@ -202,7 +206,7 @@ export const $: $ = new Proxy<$>(
       pieces as TemplateStringsArray,
       args
     ) as string
-    snapshots.push(getSnapshot(opts, from, cmd))
+    box.push(getSnapshot(opts, from, cmd))
     const pp = new ProcessPromise(noop)
 
     if (!pp.isHalted()) pp.run()
@@ -260,14 +264,15 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       executor(...args)
     })
 
-    if (snapshots.length) {
-      this._snapshot = snapshots.pop()!
+    const snapshot = box.loot<Snapshot>()
+    if (snapshot) {
+      this._snapshot = snapshot
       this._resolve = resolve!
       this._reject = (v: ProcessOutput) => {
         reject!(v)
         if (this.sync) throw v
       }
-      if (this._snapshot.halt) this._stage = 'halted'
+      if (snapshot.halt) this._stage = 'halted'
     } else ProcessPromise.disarm(this)
   }
 
@@ -800,7 +805,7 @@ export class ProcessOutput extends Error {
   }
 
   lines(delimiter?: string | RegExp): string[] {
-    delimiters.push(delimiter)
+    box.push(delimiter)
     return [...this]
   }
 
@@ -818,8 +823,8 @@ export class ProcessOutput extends Error {
 
   *[Symbol.iterator](): Iterator<string> {
     const memo: (string | undefined)[] = []
-    const dlmtr =
-      delimiters.pop() || this._dto.delimiter || $.delimiter || DLMTR
+    // prettier-ignore
+    const dlmtr = box.loot<Options['delimiter']>() || this._dto.delimiter || $.delimiter || DLMTR
 
     for (const chunk of this._dto.store.stdall) {
       yield* getLines(chunk, memo, dlmtr)

@@ -219,7 +219,7 @@ describe('core', () => {
 
       try {
         $([null])
-        throw new Err('unreachable')
+        throw new Error('unreachable')
       } catch (e) {
         assert.ok(e instanceof Fail)
         assert.match(e.message, /malformed/i)
