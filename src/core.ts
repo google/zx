@@ -162,13 +162,13 @@ export interface Shell<
 
 // Internal storages
 const storage = new AsyncLocalStorage<Options>()
-type BoxItem = Snapshot | Options['delimiter']
-const box = Object.assign([] as BoxItem[], {
-  loot<T extends BoxItem, R = T | undefined>(): R {
-    if (box.length > 1) throw new Fail(`Broken box: ${box.join()}`)
-    return box.pop() as R
+const box = (<B extends Snapshot | Snapshot['delimiter']>(box: B[] = []) => ({
+  push(item: B): void {
+    if (box.length > 0) throw new Fail(`Box is busy`)
+    box.push(item)
   },
-})
+  loot: box.pop.bind(box) as <T extends B>() => T | undefined,
+}))()
 
 const getStore = () => storage.getStore() || defaults
 
