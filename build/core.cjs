@@ -788,7 +788,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     return this.stage === "halted" && !this.sync;
   }
   isSettled() {
-    return this.stage === "fulfilled" || this.stage === "rejected";
+    return !!this.output;
   }
   isRunning() {
     return this.stage === "running";

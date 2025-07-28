@@ -635,7 +635,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   private isSettled(): boolean {
-    return this.stage === 'fulfilled' || this.stage === 'rejected'
+    return !!this.output
   }
 
   private isRunning(): boolean {
