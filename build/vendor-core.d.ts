@@ -272,7 +272,7 @@ export type TSpawnStore = {
 	stderr: TSpawnStoreChunks;
 	stdall: TSpawnStoreChunks;
 };
-export type TSpawnResult = {
+type TSpawnResult = {
 	stderr: string;
 	stdout: string;
 	stdall: string;

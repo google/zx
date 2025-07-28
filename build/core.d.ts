@@ -4,6 +4,7 @@
 import { Buffer } from 'node:buffer';
 import cp, { type ChildProcess, type IOType, type StdioOptions } from 'node:child_process';
 import { type Encoding } from 'node:crypto';
+import { EventEmitter } from 'node:events';
 import { type Readable, type Writable } from 'node:stream';
 import { inspect } from 'node:util';
 import { Fail } from './error.js';
@@ -18,6 +19,7 @@ export { chalk, which, ps } from './vendor-core.js';
 export { type Duration, quote, quotePowerShell } from './util.js';
 declare const CWD: unique symbol;
 declare const SYNC: unique symbol;
+declare const SHOT: unique symbol;
 export interface Options {
     [CWD]: string;
     [SYNC]: boolean;
@@ -49,6 +51,14 @@ export interface Options {
     delimiter?: string | RegExp;
 }
 export declare const defaults: Options;
+type Snapshot = Options & {
+    from: string;
+    pieces: TemplateStringsArray;
+    args: string[];
+    cmd: string;
+    ee: EventEmitter;
+    ac: AbortController;
+};
 export interface Shell<S = false, R = S extends true ? ProcessOutput : ProcessPromise> {
     (pieces: TemplateStringsArray, ...args: any[]): R;
     <O extends Partial<Options> = Partial<Options>, R = O extends {
@@ -64,6 +74,11 @@ export type $ = Shell & Options;
 export declare const $: $;
 type ProcessStage = 'initial' | 'halted' | 'running' | 'fulfilled' | 'rejected';
 type Resolve = (out: ProcessOutput) => void;
+type Reject = (error: ProcessOutput | Error) => void;
+type PromiseCallback = {
+    (resolve: Resolve, reject: Reject): void;
+    [SHOT]?: Snapshot;
+};
 type PromisifiedStream<D extends Writable> = D & PromiseLike<ProcessOutput & D>;
 type PipeMethod = {
     (dest: TemplateStringsArray, ...args: any[]): ProcessPromise;
@@ -81,10 +96,12 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     private _stdin;
     private _zurk;
     private _output;
-    private _reject;
     private _resolve;
-    constructor(executor: (resolve: Resolve, reject: Resolve) => void);
+    private _reject;
+    constructor(executor: PromiseCallback);
+    private build;
     run(): ProcessPromise;
+    private finalize;
     pipe: PipeMethod & {
         [key in keyof TSpawnStore]: PipeMethod;
     };
@@ -156,7 +173,7 @@ export declare class ProcessOutput extends Error {
     stderr: string;
     stdall: string;
     constructor(dto: ProcessDto);
-    constructor(code: number | null, signal: NodeJS.Signals | null, stdout: string, stderr: string, stdall: string, message: string, duration?: number);
+    constructor(code?: number | null, signal?: NodeJS.Signals | null, stdout?: string, stderr?: string, stdall?: string, message?: string, duration?: number);
     get exitCode(): number | null;
     get signal(): NodeJS.Signals | null;
     get duration(): number;
@@ -170,12 +187,13 @@ export declare class ProcessOutput extends Error {
     toString(): string;
     valueOf(): string;
     [Symbol.toPrimitive](): string;
-    [Symbol.iterator](): Iterator<string>;
+    [Symbol.iterator](dlmtr?: Options['delimiter']): Iterator<string>;
     [inspect.custom](): string;
     static getExitMessage: typeof Fail.formatExitMessage;
     static getErrorMessage: typeof Fail.formatErrorMessage;
     static getErrorDetails: typeof Fail.formatErrorDetails;
     static getExitCodeInfo: typeof Fail.getExitCodeInfo;
+    static fromError(error: Error): ProcessOutput;
 }
 export declare function usePowerShell(): void;
 export declare function usePwsh(): void;

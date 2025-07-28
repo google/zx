@@ -57,7 +57,7 @@ expectType<ProcessOutput>(new ProcessOutput({
 
 expectType<ProcessOutput>(new ProcessOutput(null, null, '', '', '', '', 1))
 expectType<ProcessOutput>(new ProcessOutput(null, null, '', '', '', ''))
-expectError(new ProcessOutput(null, null))
+expectError(new ProcessOutput('1'))
 
 expectType<'banana'>(within(() => 'apple' as 'banana'))
 

@@ -224,6 +224,10 @@ describe('core', () => {
         assert.ok(e instanceof Fail)
         assert.match(e.message, /malformed/i)
       }
+
+      const o = await $({ nothrow: true })`\033`
+      assert.equal(o.ok, false)
+      assert.match(o.cause.message, /malformed/i)
     })
 
     test('snapshots works', async () => {

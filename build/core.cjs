@@ -396,6 +396,7 @@ var import_util2 = require("./util.cjs");
 var CWD = Symbol("processCwd");
 var SYNC = Symbol("syncExec");
 var EPF = Symbol("end-piped-from");
+var SHOT = Symbol("snapshot");
 var EOL = import_node_buffer.Buffer.from(import_node_os.EOL);
 var BR_CC = "\n".charCodeAt(0);
 var DLMTR = /\r?\n/;
@@ -434,24 +435,20 @@ var defaults = resolveDefaults({
   timeoutSignal: SIGTERM
 });
 var storage = new import_node_async_hooks.AsyncLocalStorage();
-var box = ((box2 = []) => ({
-  push(item) {
-    if (box2.length > 0) throw new Fail(`Box is busy`);
-    box2.push(item);
-  },
-  loot: box2.pop.bind(box2)
-}))();
 var getStore = () => storage.getStore() || defaults;
-var getSnapshot = (opts, from, cmd) => __spreadProps(__spreadValues({}, opts), {
+var getSnapshot = (opts, from, pieces, args) => __spreadProps(__spreadValues({}, opts), {
   ac: opts.ac || new AbortController(),
   ee: new import_node_events.EventEmitter(),
   from,
-  cmd
+  pieces,
+  args,
+  cmd: ""
 });
 function within(callback) {
   return storage.run(__spreadValues({}, getStore()), callback);
 }
 var $ = new Proxy(
+  // prettier-ignore
   function(pieces, ...args) {
     const opts = getStore();
     if (!Array.isArray(pieces)) {
@@ -460,17 +457,8 @@ var $ = new Proxy(
       };
     }
     const from = Fail.getCallerLocation();
-    if (pieces.some((p) => p == null))
-      throw new Fail(`Malformed command at ${from}`);
-    checkShell();
-    checkQuote();
-    const cmd = (0, import_vendor_core2.buildCmd)(
-      $.quote,
-      pieces,
-      args
-    );
-    box.push(getSnapshot(opts, from, cmd));
-    const pp = new ProcessPromise(import_util.noop);
+    const cb = () => cb[SHOT] = getSnapshot(opts, from, pieces, args);
+    const pp = new ProcessPromise(cb);
     if (!pp.isHalted()) pp.run();
     return pp.sync ? pp.output : pp;
   },
@@ -493,7 +481,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     let reject;
     super((...args) => {
       ;
-      [resolve, reject] = args;
+      [resolve = import_util.noop, reject = import_util.noop] = args;
       executor(...args);
     });
     this._stage = "initial";
@@ -502,20 +490,35 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     this._stdin = new import_vendor_core2.VoidStream();
     this._zurk = null;
     this._output = null;
-    this._reject = import_util.noop;
-    this._resolve = import_util.noop;
     // Stream-like API
     this.writable = true;
-    const snapshot = box.loot();
+    const snapshot = executor[SHOT];
     if (snapshot) {
       this._snapshot = snapshot;
       this._resolve = resolve;
-      this._reject = (v) => {
-        reject(v);
-        if (this.sync) throw v;
-      };
+      this._reject = reject;
       if (snapshot.halt) this._stage = "halted";
+      try {
+        this.build();
+      } catch (err) {
+        this.finalize(ProcessOutput.fromError(err), true);
+      }
     } else _ProcessPromise.disarm(this);
+  }
+  // prettier-ignore
+  build() {
+    const $2 = this._snapshot;
+    if (!$2.shell)
+      throw new Fail(`No shell is available: ${Fail.DOCS_URL}/shell`);
+    if (!$2.quote)
+      throw new Fail(`No quote function is defined: ${Fail.DOCS_URL}/quotes`);
+    if ($2.pieces.some((p) => p == null))
+      throw new Fail(`Malformed command at ${$2.from}`);
+    $2.cmd = (0, import_vendor_core2.buildCmd)(
+      $2.quote,
+      $2.pieces,
+      $2.args
+    );
   }
   run() {
     var _a, _b, _c, _d;
@@ -555,7 +558,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
             ctx.cmd = self.fullCmd;
             cb();
           },
-          (error) => ctx.on.end({ error, status: null, signal: null, duration: 0, ctx }, ctx)
+          (error) => self.finalize(ProcessOutput.fromError(error))
         )) || cb();
       },
       on: {
@@ -573,7 +576,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
         end: (data, c) => {
           const { error, status, signal, duration, ctx: { store } } = data;
           const { stdout, stderr } = store;
-          const output = self._output = new ProcessOutput({
+          const output = new ProcessOutput({
             code: status,
             signal,
             error,
@@ -584,17 +587,26 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
           $2.log({ kind: "end", signal, exitCode: status, duration, error, verbose: self.isVerbose(), id });
           if (stdout.length && (0, import_util.getLast)((0, import_util.getLast)(stdout)) !== BR_CC) c.on.stdout(EOL, c);
           if (stderr.length && (0, import_util.getLast)((0, import_util.getLast)(stderr)) !== BR_CC) c.on.stderr(EOL, c);
-          if (output.ok || self.isNothrow()) {
-            self._stage = "fulfilled";
-            self._resolve(output);
-          } else {
-            self._stage = "rejected";
-            self._reject(output);
-          }
+          self.finalize(output);
         }
       }
     });
     return this;
+  }
+  finalize(output, legacy = false) {
+    this._output = output;
+    if (output.ok || this.isNothrow()) {
+      this._stage = "fulfilled";
+      this._resolve(output);
+    } else {
+      this._stage = "rejected";
+      if (legacy) {
+        this._resolve(output);
+        throw output.cause || output;
+      }
+      this._reject(output);
+      if (this.sync) throw output;
+    }
   }
   _pipe(source, dest, ...args) {
     if ((0, import_util.isStringLiteral)(dest, ...args))
@@ -865,12 +877,14 @@ Object.defineProperty(_ProcessPromise.prototype, "pipe", { get() {
 var ProcessPromise = _ProcessPromise;
 var _ProcessOutput = class _ProcessOutput extends Error {
   // prettier-ignore
-  constructor(code, signal = null, stdout = "", stderr = "", stdall = "", message = "", duration = 0, error = null, from = "", store = { stdout: [stdout], stderr: [stderr], stdall: [stdall] }) {
+  constructor(code = null, signal = null, stdout = "", stderr = "", stdall = "", message = "", duration = 0, error = null, from = "", store = { stdout: [stdout], stderr: [stderr], stdall: [stdall] }) {
     super(message);
     const dto = code !== null && typeof code === "object" ? code : { code, signal, duration, error, from, store };
     Object.defineProperties(this, {
       _dto: { value: dto, enumerable: false },
-      cause: { value: dto.error, enumerable: false },
+      cause: { get() {
+        return dto.error;
+      }, enumerable: false },
       stdout: { get: (0, import_util.once)(() => (0, import_util.bufArrJoin)(dto.store.stdout)) },
       stderr: { get: (0, import_util.once)(() => (0, import_util.bufArrJoin)(dto.store.stderr)) },
       stdall: { get: (0, import_util.once)(() => (0, import_util.bufArrJoin)(dto.store.stdall)) },
@@ -919,8 +933,7 @@ var _ProcessOutput = class _ProcessOutput extends Error {
     return encoding === "utf8" ? this.toString() : this.buffer().toString(encoding);
   }
   lines(delimiter) {
-    box.push(delimiter);
-    return [...this];
+    return (0, import_util.iteratorToArray)(this[Symbol.iterator](delimiter));
   }
   toString() {
     return this.stdall;
@@ -931,9 +944,9 @@ var _ProcessOutput = class _ProcessOutput extends Error {
   [Symbol.toPrimitive]() {
     return this.valueOf();
   }
-  *[Symbol.iterator]() {
+  // prettier-ignore
+  *[Symbol.iterator](dlmtr = this._dto.delimiter || $.delimiter || DLMTR) {
     const memo = [];
-    const dlmtr = box.loot() || this._dto.delimiter || $.delimiter || DLMTR;
     for (const chunk of this._dto.store.stdall) {
       yield* __yieldStar((0, import_util.getLines)(chunk, memo, dlmtr));
     }
@@ -948,6 +961,11 @@ var _ProcessOutput = class _ProcessOutput extends Error {
   exitCode: ${(this.ok ? import_vendor_core2.chalk.green : import_vendor_core2.chalk.red)(this.exitCode)}${codeInfo ? import_vendor_core2.chalk.grey(" (" + codeInfo + ")") : ""},
   duration: ${this.duration}
 }`;
+  }
+  static fromError(error) {
+    const output = new _ProcessOutput();
+    output._dto.error = error;
+    return output;
   }
 };
 _ProcessOutput.getExitMessage = Fail.formatExitMessage;
@@ -980,13 +998,6 @@ try {
   if ((0, import_util.isString)(prefix)) $.prefix = prefix;
   if ((0, import_util.isString)(postfix)) $.postfix = postfix;
 } catch (err) {
-}
-function checkShell() {
-  if (!$.shell) throw new Fail(`No shell is available: ${Fail.DOCS_URL}/shell`);
-}
-function checkQuote() {
-  if (!$.quote)
-    throw new Fail(`No quote function is defined: ${Fail.DOCS_URL}/quotes`);
 }
 var cwdSyncHook;
 function syncProcessCwd(flag = true) {
