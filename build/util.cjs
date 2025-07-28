@@ -101,9 +101,7 @@ var getLines = (chunk, next, delimiter) => {
 var iteratorToArray = (it) => {
   const arr = [];
   let entry;
-  while (!(entry = it.next()).done) {
-    arr.push(entry.value);
-  }
+  while (!(entry = it.next()).done) arr.push(entry.value);
   return arr;
 };
 /* c8 ignore next 100 */
