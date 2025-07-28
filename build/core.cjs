@@ -888,17 +888,15 @@ var _ProcessOutput = class _ProcessOutput extends Error {
       stdout: { get: (0, import_util.once)(() => (0, import_util.bufArrJoin)(dto.store.stdout)) },
       stderr: { get: (0, import_util.once)(() => (0, import_util.bufArrJoin)(dto.store.stderr)) },
       stdall: { get: (0, import_util.once)(() => (0, import_util.bufArrJoin)(dto.store.stdall)) },
-      message: {
-        get: (0, import_util.once)(
-          () => message || dto.error ? _ProcessOutput.getErrorMessage(dto.error || new Error(message), dto.from) : _ProcessOutput.getExitMessage(
-            dto.code,
-            dto.signal,
-            this.stderr,
-            dto.from,
-            this.stderr.trim() ? "" : _ProcessOutput.getErrorDetails(this.lines())
-          )
+      message: { get: (0, import_util.once)(
+        () => dto.error || message ? _ProcessOutput.getErrorMessage(dto.error || new Error(message), dto.from) : _ProcessOutput.getExitMessage(
+          dto.code,
+          dto.signal,
+          this.stderr,
+          dto.from,
+          this.stderr.trim() ? "" : _ProcessOutput.getErrorDetails(this.lines())
         )
-      }
+      ) }
     });
   }
   get exitCode() {

@@ -158,8 +158,6 @@ export const getLines = (
 export const iteratorToArray = <T>(it: Iterator<T>): T[] => {
   const arr = []
   let entry
-  while (!(entry = it.next()).done) {
-    arr.push(entry.value)
-  }
+  while (!(entry = it.next()).done) arr.push(entry.value)
   return arr
 }
