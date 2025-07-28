@@ -18,6 +18,7 @@ __export(util_exports, {
   identity: () => identity,
   isString: () => isString,
   isStringLiteral: () => import_vendor_core.isStringLiteral,
+  iteratorToArray: () => iteratorToArray,
   noop: () => noop,
   once: () => once,
   parseBool: () => parseBool,
@@ -97,6 +98,14 @@ var getLines = (chunk, next, delimiter) => {
   next.push(lines.pop());
   return lines;
 };
+var iteratorToArray = (it) => {
+  const arr = [];
+  let entry;
+  while (!(entry = it.next()).done) {
+    arr.push(entry.value);
+  }
+  return arr;
+};
 /* c8 ignore next 100 */
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
@@ -107,6 +116,7 @@ var getLines = (chunk, next, delimiter) => {
   identity,
   isString,
   isStringLiteral,
+  iteratorToArray,
   noop,
   once,
   parseBool,

@@ -24,3 +24,4 @@ export declare const proxyOverride: <T extends object>(origin: T, ...fallbacks: 
 export declare const toCamelCase: (str: string) => string;
 export declare const parseBool: (v: string) => boolean | string;
 export declare const getLines: (chunk: Buffer | string, next: (string | undefined)[], delimiter: string | RegExp) => string[];
+export declare const iteratorToArray: <T>(it: Iterator<T>) => T[];

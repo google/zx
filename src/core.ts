@@ -37,12 +37,12 @@ import {
   ps,
   VoidStream,
   type TSpawnStore,
-  type TSpawnResult,
 } from './vendor-core.ts'
 import {
   type Duration,
   isString,
   isStringLiteral,
+  iteratorToArray,
   getLast,
   getLines,
   noop,
@@ -68,6 +68,7 @@ export { type Duration, quote, quotePowerShell } from './util.ts'
 const CWD = Symbol('processCwd')
 const SYNC = Symbol('syncExec')
 const EPF = Symbol('end-piped-from')
+const SHOT = Symbol('snapshot')
 const EOL = Buffer.from(_EOL)
 const BR_CC = '\n'.charCodeAt(0)
 const DLMTR = /\r?\n/
@@ -142,6 +143,8 @@ export const defaults: Options = resolveDefaults({
 
 type Snapshot = Options & {
   from: string
+  pieces: TemplateStringsArray
+  args: string[]
   cmd: string
   ee: EventEmitter
   ac: AbortController
@@ -160,24 +163,23 @@ export interface Shell<
   }
 }
 
-// Internal storages
 const storage = new AsyncLocalStorage<Options>()
-const box = (<B extends Snapshot | Snapshot['delimiter']>(box: B[] = []) => ({
-  push(item: B): void {
-    if (box.length > 0) throw new Fail(`Box is busy`)
-    box.push(item)
-  },
-  loot: box.pop.bind(box) as <T extends B>() => T | undefined,
-}))()
 
 const getStore = () => storage.getStore() || defaults
 
-const getSnapshot = (opts: Options, from: string, cmd: string): Snapshot => ({
+const getSnapshot = (
+  opts: Options,
+  from: string,
+  pieces: TemplateStringsArray,
+  args: any[]
+): Snapshot => ({
   ...opts,
   ac: opts.ac || new AbortController(),
   ee: new EventEmitter(),
   from,
-  cmd,
+  pieces,
+  args,
+  cmd: '',
 })
 
 export function within<R>(callback: () => R): R {
@@ -188,6 +190,7 @@ export function within<R>(callback: () => R): R {
 export type $ = Shell & Options
 
 export const $: $ = new Proxy<$>(
+  // prettier-ignore
   function (pieces: TemplateStringsArray | Partial<Options>, ...args: any[]) {
     const opts = getStore()
     if (!Array.isArray(pieces)) {
@@ -196,19 +199,8 @@ export const $: $ = new Proxy<$>(
       }
     }
     const from = Fail.getCallerLocation()
-    if (pieces.some((p) => p == null))
-      throw new Fail(`Malformed command at ${from}`)
-
-    checkShell()
-    checkQuote()
-
-    const cmd = buildCmd(
-      $.quote as typeof quote,
-      pieces as TemplateStringsArray,
-      args
-    ) as string
-    box.push(getSnapshot(opts, from, cmd))
-    const pp = new ProcessPromise(noop)
+    const cb: PromiseCallback = () => (cb[SHOT] = getSnapshot(opts, from, pieces as TemplateStringsArray, args))
+    const pp = new ProcessPromise(cb)
 
     if (!pp.isHalted()) pp.run()
 
@@ -234,6 +226,13 @@ type ProcessStage = 'initial' | 'halted' | 'running' | 'fulfilled' | 'rejected'
 
 type Resolve = (out: ProcessOutput) => void
 
+type Reject = (error: ProcessOutput | Error) => void
+
+type PromiseCallback = {
+  (resolve: Resolve, reject: Reject): void
+  [SHOT]?: Snapshot
+}
+
 type PromisifiedStream<D extends Writable> = D & PromiseLike<ProcessOutput & D>
 
 type PipeDest = Writable | ProcessPromise | TemplateStringsArray | string
@@ -254,29 +253,46 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _stdin = new VoidStream()
   private _zurk: ReturnType<typeof exec> | null = null
   private _output: ProcessOutput | null = null
-  private _reject: Resolve = noop
-  private _resolve: Resolve = noop
+  private _resolve!: Resolve
+  private _reject!: Reject
 
-  constructor(executor: (resolve: Resolve, reject: Resolve) => void) {
+  constructor(executor: PromiseCallback) {
     let resolve: Resolve
-    let reject: Resolve
+    let reject: Reject
     super((...args) => {
-      ;[resolve, reject] = args
+      ;[resolve = noop, reject = noop] = args
       executor(...args)
     })
 
-    const snapshot = box.loot<Snapshot>()
+    const snapshot = executor[SHOT]
     if (snapshot) {
       this._snapshot = snapshot
       this._resolve = resolve!
-      this._reject = (v: ProcessOutput) => {
-        reject!(v)
-        if (this.sync) throw v
-      }
+      this._reject = reject!
       if (snapshot.halt) this._stage = 'halted'
+      try {
+        this.build()
+      } catch (err) {
+        this.finalize(ProcessOutput.fromError(err as Error), true)
+      }
     } else ProcessPromise.disarm(this)
   }
+  // prettier-ignore
+  build(): void {
+    const $ = this._snapshot
+    if (!$.shell)
+      throw new Fail(`No shell is available: ${Fail.DOCS_URL}/shell`)
+    if (!$.quote)
+      throw new Fail(`No quote function is defined: ${Fail.DOCS_URL}/quotes`)
+    if ($.pieces.some((p) => p == null))
+      throw new Fail(`Malformed command at ${$.from}`)
 
+    $.cmd = buildCmd(
+      $.quote!,
+      $.pieces as TemplateStringsArray,
+      $.args
+    ) as string
+  }
   run(): ProcessPromise {
     if (this.isRunning() || this.isSettled()) return this // The _run() can be called from a few places.
     this._stage = 'running'
@@ -317,7 +333,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
             ctx.cmd = self.fullCmd
             cb()
           },
-          error => ctx.on.end!({ error, status: null, signal: null, duration: 0, ctx } as TSpawnResult, ctx)
+          error => self.finalize(ProcessOutput.fromError(error))
         ) || cb()
       },
       on: {
@@ -337,7 +353,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
         end: (data, c) => {
           const { error, status, signal, duration, ctx: {store} } = data
           const { stdout, stderr } = store
-          const output = self._output = new ProcessOutput({
+          const output = new ProcessOutput({
             code: status,
             signal,
             error,
@@ -352,18 +368,28 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           if (stdout.length && getLast(getLast(stdout)) !== BR_CC) c.on.stdout!(EOL, c)
           if (stderr.length && getLast(getLast(stderr)) !== BR_CC) c.on.stderr!(EOL, c)
 
-          if (output.ok || self.isNothrow()) {
-            self._stage = 'fulfilled'
-            self._resolve(output)
-          } else {
-            self._stage = 'rejected'
-            self._reject(output)
-          }
+          self.finalize(output)
         },
       },
     })
 
     return this
+  }
+
+  private finalize(output: ProcessOutput, legacy = false): void {
+    this._output = output
+    if (output.ok || this.isNothrow()) {
+      this._stage = 'fulfilled'
+      this._resolve(this._output)
+    } else {
+      this._stage = 'rejected'
+      if (legacy) {
+        this._resolve(output) // to avoid unhandledRejection alerts
+        throw output.cause || output
+      }
+      this._reject(output)
+      if (this.sync) throw output
+    }
   }
 
   // Essentials
@@ -609,7 +635,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   private isSettled(): boolean {
-    return !!this.output
+    return this.stage === 'fulfilled' || this.stage === 'rejected'
   }
 
   private isRunning(): boolean {
@@ -716,17 +742,17 @@ export class ProcessOutput extends Error {
   stdall!: string
   constructor(dto: ProcessDto)
   constructor(
-    code: number | null,
-    signal: NodeJS.Signals | null,
-    stdout: string,
-    stderr: string,
-    stdall: string,
-    message: string,
+    code?: number | null,
+    signal?: NodeJS.Signals | null,
+    stdout?: string,
+    stderr?: string,
+    stdall?: string,
+    message?: string,
     duration?: number
   )
   // prettier-ignore
   constructor(
-    code: number | null | ProcessDto,
+    code: number | null | ProcessDto = null,
     signal: NodeJS.Signals | null = null,
     stdout: string = '',
     stderr: string = '',
@@ -744,7 +770,7 @@ export class ProcessOutput extends Error {
 
     Object.defineProperties(this, {
       _dto: { value: dto, enumerable: false },
-      cause: { value: dto.error, enumerable: false },
+      cause: { get(){ return dto.error }, enumerable: false },
       stdout: { get: once(() => bufArrJoin(dto.store.stdout)) },
       stderr: { get: once(() => bufArrJoin(dto.store.stderr)) },
       stdall: { get: once(() => bufArrJoin(dto.store.stdall)) },
@@ -806,8 +832,7 @@ export class ProcessOutput extends Error {
   }
 
   lines(delimiter?: string | RegExp): string[] {
-    box.push(delimiter)
-    return [...this]
+    return iteratorToArray(this[Symbol.iterator](delimiter))
   }
 
   override toString(): string {
@@ -821,12 +846,9 @@ export class ProcessOutput extends Error {
   [Symbol.toPrimitive](): string {
     return this.valueOf()
   }
-
-  *[Symbol.iterator](): Iterator<string> {
+  // prettier-ignore
+  *[Symbol.iterator](dlmtr: Options['delimiter'] = this._dto.delimiter || $.delimiter || DLMTR): Iterator<string> {
     const memo: (string | undefined)[] = []
-    // prettier-ignore
-    const dlmtr = box.loot<Options['delimiter']>() || this._dto.delimiter || $.delimiter || DLMTR
-
     for (const chunk of this._dto.store.stdall) {
       yield* getLines(chunk, memo, dlmtr)
     }
@@ -855,6 +877,12 @@ export class ProcessOutput extends Error {
   static getErrorDetails = Fail.formatErrorDetails
 
   static getExitCodeInfo = Fail.getExitCodeInfo
+
+  static fromError(error: Error) {
+    const output = new ProcessOutput()
+    output._dto.error = error
+    return output
+  }
 }
 
 export function usePowerShell() {
@@ -885,15 +913,6 @@ try {
   if (isString(prefix)) $.prefix = prefix
   if (isString(postfix)) $.postfix = postfix
 } catch (err) {}
-
-function checkShell() {
-  if (!$.shell) throw new Fail(`No shell is available: ${Fail.DOCS_URL}/shell`)
-}
-
-function checkQuote() {
-  if (!$.quote)
-    throw new Fail(`No quote function is defined: ${Fail.DOCS_URL}/quotes`)
-}
 
 let cwdSyncHook: AsyncHook
 

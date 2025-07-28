@@ -154,3 +154,12 @@ export const getLines = (
   next.push(lines.pop())
   return lines
 }
+
+export const iteratorToArray = <T>(it: Iterator<T>): T[] => {
+  const arr = []
+  let entry
+  while (!(entry = it.next()).done) {
+    arr.push(entry.value)
+  }
+  return arr
+}

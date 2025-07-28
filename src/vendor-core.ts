@@ -20,7 +20,6 @@ import { bus } from './internals.ts'
 export {
   type TSpawnStore,
   type TSpawnStoreChunks,
-  type TSpawnResult,
   exec,
   buildCmd,
   isStringLiteral,
