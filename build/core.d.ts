@@ -99,7 +99,7 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     private _resolve;
     private _reject;
     constructor(executor: PromiseCallback);
-    build(): void;
+    private build;
     run(): ProcessPromise;
     private finalize;
     pipe: PipeMethod & {

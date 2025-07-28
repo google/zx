@@ -278,7 +278,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     } else ProcessPromise.disarm(this)
   }
   // prettier-ignore
-  build(): void {
+  private build(): void {
     const $ = this._snapshot
     if (!$.shell)
       throw new Fail(`No shell is available: ${Fail.DOCS_URL}/shell`)
@@ -770,7 +770,7 @@ export class ProcessOutput extends Error {
 
     Object.defineProperties(this, {
       _dto: { value: dto, enumerable: false },
-      cause: { get(){ return dto.error }, enumerable: false },
+      cause: { get() { return dto.error }, enumerable: false },
       stdout: { get: once(() => bufArrJoin(dto.store.stdout)) },
       stderr: { get: once(() => bufArrJoin(dto.store.stderr)) },
       stdall: { get: once(() => bufArrJoin(dto.store.stdall)) },
