@@ -597,7 +597,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     this._output = output;
     if (output.ok || this.isNothrow()) {
       this._stage = "fulfilled";
-      this._resolve(this._output);
+      this._resolve(output);
     } else {
       this._stage = "rejected";
       if (legacy) {
