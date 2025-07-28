@@ -878,7 +878,7 @@ export class ProcessOutput extends Error {
 
   static getExitCodeInfo = Fail.getExitCodeInfo
 
-  static fromError(error: Error) {
+  static fromError(error: Error): ProcessOutput {
     const output = new ProcessOutput()
     output._dto.error = error
     return output
