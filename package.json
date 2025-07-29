@@ -82,7 +82,7 @@
     "docs:preview": "vitepress preview docs",
     "pretest": "npm run build",
     "test": "npm run test:size && npm run fmt:check && npm run test:unit && npm run test:types && npm run test:license",
-    "test:it": "node ./test/it/build.test.js",
+    "test:npm": "node ./test/it/build-npm.test.js",
     "test:jsr": "node ./test/it/build-jsr.test.js",
     "test:dcr": "node ./test/it/build-dcr.test.js",
     "test:unit": "node --experimental-transform-types ./test/all.test.js",

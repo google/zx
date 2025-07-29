@@ -103,3 +103,97 @@ In the early stages of the project, we [had some difficulties](https://dev.to/an
 | [`./scripts/build-js.mjs`](https://github.com/google/zx/blob/main/scripts/build-js.mjs)      | Produces [hybrid bundles](./setup#hybrid) for each package entry point |
 | [`./scripts/build-jsr.mjs`](https://github.com/google/zx/blob/main/scripts/build-jsr.mjs)    | Builds extra assets for [JSR](https://jsr.io/@webpod/zx) publishing    |
 | [`./scripts/build-tests.mjs`](https://github.com/google/zx/blob/main/scripts/build-test.mjs) | Generates autotests to verify exports consistency                      |
+
+Corresponding tasks are defined in the `package.json.scripts`:
+```json
+{
+  "prebuild":     "rm -rf build",
+  "build":        "npm run build:js && npm run build:dts && npm run build:tests",
+  "build:js":     "node scripts/build-js.mjs --format=cjs --hybrid --entry=src/*.ts:!src/error.ts:!src/repl.ts:!src/md.ts:!src/log.ts:!src/globals-jsr.ts:!src/goods.ts && npm run build:vendor",
+  "build:vendor": "node scripts/build-js.mjs --format=cjs --entry=src/vendor-*.ts --bundle=all --external='./internals.ts'",
+  "build:tests":  "node scripts/build-tests.mjs",
+  "build:dts":    "tsc --project tsconfig.json && rm build/repl.d.ts build/globals-jsr.d.ts && node scripts/build-dts.mjs",
+  "build:dcr":    "docker build -f ./dcr/Dockerfile . -t zx",
+  "build:jsr":    "node scripts/build-jsr.mjs"
+}
+```
+
+## Testing
+
+We understand the importance, impact and risks of the tool and invest significant efforts in comprehensive research of its quality, reliability and safety. Therefore, we use an extensive set of tools and testing scenarios.
+
+First, we inspect not how the code was written, but how it actually works. Tests mainly focus on prod bundles, `pretest` ensures they are actual.
+```json
+{
+  "pretest": "npm run build"
+}
+```
+
+A basic set of implementation correctness checks is provided by unit tests. We also evaluate coverage to ensure that areas of code are not missed. 
+```json
+{
+  "test:unit": "node --experimental-transform-types ./test/all.test.js",
+  "test:coverage": "c8 -c .nycrc --check-coverage npm run test:unit"
+}
+```
+
+Next, we control the contents of all the artifacts and examine their functionality.
+```json
+{
+  "test:npm": "node ./test/it/build-npm.test.js",
+  "test:jsr": "node ./test/it/build-jsr.test.js",
+  "test:dcr": "node ./test/it/build-dcr.test.js"
+}
+```
+
+Bundle code duplication issues are highlighted through size check.
+```json
+{
+  "test:size": "size-limit"
+}
+```
+
+Static analyzers are responsible for code quality.
+```json
+{
+  "fmt:check": "prettier --check .",
+  "test:circular": "madge --circular src/*"
+}
+```
+
+Type checking examines declarations and compatibility with different loaders and transpilers.
+```json
+{
+  "test:types": "tsd",
+  "test:smoke:strip-types": "node --experimental-strip-types test/smoke/ts.test.ts",
+  "test:smoke:tsx": "tsx test/smoke/ts.test.ts",
+  "test:smoke:tsc": "cd test/smoke && mkdir -p node_modules && ln -s ../../../  ./node_modules/zx; ../../node_modules/typescript/bin/tsc -v && ../../node_modules/typescript/bin/tsc --esModuleInterop --module node16 --rootDir . --outdir ./temp ts.test.ts && node ./temp/ts.test.js",
+  "test:smoke:ts-node": "cd test/smoke && node --loader ts-node/esm ts.test.ts"
+}
+```
+
+We also check compatibility with all the target [runtimes x OS variants](https://github.com/google/zx/blob/main/.github/workflows/test.yml).
+```json
+{
+  "test:smoke:bun": "bun test ./test/smoke/bun.test.js && bun ./test/smoke/node.test.mjs",
+  "test:smoke:win32": "node ./test/smoke/win32.test.js",
+  "test:smoke:deno": "deno test ./test/smoke/deno.test.js --allow-read --allow-sys --allow-env --allow-run",
+}
+```
+
+CJS and EMS exports are verified separately.
+```json
+{
+  "test:smoke:cjs": "node ./test/smoke/node.test.cjs",
+  "test:smoke:mjs": "node ./test/smoke/node.test.mjs"
+}
+```
+
+Finally, we check the license and supply chain security issues.
+```json
+{
+  "test:license": "node ./test/extra.test.js",
+  "test:audit": "npm audit fix",
+  "test:workflow": "zizmor .github/workflows -v -p --min-severity=medium"
+}
+```
