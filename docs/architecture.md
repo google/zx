@@ -84,6 +84,16 @@ A class that represents the output of a `ProcessPromise`. It provides methods to
 ### `Fail`
 Consolidates error handling functionality across the zx library: errors codes mapping, formatting, stack parsing.
 
+## CLI
+zx provides CLI with embedded script preprocessor to construct an execution context (apply presets, inject global vars) and to install the required deps. Then runs the specified script.
+
+| Helper         | Description                                                                                                                                                                                                                                               |
+|----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `main()`       | Initializes a preset from flags, env vars and pushes the reader.                                                                                                                                                                                                |
+| `readScript()` | Fetches, parses and transforms the specified source into a runnable form. `stdin` reader, `https` loader and `md` transformer act right here. Deps analyzer internally relies on [depseek](https://www.npmjs.com/package/depseek) and inherits its limitations |
+| `runScript()`  | Executes the script in the target context via async `import()`, handles temp assets after.                                                                                                                                                                 |
+
+
 ## Building
 In the early stages of the project, we [had some difficulties](https://dev.to/antongolub/how-and-why-do-we-bundle-zx-1ca6) with zx packaging. We couldn't find a suitable tool for assembly, so we made our own toolkit based on [esbuild](https://github.com/evanw/esbuild) and [dts-bundle-generator](https://github.com/timocov/dts-bundle-generator). This process is divided into several scripts.
 
