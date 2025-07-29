@@ -79,18 +79,18 @@ A promise-inherited class represents and operates a child process, provides meth
 | `finalize()` | Assigns the result to the instance: analyzes status code, invokes `_resolve()`, `_reject()` |
 
 #### Piping
-The remarkable part is `pipe()` and `_pipe()` interactions: the first provides a facade, the second bounds different stream with acceptors. We use initialization inside static scope to comply TS method visibility restrictions and to avoid extra `Proxy` usage:
+The remarkable part is `pipe()` and `_pipe()` interactions: the first provides a facade, the second binds different streams with acceptors. We use initialization inside static scope to comply with TS method visibility restrictions and to avoid extra `Proxy` usage:
 ```ts
 const p = $`cmd`
 const crits = await p.pipe.stderr`grep critical`
 const names = await p.pipe.stdout`grep name`
 ```
 
-Another `pipe() `superpower is an internal recorder. It allows bounding processes at any stage w/o data loss, even if settled.
+Another `pipe()` superpower is an internal recorder. It allows binding processes at any stage w/o data loss, even if settled.
 ```ts
 const onData = (chunk: string | Buffer) => from.write(chunk)
 const fill = () => {
-  for (const chunk of this._zurk!.store[source]) from.write(chunk)
+  for (const chunk of source) from.write(chunk)
 }
 
 ee.once(source, () => {
