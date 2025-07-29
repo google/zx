@@ -71,7 +71,7 @@ jobs:
         run: npm run test:circular
 
       - name: Bundles
-        run: npm run test:it
+        run: npm run test:npm
         timeout-minutes: 1
 
       - name: JSR dry-run
