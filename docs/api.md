@@ -244,8 +244,8 @@ syncProcessCwd(false) // pass false to disable the hook
 
 ## `retry()`
 
-Retries a callback for a few times. Will return after the first
-successful attempt, or will throw after specifies attempts count.
+Retries a callback for a few times. Will return the first
+successful result, or will throw after the specified attempts count.
 
 ```js
 const p = await retry(10, () => $`curl https://medv.io`)

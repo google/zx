@@ -28,7 +28,7 @@ You generally only need to submit a CLA once, so if you've already submitted one
 again.
 
 ## How to Contribute
-Before proposing changes, look for similar ones in the project's [issues](https://github.com/google/zx/issues) and [pull requests](https://github.com/google/zx/pulls). If you can't decide, create a new [discussion](https://github.com/google/zx/discussions) topic, and we will help you figure it out. When ready to move on:
+Before proposing changes, look for similar ones in the project's [issues](https://github.com/google/zx/issues) and [pull requests](https://github.com/google/zx/pulls). If you can't decide, create a new [discussion](https://github.com/google/zx/discussions) topic, and we will help you figure it out. Dive also into [architecture notes](/architecture) to observe design concepts. When ready to move on:
 
 * Prepare your development environment.
   * Switch to the recommended version of Node.js
