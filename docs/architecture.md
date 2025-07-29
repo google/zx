@@ -85,11 +85,11 @@ A class that represents the output of a `ProcessPromise`. It provides methods to
 Consolidates error handling functionality across the zx library: errors codes mapping, formatting, stack parsing.
 
 ## CLI
-zx provides CLI with embedded script preprocessor to construct an execution context (apply presets, injects global vars) and to install the required deps. Then runs the specified script.
+zx provides CLI with embedded script preprocessor to construct an execution context (apply presets, inject global vars) and to install the required deps. Then runs the specified script.
 
 | Helper         | Description                                                                                                                                                                                                                                               |
 |----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `main()`       | Inits a preset from flags, env vars and pushes the reader.                                                                                                                                                                                                |
+| `main()`       | Initializes a preset from flags, env vars and pushes the reader.                                                                                                                                                                                                |
 | `readScript()` | Fetches, parses and transforms the specified source into a runnable form. `stdin` reader, `https` loader and `md` transformer act right here. Deps analyzer internally relies on [depseek](https://www.npmjs.com/package/depseek) and inherits its limitations |
 | `runScript()`  | Executes the script in the target context via async `import()`, handles temp assets after.                                                                                                                                                                 |
 
