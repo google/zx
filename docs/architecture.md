@@ -78,6 +78,37 @@ A promise-inherited class represents and operates a child process, provides meth
 | `run()`      | Spawns the process and captures its data via `zurk` events listeners                        |
 | `finalize()` | Assigns the result to the instance: analyzes status code, invokes `_resolve()`, `_reject()` |
 
+#### Piping
+The remarkable part is `pipe()` and `_pipe()` interactions: the first provides a facade, the second bounds different stream with acceptors. We use initialization inside static scope to comply TS method visibility restrictions and to avoid extra `Proxy` usage:
+```ts
+const p = $`cmd`
+const crits = await p.pipe.stderr`grep critical`
+const names = await p.pipe.stdout`grep name`
+```
+
+Another `pipe() `superpower is an internal recorder. It allows bounding processes at any stage w/o data loss, even if settled.
+```ts
+const onData = (chunk: string | Buffer) => from.write(chunk)
+const fill = () => {
+  for (const chunk of this._zurk!.store[source]) from.write(chunk)
+}
+
+ee.once(source, () => {
+  fill()                    // 1. Pulling previous records
+  ee.on(source, onData)     // 2. Listening for new data
+}).once('end', () => {
+  ee.removeListener(source, onData)
+  from.end()
+})
+```
+
+Wayback machine in action:
+```ts
+const p = $`cmd`
+await p
+await p.pipe`grep name` // Still works, but `p` is settled
+```
+
 ### `ProcessOutput`
 A class that represents the output of a `ProcessPromise`. It provides methods to access the process's stdout, stderr, exit code and extra methods for formatting the output and checking the process's success.
 
