@@ -42,6 +42,15 @@ __export(index_exports, {
 });
 module.exports = __toCommonJS(index_exports);
 
+// src/goods.ts
+var import_node_buffer = require("buffer");
+var import_node_process = __toESM(require("process"), 1);
+var import_node_readline = require("readline");
+var import_node_stream = require("stream");
+var import_core = require("./core.cjs");
+var import_util = require("./util.cjs");
+var import_vendor = require("./vendor.cjs");
+
 // src/versions.ts
 var versions = {
   zx: "8.7.2",
@@ -57,17 +66,7 @@ var versions = {
   yaml: "2.8.0"
 };
 
-// src/index.ts
-__reExport(index_exports, require("./core.cjs"), module.exports);
-
 // src/goods.ts
-var import_node_buffer = require("buffer");
-var import_node_process = __toESM(require("process"), 1);
-var import_node_readline = require("readline");
-var import_node_stream = require("stream");
-var import_core = require("./core.cjs");
-var import_util = require("./util.cjs");
-var import_vendor = require("./vendor.cjs");
 function tempdir(prefix = `zx-${(0, import_util.randomId)()}`, mode) {
   const dirpath = import_core.path.join(import_core.os.tmpdir(), prefix);
   import_vendor.fs.mkdirSync(dirpath, { recursive: true, mode });
@@ -250,6 +249,7 @@ function spinner(title, callback) {
 }
 
 // src/index.ts
+__reExport(index_exports, require("./core.cjs"), module.exports);
 var import_vendor2 = require("./vendor.cjs");
 var VERSION = versions.zx || "0.0.0";
 var version = VERSION;

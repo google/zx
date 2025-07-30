@@ -4,7 +4,6 @@
 import { type ProcessPromise } from './core.js';
 export * from './core.js';
 export * from './goods.js';
-export * from './versions.js';
 export { minimist, dotenv, fs, YAML, glob, glob as globby } from './vendor.js';
 export declare const VERSION: string;
 export declare const version: string;

@@ -32,6 +32,7 @@ import {
   tempdir,
   tmpdir,
   tmpfile,
+  versions,
 } from '../src/goods.ts'
 import { Writable } from 'node:stream'
 import process from 'node:process'
@@ -462,6 +463,27 @@ ENV5=v5 # comment
       const tf = tempfile('bar.txt', 'bar')
       assert.match(tf, /\/zx-.+\/bar\.txt$/)
       assert.equal(fs.readFileSync(tf, 'utf-8'), 'bar')
+    })
+  })
+
+  describe('versions', () => {
+    test('exports deps versions', () => {
+      assert.deepEqual(
+        Object.keys(versions).sort(),
+        [
+          'chalk',
+          'depseek',
+          'dotenv',
+          'fetch',
+          'fs',
+          'glob',
+          'minimist',
+          'ps',
+          'which',
+          'yaml',
+          'zx',
+        ].sort()
+      )
     })
   })
 })

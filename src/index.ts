@@ -13,11 +13,10 @@
 // limitations under the License.
 
 import { type ProcessPromise } from './core.ts'
-import { versions } from './versions.ts'
+import { versions } from './goods.ts'
 
 export * from './core.ts'
 export * from './goods.ts'
-export * from './versions.ts'
 export { minimist, dotenv, fs, YAML, glob, glob as globby } from './vendor.ts'
 
 export const VERSION: string = versions.zx || '0.0.0'
