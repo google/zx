@@ -377,6 +377,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   private finalize(output: ProcessOutput, legacy = false): void {
+    if (this.isSettled()) return
     this._output = output
     if (output.ok || this.isNothrow()) {
       this._stage = 'fulfilled'
