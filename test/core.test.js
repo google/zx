@@ -665,6 +665,14 @@ describe('core', () => {
         assert.equal(p.stdout.trim(), 'foo')
       })
 
+      test('throws if dest ProcessPromise is settled', async () => {
+        const dest = $`echo bar`
+        await dest
+        const p = $`echo foo`
+        assert.throws(() => p.pipe(dest), /Cannot pipe to a settled process/)
+        await p
+      })
+
       test('detects inappropriate ProcessPromise', async () => {
         const foo = $`echo foo`
         const p1 = $`cat`
@@ -830,7 +838,7 @@ describe('core', () => {
         assert.equal((await piped2).toString(), '1\n2\n3\n')
       })
 
-      it('fulfulled piping', async () => {
+      it('fulfilled piping', async () => {
         const p1 = $`echo foo && sleep 0.1 && echo bar`
         await p1
         const p2 = p1.pipe`cat`
@@ -871,7 +879,6 @@ describe('core', () => {
         } catch (e) {
           assert.equal(e.exitCode, 1)
           assert.equal(e.ok, false)
-          // assert.equal(e.stdout, '')
         }
 
         const p3 = await $({ nothrow: true })`echo hello && exit 1`.pipe($`cat`)
@@ -884,7 +891,6 @@ describe('core', () => {
         } catch (e) {
           assert.equal(e.exitCode, 1)
           assert.equal(e.ok, false)
-          // assert.equal(e.stdout, '')
         }
 
         const p5 = $`echo bar && sleep 0.1 && exit 1`
