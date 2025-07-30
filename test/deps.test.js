@@ -14,7 +14,7 @@
 
 import assert from 'node:assert'
 import { test, describe } from 'node:test'
-import { $, tmpfile, fs, path } from '../build/index.js'
+import { $, tmpfile, tmpdir, fs, path } from '../build/index.js'
 import { installDeps, parseDeps } from '../build/deps.js'
 
 const __dirname = new URL('.', import.meta.url).pathname
@@ -83,6 +83,12 @@ describe('deps', () => {
           message: /Unsupported installer type: invalid. Supported types: npm/,
         }
       )
+    })
+
+    test('does nothing on empty deps', async () => {
+      const cwd = tmpdir()
+      await installDeps({}, cwd)
+      assert(!fs.existsSync(path.join(cwd, 'node_modules')))
     })
   })
 

@@ -86,6 +86,15 @@ describe('log', () => {
       )
     })
 
+    test('custom', () => {
+      log({
+        kind: 'custom',
+        data: 'test',
+        verbose: true,
+      })
+      assert.equal(data.join(''), 'test')
+    })
+
     test('retry', () => {
       log({
         kind: 'retry',
