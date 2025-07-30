@@ -425,6 +425,16 @@ dotenv.config('.env')
 process.env.FOO // BAR
 ```
 
+## `versions`
+Exports versions of the zx dependencies.
+
+```ts
+import { versions } from 'zx'
+
+versions.zx     // 8.7.2
+versions.chalk  // 5.4.1
+```
+
 ## `quote()`
 
 Default bash quoting function.

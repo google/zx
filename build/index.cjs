@@ -9,27 +9,21 @@ const {
   __forAwait
 } = require('./esblib.cjs');
 
-const import_meta_url =
-  typeof document === 'undefined'
-    ? new (require('url').URL)('file:' + __filename).href
-    : (document.currentScript && document.currentScript.src) ||
-      new URL('main.js', document.baseURI).href
-
 
 // src/index.ts
 var index_exports = {};
 __export(index_exports, {
   VERSION: () => VERSION,
-  YAML: () => import_vendor3.YAML,
+  YAML: () => import_vendor2.YAML,
   argv: () => argv,
-  dotenv: () => import_vendor3.dotenv,
+  dotenv: () => import_vendor2.dotenv,
   echo: () => echo,
   expBackoff: () => expBackoff,
   fetch: () => fetch,
-  fs: () => import_vendor3.fs,
-  glob: () => import_vendor3.glob,
-  globby: () => import_vendor3.glob,
-  minimist: () => import_vendor3.minimist,
+  fs: () => import_vendor2.fs,
+  glob: () => import_vendor2.glob,
+  globby: () => import_vendor2.glob,
+  minimist: () => import_vendor2.minimist,
   nothrow: () => nothrow,
   parseArgv: () => parseArgv,
   question: () => question,
@@ -43,10 +37,27 @@ __export(index_exports, {
   tmpdir: () => tempdir,
   tmpfile: () => tempfile,
   updateArgv: () => updateArgv,
-  version: () => version
+  version: () => version,
+  versions: () => versions
 });
 module.exports = __toCommonJS(index_exports);
-var import_vendor2 = require("./vendor.cjs");
+
+// src/versions.ts
+var versions = {
+  zx: "8.7.2",
+  chalk: "5.4.1",
+  depseek: "0.4.1",
+  dotenv: "0.2.3",
+  fetch: "1.6.6",
+  fs: "11.3.0",
+  glob: "14.1.0",
+  minimist: "1.2.8",
+  ps: "0.1.4",
+  which: "5.0.0",
+  yaml: "2.8.0"
+};
+
+// src/index.ts
 __reExport(index_exports, require("./core.cjs"), module.exports);
 
 // src/goods.ts
@@ -89,8 +100,8 @@ function sleep(duration) {
   });
 }
 var responseToReadable = (response, rs) => {
-  var _a2;
-  const reader = (_a2 = response.body) == null ? void 0 : _a2.getReader();
+  var _a;
+  const reader = (_a = response.body) == null ? void 0 : _a.getReader();
   if (!reader) {
     rs.push(null);
     return rs;
@@ -113,12 +124,12 @@ function fetch(url, init) {
       })(dest, ...args) : dest;
       p.then(
         (r) => {
-          var _a2;
-          return responseToReadable(r, rs).pipe((_a2 = _dest.run) == null ? void 0 : _a2.call(_dest));
+          var _a;
+          return responseToReadable(r, rs).pipe((_a = _dest.run) == null ? void 0 : _a.call(_dest));
         },
         (err) => {
-          var _a2;
-          return (_a2 = _dest.abort) == null ? void 0 : _a2.call(_dest, err);
+          var _a;
+          return (_a = _dest.abort) == null ? void 0 : _a.call(_dest, err);
         }
       );
       return _dest;
@@ -239,12 +250,8 @@ function spinner(title, callback) {
 }
 
 // src/index.ts
-var import_vendor3 = require("./vendor.cjs");
-var import_meta = {};
-var _a;
-var VERSION = ((_a = import_vendor2.fs.readJsonSync(new URL("../package.json", import_meta_url), {
-  throws: false
-})) == null ? void 0 : _a.version) || URL.parse(import_meta_url).pathname.split("/")[3];
+var import_vendor2 = require("./vendor.cjs");
+var VERSION = versions.zx || "0.0.0";
 var version = VERSION;
 function nothrow(promise) {
   return promise.nothrow();
@@ -280,5 +287,6 @@ function quiet(promise) {
   tmpfile,
   updateArgv,
   version,
+  versions,
   ...require("./core.cjs")
 });

@@ -10,6 +10,7 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
     "types": ["node", "fs-extra"]
   },
   "include": ["./src/**/*"],
