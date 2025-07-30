@@ -830,6 +830,31 @@ describe('core', () => {
         assert.equal((await piped2).toString(), '1\n2\n3\n')
       })
 
+      it('fulfulled piping', async () => {
+        const p1 = $`echo foo && sleep 0.1 && echo bar`
+        await p1
+        const p2 = p1.pipe`cat`
+        await p2
+
+        assert.equal(p1.output.toString(), 'foo\nbar\n')
+        assert.equal(p2.output.toString(), 'foo\nbar\n')
+      })
+
+      it('rejected piping', async () => {
+        const p1 = $({ nothrow: true })`echo foo && exit 1`
+        await p1
+        const p2 = p1.pipe($({ nothrow: true })`cat`)
+        await p2
+
+        assert.equal(p1.output.toString(), 'foo\n')
+        assert.equal(p1.output.ok, false)
+        assert.equal(p1.output.exitCode, 1)
+
+        assert.equal(p2.output.toString(), 'foo\n')
+        assert.equal(p2.output.ok, false)
+        assert.equal(p2.output.exitCode, 1)
+      })
+
       test('propagates rejection', async () => {
         const p1 = $`exit 1`
         const p2 = p1.pipe($`echo hello`)
@@ -845,7 +870,8 @@ describe('core', () => {
           await p2
         } catch (e) {
           assert.equal(e.exitCode, 1)
-          assert.equal(e.stdout, '')
+          assert.equal(e.ok, false)
+          // assert.equal(e.stdout, '')
         }
 
         const p3 = await $({ nothrow: true })`echo hello && exit 1`.pipe($`cat`)
@@ -857,18 +883,40 @@ describe('core', () => {
           await p4
         } catch (e) {
           assert.equal(e.exitCode, 1)
-          assert.equal(e.stdout, '')
+          assert.equal(e.ok, false)
+          // assert.equal(e.stdout, '')
         }
 
-        const p5 = $`echo foo && exit 1`
-        const [r1, r2] = await Promise.allSettled([
-          p5.pipe($({ nothrow: true })`cat`),
+        const p5 = $`echo bar && sleep 0.1 && exit 1`
+        const [r1, r2, r3] = await Promise.allSettled([
           p5.pipe($`cat`),
+          p5.pipe($({ nothrow: true })`cat`),
+          p5.pipe($({ nothrow: true, halt: true })`cat`),
         ])
-        assert.equal(r1.value.stdout, 'foo\n')
-        assert.equal(r1.value.exitCode, 0)
-        assert.equal(r2.reason.stdout, 'foo\n')
-        assert.equal(r2.reason.exitCode, 1)
+        assert.equal(r1.reason.stdout, 'bar\n')
+        assert.equal(r1.reason.exitCode, 1)
+        assert.equal(r1.reason.ok, false)
+
+        assert.equal(r2.value.stdout, 'bar\n')
+        assert.equal(r2.value.exitCode, 1)
+        assert.equal(r2.value.ok, false)
+
+        assert.equal(r3.value.stdout, 'bar\n')
+        assert.equal(r3.value.exitCode, 1)
+        assert.equal(r3.value.ok, false)
+
+        const p6 = $`echo bar && exit 1`
+        const [r4, r5] = await Promise.allSettled([
+          p6.pipe($`cat`),
+          p6.pipe($({ nothrow: true })`cat`),
+        ])
+        assert.equal(r4.reason.stdout, 'bar\n')
+        assert.equal(r4.reason.exitCode, 1)
+        assert.equal(r4.reason.ok, false)
+
+        assert.equal(r5.value.stdout, 'bar\n')
+        assert.equal(r5.value.exitCode, 1)
+        assert.equal(r5.value.ok, false)
       })
 
       test('pipes particular stream: stdout, stderr, stdall', async () => {

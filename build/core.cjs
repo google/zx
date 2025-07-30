@@ -574,17 +574,21 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
           $2.log({ kind: "stderr", data, verbose: !self.isQuiet(), id });
         },
         end: (data, c) => {
-          const { error, status, signal, duration, ctx: { store } } = data;
+          const { error: _error, status, signal: __signal, duration, ctx: { store } } = data;
           const { stdout, stderr } = store;
+          const { cause, exitCode, signal: _signal } = __spreadValues({}, self._breakData);
+          const signal = _signal != null ? _signal : __signal;
+          const code = exitCode != null ? exitCode : status;
+          const error = cause != null ? cause : _error;
           const output = new ProcessOutput({
-            code: status,
+            code,
             signal,
             error,
             duration,
             store,
             from: $2.from
           });
-          $2.log({ kind: "end", signal, exitCode: status, duration, error, verbose: self.isVerbose(), id });
+          $2.log({ kind: "end", signal, exitCode: code, duration, error, verbose: self.isVerbose(), id });
           if (stdout.length && (0, import_util.getLast)((0, import_util.getLast)(stdout)) !== BR_CC) c.on.stdout(EOL, c);
           if (stderr.length && (0, import_util.getLast)((0, import_util.getLast)(stderr)) !== BR_CC) c.on.stderr(EOL, c);
           self.finalize(output);
@@ -592,6 +596,11 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       }
     });
     return this;
+  }
+  break(exitCode, signal, cause) {
+    if (!this.isRunning()) return;
+    this._breakData = { exitCode, signal, cause };
+    this.kill(signal);
   }
   finalize(output, legacy = false) {
     if (this.isSettled()) return;
@@ -609,9 +618,13 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       if (this.sync) throw output;
     }
   }
+  // prettier-ignore
   _pipe(source, dest, ...args) {
+    if ((0, import_util.isString)(dest))
+      return this._pipe(source, import_node_fs.default.createWriteStream(dest));
     if ((0, import_util.isStringLiteral)(dest, ...args))
-      return this.pipe[source](
+      return this._pipe(
+        source,
         $({
           halt: true,
           signal: this.signal
@@ -619,13 +632,19 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       );
     this._piped = true;
     const { ee } = this._snapshot;
+    const output = this.output;
     const from = new import_vendor_core2.VoidStream();
     const fill = () => {
       for (const chunk of this._zurk.store[source]) from.write(chunk);
-      return true;
     };
-    const fillEnd = () => this.isSettled() && fill() && from.end();
-    if (!this.isSettled()) {
+    const fillSettled = () => {
+      var _a;
+      if (!output) return;
+      if (!output.ok) (_a = dest.break) == null ? void 0 : _a.call(dest, output.exitCode, output.signal, output.cause);
+      fill();
+      from.end();
+    };
+    if (!output) {
       const onData = (chunk) => from.write(chunk);
       ee.once(source, () => {
         fill();
@@ -635,20 +654,20 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
         from.end();
       });
     }
-    if ((0, import_util.isString)(dest)) dest = import_node_fs.default.createWriteStream(dest);
     if (dest instanceof _ProcessPromise) {
+      if (dest.isSettled()) throw new Fail("Cannot pipe to a settled process.");
       dest._pipedFrom = this;
       if (dest.isHalted() && this.isHalted()) {
         ee.once("start", () => from.pipe(dest.run()._stdin));
       } else {
-        this.catch((e) => !dest.isNothrow() && dest._reject(e));
         from.pipe(dest.run()._stdin);
+        this.catch((e) => dest.break(e.exitCode, e.signal, e.cause));
       }
-      fillEnd();
+      fillSettled();
       return dest;
     }
     from.once("end", () => dest.emit(EPF)).pipe(dest);
-    fillEnd();
+    fillSettled();
     return promisifyStream(dest, this);
   }
   abort(reason) {

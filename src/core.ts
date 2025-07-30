@@ -37,6 +37,7 @@ import {
   ps,
   VoidStream,
   type TSpawnStore,
+  type TSpawnResult,
 } from './vendor-core.ts'
 import {
   type Duration,
@@ -351,10 +352,15 @@ export class ProcessPromise extends Promise<ProcessOutput> {
           $.log({ kind: 'stderr', data, verbose: !self.isQuiet(), id })
         },
         end: (data, c) => {
-          const { error, status, signal, duration, ctx: {store} } = data
+          const { error: _error, status, signal: __signal, duration, ctx: { store }} = data
           const { stdout, stderr } = store
+          const { cause, exitCode, signal: _signal } = {...self._breakData}
+
+          const signal = _signal ?? __signal
+          const code = exitCode ?? status
+          const error = cause ?? _error
           const output = new ProcessOutput({
-            code: status,
+            code,
             signal,
             error,
             duration,
@@ -362,7 +368,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
             from: $.from,
           })
 
-          $.log({ kind: 'end', signal, exitCode: status, duration, error, verbose: self.isVerbose(), id })
+          $.log({ kind: 'end', signal, exitCode: code, duration, error, verbose: self.isVerbose(), id })
 
           // Ensures EOL
           if (stdout.length && getLast(getLast(stdout)) !== BR_CC) c.on.stdout!(EOL, c)
@@ -374,6 +380,19 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     })
 
     return this
+  }
+  private _breakData?: Partial<
+    Pick<ProcessOutput, 'exitCode' | 'signal' | 'cause'>
+  >
+
+  private break(
+    exitCode?: ProcessOutput['exitCode'],
+    signal?: ProcessOutput['signal'],
+    cause?: ProcessOutput['cause']
+  ): void {
+    if (!this.isRunning()) return
+    this._breakData = { exitCode, signal, cause }
+    this.kill(signal)
   }
 
   private finalize(output: ProcessOutput, legacy = false): void {
@@ -408,13 +427,14 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       return Object.assign(stdout, { stderr, stdout, stdall })
     }})
   }
-  private _pipe(
-    source: keyof TSpawnStore,
-    dest: PipeDest,
-    ...args: any[]
-  ): PromisifiedStream<Writable> | ProcessPromise {
+  // prettier-ignore
+  private _pipe(source: keyof TSpawnStore, dest: PipeDest, ...args: any[]): PromisifiedStream<Writable> | ProcessPromise {
+    if (isString(dest))
+      return this._pipe(source, fs.createWriteStream(dest))
+
     if (isStringLiteral(dest, ...args))
-      return this.pipe[source](
+      return this._pipe(
+        source,
         $({
           halt: true,
           signal: this.signal,
@@ -423,41 +443,48 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
     this._piped = true
     const { ee } = this._snapshot
+    const output = this.output!
     const from = new VoidStream()
     const fill = () => {
       for (const chunk of this._zurk!.store[source]) from.write(chunk)
-      return true
     }
-    const fillEnd = () => this.isSettled() && fill() && from.end()
+    const fillSettled = () => {
+      if (!output) return
+      if (!output.ok) (dest as ProcessPromise).break?.(output.exitCode, output.signal, output.cause)
+      fill()
+      from.end()
+    }
 
-    if (!this.isSettled()) {
+    if (!output) {
       const onData = (chunk: string | Buffer) => from.write(chunk)
-      ee.once(source, () => {
-        fill()
-        ee.on(source, onData)
-      }).once('end', () => {
-        ee.removeListener(source, onData)
-        from.end()
-      })
+      ee
+        .once(source, () => {
+          fill()
+          ee.on(source, onData)
+        })
+        .once('end', () => {
+          ee.removeListener(source, onData)
+          from.end()
+        })
     }
-
-    if (isString(dest)) dest = fs.createWriteStream(dest)
 
     if (dest instanceof ProcessPromise) {
+      if (dest.isSettled()) throw new Fail('Cannot pipe to a settled process.')
+
       dest._pipedFrom = this
 
       if (dest.isHalted() && this.isHalted()) {
         ee.once('start', () => from.pipe(dest.run()._stdin))
       } else {
-        this.catch((e) => !dest.isNothrow() && dest._reject(e))
         from.pipe(dest.run()._stdin)
+        this.catch((e) => dest.break(e.exitCode, e.signal, e.cause))
       }
-      fillEnd()
+      fillSettled()
       return dest
     }
 
     from.once('end', () => dest.emit(EPF)).pipe(dest)
-    fillEnd()
+    fillSettled()
     return promisifyStream(dest, this) as Writable &
       PromiseLike<ProcessOutput & Writable>
   }
@@ -472,7 +499,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     this.ac.abort(reason)
   }
 
-  kill(signal?: NodeJS.Signals): Promise<void> {
+  kill(signal?: NodeJS.Signals | null): Promise<void> {
     if (this.isSettled()) throw new Fail('Too late to kill the process.')
     if (!this.child)
       throw new Fail('Trying to kill a process without creating one.')

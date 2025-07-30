@@ -101,13 +101,15 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     constructor(executor: PromiseCallback);
     private build;
     run(): ProcessPromise;
+    private _breakData?;
+    private break;
     private finalize;
     pipe: PipeMethod & {
         [key in keyof TSpawnStore]: PipeMethod;
     };
     private _pipe;
     abort(reason?: string): void;
-    kill(signal?: NodeJS.Signals): Promise<void>;
+    kill(signal?: NodeJS.Signals | null): Promise<void>;
     /**
      *  @deprecated Use $({halt: true})`cmd` instead.
      */
