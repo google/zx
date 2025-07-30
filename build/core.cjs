@@ -594,6 +594,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     return this;
   }
   finalize(output, legacy = false) {
+    if (this.isSettled()) return;
     this._output = output;
     if (output.ok || this.isNothrow()) {
       this._stage = "fulfilled";
