@@ -59,10 +59,10 @@ const {
 const formats = format.split(',')
 const cwd = [_cwd].flat().pop()
 const entries = entry.split(/:\s?/)
-const entryPoints = entry.includes('*')
-  ? await glob(entries, { absolute: false, onlyFiles: true, cwd, root: cwd })
-  : entries.map((p) => path.relative(cwd, path.resolve(cwd, p)))
-
+const entryPoints =
+  entry.includes('*') || entry.includes('{')
+    ? await glob(entries, { absolute: false, onlyFiles: true, cwd, root: cwd })
+    : entries.map((p) => path.relative(cwd, path.resolve(cwd, p)))
 const _bundle = bundle && bundle !== 'none'
 const _external = ['zx/globals', ...(_bundle ? external.split(',') : [])] // https://github.com/evanw/esbuild/issues/1466
 
