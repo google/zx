@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { tempdir, $, path, fs } from '../../build/index.js'
+import { tempdir, $, path, fs, version } from '../../build/index.js'
 import assert from 'node:assert'
 import { describe, before, after, it } from 'node:test'
 
@@ -28,6 +28,7 @@ describe('npm artifact', () => {
     name: 'zx-test',
     dependencies: {
       typescript: '^5',
+      esbuild: '^0.25.8',
       '@types/node': '*',
       '@types/fs-extra': '*',
     },
@@ -50,17 +51,12 @@ describe('npm artifact', () => {
 
   after(() => fs.remove(tmp))
 
-  it('looks buildable with tsc', async () => {
-    const indexTs = `import {$} from 'zx'
-(async () => {
-  await $({verbose: true, stdio: 'pipe'})\`echo hello\`
-})()
-`
+  it('buildable with tsc', async () => {
     const tsconfig = {
       compilerOptions: {
         module: 'commonjs',
         target: 'esnext',
-        outDir: 'build-tsc',
+        outDir: 'bundle',
         rootDir: 'src',
         declaration: true,
         declarationMap: false,
@@ -68,12 +64,29 @@ describe('npm artifact', () => {
       },
       include: ['src'],
     }
-
+    const indexTs = `import {$} from 'zx'
+(async () => {
+  await $({verbose: true})\`echo hello\`
+})()
+`
     await fs.outputJSON(path.resolve(tmp, 'tsconfig.json'), tsconfig)
     await fs.outputFile(path.resolve(tmp, 'src/index.ts'), indexTs)
-    await t$`tsc`
-    const result = await t$`node build-tsc/index.js`.text()
 
-    assert.strictEqual(result, '$ echo hello\nhello\n')
+    await t$`tsc`
+    const out = await t$`node bundle/index.js`.text()
+    assert.strictEqual(out, '$ echo hello\nhello\n')
+  })
+
+  it('compilable with esbuild (iife)', async () => {
+    const verJs = `import {version, $} from 'zx'
+(async () => {
+  await $({verbose: true})\`echo \${version}\`
+})()
+`
+    await fs.outputFile(path.resolve(tmp, 'src/ver.js'), verJs)
+
+    await t$`npx esbuild src/ver.js --bundle --format=iife --platform=node > bundle/ver.js`
+    const out = await t$`node bundle/ver.js`.text()
+    assert.strictEqual(out, `$ echo ${version}\n${version}\n`)
   })
 })

@@ -44,6 +44,8 @@ import {
   fs,
 } from './vendor.ts'
 
+export { versions } from './versions.ts'
+
 export function tempdir(
   prefix: string = `zx-${randomId()}`,
   mode?: Mode

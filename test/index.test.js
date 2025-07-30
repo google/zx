@@ -17,6 +17,7 @@ import { describe, test } from 'node:test'
 import {
   nothrow,
   quiet,
+  versions,
   version,
   VERSION,
   $,
@@ -67,6 +68,7 @@ describe('index', () => {
     assert(nothrow)
     assert(quiet)
     assert(version)
+    assert(versions)
     assert.equal(version, VERSION)
 
     // core

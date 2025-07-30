@@ -66,6 +66,7 @@ describe('package', () => {
         'build/md.d.ts',
         'build/util.cjs',
         'build/util.d.ts',
+        'build/versions.d.ts',
         'build/vendor-core.cjs',
         'build/vendor-core.d.ts',
         'build/vendor-extra.cjs',
