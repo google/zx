@@ -738,6 +738,25 @@ describe('core', () => {
           assert.equal(stdout, 'HELLO WORLD\n')
         })
 
+        test('several $ halted > $ halted', async () => {
+          const $h = $({ halt: true })
+          const p1 = $`echo foo`
+          const p2 = $h`echo a && sleep 0.1 && echo c && sleep 0.2 && echo e`
+          const p3 = $h`sleep 0.05 && echo b && sleep 0.1 && echo d`
+          const p4 = $`sleep 0.4 && echo bar`
+          const p5 = $h`cat`
+
+          await p1
+          p1.pipe(p5)
+          p2.pipe(p5)
+          p3.pipe(p5)
+          p4.pipe(p5)
+
+          const { stdout } = await p5.run()
+
+          assert.equal(stdout, 'foo\na\nb\nc\nd\ne\nbar\n')
+        })
+
         test('$ > stream', async () => {
           const file = tempfile()
           const fileStream = fs.createWriteStream(file)
