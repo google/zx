@@ -292,7 +292,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       $.args
     ) as string
   }
-  run(): ProcessPromise {
+  run(): this {
     ProcessPromise.bus.runBack(this)
     if (this.isRunning() || this.isSettled()) return this // The _run() can be called from a few places.
     this._stage = 'running'
@@ -627,31 +627,27 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   // Configurators
-  stdio(
-    stdin: IOType,
-    stdout: IOType = 'pipe',
-    stderr: IOType = 'pipe'
-  ): ProcessPromise {
+  stdio(stdin: IOType, stdout: IOType = 'pipe', stderr: IOType = 'pipe'): this {
     this._snapshot.stdio = [stdin, stdout, stderr]
     return this
   }
 
-  nothrow(v = true): ProcessPromise {
+  nothrow(v = true): this {
     this._snapshot.nothrow = v
     return this
   }
 
-  quiet(v = true): ProcessPromise {
+  quiet(v = true): this {
     this._snapshot.quiet = v
     return this
   }
 
-  verbose(v = true): ProcessPromise {
+  verbose(v = true): this {
     this._snapshot.verbose = v
     return this
   }
 
-  timeout(d: Duration = 0, signal = $.timeoutSignal): ProcessPromise {
+  timeout(d: Duration = 0, signal = $.timeoutSignal): this {
     if (this.isSettled()) return this
 
     const $ = this._snapshot

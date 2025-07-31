@@ -99,7 +99,7 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     private _reject;
     constructor(executor: PromiseCallback);
     private build;
-    run(): ProcessPromise;
+    run(): this;
     private _breakData?;
     private break;
     private finalize;
@@ -130,11 +130,11 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     get sync(): boolean;
     get [Symbol.toStringTag](): string;
     [Symbol.toPrimitive](): string;
-    stdio(stdin: IOType, stdout?: IOType, stderr?: IOType): ProcessPromise;
-    nothrow(v?: boolean): ProcessPromise;
-    quiet(v?: boolean): ProcessPromise;
-    verbose(v?: boolean): ProcessPromise;
-    timeout(d?: Duration, signal?: NodeJS.Signals | undefined): ProcessPromise;
+    stdio(stdin: IOType, stdout?: IOType, stderr?: IOType): this;
+    nothrow(v?: boolean): this;
+    quiet(v?: boolean): this;
+    verbose(v?: boolean): this;
+    timeout(d?: Duration, signal?: NodeJS.Signals | undefined): this;
     json<T = any>(): Promise<T>;
     text(encoding?: Encoding): Promise<string>;
     lines(delimiter?: Options['delimiter']): Promise<string[]>;
