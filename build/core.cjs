@@ -521,14 +521,14 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     );
   }
   run() {
-    var _a, _b, _c, _d;
+    var _a, _b, _c;
+    _ProcessPromise.bus.runBack(this);
     if (this.isRunning() || this.isSettled()) return this;
     this._stage = "running";
-    (_a = this._pipedFrom) == null ? void 0 : _a.run();
     const self = this;
     const $2 = self._snapshot;
     const id = self.id;
-    const cwd = (_b = $2.cwd) != null ? _b : $2[CWD];
+    const cwd = (_a = $2.cwd) != null ? _a : $2[CWD];
     if ($2.preferLocal) {
       const dirs = $2.preferLocal === true ? [$2.cwd, $2[CWD]] : [$2.preferLocal].flat();
       $2.env = (0, import_util.preferLocalBin)($2.env, ...dirs);
@@ -536,7 +536,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     this._zurk = (0, import_vendor_core2.exec)({
       cmd: self.fullCmd,
       cwd,
-      input: (_d = (_c = $2.input) == null ? void 0 : _c.stdout) != null ? _d : $2.input,
+      input: (_c = (_b = $2.input) == null ? void 0 : _b.stdout) != null ? _c : $2.input,
       stdin: self._stdin,
       sync: self.sync,
       signal: self.signal,
@@ -605,6 +605,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
   finalize(output, legacy = false) {
     if (this.isSettled()) return;
     this._output = output;
+    _ProcessPromise.bus.unpipeBack(this);
     if (output.ok || this.isNothrow()) {
       this._stage = "fulfilled";
       this._resolve(output);
@@ -633,16 +634,23 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     this._piped = true;
     const { ee } = this._snapshot;
     const output = this.output;
+    const isP = dest instanceof _ProcessPromise;
     const from = new import_vendor_core2.VoidStream();
+    const end = () => {
+      if (!isP) return from.end();
+      setImmediate(() => {
+        _ProcessPromise.bus.unpipe(this, dest);
+        _ProcessPromise.bus.sources(dest).length === 0 && from.end();
+      });
+    };
     const fill = () => {
       for (const chunk of this._zurk.store[source]) from.write(chunk);
     };
     const fillSettled = () => {
-      var _a;
       if (!output) return;
-      if (!output.ok) (_a = dest.break) == null ? void 0 : _a.call(dest, output.exitCode, output.signal, output.cause);
+      if (!output.ok && isP) dest.break(output.exitCode, output.signal, output.cause);
       fill();
-      from.end();
+      end();
     };
     if (!output) {
       const onData = (chunk) => from.write(chunk);
@@ -651,16 +659,17 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
         ee.on(source, onData);
       }).once("end", () => {
         ee.removeListener(source, onData);
-        from.end();
+        end();
       });
     }
-    if (dest instanceof _ProcessPromise) {
+    if (isP) {
       if (dest.isSettled()) throw new Fail("Cannot pipe to a settled process.");
-      dest._pipedFrom = this;
+      _ProcessPromise.bus.pipe(this, dest);
+      from.pipe(dest._stdin);
       if (dest.isHalted() && this.isHalted()) {
-        ee.once("start", () => from.pipe(dest.run()._stdin));
+        ee.once("start", () => dest.run());
       } else {
-        from.pipe(dest.run()._stdin);
+        dest.run();
         this.catch((e) => dest.break(e.exitCode, e.signal, e.cause));
       }
       fillSettled();
@@ -894,6 +903,40 @@ Object.defineProperty(_ProcessPromise.prototype, "pipe", { get() {
   const stdall = getPipeMethod("stdall");
   return Object.assign(stdout, { stderr, stdout, stdall });
 } });
+// prettier-ignore
+_ProcessPromise.bus = {
+  refs: /* @__PURE__ */ new Map(),
+  pipe(from, to) {
+    const set = this.refs.get(from) || this.refs.set(from, /* @__PURE__ */ new Set()).get(from);
+    set.add(to);
+  },
+  unpipe(from, to) {
+    const set = this.refs.get(from);
+    if (!set) return;
+    if (to) set.delete(to);
+    if (set.size) return;
+    this.refs.delete(from);
+    from._piped = false;
+  },
+  unpipeBack(to, from) {
+    if (from) return this.unpipe(from, to);
+    for (const _from of this.refs.keys()) {
+      this.unpipe(_from, to);
+    }
+  },
+  runBack(p) {
+    for (const from of this.sources(p)) {
+      from.run();
+    }
+  },
+  sources(p) {
+    const refs = [];
+    for (const [from, set] of this.refs.entries()) {
+      set.has(p) && refs.push(from);
+    }
+    return refs;
+  }
+};
 var ProcessPromise = _ProcessPromise;
 var _ProcessOutput = class _ProcessOutput extends Error {
   // prettier-ignore
@@ -1072,7 +1115,7 @@ var promisifyStream = (stream, from) => (0, import_util.proxyOverride)(stream, {
   run() {
     return from.run();
   },
-  _pipedFrom: from,
+  // TODO _pipedFrom: from,
   pipe(...args) {
     const piped = stream.pipe.apply(stream, args);
     return piped instanceof ProcessPromise ? piped : promisifyStream(piped, from);

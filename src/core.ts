@@ -37,7 +37,6 @@ import {
   ps,
   VoidStream,
   type TSpawnStore,
-  type TSpawnResult,
 } from './vendor-core.ts'
 import {
   type Duration,
@@ -250,7 +249,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private _snapshot!: Snapshot
   private _timeoutId?: ReturnType<typeof setTimeout>
   private _piped = false
-  private _pipedFrom?: ProcessPromise
   private _stdin = new VoidStream()
   private _zurk: ReturnType<typeof exec> | null = null
   private _output: ProcessOutput | null = null
@@ -295,9 +293,9 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     ) as string
   }
   run(): ProcessPromise {
+    ProcessPromise.bus.runBack(this)
     if (this.isRunning() || this.isSettled()) return this // The _run() can be called from a few places.
     this._stage = 'running'
-    this._pipedFrom?.run()
 
     const self = this
     const $ = self._snapshot
@@ -398,6 +396,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private finalize(output: ProcessOutput, legacy = false): void {
     if (this.isSettled()) return
     this._output = output
+    ProcessPromise.bus.unpipeBack(this)
     if (output.ok || this.isNothrow()) {
       this._stage = 'fulfilled'
       this._resolve(output)
@@ -444,15 +443,23 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     this._piped = true
     const { ee } = this._snapshot
     const output = this.output!
+    const isP = dest instanceof ProcessPromise
     const from = new VoidStream()
+    const end = () => {
+      if (!isP) return from.end()
+      setImmediate(() => {
+        ProcessPromise.bus.unpipe(this, dest)
+        ProcessPromise.bus.sources(dest).length === 0 && from.end()
+      })
+    }
     const fill = () => {
       for (const chunk of this._zurk!.store[source]) from.write(chunk)
     }
     const fillSettled = () => {
       if (!output) return
-      if (!output.ok) (dest as ProcessPromise).break?.(output.exitCode, output.signal, output.cause)
+      if (!output.ok && isP) dest.break(output.exitCode, output.signal, output.cause)
       fill()
-      from.end()
+      end()
     }
 
     if (!output) {
@@ -464,19 +471,19 @@ export class ProcessPromise extends Promise<ProcessOutput> {
         })
         .once('end', () => {
           ee.removeListener(source, onData)
-          from.end()
+          end()
         })
     }
 
-    if (dest instanceof ProcessPromise) {
+    if (isP) {
       if (dest.isSettled()) throw new Fail('Cannot pipe to a settled process.')
+      ProcessPromise.bus.pipe(this, dest)
 
-      dest._pipedFrom = this
-
+      from.pipe(dest._stdin)
       if (dest.isHalted() && this.isHalted()) {
-        ee.once('start', () => from.pipe(dest.run()._stdin))
+        ee.once('start', () => dest.run())
       } else {
-        from.pipe(dest.run()._stdin)
+        dest.run()
         this.catch((e) => dest.break(e.exitCode, e.signal, e.cause))
       }
       fillSettled()
@@ -487,6 +494,41 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     fillSettled()
     return promisifyStream(dest, this) as Writable &
       PromiseLike<ProcessOutput & Writable>
+  }
+
+  // prettier-ignore
+  private static bus = {
+    refs: new Map<ProcessPromise, Set<ProcessPromise>>,
+    pipe(from: ProcessPromise, to: ProcessPromise) {
+      const set = this.refs.get(from) || (this.refs.set(from, new Set<ProcessPromise>())).get(from)!
+      set.add(to)
+    },
+    unpipe(from: ProcessPromise, to?: ProcessPromise) {
+      const set = this.refs.get(from)
+      if (!set) return
+      if (to) set.delete(to)
+      if (set.size) return
+      this.refs.delete(from)
+      from._piped = false
+    },
+    unpipeBack(to: ProcessPromise, from?: ProcessPromise) {
+      if (from) return this.unpipe(from, to)
+      for (const _from of this.refs.keys()) {
+        this.unpipe(_from, to)
+      }
+    },
+    runBack(p: ProcessPromise) {
+      for (const from of this.sources(p)) {
+        from.run()
+      }
+    },
+    sources(p: ProcessPromise): ProcessPromise[] {
+      const refs = []
+      for (const [from, set] of this.refs.entries()) {
+        set.has(p) && refs.push(from)
+      }
+      return refs
+    }
   }
 
   abort(reason?: string) {
@@ -1011,7 +1053,7 @@ const promisifyStream = <S extends Writable>(
     run() {
       return from.run()
     },
-    _pipedFrom: from,
+    // TODO _pipedFrom: from,
     pipe(...args: any) {
       const piped = stream.pipe.apply(stream, args)
       return piped instanceof ProcessPromise

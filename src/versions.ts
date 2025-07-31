@@ -13,7 +13,7 @@
 // limitations under the License.
 
 export const versions: Record<string, string> = {
-  zx: '8.7.2',
+  zx: '8.8.0',
   chalk: '5.4.1',
   depseek: '0.4.1',
   dotenv: '0.2.3',

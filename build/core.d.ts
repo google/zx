@@ -92,7 +92,6 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     private _snapshot;
     private _timeoutId?;
     private _piped;
-    private _pipedFrom?;
     private _stdin;
     private _zurk;
     private _output;
@@ -108,6 +107,7 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
         [key in keyof TSpawnStore]: PipeMethod;
     };
     private _pipe;
+    private static bus;
     abort(reason?: string): void;
     kill(signal?: NodeJS.Signals | null): Promise<void>;
     /**
