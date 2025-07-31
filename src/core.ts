@@ -511,10 +511,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       this.refs.delete(from)
       from._piped = false
     },
-    unpipeBack(to: ProcessPromise, from?: ProcessPromise, ) {
-      if (from ) return this.unpipe(from, to)
+    unpipeBack(to: ProcessPromise, from?: ProcessPromise) {
+      if (from) return this.unpipe(from, to)
       for (const _from of this.refs.keys()) {
-        this.unpipe(to, _from)
+        this.unpipe(_from, to)
       }
     },
     runBack(p: ProcessPromise) {

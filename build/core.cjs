@@ -921,7 +921,7 @@ _ProcessPromise.bus = {
   unpipeBack(to, from) {
     if (from) return this.unpipe(from, to);
     for (const _from of this.refs.keys()) {
-      this.unpipe(to, _from);
+      this.unpipe(_from, to);
     }
   },
   runBack(p) {
