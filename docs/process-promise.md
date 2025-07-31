@@ -103,16 +103,19 @@ for await (const line of $({
 
 ## `pipe()`
 
-Redirects the output of the process.
+Redirects the output of the process. Almost same as `|` in bash but with enhancements.
+```js
+const greeting = await $`printf "hello"`
+  .pipe($`awk '{printf $1", world!"}'`)
+  .pipe($`tr '[a-z]' '[A-Z]'`)
+```
+
+`pipe()` accepts any kind `Writable`, `ProcessPromise` or a file path.
 
 ```js
 await $`echo "Hello, stdout!"`
   .pipe(fs.createWriteStream('/tmp/output.txt'))
-
-await $`cat /tmp/output.txt`
 ```
-
-`pipe()` accepts any kind `Writable`, `ProcessPromise` or a file path.
 You can pass a string to `pipe()` to implicitly create a receiving file. The previous example is equivalent to:
 
 ```js
@@ -167,16 +170,6 @@ const [o1, o2] = await Process.all([
 ])
 ```
 
-The `pipe()` method can combine `$` processes. Same as `|` in bash:
-
-```js
-const greeting = await $`printf "hello"`
-  .pipe($`awk '{printf $1", world!"}'`)
-  .pipe($`tr '[a-z]' '[A-Z]'`)
-
-echo(greeting)
-```
-
 Use combinations of `pipe()` and [`nothrow()`](#nothrow):
 
 ```js
@@ -185,7 +178,7 @@ await $`find ./examples -type f -print0`
   .pipe($`wc -l`)
 ```
 
-And literals! Pipe does support them too:
+And literals! The `pipe()` does support them too:
 
 ```js
 await $`printf "hello"`
@@ -193,7 +186,25 @@ await $`printf "hello"`
   .pipe`tr '[a-z]' '[A-Z]'`
 ```
 
-By default, `pipe()` API operates with `stdout` stream, but you can specify `stderr` as well:
+The `pipe()` allows not only chain or split stream, but also to merge them.
+```js
+const $h = $({ halt: true })
+const p1 = $`echo foo`
+const p2 = $h`echo a && sleep 0.1 && echo c && sleep 0.2 && echo e`
+const p3 = $h`sleep 0.05 && echo b && sleep 0.1 && echo d`
+const p4 = $`sleep 0.4 && echo bar`
+const p5 = $h`cat`
+
+await p1
+p1.pipe(p5)
+p2.pipe(p5)
+p3.pipe(p5)
+p4.pipe(p5)
+
+const { stdout } = await p5.run() // 'foo\na\nb\nc\nd\ne\nbar\n'
+```
+
+By default, `pipe()` operates with `stdout` stream, but you can specify `stderr` as well:
 
 ```js
 const p = $`echo foo >&2; echo bar`
@@ -201,7 +212,7 @@ const o1 = (await p.pipe.stderr`cat`).toString()  // 'foo\n'
 const o2 = (await p.pipe.stdout`cat`).toString()  // 'bar\n'
 ```
 
-Btw, the signal, if specified, will be transmitted through pipeline.
+The [signal](/api#signal) option, if specified, will be transmitted through the pipeline.
 
 ```js
 const ac = new AbortController()
