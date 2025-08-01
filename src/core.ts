@@ -234,7 +234,7 @@ type PromiseCallback = {
 }
 
 type PromisifiedStream<D extends Writable = Writable> = D &
-  PromiseLike<ProcessOutput & D> & { run(): ProcessPromise }
+  PromiseLike<ProcessOutput & D> & { run(): void }
 
 type PipeAcceptor = Writable | ProcessPromise
 type PipeDest = PipeAcceptor | TemplateStringsArray | string
@@ -727,21 +727,21 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       proxyOverride(stream as PromisifiedStream<S>, {
         then(res: any = noop, rej: any = noop) {
           return new Promise((_res, _rej) => {
-            const onend = () => _res(res(proxyOverride(stream, from.output)))
+            const end = () => _res(res(proxyOverride(stream, from.output)))
             stream
               .once('error', (e) => _rej(rej(e)))
-              .once('finish', onend)
-              .once(EPF, onend)
+              .once('finish', end)
+              .once(EPF, end)
           })
         },
         run() {
-          ProcessPromise.bus.runBack(stream)
+          from.run()
         },
         pipe(...args: any) {
-          const piped = stream.pipe.apply(stream, args)
-          return piped instanceof ProcessPromise
-            ? piped
-            : ProcessPromise.promisifyStream(piped as Writable, from)
+          const dest = stream.pipe.apply(stream, args)
+          return dest instanceof ProcessPromise
+            ? dest
+            : ProcessPromise.promisifyStream(dest as Writable, from)
         },
       })
 

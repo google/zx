@@ -789,14 +789,14 @@ describe('core', () => {
         test('$ halted > stream', async () => {
           const file = tempfile()
           const fileStream = fs.createWriteStream(file)
-          const p = $({ halt: true })`echo "hello"`
-            .pipe(getUpperCaseTransform())
-            .pipe(fileStream)
+          const p1 = $({ halt: true })`echo "hello"`
+          const p2 = p1.pipe(getUpperCaseTransform()).pipe(fileStream)
 
-          assert.ok(p instanceof WriteStream)
-          assert.ok(p.run() instanceof ProcessPromise)
-          await p
-          assert.equal((await p.run()).stdout, 'hello\n')
+          assert.ok(p2 instanceof WriteStream)
+          assert.equal(p2.run(), undefined)
+
+          await p2
+
           assert.equal((await fs.readFile(file)).toString(), 'HELLO\n')
           await fs.rm(file)
         })

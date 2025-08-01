@@ -952,16 +952,16 @@ _ProcessPromise.promisifyStream = (stream, from) => {
   const proxy = _ProcessPromise.bus.streams.get(stream) || (0, import_util.proxyOverride)(stream, {
     then(res = import_util.noop, rej = import_util.noop) {
       return new Promise((_res, _rej) => {
-        const onend = () => _res(res((0, import_util.proxyOverride)(stream, from.output)));
-        stream.once("error", (e) => _rej(rej(e))).once("finish", onend).once(EPF, onend);
+        const end = () => _res(res((0, import_util.proxyOverride)(stream, from.output)));
+        stream.once("error", (e) => _rej(rej(e))).once("finish", end).once(EPF, end);
       });
     },
     run() {
-      _ProcessPromise.bus.runBack(stream);
+      from.run();
     },
     pipe(...args) {
-      const piped = stream.pipe.apply(stream, args);
-      return piped instanceof _ProcessPromise ? piped : _ProcessPromise.promisifyStream(piped, from);
+      const dest = stream.pipe.apply(stream, args);
+      return dest instanceof _ProcessPromise ? dest : _ProcessPromise.promisifyStream(dest, from);
     }
   });
   _ProcessPromise.bus.streams.set(stream, proxy);

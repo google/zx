@@ -80,7 +80,7 @@ type PromiseCallback = {
     [SHOT]?: Snapshot;
 };
 type PromisifiedStream<D extends Writable = Writable> = D & PromiseLike<ProcessOutput & D> & {
-    run(): ProcessPromise;
+    run(): void;
 };
 type PipeAcceptor = Writable | ProcessPromise;
 type PipeMethod = {
