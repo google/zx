@@ -966,8 +966,8 @@ describe('core', () => {
 
     describe('unpipe()', () => {
       it('disables piping', async () => {
-        const p1 = $`echo foo && sleep 0.05 && echo bar && sleep 0.05 && echo baz && sleep 0.05 && echo qux`
-        const p2 = $`echo 1 && sleep 0.06 && echo 2 && sleep 0.05 && echo 3`
+        const p1 = $`echo foo && sleep 0.1 && echo bar && sleep 0.1 && echo baz && sleep 0.1 && echo qux`
+        const p2 = $`echo 1 && sleep 0.15 && echo 2 && sleep 0.1 && echo 3`
         const p3 = $`cat`
 
         p1.pipe(p3)
@@ -975,7 +975,7 @@ describe('core', () => {
 
         setTimeout(() => {
           p1.unpipe(p3)
-        }, 105)
+        }, 150)
 
         const { stdout } = await p3
         assert.equal(stdout, 'foo\n1\nbar\n2\n3\n')
