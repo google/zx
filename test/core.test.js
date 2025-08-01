@@ -633,6 +633,13 @@ describe('core', () => {
         assert.equal(contents, 'test\n')
       })
 
+      test('throws if Writable ended', async () => {
+        const stream = { writableEnded: true }
+        const p = $`echo foo`
+        assert.throws(() => p.pipe(stream), /Cannot pipe to a closed stream/)
+        await p
+      })
+
       test('accepts WriteStream', async () => {
         const file = tempfile()
         try {
