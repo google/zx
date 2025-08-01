@@ -268,8 +268,9 @@ p2.pipe(p3)
 
 setTimeout(() => p1.unpipe(p3), 105)
 
-const { stdout } = await p3
-assert.equal(stdout, 'foo\n1\nbar\n2\n3')
+assert.equal((await p1).stdout, 'foo\nbar\nbaz\nqux')
+assert.equal((await p2).stdout, '1\n2\n3')
+assert.equal((await p3).stdout, 'foo\n1\nbar\n2\n3')
 ```
 
 ## `kill()`

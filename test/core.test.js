@@ -626,8 +626,9 @@ describe('core', () => {
         })
         const p1 = $`echo 'test'`
         const p2 = p1.pipe(stream)
+        assert.equal(p1._piped, true)
         await p2
-        assert.ok(p1._piped)
+        assert.equal(p1._piped, false)
         assert.ok(p1.stderr instanceof Socket)
         assert.equal(contents, 'test\n')
       })
@@ -959,7 +960,7 @@ describe('core', () => {
     describe('unpipe()', () => {
       it('disables piping', async () => {
         const p1 = $`echo foo && sleep 0.05 && echo bar && sleep 0.05 && echo baz && sleep 0.05 && echo qux`
-        const p2 = $`echo 1 && sleep 0.05 && echo 2 && sleep 0.05 && echo 3`
+        const p2 = $`echo 1 && sleep 0.06 && echo 2 && sleep 0.05 && echo 3`
         const p3 = $`cat`
 
         p1.pipe(p3)
@@ -970,7 +971,7 @@ describe('core', () => {
         }, 105)
 
         const { stdout } = await p3
-        assert.equal(stdout, 'foo\n1\nbar\n2\n3')
+        assert.equal(stdout, 'foo\n1\nbar\n2\n3\n')
       })
     })
 

@@ -129,10 +129,9 @@ export const proxyOverride = <T extends object>(
   ...fallbacks: any
 ): T =>
   new Proxy(origin, {
-    get(target: T, key) {
+    get(target: any, key) {
       return (
-        fallbacks.find((f: any) => key in f)?.[key] ??
-        Reflect.get(target as T, key)
+        fallbacks.find((f: any) => key in f)?.[key] ?? Reflect.get(target, key)
       )
     },
   }) as T

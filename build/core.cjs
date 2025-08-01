@@ -778,10 +778,13 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
           signal: this.signal
         })(dest, ...args)
       );
+    const isP = dest instanceof _ProcessPromise;
+    if (isP && dest.isSettled()) throw new Fail("Cannot pipe to a settled process.");
+    if (!isP && dest.writableEnded) throw new Fail("Cannot pipe to a closed stream.");
     this._piped = true;
+    _ProcessPromise.bus.pipe(this, dest);
     const { ee } = this._snapshot;
     const output = this.output;
-    const isP = dest instanceof _ProcessPromise;
     const from = new import_vendor_core2.VoidStream();
     const check = () => {
       var _a;
@@ -789,7 +792,6 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     };
     const end = () => {
       if (!check()) return;
-      if (!isP) return from.end();
       setImmediate(() => {
         _ProcessPromise.bus.unpipe(this, dest);
         _ProcessPromise.bus.sources(dest).length === 0 && from.end();
@@ -800,7 +802,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     };
     const fillSettled = () => {
       if (!output) return;
-      if (!output.ok && isP) dest.break(output.exitCode, output.signal, output.cause);
+      if (isP && !output.ok) dest.break(output.exitCode, output.signal, output.cause);
       fill();
       end();
     };
@@ -815,12 +817,9 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       });
     }
     if (isP) {
-      if (dest.isSettled()) throw new Fail("Cannot pipe to a settled process.");
-      _ProcessPromise.bus.pipe(this, dest);
       from.pipe(dest._stdin);
-      if (dest.isHalted() && this.isHalted()) {
-        ee.once("start", () => dest.run());
-      } else {
+      if (this.isHalted()) ee.once("start", () => dest.run());
+      else {
         dest.run();
         this.catch((e) => dest.break(e.exitCode, e.signal, e.cause));
       }
@@ -915,6 +914,7 @@ Object.defineProperty(_ProcessPromise.prototype, "pipe", { get() {
 // prettier-ignore
 _ProcessPromise.bus = {
   refs: /* @__PURE__ */ new Map(),
+  streams: /* @__PURE__ */ new WeakMap(),
   pipe(from, to) {
     const set = this.refs.get(from) || this.refs.set(from, /* @__PURE__ */ new Set()).get(from);
     set.add(to);
@@ -934,8 +934,10 @@ _ProcessPromise.bus = {
     }
   },
   runBack(p) {
+    var _a;
     for (const from of this.sources(p)) {
-      from.run();
+      if (from instanceof _ProcessPromise) from.run();
+      else (_a = this.streams.get(from)) == null ? void 0 : _a.run();
     }
   },
   sources(p) {
@@ -946,21 +948,25 @@ _ProcessPromise.bus = {
     return refs;
   }
 };
-_ProcessPromise.promisifyStream = (stream, from) => (0, import_util.proxyOverride)(stream, {
-  then(res = import_util.noop, rej = import_util.noop) {
-    return new Promise((_res, _rej) => {
-      const onend = () => _res(res((0, import_util.proxyOverride)(stream, from.output)));
-      stream.once("error", (e) => _rej(rej(e))).once("finish", onend).once(EPF, onend);
-    });
-  },
-  run() {
-    return from.run();
-  },
-  pipe(...args) {
-    const piped = stream.pipe.apply(stream, args);
-    return piped instanceof _ProcessPromise ? piped : _ProcessPromise.promisifyStream(piped, from);
-  }
-});
+_ProcessPromise.promisifyStream = (stream, from) => {
+  const proxy = _ProcessPromise.bus.streams.get(stream) || (0, import_util.proxyOverride)(stream, {
+    then(res = import_util.noop, rej = import_util.noop) {
+      return new Promise((_res, _rej) => {
+        const onend = () => _res(res((0, import_util.proxyOverride)(stream, from.output)));
+        stream.once("error", (e) => _rej(rej(e))).once("finish", onend).once(EPF, onend);
+      });
+    },
+    run() {
+      _ProcessPromise.bus.runBack(stream);
+    },
+    pipe(...args) {
+      const piped = stream.pipe.apply(stream, args);
+      return piped instanceof _ProcessPromise ? piped : _ProcessPromise.promisifyStream(piped, from);
+    }
+  });
+  _ProcessPromise.bus.streams.set(stream, proxy);
+  return proxy;
+};
 var ProcessPromise = _ProcessPromise;
 var _ProcessOutput = class _ProcessOutput extends Error {
   // prettier-ignore

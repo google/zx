@@ -624,15 +624,19 @@ export class ProcessPromise extends Promise<ProcessOutput> {
         })(dest as TemplateStringsArray, ...args)
       )
 
-    this._piped = true
-    const { ee } = this._snapshot
-    const output = this.output!
     const isP = dest instanceof ProcessPromise
+    if (isP && dest.isSettled()) throw new Fail('Cannot pipe to a settled process.')
+    if (!isP && dest.writableEnded) throw new Fail('Cannot pipe to a closed stream.')
+
+    this._piped = true
+    ProcessPromise.bus.pipe(this, dest)
+
+    const { ee } = this._snapshot
+    const output = this.output
     const from = new VoidStream()
-    const check = () => !!ProcessPromise.bus.refs.get(this)?.has(dest as ProcessPromise)
+    const check = () => !!ProcessPromise.bus.refs.get(this)?.has(dest)
     const end = () => {
       if (!check()) return
-      if (!isP) return from.end()
       setImmediate(() => {
         ProcessPromise.bus.unpipe(this, dest)
         ProcessPromise.bus.sources(dest).length === 0 && from.end()
@@ -643,7 +647,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     }
     const fillSettled = () => {
       if (!output) return
-      if (!output.ok && isP) dest.break(output.exitCode, output.signal, output.cause)
+      if (isP && !output.ok) dest.break(output.exitCode, output.signal, output.cause)
       fill()
       end()
     }
@@ -662,13 +666,9 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     }
 
     if (isP) {
-      if (dest.isSettled()) throw new Fail('Cannot pipe to a settled process.')
-      ProcessPromise.bus.pipe(this, dest)
-
       from.pipe(dest._stdin)
-      if (dest.isHalted() && this.isHalted()) {
-        ee.once('start', () => dest.run())
-      } else {
+      if (this.isHalted()) ee.once('start', () => dest.run())
+      else {
         dest.run()
         this.catch((e) => dest.break(e.exitCode, e.signal, e.cause))
       }
@@ -684,7 +684,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   // prettier-ignore
   private static bus = {
     refs: new Map<ProcessPromise, Set<PipeAcceptor>>,
-    pipe(from: ProcessPromise, to: ProcessPromise) {
+    streams: new WeakMap<Writable, PromisifiedStream>(),
+    pipe(from: ProcessPromise, to: PipeAcceptor) {
       const set = this.refs.get(from) || (this.refs.set(from, new Set())).get(from)!
       set.add(to)
     },
@@ -702,12 +703,13 @@ export class ProcessPromise extends Promise<ProcessOutput> {
         this.unpipe(_from, to)
       }
     },
-    runBack(p: ProcessPromise) {
+    runBack(p: PipeAcceptor) {
       for (const from of this.sources(p)) {
-        from.run()
+        if (from instanceof ProcessPromise) from.run()
+        else this.streams.get(from)?.run()
       }
     },
-    sources(p: ProcessPromise): ProcessPromise[] {
+    sources(p: PipeAcceptor): PipeAcceptor[] {
       const refs = []
       for (const [from, set] of this.refs.entries()) {
         set.has(p) && refs.push(from)
@@ -719,27 +721,33 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   private static promisifyStream = <S extends Writable>(
     stream: S,
     from: ProcessPromise
-  ): PromisifiedStream<S> =>
-    proxyOverride(stream as PromisifiedStream<S>, {
-      then(res: any = noop, rej: any = noop) {
-        return new Promise((_res, _rej) => {
-          const onend = () => _res(res(proxyOverride(stream, from.output)))
-          stream
-            .once('error', (e) => _rej(rej(e)))
-            .once('finish', onend)
-            .once(EPF, onend)
-        })
-      },
-      run() {
-        return from.run()
-      },
-      pipe(...args: any) {
-        const piped = stream.pipe.apply(stream, args)
-        return piped instanceof ProcessPromise
-          ? piped
-          : ProcessPromise.promisifyStream(piped as Writable, from)
-      },
-    })
+  ): PromisifiedStream<S> => {
+    const proxy =
+      ProcessPromise.bus.streams.get(stream) ||
+      proxyOverride(stream as PromisifiedStream<S>, {
+        then(res: any = noop, rej: any = noop) {
+          return new Promise((_res, _rej) => {
+            const onend = () => _res(res(proxyOverride(stream, from.output)))
+            stream
+              .once('error', (e) => _rej(rej(e)))
+              .once('finish', onend)
+              .once(EPF, onend)
+          })
+        },
+        run() {
+          ProcessPromise.bus.runBack(stream)
+        },
+        pipe(...args: any) {
+          const piped = stream.pipe.apply(stream, args)
+          return piped instanceof ProcessPromise
+            ? piped
+            : ProcessPromise.promisifyStream(piped as Writable, from)
+        },
+      })
+
+    ProcessPromise.bus.streams.set(stream, proxy as any)
+    return proxy as PromisifiedStream<S>
+  }
 
   // Promise API
   override then<R = ProcessOutput, E = ProcessOutput>(
