@@ -619,66 +619,6 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       if (this.sync) throw output;
     }
   }
-  // prettier-ignore
-  _pipe(source, dest, ...args) {
-    if ((0, import_util.isString)(dest))
-      return this._pipe(source, import_node_fs.default.createWriteStream(dest));
-    if ((0, import_util.isStringLiteral)(dest, ...args))
-      return this._pipe(
-        source,
-        $({
-          halt: true,
-          signal: this.signal
-        })(dest, ...args)
-      );
-    this._piped = true;
-    const { ee } = this._snapshot;
-    const output = this.output;
-    const isP = dest instanceof _ProcessPromise;
-    const from = new import_vendor_core2.VoidStream();
-    const end = () => {
-      if (!isP) return from.end();
-      setImmediate(() => {
-        _ProcessPromise.bus.unpipe(this, dest);
-        _ProcessPromise.bus.sources(dest).length === 0 && from.end();
-      });
-    };
-    const fill = () => {
-      for (const chunk of this._zurk.store[source]) from.write(chunk);
-    };
-    const fillSettled = () => {
-      if (!output) return;
-      if (!output.ok && isP) dest.break(output.exitCode, output.signal, output.cause);
-      fill();
-      end();
-    };
-    if (!output) {
-      const onData = (chunk) => from.write(chunk);
-      ee.once(source, () => {
-        fill();
-        ee.on(source, onData);
-      }).once("end", () => {
-        ee.removeListener(source, onData);
-        end();
-      });
-    }
-    if (isP) {
-      if (dest.isSettled()) throw new Fail("Cannot pipe to a settled process.");
-      _ProcessPromise.bus.pipe(this, dest);
-      from.pipe(dest._stdin);
-      if (dest.isHalted() && this.isHalted()) {
-        ee.once("start", () => dest.run());
-      } else {
-        dest.run();
-        this.catch((e) => dest.break(e.exitCode, e.signal, e.cause));
-      }
-      fillSettled();
-      return dest;
-    }
-    from.once("end", () => dest.emit(EPF)).pipe(dest);
-    fillSettled();
-    return promisifyStream(dest, this);
-  }
   abort(reason) {
     if (this.isSettled()) throw new Fail("Too late to abort the process.");
     if (this.signal !== this.ac.signal)
@@ -693,6 +633,35 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       throw new Fail("Trying to kill a process without creating one.");
     if (!this.pid) throw new Fail("The process pid is undefined.");
     return $.kill(this.pid, signal || this._snapshot.killSignal || $.killSignal);
+  }
+  // Configurators
+  stdio(stdin, stdout = "pipe", stderr = "pipe") {
+    this._snapshot.stdio = [stdin, stdout, stderr];
+    return this;
+  }
+  nothrow(v = true) {
+    this._snapshot.nothrow = v;
+    return this;
+  }
+  quiet(v = true) {
+    this._snapshot.quiet = v;
+    return this;
+  }
+  verbose(v = true) {
+    this._snapshot.verbose = v;
+    return this;
+  }
+  timeout(d = 0, signal = $.timeoutSignal) {
+    if (this.isSettled()) return this;
+    const $2 = this._snapshot;
+    $2.timeout = (0, import_util.parseDuration)(d);
+    $2.timeoutSignal = signal;
+    if (this._timeoutId) clearTimeout(this._timeoutId);
+    if ($2.timeout && this.isRunning()) {
+      this._timeoutId = setTimeout(() => this.kill($2.timeoutSignal), $2.timeout);
+      this.finally(() => clearTimeout(this._timeoutId)).catch(import_util.noop);
+    }
+    return this;
   }
   /**
    *  @deprecated Use $({halt: true})`cmd` instead.
@@ -758,35 +727,6 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
   [Symbol.toPrimitive]() {
     return this.toString();
   }
-  // Configurators
-  stdio(stdin, stdout = "pipe", stderr = "pipe") {
-    this._snapshot.stdio = [stdin, stdout, stderr];
-    return this;
-  }
-  nothrow(v = true) {
-    this._snapshot.nothrow = v;
-    return this;
-  }
-  quiet(v = true) {
-    this._snapshot.quiet = v;
-    return this;
-  }
-  verbose(v = true) {
-    this._snapshot.verbose = v;
-    return this;
-  }
-  timeout(d = 0, signal = $.timeoutSignal) {
-    if (this.isSettled()) return this;
-    const $2 = this._snapshot;
-    $2.timeout = (0, import_util.parseDuration)(d);
-    $2.timeoutSignal = signal;
-    if (this._timeoutId) clearTimeout(this._timeoutId);
-    if ($2.timeout && this.isRunning()) {
-      this._timeoutId = setTimeout(() => this.kill($2.timeoutSignal), $2.timeout);
-      this.finally(() => clearTimeout(this._timeoutId)).catch(import_util.noop);
-    }
-    return this;
-  }
   // Output formatters
   json() {
     return this.then((o) => o.json());
@@ -821,6 +761,75 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
   }
   isRunning() {
     return this.stage === "running";
+  }
+  unpipe(to) {
+    _ProcessPromise.bus.unpipe(this, to);
+    return this;
+  }
+  // prettier-ignore
+  _pipe(source, dest, ...args) {
+    if ((0, import_util.isString)(dest))
+      return this._pipe(source, import_node_fs.default.createWriteStream(dest));
+    if ((0, import_util.isStringLiteral)(dest, ...args))
+      return this._pipe(
+        source,
+        $({
+          halt: true,
+          signal: this.signal
+        })(dest, ...args)
+      );
+    this._piped = true;
+    const { ee } = this._snapshot;
+    const output = this.output;
+    const isP = dest instanceof _ProcessPromise;
+    const from = new import_vendor_core2.VoidStream();
+    const check = () => {
+      var _a;
+      return !!((_a = _ProcessPromise.bus.refs.get(this)) == null ? void 0 : _a.has(dest));
+    };
+    const end = () => {
+      if (!check()) return;
+      if (!isP) return from.end();
+      setImmediate(() => {
+        _ProcessPromise.bus.unpipe(this, dest);
+        _ProcessPromise.bus.sources(dest).length === 0 && from.end();
+      });
+    };
+    const fill = () => {
+      for (const chunk of this._zurk.store[source]) from.write(chunk);
+    };
+    const fillSettled = () => {
+      if (!output) return;
+      if (!output.ok && isP) dest.break(output.exitCode, output.signal, output.cause);
+      fill();
+      end();
+    };
+    if (!output) {
+      const onData = (chunk) => check() && from.write(chunk);
+      ee.once(source, () => {
+        fill();
+        ee.on(source, onData);
+      }).once("end", () => {
+        ee.removeListener(source, onData);
+        end();
+      });
+    }
+    if (isP) {
+      if (dest.isSettled()) throw new Fail("Cannot pipe to a settled process.");
+      _ProcessPromise.bus.pipe(this, dest);
+      from.pipe(dest._stdin);
+      if (dest.isHalted() && this.isHalted()) {
+        ee.once("start", () => dest.run());
+      } else {
+        dest.run();
+        this.catch((e) => dest.break(e.exitCode, e.signal, e.cause));
+      }
+      fillSettled();
+      return dest;
+    }
+    from.once("end", () => dest.emit(EPF)).pipe(dest);
+    fillSettled();
+    return _ProcessPromise.promisifyStream(dest, this);
   }
   // Promise API
   then(onfulfilled, onrejected) {
@@ -937,6 +946,21 @@ _ProcessPromise.bus = {
     return refs;
   }
 };
+_ProcessPromise.promisifyStream = (stream, from) => (0, import_util.proxyOverride)(stream, {
+  then(res = import_util.noop, rej = import_util.noop) {
+    return new Promise((_res, _rej) => {
+      const onend = () => _res(res((0, import_util.proxyOverride)(stream, from.output)));
+      stream.once("error", (e) => _rej(rej(e))).once("finish", onend).once(EPF, onend);
+    });
+  },
+  run() {
+    return from.run();
+  },
+  pipe(...args) {
+    const piped = stream.pipe.apply(stream, args);
+    return piped instanceof _ProcessPromise ? piped : _ProcessPromise.promisifyStream(piped, from);
+  }
+});
 var ProcessPromise = _ProcessPromise;
 var _ProcessOutput = class _ProcessOutput extends Error {
   // prettier-ignore
@@ -1105,22 +1129,6 @@ function kill(_0) {
     }
   });
 }
-var promisifyStream = (stream, from) => (0, import_util.proxyOverride)(stream, {
-  then(res = import_util.noop, rej = import_util.noop) {
-    return new Promise((_res, _rej) => {
-      const onend = () => _res(res((0, import_util.proxyOverride)(stream, from.output)));
-      stream.once("error", (e) => _rej(rej(e))).once("finish", onend).once(EPF, onend);
-    });
-  },
-  run() {
-    return from.run();
-  },
-  // TODO _pipedFrom: from,
-  pipe(...args) {
-    const piped = stream.pipe.apply(stream, args);
-    return piped instanceof ProcessPromise ? piped : promisifyStream(piped, from);
-  }
-});
 function resolveDefaults(defs = defaults, prefix = ENV_PREFIX, env = import_node_process2.default.env, allowed = ENV_OPTS) {
   return Object.entries(env).reduce((m, [k, v]) => {
     if (v && k.startsWith(prefix)) {

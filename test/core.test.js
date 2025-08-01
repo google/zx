@@ -615,7 +615,7 @@ describe('core', () => {
       assert.equal((await p2).stdout, 'bar')
     })
 
-    describe('pipe() API', () => {
+    describe('pipe()', () => {
       test('accepts Writable', async () => {
         let contents = ''
         const stream = new Writable({
@@ -953,6 +953,24 @@ describe('core', () => {
         assert.equal(o1, 'foo\n')
         assert.equal(o2, 'bar\n')
         assert.equal(o3, 'foo\nbar\n')
+      })
+    })
+
+    describe('unpipe()', () => {
+      it('disables piping', async () => {
+        const p1 = $`echo foo && sleep 0.05 && echo bar && sleep 0.05 && echo baz && sleep 0.05 && echo qux`
+        const p2 = $`echo 1 && sleep 0.05 && echo 2 && sleep 0.05 && echo 3`
+        const p3 = $`cat`
+
+        p1.pipe(p3)
+        p2.pipe(p3)
+
+        setTimeout(() => {
+          p1.unpipe(p3)
+        }, 105)
+
+        const { stdout } = await p3
+        assert.equal(stdout, 'foo\n1\nbar\n2\n3')
       })
     })
 
