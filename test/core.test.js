@@ -615,7 +615,7 @@ describe('core', () => {
       assert.equal((await p2).stdout, 'bar')
     })
 
-    describe('pipe() API', () => {
+    describe('pipe()', () => {
       test('accepts Writable', async () => {
         let contents = ''
         const stream = new Writable({
@@ -626,10 +626,18 @@ describe('core', () => {
         })
         const p1 = $`echo 'test'`
         const p2 = p1.pipe(stream)
+        assert.equal(p1._piped, true)
         await p2
-        assert.ok(p1._piped)
+        assert.equal(p1._piped, false)
         assert.ok(p1.stderr instanceof Socket)
         assert.equal(contents, 'test\n')
+      })
+
+      test('throws if Writable ended', async () => {
+        const stream = { writableEnded: true }
+        const p = $`echo foo`
+        assert.throws(() => p.pipe(stream), /Cannot pipe to a closed stream/)
+        await p
       })
 
       test('accepts WriteStream', async () => {
@@ -781,14 +789,14 @@ describe('core', () => {
         test('$ halted > stream', async () => {
           const file = tempfile()
           const fileStream = fs.createWriteStream(file)
-          const p = $({ halt: true })`echo "hello"`
-            .pipe(getUpperCaseTransform())
-            .pipe(fileStream)
+          const p1 = $({ halt: true })`echo "hello"`
+          const p2 = p1.pipe(getUpperCaseTransform()).pipe(fileStream)
 
-          assert.ok(p instanceof WriteStream)
-          assert.ok(p.run() instanceof ProcessPromise)
-          await p
-          assert.equal((await p.run()).stdout, 'hello\n')
+          assert.ok(p2 instanceof WriteStream)
+          assert.equal(p2.run(), undefined)
+
+          await p2
+
           assert.equal((await fs.readFile(file)).toString(), 'HELLO\n')
           await fs.rm(file)
         })
@@ -953,6 +961,24 @@ describe('core', () => {
         assert.equal(o1, 'foo\n')
         assert.equal(o2, 'bar\n')
         assert.equal(o3, 'foo\nbar\n')
+      })
+    })
+
+    describe('unpipe()', () => {
+      it('disables piping', async () => {
+        const p1 = $`echo foo && sleep 0.1 && echo bar && sleep 0.1 && echo baz && sleep 0.1 && echo qux`
+        const p2 = $`echo 1 && sleep 0.15 && echo 2 && sleep 0.1 && echo 3`
+        const p3 = $`cat`
+
+        p1.pipe(p3)
+        p2.pipe(p3)
+
+        setTimeout(() => {
+          p1.unpipe(p3)
+        }, 150)
+
+        const { stdout } = await p3
+        assert.equal(stdout, 'foo\n1\nbar\n2\n3\n')
       })
     })
 

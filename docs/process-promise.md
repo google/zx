@@ -254,6 +254,25 @@ const o2 = await fs
 o2.stdout //  'TEST'
 ```
 
+## `unpipe()`
+
+Opposite of `pipe()`, it removes the process from the pipeline.
+
+```js
+const p1 = $`echo foo && sleep 0.05 && echo bar && sleep 0.05 && echo baz && sleep 0.05 && echo qux`
+const p2 = $`echo 1 && sleep 0.05 && echo 2 && sleep 0.05 && echo 3`
+const p3 = $`cat`
+
+p1.pipe(p3)
+p2.pipe(p3)
+
+setTimeout(() => p1.unpipe(p3), 105)
+
+assert.equal((await p1).stdout, 'foo\nbar\nbaz\nqux')
+assert.equal((await p2).stdout, '1\n2\n3')
+assert.equal((await p3).stdout, 'foo\n1\nbar\n2\n3')
+```
+
 ## `kill()`
 
 Kills the process and all children.

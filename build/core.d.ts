@@ -79,10 +79,13 @@ type PromiseCallback = {
     (resolve: Resolve, reject: Reject): void;
     [SHOT]?: Snapshot;
 };
-type PromisifiedStream<D extends Writable> = D & PromiseLike<ProcessOutput & D>;
+type PromisifiedStream<D extends Writable = Writable> = D & PromiseLike<ProcessOutput & D> & {
+    run(): void;
+};
+type PipeAcceptor = Writable | ProcessPromise;
 type PipeMethod = {
     (dest: TemplateStringsArray, ...args: any[]): ProcessPromise;
-    (file: string): PromisifiedStream<Writable>;
+    (file: string): PromisifiedStream;
     <D extends Writable>(dest: D): PromisifiedStream<D>;
     <D extends ProcessPromise>(dest: D): D;
 };
@@ -103,13 +106,13 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     private _breakData?;
     private break;
     private finalize;
-    pipe: PipeMethod & {
-        [key in keyof TSpawnStore]: PipeMethod;
-    };
-    private _pipe;
-    private static bus;
     abort(reason?: string): void;
     kill(signal?: NodeJS.Signals | null): Promise<void>;
+    stdio(stdin: IOType, stdout?: IOType, stderr?: IOType): this;
+    nothrow(v?: boolean): this;
+    quiet(v?: boolean): this;
+    verbose(v?: boolean): this;
+    timeout(d?: Duration, signal?: NodeJS.Signals | undefined): this;
     /**
      *  @deprecated Use $({halt: true})`cmd` instead.
      */
@@ -130,11 +133,6 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     get sync(): boolean;
     get [Symbol.toStringTag](): string;
     [Symbol.toPrimitive](): string;
-    stdio(stdin: IOType, stdout?: IOType, stderr?: IOType): this;
-    nothrow(v?: boolean): this;
-    quiet(v?: boolean): this;
-    verbose(v?: boolean): this;
-    timeout(d?: Duration, signal?: NodeJS.Signals | undefined): this;
     json<T = any>(): Promise<T>;
     text(encoding?: Encoding): Promise<string>;
     lines(delimiter?: Options['delimiter']): Promise<string[]>;
@@ -146,6 +144,13 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     isHalted(): boolean;
     private isSettled;
     private isRunning;
+    pipe: PipeMethod & {
+        [key in keyof TSpawnStore]: PipeMethod;
+    };
+    unpipe(to?: PipeAcceptor): this;
+    private _pipe;
+    private static bus;
+    private static promisifyStream;
     then<R = ProcessOutput, E = ProcessOutput>(onfulfilled?: ((value: ProcessOutput) => PromiseLike<R> | R) | undefined | null, onrejected?: ((reason: ProcessOutput) => PromiseLike<E> | E) | undefined | null): Promise<R | E>;
     catch<T = ProcessOutput>(onrejected?: ((reason: ProcessOutput) => PromiseLike<T> | T) | undefined | null): Promise<ProcessOutput | T>;
     [Symbol.asyncIterator](): AsyncIterator<string>;

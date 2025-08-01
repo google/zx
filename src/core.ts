@@ -233,12 +233,14 @@ type PromiseCallback = {
   [SHOT]?: Snapshot
 }
 
-type PromisifiedStream<D extends Writable> = D & PromiseLike<ProcessOutput & D>
+type PromisifiedStream<D extends Writable = Writable> = D &
+  PromiseLike<ProcessOutput & D> & { run(): void }
 
-type PipeDest = Writable | ProcessPromise | TemplateStringsArray | string
+type PipeAcceptor = Writable | ProcessPromise
+type PipeDest = PipeAcceptor | TemplateStringsArray | string
 type PipeMethod = {
   (dest: TemplateStringsArray, ...args: any[]): ProcessPromise
-  (file: string): PromisifiedStream<Writable>
+  (file: string): PromisifiedStream
   <D extends Writable>(dest: D): PromisifiedStream<D>
   <D extends ProcessPromise>(dest: D): D
 }
@@ -411,126 +413,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     }
   }
 
-  // Essentials
-  pipe!: PipeMethod & {
-    [key in keyof TSpawnStore]: PipeMethod
-  }
-  // prettier-ignore
-  static {
-    Object.defineProperty(this.prototype, 'pipe', { get() {
-      const self = this
-      const getPipeMethod = (kind: keyof TSpawnStore): PipeMethod => function (dest: PipeDest, ...args: any[]) { return self._pipe.call(self, kind, dest, ...args) }
-      const stdout = getPipeMethod('stdout')
-      const stderr = getPipeMethod('stderr')
-      const stdall = getPipeMethod('stdall')
-      return Object.assign(stdout, { stderr, stdout, stdall })
-    }})
-  }
-  // prettier-ignore
-  private _pipe(source: keyof TSpawnStore, dest: PipeDest, ...args: any[]): PromisifiedStream<Writable> | ProcessPromise {
-    if (isString(dest))
-      return this._pipe(source, fs.createWriteStream(dest))
-
-    if (isStringLiteral(dest, ...args))
-      return this._pipe(
-        source,
-        $({
-          halt: true,
-          signal: this.signal,
-        })(dest as TemplateStringsArray, ...args)
-      )
-
-    this._piped = true
-    const { ee } = this._snapshot
-    const output = this.output!
-    const isP = dest instanceof ProcessPromise
-    const from = new VoidStream()
-    const end = () => {
-      if (!isP) return from.end()
-      setImmediate(() => {
-        ProcessPromise.bus.unpipe(this, dest)
-        ProcessPromise.bus.sources(dest).length === 0 && from.end()
-      })
-    }
-    const fill = () => {
-      for (const chunk of this._zurk!.store[source]) from.write(chunk)
-    }
-    const fillSettled = () => {
-      if (!output) return
-      if (!output.ok && isP) dest.break(output.exitCode, output.signal, output.cause)
-      fill()
-      end()
-    }
-
-    if (!output) {
-      const onData = (chunk: string | Buffer) => from.write(chunk)
-      ee
-        .once(source, () => {
-          fill()
-          ee.on(source, onData)
-        })
-        .once('end', () => {
-          ee.removeListener(source, onData)
-          end()
-        })
-    }
-
-    if (isP) {
-      if (dest.isSettled()) throw new Fail('Cannot pipe to a settled process.')
-      ProcessPromise.bus.pipe(this, dest)
-
-      from.pipe(dest._stdin)
-      if (dest.isHalted() && this.isHalted()) {
-        ee.once('start', () => dest.run())
-      } else {
-        dest.run()
-        this.catch((e) => dest.break(e.exitCode, e.signal, e.cause))
-      }
-      fillSettled()
-      return dest
-    }
-
-    from.once('end', () => dest.emit(EPF)).pipe(dest)
-    fillSettled()
-    return promisifyStream(dest, this) as Writable &
-      PromiseLike<ProcessOutput & Writable>
-  }
-
-  // prettier-ignore
-  private static bus = {
-    refs: new Map<ProcessPromise, Set<ProcessPromise>>,
-    pipe(from: ProcessPromise, to: ProcessPromise) {
-      const set = this.refs.get(from) || (this.refs.set(from, new Set<ProcessPromise>())).get(from)!
-      set.add(to)
-    },
-    unpipe(from: ProcessPromise, to?: ProcessPromise) {
-      const set = this.refs.get(from)
-      if (!set) return
-      if (to) set.delete(to)
-      if (set.size) return
-      this.refs.delete(from)
-      from._piped = false
-    },
-    unpipeBack(to: ProcessPromise, from?: ProcessPromise) {
-      if (from) return this.unpipe(from, to)
-      for (const _from of this.refs.keys()) {
-        this.unpipe(_from, to)
-      }
-    },
-    runBack(p: ProcessPromise) {
-      for (const from of this.sources(p)) {
-        from.run()
-      }
-    },
-    sources(p: ProcessPromise): ProcessPromise[] {
-      const refs = []
-      for (const [from, set] of this.refs.entries()) {
-        set.has(p) && refs.push(from)
-      }
-      return refs
-    }
-  }
-
   abort(reason?: string) {
     if (this.isSettled()) throw new Fail('Too late to abort the process.')
     if (this.signal !== this.ac.signal)
@@ -550,6 +432,41 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return $.kill(this.pid, signal || this._snapshot.killSignal || $.killSignal)
   }
 
+  // Configurators
+  stdio(stdin: IOType, stdout: IOType = 'pipe', stderr: IOType = 'pipe'): this {
+    this._snapshot.stdio = [stdin, stdout, stderr]
+    return this
+  }
+
+  nothrow(v = true): this {
+    this._snapshot.nothrow = v
+    return this
+  }
+
+  quiet(v = true): this {
+    this._snapshot.quiet = v
+    return this
+  }
+
+  verbose(v = true): this {
+    this._snapshot.verbose = v
+    return this
+  }
+
+  timeout(d: Duration = 0, signal = $.timeoutSignal): this {
+    if (this.isSettled()) return this
+
+    const $ = this._snapshot
+    $.timeout = parseDuration(d)
+    $.timeoutSignal = signal
+
+    if (this._timeoutId) clearTimeout(this._timeoutId)
+    if ($.timeout && this.isRunning()) {
+      this._timeoutId = setTimeout(() => this.kill($.timeoutSignal), $.timeout)
+      this.finally(() => clearTimeout(this._timeoutId)).catch(noop)
+    }
+    return this
+  }
   /**
    *  @deprecated Use $({halt: true})`cmd` instead.
    */
@@ -626,42 +543,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this.toString()
   }
 
-  // Configurators
-  stdio(stdin: IOType, stdout: IOType = 'pipe', stderr: IOType = 'pipe'): this {
-    this._snapshot.stdio = [stdin, stdout, stderr]
-    return this
-  }
-
-  nothrow(v = true): this {
-    this._snapshot.nothrow = v
-    return this
-  }
-
-  quiet(v = true): this {
-    this._snapshot.quiet = v
-    return this
-  }
-
-  verbose(v = true): this {
-    this._snapshot.verbose = v
-    return this
-  }
-
-  timeout(d: Duration = 0, signal = $.timeoutSignal): this {
-    if (this.isSettled()) return this
-
-    const $ = this._snapshot
-    $.timeout = parseDuration(d)
-    $.timeoutSignal = signal
-
-    if (this._timeoutId) clearTimeout(this._timeoutId)
-    if ($.timeout && this.isRunning()) {
-      this._timeoutId = setTimeout(() => this.kill($.timeoutSignal), $.timeout)
-      this.finally(() => clearTimeout(this._timeoutId)).catch(noop)
-    }
-    return this
-  }
-
   // Output formatters
   json<T = any>(): Promise<T> {
     return this.then((o) => o.json<T>())
@@ -706,6 +587,166 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   private isRunning(): boolean {
     return this.stage === 'running'
+  }
+
+  // Piping
+  pipe!: PipeMethod & {
+    [key in keyof TSpawnStore]: PipeMethod
+  }
+
+  unpipe(to?: PipeAcceptor): this {
+    ProcessPromise.bus.unpipe(this, to)
+    return this
+  }
+
+  // prettier-ignore
+  static {
+    Object.defineProperty(this.prototype, 'pipe', { get() {
+        const self = this
+        const getPipeMethod = (kind: keyof TSpawnStore): PipeMethod => function (dest: PipeDest, ...args: any[]) { return self._pipe.call(self, kind, dest, ...args) }
+        const stdout = getPipeMethod('stdout')
+        const stderr = getPipeMethod('stderr')
+        const stdall = getPipeMethod('stdall')
+        return Object.assign(stdout, { stderr, stdout, stdall })
+      }})
+  }
+  // prettier-ignore
+  private _pipe(source: keyof TSpawnStore, dest: PipeDest, ...args: any[]): PromisifiedStream | ProcessPromise {
+    if (isString(dest))
+      return this._pipe(source, fs.createWriteStream(dest))
+
+    if (isStringLiteral(dest, ...args))
+      return this._pipe(
+        source,
+        $({
+          halt: true,
+          signal: this.signal,
+        })(dest as TemplateStringsArray, ...args)
+      )
+
+    const isP = dest instanceof ProcessPromise
+    if (isP && dest.isSettled()) throw new Fail('Cannot pipe to a settled process.')
+    if (!isP && dest.writableEnded) throw new Fail('Cannot pipe to a closed stream.')
+
+    this._piped = true
+    ProcessPromise.bus.pipe(this, dest)
+
+    const { ee } = this._snapshot
+    const output = this.output
+    const from = new VoidStream()
+    const check = () => !!ProcessPromise.bus.refs.get(this)?.has(dest)
+    const end = () => {
+      if (!check()) return
+      setImmediate(() => {
+        ProcessPromise.bus.unpipe(this, dest)
+        ProcessPromise.bus.sources(dest).length === 0 && from.end()
+      })
+    }
+    const fill = () => {
+      for (const chunk of this._zurk!.store[source]) from.write(chunk)
+    }
+    const fillSettled = () => {
+      if (!output) return
+      if (isP && !output.ok) dest.break(output.exitCode, output.signal, output.cause)
+      fill()
+      end()
+    }
+
+    if (!output) {
+      const onData = (chunk: string | Buffer) => check() && from.write(chunk)
+      ee
+        .once(source, () => {
+          fill()
+          ee.on(source, onData)
+        })
+        .once('end', () => {
+          ee.removeListener(source, onData)
+          end()
+        })
+    }
+
+    if (isP) {
+      from.pipe(dest._stdin)
+      if (this.isHalted()) ee.once('start', () => dest.run())
+      else {
+        dest.run()
+        this.catch((e) => dest.break(e.exitCode, e.signal, e.cause))
+      }
+      fillSettled()
+      return dest
+    }
+
+    from.once('end', () => dest.emit(EPF)).pipe(dest)
+    fillSettled()
+    return ProcessPromise.promisifyStream(dest, this)
+  }
+
+  // prettier-ignore
+  private static bus = {
+    refs: new Map<ProcessPromise, Set<PipeAcceptor>>,
+    streams: new WeakMap<Writable, PromisifiedStream>(),
+    pipe(from: ProcessPromise, to: PipeAcceptor) {
+      const set = this.refs.get(from) || (this.refs.set(from, new Set())).get(from)!
+      set.add(to)
+    },
+    unpipe(from: ProcessPromise, to?: PipeAcceptor) {
+      const set = this.refs.get(from)
+      if (!set) return
+      if (to) set.delete(to)
+      if (set.size) return
+      this.refs.delete(from)
+      from._piped = false
+    },
+    unpipeBack(to: ProcessPromise, from?: ProcessPromise) {
+      if (from) return this.unpipe(from, to)
+      for (const _from of this.refs.keys()) {
+        this.unpipe(_from, to)
+      }
+    },
+    runBack(p: PipeAcceptor) {
+      for (const from of this.sources(p)) {
+        if (from instanceof ProcessPromise) from.run()
+        else this.streams.get(from)?.run()
+      }
+    },
+    sources(p: PipeAcceptor): PipeAcceptor[] {
+      const refs = []
+      for (const [from, set] of this.refs.entries()) {
+        set.has(p) && refs.push(from)
+      }
+      return refs
+    }
+  }
+
+  private static promisifyStream = <S extends Writable>(
+    stream: S,
+    from: ProcessPromise
+  ): PromisifiedStream<S> => {
+    const proxy =
+      ProcessPromise.bus.streams.get(stream) ||
+      proxyOverride(stream as PromisifiedStream<S>, {
+        then(res: any = noop, rej: any = noop) {
+          return new Promise((_res, _rej) => {
+            const end = () => _res(res(proxyOverride(stream, from.output)))
+            stream
+              .once('error', (e) => _rej(rej(e)))
+              .once('finish', end)
+              .once(EPF, end)
+          })
+        },
+        run() {
+          from.run()
+        },
+        pipe(...args: any) {
+          const dest = stream.pipe.apply(stream, args)
+          return dest instanceof ProcessPromise
+            ? dest
+            : ProcessPromise.promisifyStream(dest as Writable, from)
+        },
+      })
+
+    ProcessPromise.bus.streams.set(stream, proxy as any)
+    return proxy as PromisifiedStream<S>
   }
 
   // Promise API
@@ -1031,32 +1072,6 @@ export async function kill(pid: number, signal = $.killSignal) {
     } catch (e) {}
   }
 }
-
-const promisifyStream = <S extends Writable>(
-  stream: S,
-  from: ProcessPromise
-): S & PromiseLike<ProcessOutput & S> =>
-  proxyOverride(stream as S & PromiseLike<ProcessOutput & S>, {
-    then(res: any = noop, rej: any = noop) {
-      return new Promise((_res, _rej) => {
-        const onend = () => _res(res(proxyOverride(stream, from.output)))
-        stream
-          .once('error', (e) => _rej(rej(e)))
-          .once('finish', onend)
-          .once(EPF, onend)
-      })
-    },
-    run() {
-      return from.run()
-    },
-    // TODO _pipedFrom: from,
-    pipe(...args: any) {
-      const piped = stream.pipe.apply(stream, args)
-      return piped instanceof ProcessPromise
-        ? piped
-        : promisifyStream(piped as Writable, from)
-    },
-  })
 
 export function resolveDefaults(
   defs: Options = defaults,
