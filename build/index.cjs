@@ -57,7 +57,7 @@ var versions = {
   chalk: "5.4.1",
   depseek: "0.4.1",
   dotenv: "0.2.3",
-  fetch: "1.6.6",
+  fetch: "1.6.7",
   fs: "11.3.0",
   glob: "14.1.0",
   minimist: "1.2.8",
