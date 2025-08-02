@@ -90,6 +90,15 @@ import 'zx/globals'
     assert.equal(o.signal, 'SIGTERM')
     assert.throws(() => p.kill(), /Too late to kill the process/)
   }
+
+  // fetch()
+  {
+    const url = 'https://httpbin.org/get'
+    const res = await fetch(url)
+    const json = await res.json()
+    assert.equal(res.status, 200)
+    assert.equal(json.url, url)
+  }
 })()
 
 console.log('smoke mjs: ok')
