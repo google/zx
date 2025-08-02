@@ -590,8 +590,15 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   // Piping
-  pipe!: PipeMethod & {
+  // prettier-ignore
+  get pipe(): PipeMethod & {
     [key in keyof TSpawnStore]: PipeMethod
+  } {
+    const getPipeMethod = (kind: keyof TSpawnStore) => this._pipe.bind(this, kind) as PipeMethod
+    const stdout = getPipeMethod('stdout')
+    const stderr = getPipeMethod('stderr')
+    const stdall = getPipeMethod('stdall')
+    return Object.assign(stdout, { stdout, stderr, stdall })
   }
 
   unpipe(to?: PipeAcceptor): this {
@@ -599,17 +606,6 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     return this
   }
 
-  // prettier-ignore
-  static {
-    Object.defineProperty(this.prototype, 'pipe', { get() {
-        const self = this
-        const getPipeMethod = (kind: keyof TSpawnStore): PipeMethod => function (dest: PipeDest, ...args: any[]) { return self._pipe.call(self, kind, dest, ...args) }
-        const stdout = getPipeMethod('stdout')
-        const stderr = getPipeMethod('stderr')
-        const stdall = getPipeMethod('stdall')
-        return Object.assign(stdout, { stderr, stdout, stdall })
-      }})
-  }
   // prettier-ignore
   private _pipe(source: keyof TSpawnStore, dest: PipeDest, ...args: any[]): PromisifiedStream | ProcessPromise {
     if (isString(dest))

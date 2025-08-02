@@ -973,9 +973,7 @@ describe('core', () => {
         p1.pipe(p3)
         p2.pipe(p3)
 
-        setTimeout(() => {
-          p1.unpipe(p3)
-        }, 150)
+        setTimeout(() => p1.unpipe(p3), 180)
 
         const { stdout } = await p3
         assert.equal(stdout, 'foo\n1\nbar\n2\n3\n')
