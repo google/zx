@@ -144,7 +144,7 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     isHalted(): boolean;
     private isSettled;
     private isRunning;
-    pipe: PipeMethod & {
+    get pipe(): PipeMethod & {
         [key in keyof TSpawnStore]: PipeMethod;
     };
     unpipe(to?: PipeAcceptor): this;

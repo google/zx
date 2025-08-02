@@ -762,6 +762,15 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
   isRunning() {
     return this.stage === "running";
   }
+  // Piping
+  // prettier-ignore
+  get pipe() {
+    const getPipeMethod = (kind) => this._pipe.bind(this, kind);
+    const stdout = getPipeMethod("stdout");
+    const stderr = getPipeMethod("stderr");
+    const stdall = getPipeMethod("stdall");
+    return Object.assign(stdout, { stdout, stderr, stdall });
+  }
   unpipe(to) {
     _ProcessPromise.bus.unpipe(this, to);
     return this;
@@ -901,16 +910,6 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     });
   }
 };
-Object.defineProperty(_ProcessPromise.prototype, "pipe", { get() {
-  const self = this;
-  const getPipeMethod = (kind) => function(dest, ...args) {
-    return self._pipe.call(self, kind, dest, ...args);
-  };
-  const stdout = getPipeMethod("stdout");
-  const stderr = getPipeMethod("stderr");
-  const stdall = getPipeMethod("stdall");
-  return Object.assign(stdout, { stderr, stdout, stdall });
-} });
 // prettier-ignore
 _ProcessPromise.bus = {
   refs: /* @__PURE__ */ new Map(),
