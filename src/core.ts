@@ -777,7 +777,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       yield* getLines(chunk, memo, dlmtr)
     }
 
-    for await (const chunk of this.stdout) {
+    for await (const chunk of this.stdout || []) {
       yield* getLines(chunk, memo, dlmtr)
     }
 

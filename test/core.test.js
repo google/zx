@@ -1217,6 +1217,35 @@ describe('core', () => {
         assert.equal(chunks[3], 'Chunk4', 'Second chunk should be "Chunk4"')
       })
 
+      it('handles ignored stdio', async () => {
+        const p = $({
+          stdio: 'ignore',
+        })`sleep 0.1; echo Chunk1; sleep 0.1; echo Chunk2`
+        const chunks = []
+        for await (const chunk of p) {
+          chunks.push(chunk)
+        }
+
+        assert.equal(chunks.length, 0)
+        assert.equal((await p).stdout, '')
+      })
+
+      it('handles non-iterable stdio', async () => {
+        const file = tempfile()
+        const fd = fs.openSync(file, 'w')
+        const p = $({
+          stdio: ['ignore', fd, 'ignore'],
+        })`sleep 0.1; echo Chunk1; sleep 0.1; echo Chunk2`
+        const chunks = []
+        for await (const chunk of p) {
+          chunks.push(chunk)
+        }
+
+        assert.equal(chunks.length, 0)
+        assert.equal((await p).stdout, '')
+        assert.equal(fs.readFileSync(file, 'utf-8'), `Chunk1\nChunk2\n`)
+      })
+
       it('should process all output before handling a non-zero exit code', async () => {
         const process = $`sleep 0.1; echo foo; sleep 0.1; echo bar; sleep 0.1; exit 1;`
         const chunks = []

@@ -855,7 +855,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
         yield* __yieldStar((0, import_util.getLines)(chunk, memo, dlmtr));
       }
       try {
-        for (var iter = __forAwait(this.stdout), more, temp, error; more = !(temp = yield new __await(iter.next())).done; more = false) {
+        for (var iter = __forAwait(this.stdout || []), more, temp, error; more = !(temp = yield new __await(iter.next())).done; more = false) {
           const chunk = temp.value;
           yield* __yieldStar((0, import_util.getLines)(chunk, memo, dlmtr));
         }
