@@ -1207,7 +1207,7 @@ describe('core', () => {
         const process = $`sleep 0.1; echo Chunk1; sleep 0.1; echo Chunk2; sleep 0.2; echo Chunk3; sleep 0.1; echo Chunk4;`
         const chunks = []
 
-        await new Promise((resolve) => setTimeout(resolve, 250))
+        await sleep(250)
         for await (const chunk of process) {
           chunks.push(chunk)
         }
