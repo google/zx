@@ -50,7 +50,6 @@ export interface Options {
     halt?: boolean;
     delimiter?: string | RegExp;
 }
-export declare const defaults: Options;
 type Snapshot = Options & {
     from: string;
     pieces: TemplateStringsArray;
@@ -59,6 +58,8 @@ type Snapshot = Options & {
     ee: EventEmitter;
     ac: AbortController;
 };
+export declare const defaults: Options;
+export declare function within<R>(callback: () => R): R;
 export interface Shell<S = false, R = S extends true ? ProcessOutput : ProcessPromise> {
     (pieces: TemplateStringsArray, ...args: any[]): R;
     <O extends Partial<Options> = Partial<Options>, R = O extends {
@@ -69,7 +70,6 @@ export interface Shell<S = false, R = S extends true ? ProcessOutput : ProcessPr
         (opts: Partial<Omit<Options, 'sync'>>): Shell<true>;
     };
 }
-export declare function within<R>(callback: () => R): R;
 export type $ = Shell & Options;
 export declare const $: $;
 type ProcessStage = 'initial' | 'halted' | 'running' | 'fulfilled' | 'rejected';
