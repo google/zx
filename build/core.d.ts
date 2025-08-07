@@ -103,12 +103,12 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     constructor(executor: PromiseCallback);
     private build;
     run(): this;
-    private _breakData?;
+    private _breakerData?;
     private break;
     private finalize;
     abort(reason?: string): void;
     kill(signal?: NodeJS.Signals | null): Promise<void>;
-    stdio(stdin: IOType, stdout?: IOType, stderr?: IOType): this;
+    stdio(stdin: IOType | StdioOptions, stdout?: IOType, stderr?: IOType): this;
     nothrow(v?: boolean): this;
     quiet(v?: boolean): this;
     verbose(v?: boolean): this;

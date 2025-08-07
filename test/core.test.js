@@ -429,6 +429,9 @@ describe('core', () => {
           ).toString(),
           'ok\n'
         )
+      })
+
+      test('via stdio() method', async () => {
         assert.equal(
           (
             await $({ halt: true })`>&2 echo error; echo ok`
@@ -437,6 +440,16 @@ describe('core', () => {
               .run()
           ).toString(),
           'error\n'
+        )
+
+        assert.equal(
+          (
+            await $({ halt: true })`>&2 echo error; echo ok`
+              .stdio(['inherit', 'pipe', 'ignore'])
+              .quiet()
+              .run()
+          ).toString(),
+          'ok\n'
         )
       })
 
@@ -605,14 +618,10 @@ describe('core', () => {
       assert.equal(p.fullCmd, "set -euo pipefail;echo $'#bar' --t 1")
     })
 
-    test('stdio() works', async () => {
-      const p1 = $`printf foo`
-      await p1
-      // assert.throws(() => p.stdin)
-      assert.equal((await p1).stdout, 'foo')
-      const p2 = $`read; printf $REPLY`
-      p2.stdin.write('bar\n')
-      assert.equal((await p2).stdout, 'bar')
+    test('stdin works', async () => {
+      const p = $`read; printf $REPLY`
+      p.stdin.write('bar\n')
+      assert.equal((await p).stdout, 'bar')
     })
 
     describe('pipe()', () => {

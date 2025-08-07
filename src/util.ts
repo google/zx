@@ -15,7 +15,7 @@
 import path from 'node:path'
 import { type Buffer } from 'node:buffer'
 import process from 'node:process'
-import { type TSpawnStoreChunks } from './vendor-core.ts'
+import { type TSpawnStore } from './vendor-core.ts'
 
 export { isStringLiteral } from './vendor-core.ts'
 
@@ -37,7 +37,7 @@ const utf8Decoder = new TextDecoder('utf-8')
 export const bufToString = (buf: Buffer | string): string =>
   isString(buf) ? buf : utf8Decoder.decode(buf)
 
-export const bufArrJoin = (arr: TSpawnStoreChunks) =>
+export const bufArrJoin = (arr: TSpawnStore[keyof TSpawnStore]): string =>
   arr.reduce((acc, buf) => acc + bufToString(buf), '')
 
 export const getLast = <T>(arr: { length: number; [i: number]: any }): T =>

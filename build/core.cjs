@@ -521,14 +521,14 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     );
   }
   run() {
-    var _a, _b, _c;
+    var _a, _b;
     _ProcessPromise.bus.runBack(this);
     if (this.isRunning() || this.isSettled()) return this;
     this._stage = "running";
     const self = this;
     const $2 = self._snapshot;
     const id = self.id;
-    const cwd = (_a = $2.cwd) != null ? _a : $2[CWD];
+    const cwd = $2.cwd || $2[CWD];
     if ($2.preferLocal) {
       const dirs = $2.preferLocal === true ? [$2.cwd, $2[CWD]] : [$2.preferLocal].flat();
       $2.env = (0, import_util.preferLocalBin)($2.env, ...dirs);
@@ -536,7 +536,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     this._zurk = (0, import_vendor_core2.exec)({
       cmd: self.fullCmd,
       cwd,
-      input: (_c = (_b = $2.input) == null ? void 0 : _b.stdout) != null ? _c : $2.input,
+      input: (_b = (_a = $2.input) == null ? void 0 : _a.stdout) != null ? _b : $2.input,
       stdin: self._stdin,
       sync: self.sync,
       signal: self.signal,
@@ -567,8 +567,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
           self.timeout($2.timeout, $2.timeoutSignal);
         },
         stdout: (data) => {
-          if (self._piped) return;
-          $2.log({ kind: "stdout", data, verbose: self.isVerbose(), id });
+          $2.log({ kind: "stdout", data, verbose: !self._piped && self.isVerbose(), id });
         },
         stderr: (data) => {
           $2.log({ kind: "stderr", data, verbose: !self.isQuiet(), id });
@@ -576,7 +575,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
         end: (data, c) => {
           const { error: _error, status, signal: __signal, duration, ctx: { store } } = data;
           const { stdout, stderr } = store;
-          const { cause, exitCode, signal: _signal } = __spreadValues({}, self._breakData);
+          const { cause, exitCode, signal: _signal } = self._breakerData || {};
           const signal = _signal != null ? _signal : __signal;
           const code = exitCode != null ? exitCode : status;
           const error = cause != null ? cause : _error;
@@ -599,7 +598,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
   }
   break(exitCode, signal, cause) {
     if (!this.isRunning()) return;
-    this._breakData = { exitCode, signal, cause };
+    this._breakerData = { exitCode, signal, cause };
     this.kill(signal);
   }
   finalize(output, legacy = false) {
@@ -636,7 +635,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
   }
   // Configurators
   stdio(stdin, stdout = "pipe", stderr = "pipe") {
-    this._snapshot.stdio = [stdin, stdout, stderr];
+    this._snapshot.stdio = Array.isArray(stdin) ? stdin : [stdin, stdout, stderr];
     return this;
   }
   nothrow(v = true) {

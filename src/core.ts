@@ -302,7 +302,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     const self = this
     const $ = self._snapshot
     const id = self.id
-    const cwd = $.cwd ?? $[CWD]
+    const cwd = $.cwd || $[CWD]
 
     if ($.preferLocal) {
       const dirs =
@@ -344,8 +344,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
         },
         stdout: (data) => {
           // If the process is piped, don't print its output.
-          if (self._piped) return
-          $.log({ kind: 'stdout', data, verbose: self.isVerbose(), id })
+          $.log({ kind: 'stdout', data, verbose: !self._piped && self.isVerbose(), id })
         },
         stderr: (data) => {
           // Stderr should be printed regardless of piping.
@@ -354,7 +353,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
         end: (data, c) => {
           const { error: _error, status, signal: __signal, duration, ctx: { store }} = data
           const { stdout, stderr } = store
-          const { cause, exitCode, signal: _signal } = {...self._breakData}
+          const { cause, exitCode, signal: _signal } = self._breakerData || {}
 
           const signal = _signal ?? __signal
           const code = exitCode ?? status
@@ -381,7 +380,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
     return this
   }
-  private _breakData?: Partial<
+  private _breakerData?: Partial<
     Pick<ProcessOutput, 'exitCode' | 'signal' | 'cause'>
   >
 
@@ -391,7 +390,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     cause?: ProcessOutput['cause']
   ): void {
     if (!this.isRunning()) return
-    this._breakData = { exitCode, signal, cause }
+    this._breakerData = { exitCode, signal, cause }
     this.kill(signal)
   }
 
@@ -433,8 +432,14 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   // Configurators
-  stdio(stdin: IOType, stdout: IOType = 'pipe', stderr: IOType = 'pipe'): this {
-    this._snapshot.stdio = [stdin, stdout, stderr]
+  stdio(
+    stdin: IOType | StdioOptions,
+    stdout: IOType = 'pipe',
+    stderr: IOType = 'pipe'
+  ): this {
+    this._snapshot.stdio = Array.isArray(stdin)
+      ? stdin
+      : [stdin, stdout, stderr]
     return this
   }
 
