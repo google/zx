@@ -111,7 +111,6 @@ jobs:
         run: npm run test:types
 
   docker-test:
-    name: Docker test
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -172,9 +171,10 @@ jobs:
   smoke-deno:
     runs-on: ubuntu-latest
     needs: build
+    name: smoke-deno${{ matrix.deno-version }}
     strategy:
       matrix:
-        deno-version: [v1.x, v2.x]
+        deno-version: [1, 2]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -195,6 +195,7 @@ jobs:
   smoke-node:
     runs-on: ubuntu-latest
     needs: build
+    name: smoke-node${{ matrix.node-version }}
     strategy:
       matrix:
         node-version: [12, 14, 16, 18, 20, 22, 24, 25-nightly]
@@ -221,6 +222,7 @@ jobs:
   smoke-graal:
     needs: build
     runs-on: ubuntu-latest
+    name: smoke-graal${{ matrix.version }}
     strategy:
       matrix:
         version: [17, 20]
@@ -246,6 +248,7 @@ jobs:
   smoke-ts:
     runs-on: ubuntu-latest
     needs: build
+    name: smoke-ts${{ matrix.ts }}
     strategy:
       matrix:
         ts: [4, 5, rc, next]
