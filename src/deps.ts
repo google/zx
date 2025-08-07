@@ -53,9 +53,14 @@ type DepsInstaller = (opts: {
 
 const installers: Record<any, DepsInstaller> = {
   npm: async ({ packages, prefix, registry }) => {
-    const prefixFlag = prefix ? `--prefix=${prefix}` : ''
-    const registryFlag = registry ? `--registry=${registry}` : ''
-    await $`npm install --no-save --no-audit --no-fund ${registryFlag} ${prefixFlag} ${packages}`.nothrow()
+    const flags = [
+      '--no-save',
+      '--no-audit',
+      '--no-fund',
+      prefix && `--prefix=${prefix}`,
+      registry && `--registry=${registry}`,
+    ].filter(Boolean)
+    await $`npm install ${flags} ${packages}`.nothrow()
   },
 }
 

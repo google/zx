@@ -36,9 +36,14 @@ function installDeps(dependencies, prefix, registry, installerType = "npm") {
 }
 var installers = {
   npm: (_0) => __async(null, [_0], function* ({ packages, prefix, registry }) {
-    const prefixFlag = prefix ? `--prefix=${prefix}` : "";
-    const registryFlag = registry ? `--registry=${registry}` : "";
-    yield import_index.$`npm install --no-save --no-audit --no-fund ${registryFlag} ${prefixFlag} ${packages}`.nothrow();
+    const flags = [
+      "--no-save",
+      "--no-audit",
+      "--no-fund",
+      prefix && `--prefix=${prefix}`,
+      registry && `--registry=${registry}`
+    ].filter(Boolean);
+    yield import_index.$`npm install ${flags} ${packages}`.nothrow();
   })
 };
 var builtins = new Set(import_node_module.builtinModules);
