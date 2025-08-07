@@ -19,23 +19,12 @@ import net from 'node:net'
 import getPort from 'get-port'
 import { $, path, tmpfile, tmpdir, fs } from '../build/index.js'
 import { isMain, normalizeExt } from '../build/cli.js'
+import { fakeServer } from './fixtures/server.mjs'
 
 const __filename = fileURLToPath(import.meta.url)
 const spawn = $.spawn
 const nodeMajor = +process.versions?.node?.split('.')[0]
 const test22 = nodeMajor >= 22 ? test : test.skip
-const getServer = (resp = [], log = console.log) => {
-  const server = net.createServer()
-  server.on('connection', (conn) => {
-    conn.on('data', (d) => {
-      conn.write(resp.shift() || 'pong')
-    })
-  })
-  server.stop = () => new Promise((resolve) => server.close(() => resolve()))
-  server.start = (port) =>
-    new Promise((resolve) => server.listen(port, () => resolve(server)))
-  return server
-}
 
 describe('cli', () => {
   // Helps to detect unresolved ProcessPromise.
@@ -213,7 +202,7 @@ console.log(a);
   test('scripts from https 200', async () => {
     const resp = await fs.readFile(path.resolve('test/fixtures/echo.http'))
     const port = await getPort()
-    const server = await getServer([resp]).start(port)
+    const server = await fakeServer([resp]).start(port)
     const out =
       await $`node build/cli.js --verbose http://127.0.0.1:${port}/script.mjs`
     assert.match(out.stderr, /test/)
@@ -222,7 +211,7 @@ console.log(a);
 
   test('scripts from https 500', async () => {
     const port = await getPort()
-    const server = await getServer(['HTTP/1.1 500\n\n']).listen(port)
+    const server = await fakeServer(['HTTP/1.1 500\n\n']).listen(port)
     const out = await $`node build/cli.js http://127.0.0.1:${port}`.nothrow()
     assert.match(out.stderr, /Error: Can't get/)
     await server.stop()
@@ -231,7 +220,7 @@ console.log(a);
   test('scripts (md) from https', async () => {
     const resp = await fs.readFile(path.resolve('test/fixtures/md.http'))
     const port = await getPort()
-    const server = await getServer([resp]).start(port)
+    const server = await fakeServer([resp]).start(port)
     const out =
       await $`node build/cli.js --verbose http://127.0.0.1:${port}/script.md`
     assert.match(out.stderr, /md/)

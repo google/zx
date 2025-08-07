@@ -26,6 +26,6 @@ require('zx/globals')
     const p = await $({ nothrow: true })`echo foo; exit 3`
     assert.match(p.message, /exit code: 3/)
   }
-})()
 
-console.log('smoke cjs: ok')
+  console.log('smoke cjs: ok')
+})()
