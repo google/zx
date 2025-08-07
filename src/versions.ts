@@ -14,14 +14,14 @@
 
 export const versions: Record<string, string> = {
   zx: '8.8.0',
-  chalk: '5.4.1',
+  chalk: '5.5.0',
   depseek: '0.4.1',
   dotenv: '0.2.3',
   fetch: '1.6.7',
-  fs: '11.3.0',
+  fs: '11.3.1',
   glob: '14.1.0',
   minimist: '1.2.8',
   ps: '0.1.4',
   which: '5.0.0',
-  yaml: '2.8.0',
+  yaml: '2.8.1',
 }

@@ -7127,7 +7127,7 @@ var require_stat = __commonJS({
       return checkParentPathsSync(src, srcStat, destParent, funcName);
     }
     function areIdentical(srcStat, destStat) {
-      return destStat.ino && destStat.dev && destStat.ino === srcStat.ino && destStat.dev === srcStat.dev;
+      return destStat.ino !== void 0 && destStat.dev !== void 0 && destStat.ino === srcStat.ino && destStat.dev === srcStat.dev;
     }
     function isSrcSubdir(src, dest) {
       const srcArr = path3.resolve(src).split(path3.sep).filter((i) => i);
@@ -13986,7 +13986,7 @@ try {
 }
 function blockString({ comment, type, value }, ctx, onComment, onChompKeep) {
   const { blockQuote, commentString, lineWidth } = ctx.options;
-  if (!blockQuote || /\n[\t ]+$/.test(value) || /^\s*$/.test(value)) {
+  if (!blockQuote || /\n[\t ]+$/.test(value)) {
     return quotedString(value, ctx);
   }
   const indent = ctx.indent || (ctx.forceBlockIndent || containsDocumentMarker(value) ? "  " : "");
