@@ -93,12 +93,24 @@ import 'zx/globals'
 
   // fetch()
   {
-    const url = 'https://httpbin.org/get'
+    const server = (await import('../fixtures/server.mjs')).fakeServer([
+      `HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 13
+Server: netcat!
+
+{"foo":"bar"}
+`,
+    ])
+
+    const { url } = await server.start(8081)
     const res = await fetch(url)
     const json = await res.json()
     assert.equal(res.status, 200)
-    assert.equal(json.url, url)
-  }
-})()
+    assert.equal(json.foo, 'bar')
 
-console.log('smoke mjs: ok')
+    await server.stop()
+  }
+
+  console.log('smoke mjs: ok')
+})()
