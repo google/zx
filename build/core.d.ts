@@ -202,9 +202,9 @@ export declare class ProcessOutput extends Error {
     static getExitCodeInfo: typeof Fail.getExitCodeInfo;
     static fromError(error: Error): ProcessOutput;
 }
-export declare function usePowerShell(): void;
-export declare function usePwsh(): void;
-export declare function useBash(): void;
+export declare const useBash: () => void;
+export declare const usePwsh: () => void;
+export declare const usePowerShell: () => void;
 export declare function syncProcessCwd(flag?: boolean): void;
 export declare function cd(dir: string | ProcessOutput): void;
 export declare function kill(pid: number, signal?: NodeJS.Signals): Promise<void>;
