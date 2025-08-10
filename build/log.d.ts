@@ -39,6 +39,10 @@ export type LogEntry = {
 } | {
     kind: 'custom';
     data: any;
+} | {
+    kind: 'kill';
+    pid: number;
+    signal: NodeJS.Signals | null;
 });
 type LogFormatters = {
     [key in LogEntry['kind']]: (entry: Extract<LogEntry, {

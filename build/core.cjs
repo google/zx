@@ -286,6 +286,9 @@ var formatters = {
   },
   end() {
     return "";
+  },
+  kill() {
+    return "";
   }
 };
 var log = function(entry) {

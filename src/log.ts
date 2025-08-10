@@ -65,6 +65,11 @@ export type LogEntry = {
       kind: 'custom'
       data: any
     }
+  | {
+      kind: 'kill'
+      pid: number
+      signal: NodeJS.Signals | null
+    }
 )
 
 type LogFormatters = {
@@ -100,6 +105,9 @@ const formatters: LogFormatters = {
     return `${chalk.bgRed.white(' FAIL ')} ${attempt}${delay}\n`
   },
   end() {
+    return ''
+  },
+  kill() {
     return ''
   },
 }
