@@ -977,11 +977,8 @@ export class ProcessOutput extends Error {
   }
 
   static getExitMessage = Fail.formatExitMessage
-
   static getErrorMessage = Fail.formatErrorMessage
-
   static getErrorDetails = Fail.formatErrorDetails
-
   static getExitCodeInfo = Fail.getExitCodeInfo
 
   static fromError(error: Error): ProcessOutput {
