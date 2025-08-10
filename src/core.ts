@@ -991,9 +991,9 @@ export class ProcessOutput extends Error {
   }
 }
 
-export const useBash = () => setShell('bash', false)
-export const usePwsh = () => setShell('pwsh')
-export const usePowerShell = () => setShell('powershell.exe')
+export const useBash = (): void => setShell('bash', false)
+export const usePwsh = (): void => setShell('pwsh')
+export const usePowerShell = (): void => setShell('powershell.exe')
 function setShell(n: string, ps = true) {
   $.shell = which.sync(n)
   $.prefix = ps ? '' : 'set -euo pipefail;'
