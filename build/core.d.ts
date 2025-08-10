@@ -207,5 +207,5 @@ export declare function usePwsh(): void;
 export declare function useBash(): void;
 export declare function syncProcessCwd(flag?: boolean): void;
 export declare function cd(dir: string | ProcessOutput): void;
-export declare function kill(pid: number, signal?: NodeJS.Signals | undefined): Promise<void>;
+export declare function kill(pid: number, signal?: NodeJS.Signals): Promise<void>;
 export declare function resolveDefaults(defs?: Options, prefix?: string, env?: NodeJS.ProcessEnv, allowed?: Set<string>): Options;

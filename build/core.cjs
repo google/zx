@@ -1115,7 +1115,8 @@ function cd(dir) {
   $[CWD] = import_node_process2.default.cwd();
 }
 function kill(_0) {
-  return __async(this, arguments, function* (pid, signal = $.killSignal) {
+  return __async(this, arguments, function* (pid, signal = $.killSignal || SIGTERM) {
+    $.log({ kind: "kill", pid, signal, verbose: !$.quiet && $.verbose });
     if (import_node_process2.default.platform === "win32" && (yield new Promise((resolve) => {
       import_node_child_process.default.exec(`taskkill /pid ${pid} /t /f`, (err) => resolve(!err));
     })))

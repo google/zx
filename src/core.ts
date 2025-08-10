@@ -1050,7 +1050,8 @@ export function cd(dir: string | ProcessOutput) {
   $[CWD] = process.cwd()
 }
 
-export async function kill(pid: number, signal = $.killSignal) {
+export async function kill(pid: number, signal = $.killSignal || SIGTERM) {
+  $.log({ kind: 'kill', pid, signal, verbose: !$.quiet && $.verbose })
   if (
     process.platform === 'win32' &&
     (await new Promise((resolve) => {
