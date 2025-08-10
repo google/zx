@@ -1065,23 +1065,14 @@ _ProcessOutput.getErrorMessage = Fail.formatErrorMessage;
 _ProcessOutput.getErrorDetails = Fail.formatErrorDetails;
 _ProcessOutput.getExitCodeInfo = Fail.getExitCodeInfo;
 var ProcessOutput = _ProcessOutput;
-function usePowerShell() {
-  $.shell = import_vendor_core2.which.sync("powershell.exe");
-  $.prefix = "";
-  $.postfix = "; exit $LastExitCode";
-  $.quote = import_util.quotePowerShell;
-}
-function usePwsh() {
-  $.shell = import_vendor_core2.which.sync("pwsh");
-  $.prefix = "";
-  $.postfix = "; exit $LastExitCode";
-  $.quote = import_util.quotePowerShell;
-}
-function useBash() {
-  $.shell = import_vendor_core2.which.sync("bash");
-  $.prefix = "set -euo pipefail;";
-  $.postfix = "";
-  $.quote = import_util.quote;
+var useBash = () => setShell("bash", false);
+var usePwsh = () => setShell("pwsh");
+var usePowerShell = () => setShell("powershell.exe");
+function setShell(n, ps3 = true) {
+  $.shell = import_vendor_core2.which.sync(n);
+  $.prefix = ps3 ? "" : "set -euo pipefail;";
+  $.postfix = ps3 ? "; exit $LastExitCode" : "";
+  $.quote = ps3 ? import_util.quotePowerShell : import_util.quote;
 }
 try {
   const { shell, prefix, postfix } = $;

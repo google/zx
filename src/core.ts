@@ -977,11 +977,8 @@ export class ProcessOutput extends Error {
   }
 
   static getExitMessage = Fail.formatExitMessage
-
   static getErrorMessage = Fail.formatErrorMessage
-
   static getErrorDetails = Fail.formatErrorDetails
-
   static getExitCodeInfo = Fail.getExitCodeInfo
 
   static fromError(error: Error): ProcessOutput {
@@ -991,25 +988,14 @@ export class ProcessOutput extends Error {
   }
 }
 
-export function usePowerShell() {
-  $.shell = which.sync('powershell.exe')
-  $.prefix = ''
-  $.postfix = '; exit $LastExitCode'
-  $.quote = quotePowerShell
-}
-
-export function usePwsh() {
-  $.shell = which.sync('pwsh')
-  $.prefix = ''
-  $.postfix = '; exit $LastExitCode'
-  $.quote = quotePowerShell
-}
-
-export function useBash() {
-  $.shell = which.sync('bash')
-  $.prefix = 'set -euo pipefail;'
-  $.postfix = ''
-  $.quote = quote
+export const useBash = (): void => setShell('bash', false)
+export const usePwsh = (): void => setShell('pwsh')
+export const usePowerShell = (): void => setShell('powershell.exe')
+function setShell(n: string, ps = true) {
+  $.shell = which.sync(n)
+  $.prefix = ps ? '' : 'set -euo pipefail;'
+  $.postfix = ps ? '; exit $LastExitCode' : ''
+  $.quote = ps ? quotePowerShell : quote
 }
 
 try {
