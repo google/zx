@@ -121,6 +121,16 @@ export interface Options {
 }
 
 // prettier-ignore
+type Snapshot = Options & {
+  from:           string
+  pieces:         TemplateStringsArray
+  args:           string[]
+  cmd:            string
+  ee:             EventEmitter
+  ac:             AbortController
+}
+
+// prettier-ignore
 export const defaults: Options = resolveDefaults({
   [CWD]:          process.cwd(),
   [SYNC]:         false,
@@ -140,28 +150,6 @@ export const defaults: Options = resolveDefaults({
   killSignal:     SIGTERM,
   timeoutSignal:  SIGTERM,
 })
-
-type Snapshot = Options & {
-  from: string
-  pieces: TemplateStringsArray
-  args: string[]
-  cmd: string
-  ee: EventEmitter
-  ac: AbortController
-}
-
-// prettier-ignore
-export interface Shell<
-  S = false,
-  R = S extends true ? ProcessOutput : ProcessPromise,
-> {
-  (pieces: TemplateStringsArray, ...args: any[]): R
-  <O extends Partial<Options> = Partial<Options>, R = O extends { sync: true } ? Shell<true> : Shell>(opts: O): R
-  sync: {
-    (pieces: TemplateStringsArray, ...args: any[]): ProcessOutput
-    (opts: Partial<Omit<Options, 'sync'>>): Shell<true>
-  }
-}
 
 const storage = new AsyncLocalStorage<Options>()
 
@@ -184,6 +172,19 @@ const getSnapshot = (
 
 export function within<R>(callback: () => R): R {
   return storage.run({ ...getStore() }, callback)
+}
+
+// prettier-ignore
+export interface Shell<
+  S = false,
+  R = S extends true ? ProcessOutput : ProcessPromise,
+> {
+  (pieces: TemplateStringsArray, ...args: any[]): R
+  <O extends Partial<Options> = Partial<Options>, R = O extends { sync: true } ? Shell<true> : Shell>(opts: O): R
+  sync: {
+    (pieces: TemplateStringsArray, ...args: any[]): ProcessOutput
+    (opts: Partial<Omit<Options, 'sync'>>): Shell<true>
+  }
 }
 
 // The zx

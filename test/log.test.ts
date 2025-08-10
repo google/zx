@@ -38,6 +38,7 @@ describe('log', () => {
       log({
         kind: 'cmd',
         cmd: 'echo hi',
+        cwd: process.cwd(),
         id: '1',
         verbose: false,
       })
@@ -48,6 +49,7 @@ describe('log', () => {
       log({
         kind: 'cmd',
         cmd: 'echo hi',
+        cwd: process.cwd(),
         id: '1',
         verbose: true,
       })
@@ -111,6 +113,28 @@ describe('log', () => {
       )
     })
 
+    test('end', () => {
+      log({
+        kind: 'end',
+        id: '1',
+        exitCode: null,
+        signal: null,
+        duration: 0,
+        error: null,
+        verbose: true,
+      })
+      assert.equal(data.join(''), '')
+    })
+
+    test('kill', () => {
+      log({
+        kind: 'kill',
+        signal: null,
+        pid: 1234,
+      })
+      assert.equal(data.join(''), '')
+    })
+
     test('formatters', () => {
       log.formatters = {
         cmd: ({ cmd }) => `CMD: ${cmd}`,
@@ -119,6 +143,7 @@ describe('log', () => {
       log({
         kind: 'cmd',
         cmd: 'echo hi',
+        cwd: process.cwd(),
         id: '1',
         verbose: true,
       })
