@@ -1026,7 +1026,7 @@ function syncCwd() {
   if ($[CWD] != process.cwd()) process.chdir($[CWD])
 }
 
-export function cd(dir: string | ProcessOutput) {
+export function cd(dir: string | ProcessOutput): void {
   if (dir instanceof ProcessOutput) return cd(dir.toString().trim())
 
   $.log({ kind: 'cd', dir, verbose: !$.quiet && $.verbose })
