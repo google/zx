@@ -1098,9 +1098,8 @@ function syncCwd() {
   if ($[CWD] != import_node_process2.default.cwd()) import_node_process2.default.chdir($[CWD]);
 }
 function cd(dir) {
-  if (dir instanceof ProcessOutput) {
-    dir = dir.toString().trim();
-  }
+  if (dir instanceof ProcessOutput)
+    return cd(dir.toString().trim());
   $.log({ kind: "cd", dir, verbose: !$.quiet && $.verbose });
   import_node_process2.default.chdir(dir);
   $[CWD] = import_node_process2.default.cwd();
