@@ -23,7 +23,7 @@ describe('package', () => {
   describe('work mode', () => {
     test('ts', async () => {
       const out = await within(async () => {
-        $.cwd = path.resolve(__dirname, 'fixtures/ts-project')
+        $.cwd = path.resolve(root, 'test/fixtures/ts-project')
         await $`npm i --no-package-lock`
         try {
           await $`npx tsc`
@@ -37,7 +37,7 @@ describe('package', () => {
 
     test('js', async () => {
       const out = await within(async () => {
-        $.cwd = path.resolve(__dirname, 'fixtures/js-project')
+        $.cwd = path.resolve(root, 'test/fixtures/js-project')
         await $`npm i --no-package-lock`
         return $`node node_modules/zx/build/cli.js --verbose script.js`
       })
@@ -127,7 +127,6 @@ describe('package', () => {
     test('zx@lite', async () =>
       within(async () => {
         const tmp = tempdir()
-        const unpkg = path.resolve(tmp, 'package')
         $.cwd = tmp
         $.quiet = true
 
@@ -159,7 +158,7 @@ describe('package', () => {
 
         // contents
         const files = await glob('**/*', {
-          cwd: unpkg,
+          cwd: path.resolve(tmp, 'package'),
           absolute: false,
           onlyFiles: true,
         })
