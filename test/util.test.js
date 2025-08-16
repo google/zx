@@ -29,7 +29,7 @@ import {
   preferLocalBin,
   toCamelCase,
   getLast,
-} from '../build/util.js'
+} from '../build/util.cjs'
 
 describe('util', () => {
   test('randomId()', () => {

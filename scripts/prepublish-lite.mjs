@@ -12,15 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Prepares lite (core) version of zx to publish
+// Prepares a lite (core) version of zx to publish
 
 import fs from 'node:fs'
 import path from 'node:path'
+import { depseekSync } from 'depseek'
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname)
 const root = path.resolve(__dirname, '..')
 const pkgJsonFile = path.join(root, 'package.json')
 const _pkgJson = JSON.parse(fs.readFileSync(pkgJsonFile, 'utf-8'))
+
+const files = new Set()
+const entries = new Set(['./core.js', './3rd-party-licenses'])
+
+for (const entry of entries) {
+  if (!fs.existsSync(path.join(root, 'build', entry))) continue
+
+  files.add(entry)
+  const contents = fs.readFileSync(path.join(root, 'build', entry), 'utf-8')
+  const deps = depseekSync(contents)
+  for (const { value: file } of deps) {
+    if (file.startsWith('.')) {
+      entries.add(file)
+      entries.add(file.replace(/\.c?js$/, '.d.ts'))
+    }
+  }
+}
 
 const pkgJson = {
   ..._pkgJson,
@@ -42,22 +60,7 @@ const pkgJson = {
     },
   },
   man: undefined,
-  files: [
-    'build/3rd-party-licenses',
-    'build/core.cjs',
-    'build/core.js',
-    'build/core.d.ts',
-    'build/deno.js',
-    'build/error.d.ts',
-    'build/esblib.cjs',
-    'build/log.d.ts',
-    'build/util.cjs',
-    'build/util.js',
-    'build/util.d.ts',
-    'build/vendor-core.cjs',
-    'build/vendor-core.js',
-    'build/vendor-core.d.ts',
-  ],
+  files: [...files].map((f) => path.join('build', f)).sort(),
 }
 
 fs.writeFileSync(pkgJsonFile, JSON.stringify(pkgJson, null, 2))

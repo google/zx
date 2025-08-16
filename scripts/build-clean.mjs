@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 // Copyright 2025 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,16 +14,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export const versions: Record<string, string> = {
-  zx: '8.8.0',
-  chalk: '5.5.0',
-  depseek: '0.4.3',
-  dotenv: '0.2.3',
-  fetch: '1.6.7',
-  fs: '11.3.1',
-  glob: '14.1.0',
-  minimist: '1.2.8',
-  ps: '0.1.4',
-  which: '5.0.0',
-  yaml: '2.8.1',
+import fs from 'node:fs'
+import glob from 'fast-glob'
+
+const redundants = await glob(
+  [
+    'build/{repl,globals-jsr,internals}.d.ts',
+    'build/{deps,internals,util,vendor*}.js',
+  ],
+  {
+    onlyFiles: true,
+    absolute: true,
+  }
+)
+
+for (const file of redundants) {
+  fs.unlinkSync(file)
 }
+
+console.log('postbuild removed', redundants)

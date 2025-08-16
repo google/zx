@@ -46,7 +46,7 @@ import {
   nothrow,
   fetch,
 } from '../build/index.js'
-import { noop } from '../build/util.js'
+import { noop } from '../build/util.cjs'
 import { EventEmitter } from 'node:events'
 
 describe('core', () => {
@@ -982,7 +982,7 @@ describe('core', () => {
         p1.pipe(p3)
         p2.pipe(p3)
 
-        setTimeout(() => p1.unpipe(p3), 180)
+        setTimeout(() => p1.unpipe(p3), 150)
 
         const { stdout } = await p3
         assert.equal(stdout, 'foo\n1\nbar\n2\n3\n')

@@ -55,7 +55,7 @@ var import_vendor = require("./vendor.cjs");
 var versions = {
   zx: "8.8.0",
   chalk: "5.5.0",
-  depseek: "0.4.1",
+  depseek: "0.4.3",
   dotenv: "0.2.3",
   fetch: "1.6.7",
   fs: "11.3.1",
@@ -192,9 +192,9 @@ function retry(count, d, cb) {
     if (typeof d === "function") return retry(count, 0, d);
     if (!cb) throw new import_core.Fail("Callback is required for retry");
     const total = count;
-    const gen = typeof d === "object" ? d : function* (d2) {
+    const gen = typeof d === "object" ? d : (function* (d2) {
       while (true) yield d2;
-    }((0, import_util.parseDuration)(d));
+    })((0, import_util.parseDuration)(d));
     let attempt = 0;
     let lastErr;
     while (count-- > 0) {

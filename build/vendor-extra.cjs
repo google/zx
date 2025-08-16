@@ -6069,7 +6069,7 @@ var require_polyfills = __commonJS({
         };
       }
       if (platform === "win32") {
-        fs6.rename = typeof fs6.rename !== "function" ? fs6.rename : function(fs$rename) {
+        fs6.rename = typeof fs6.rename !== "function" ? fs6.rename : (function(fs$rename) {
           function rename(from, to, cb) {
             var start = Date.now();
             var backoff = 0;
@@ -6092,9 +6092,9 @@ var require_polyfills = __commonJS({
           }
           if (Object.setPrototypeOf) Object.setPrototypeOf(rename, fs$rename);
           return rename;
-        }(fs6.rename);
+        })(fs6.rename);
       }
-      fs6.read = typeof fs6.read !== "function" ? fs6.read : function(fs$read) {
+      fs6.read = typeof fs6.read !== "function" ? fs6.read : (function(fs$read) {
         function read(fd, buffer, offset, length, position, callback_) {
           var callback;
           if (callback_ && typeof callback_ === "function") {
@@ -6111,8 +6111,8 @@ var require_polyfills = __commonJS({
         }
         if (Object.setPrototypeOf) Object.setPrototypeOf(read, fs$read);
         return read;
-      }(fs6.read);
-      fs6.readSync = typeof fs6.readSync !== "function" ? fs6.readSync : /* @__PURE__ */ function(fs$readSync) {
+      })(fs6.read);
+      fs6.readSync = typeof fs6.readSync !== "function" ? fs6.readSync : /* @__PURE__ */ (function(fs$readSync) {
         return function(fd, buffer, offset, length, position) {
           var eagCounter = 0;
           while (true) {
@@ -6127,7 +6127,7 @@ var require_polyfills = __commonJS({
             }
           }
         };
-      }(fs6.readSync);
+      })(fs6.readSync);
       function patchLchmod(fs7) {
         fs7.lchmod = function(path3, mode, callback) {
           fs7.open(
@@ -6450,7 +6450,7 @@ var require_graceful_fs = __commonJS({
     if (!fs6[gracefulQueue]) {
       queue = global[gracefulQueue] || [];
       publishQueue(fs6, queue);
-      fs6.close = function(fs$close) {
+      fs6.close = (function(fs$close) {
         function close(fd, cb) {
           return fs$close.call(fs6, fd, function(err) {
             if (!err) {
@@ -6464,8 +6464,8 @@ var require_graceful_fs = __commonJS({
           value: fs$close
         });
         return close;
-      }(fs6.close);
-      fs6.closeSync = function(fs$closeSync) {
+      })(fs6.close);
+      fs6.closeSync = (function(fs$closeSync) {
         function closeSync(fd) {
           fs$closeSync.apply(fs6, arguments);
           resetQueue();
@@ -6474,7 +6474,7 @@ var require_graceful_fs = __commonJS({
           value: fs$closeSync
         });
         return closeSync;
-      }(fs6.closeSync);
+      })(fs6.closeSync);
       if (/\bgfs4\b/i.test(process.env.NODE_DEBUG || "")) {
         process.on("exit", function() {
           debug(fs6[gracefulQueue]);
@@ -8417,7 +8417,7 @@ function Us(i) {
   return w2.type = p2, w2.typeFull = h2, w2.charset = f2, w2;
 }
 function Ns() {
-  return bi || (bi = 1, function(i, o3) {
+  return bi || (bi = 1, (function(i, o3) {
     (function(a, f2) {
       f2(o3);
     })(xs, function(a) {
@@ -8798,11 +8798,11 @@ function Ns() {
       }
       n2(Ut, "GetMethod");
       function Ji(e) {
-        const t3 = { [Symbol.iterator]: () => e.iterator }, r2 = function() {
+        const t3 = { [Symbol.iterator]: () => e.iterator }, r2 = (function() {
           return __asyncGenerator(this, null, function* () {
             return yield* __yieldStar(t3);
           });
-        }(), s = r2.next;
+        })(), s = r2.next;
         return { iterator: r2, nextMethod: s, done: false };
       }
       n2(Ji, "CreateAsyncFromSyncIterator");
@@ -10793,7 +10793,7 @@ function Ns() {
       }
       n2(li, "streamBrandCheckException"), a.ByteLengthQueuingStrategy = Xe, a.CountQueuingStrategy = et, a.ReadableByteStreamController = te, a.ReadableStream = L, a.ReadableStreamBYOBReader = ce, a.ReadableStreamBYOBRequest = Re, a.ReadableStreamDefaultController = ne, a.ReadableStreamDefaultReader = fe, a.TransformStream = tt, a.TransformStreamDefaultController = pe, a.WritableStream = de, a.WritableStreamDefaultController = ke, a.WritableStreamDefaultWriter = re;
     });
-  }(kt, kt.exports)), kt.exports;
+  })(kt, kt.exports)), kt.exports;
 }
 function Hs() {
   if (mi) return pi;
@@ -19474,8 +19474,9 @@ var T = !o2 && globalThis.AbortController || Mn;
 
 // node_modules/depseek/target/esm/index.mjs
 var importRequireRe = /((\.{3}|\s|[!%&(*+,/:;<=>?[^{|}~-]|^)(require\s?\(\s?|import\s?\(?\s?)|\sfrom)\s?$/;
-var isDep = (proposal, re) => !!proposal && re.test(proposal);
-var isSpace = (value) => value === " " || value === "\n" || value === "	";
+var isDep = (v2, re) => !!v2 && re.test(v2);
+var isSpace = (v2) => v2 === " " || v2 === "\n" || v2 === "	";
+var isQ = (v2) => `"'\``.includes(v2);
 var normalizeOpts = (opts) => __spreadValues({
   bufferSize: 1e3,
   comments: false,
@@ -19507,33 +19508,25 @@ var extract = (readable, _opts) => {
       const char = chunk[j];
       if (c2 === q) {
         if (isSpace(char)) {
-          if (!isSpace(prev))
-            token += char;
-        } else if (char === '"' || char === "'" || char === "`")
-          q = char;
-        else if (prev === "/" && (char === "/" || char === "*"))
-          c2 = char;
-        else
-          token += char;
+          if (!isSpace(prev)) token += char;
+        } else if (prev === "/" && (char === "/" || char === "*")) c2 = char;
+        else if (isQ(char)) q = char;
+        else token += char;
       } else if (c2 === null) {
-        if (q === char && prev !== "\\") {
-          if (strLiteral && isDep(token.slice(-offset), re))
-            pushRef("dep", strLiteral, i - strLiteral.length);
+        if (isSpace(char) || isQ(char)) {
+          if (strLiteral && isDep(token.slice(-offset), re)) pushRef("dep", strLiteral, i - strLiteral.length);
           strLiteral = "";
           token = "";
           q = null;
-        } else
-          strLiteral += char;
+        } else strLiteral += char;
       } else if (q === null) {
         if (c2 === "/" && char === "\n" || c2 === "*" && prev === "*" && char === "/") {
           commentValue = c2 === "*" ? commentBlock.slice(0, -1) : commentBlock;
-          if (commentValue && comments)
-            pushRef("comment", commentValue, i - commentValue.length);
+          if (commentValue && comments) pushRef("comment", commentValue, i - commentValue.length);
           commentBlock = "";
           token = token.slice(0, -1);
           c2 = null;
-        } else if (comments)
-          commentBlock += char;
+        } else if (comments) commentBlock += char;
       }
       prev = char;
       i++;

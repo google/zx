@@ -20,7 +20,7 @@ import {
   which,
   glob,
   nodeFetch as fetch,
-} from '../build/vendor.js'
+} from '../build/vendor.cjs'
 
 describe('vendor API', () => {
   test('YAML.parse', () => {
