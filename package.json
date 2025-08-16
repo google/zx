@@ -78,7 +78,7 @@
     "build:dts": "tsc --project tsconfig.json && node scripts/build-dts.mjs",
     "build:dcr": "docker build -f ./dcr/Dockerfile . -t zx",
     "build:jsr": "node scripts/build-jsr.mjs",
-    "postbuild": "rm -f build/{repl,globals-jsr,internals}.d.ts build/{deps,internals,util,vendor*}.js",
+    "postbuild": "node scripts/build-clean.mjs",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",

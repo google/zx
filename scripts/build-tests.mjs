@@ -16,7 +16,6 @@
 
 import fs from 'node:fs'
 import path from 'node:path'
-import * as vendor from '../build/vendor.js'
 import * as core from '../build/core.js'
 import * as cli from '../build/cli.js'
 import * as index from '../build/index.js'
@@ -26,7 +25,6 @@ const modules = [
   ['core', core],
   ['cli', cli],
   ['index', index],
-  ['vendor', vendor, ['chalk', 'depseek', 'dotenv', 'fs', 'glob', 'minimist', 'ps', 'which', 'YAML',]],
 ]
 const root = path.resolve(new URL(import.meta.url).pathname, '../..')
 const filePath = path.resolve(root, `test/export.test.js`)
@@ -42,7 +40,7 @@ import { test, describe } from 'node:test'`
 let body = '\n'
 
 for (const [name, ref, apis = Object.keys(ref).sort()] of modules) {
-  head += `\nimport * as ${name} from '../build/${name}.js'`
+  head += `\nimport * as ${name} from '../build/${name}.cjs'`
   body += `\n//prettier-ignore\ndescribe('${name}', () => {\n`
   body += `  test('exports', () => {\n`
   for (const r of apis) {
