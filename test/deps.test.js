@@ -15,7 +15,7 @@
 import assert from 'node:assert'
 import { test, describe } from 'node:test'
 import { $, tmpfile, tmpdir, fs, path } from '../build/index.js'
-import { installDeps, parseDeps } from '../build/deps.js'
+import { installDeps, parseDeps } from '../build/deps.cjs'
 
 const __dirname = new URL('.', import.meta.url).pathname
 const root = path.resolve(__dirname, '..')

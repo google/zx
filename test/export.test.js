@@ -17,7 +17,7 @@ import { test, describe } from 'node:test'
 import * as core from '../build/core.js'
 import * as cli from '../build/cli.js'
 import * as index from '../build/index.js'
-import * as vendor from '../build/vendor.js'
+import * as vendor from '../build/vendor.cjs'
 
 //prettier-ignore
 describe('core', () => {
