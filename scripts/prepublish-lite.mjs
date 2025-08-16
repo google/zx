@@ -63,8 +63,6 @@ const pkgJson = {
   files: [...files].map((f) => path.join('build', f)).sort(),
 }
 
-// fs.writeFileSync(pkgJsonFile, JSON.stringify(pkgJson, null, 2))
-
-console.log(pkgJson.files)
+fs.writeFileSync(pkgJsonFile, JSON.stringify(pkgJson, null, 2))
 
 console.log('package.json prepared for zx-lite publishing')
