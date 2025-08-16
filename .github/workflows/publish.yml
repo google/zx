@@ -32,6 +32,7 @@ jobs:
             build
             package.json
             jsr.json
+            node_modules/depseek
           retention-days: 1
 
   npm-publish:
