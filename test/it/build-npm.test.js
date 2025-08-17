@@ -51,7 +51,7 @@ describe('npm artifact', () => {
         ])
 
         // pack / unpack
-        await $`node scripts/prepublish-clean.mjs`
+        await $`npm run build:pkgjson`
         const pack = await $`npm pack`
         await $`tar xf ${pack}`
         await $`rm ${pack}`.nothrow()
@@ -62,11 +62,22 @@ describe('npm artifact', () => {
         assert.match(stderr, /hello/)
 
         // contents
+        const pkgJson = await fs.readJson(
+          path.resolve(tmp, 'package/package.json')
+        )
         const files = await glob('**/*', {
           cwd: path.resolve(tmp, 'package'),
           absolute: false,
           onlyFiles: true,
         })
+
+        assert.equal(pkgJson.name, 'zx')
+        assert.equal(pkgJson.description, 'A tool for writing better scripts')
+        assert.equal(pkgJson.devDependencies, undefined)
+        assert.equal(pkgJson.prettier, undefined)
+        assert.equal(pkgJson.scripts, undefined)
+        assert.equal(pkgJson.volta, undefined)
+
         assert.deepEqual(
           files.sort(),
           [
@@ -126,8 +137,8 @@ describe('npm artifact', () => {
         ])
 
         // prepare package.json for lite
-        await $`node scripts/prepublish-lite.mjs`
-        await $`node scripts/prepublish-clean.mjs`
+        await $`npm run build:lite`
+        await $`mv package-lite.json package.json`
 
         // pack / unpack
         const pack = await $`npm pack`
@@ -140,11 +151,18 @@ describe('npm artifact', () => {
         assert.match(stderr, /hello/)
 
         // contents
+        const pkgJson = await fs.readJson(
+          path.resolve(tmp, 'package/package.json')
+        )
         const files = await glob('**/*', {
           cwd: path.resolve(tmp, 'package'),
           absolute: false,
           onlyFiles: true,
         })
+
+        assert.equal(pkgJson.name, 'zx')
+        assert.equal(pkgJson.devDependencies, undefined)
+        assert.equal(pkgJson.bin, undefined)
         assert.deepEqual(
           files.sort(),
           [

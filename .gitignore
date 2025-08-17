@@ -9,3 +9,4 @@ temp
 test/fixtures/ts-project/build/
 jsr.json
 .npmrc
+package-lite.json
