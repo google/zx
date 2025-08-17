@@ -41,16 +41,14 @@ describe('npm artifact', () => {
 
         // link
         await $`ln -s ${path.resolve(root, 'node_modules')} ${path.resolve(tmp, 'node_modules')}`
-        for (const entry of [
+        await sync(root, tmp, [
           'scripts',
           'build',
           'man',
           'package.json',
           'README.md',
           'LICENSE',
-        ]) {
-          await fs.copy(path.resolve(root, entry), path.join(tmp, entry))
-        }
+        ])
 
         // pack / unpack
         await $`node scripts/prepublish-clean.mjs`
@@ -119,15 +117,13 @@ describe('npm artifact', () => {
 
         // link
         await $`ln -s ${path.resolve(root, 'node_modules')} ${path.resolve(tmp, 'node_modules')}`
-        for (const entry of [
+        await sync(root, tmp, [
           'build',
           'package.json',
           'README.md',
           'LICENSE',
           'scripts',
-        ]) {
-          await fs.copy(path.resolve(root, entry), path.join(tmp, entry))
-        }
+        ])
 
         // prepare package.json for lite
         await $`node scripts/prepublish-lite.mjs`
@@ -174,7 +170,7 @@ describe('npm artifact', () => {
       }))
   })
 
-  describe('compatability', () => {
+  describe('compatibility', () => {
     test('js', async () => {
       const out = await within(async () => {
         $.cwd = path.resolve(root, 'test/fixtures/js-project')
