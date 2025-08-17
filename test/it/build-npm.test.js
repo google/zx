@@ -169,7 +169,6 @@ describe('npm artifact', () => {
             'LICENSE',
             'README.md',
             'build/3rd-party-licenses',
-            'build/cli.js',
             'build/core.cjs',
             'build/core.d.ts',
             'build/core.js',

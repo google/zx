@@ -79,7 +79,7 @@
     "build:dcr": "docker build -f ./dcr/Dockerfile . -t zx",
     "build:jsr": "node scripts/build-jsr.mjs",
     "build:lite": "node scripts/build-lite.mjs",
-    "build:pkgjson": "node scripts/prepublish-clean.mjs",
+    "build:pkgjson": "node scripts/build-pkgjson.mjs",
     "postbuild": "node scripts/build-clean.mjs",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
