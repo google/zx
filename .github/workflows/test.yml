@@ -32,7 +32,10 @@ jobs:
           name: build
           path: |
             build
+            jsr.json
             package.json
+            package-lite.json
+            package-main.json
           retention-days: 1
 
   checks:
