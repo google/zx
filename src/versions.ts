@@ -14,7 +14,7 @@
 
 export const versions: Record<string, string> = {
   zx: '8.8.1',
-  chalk: '5.5.0',
+  chalk: '5.6.0',
   depseek: '0.4.3',
   dotenv: '0.2.3',
   fetch: '1.6.7',

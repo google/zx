@@ -554,6 +554,9 @@ function _supportsColor(haveStream, { streamIsTTY, sniffFlags = true } = {}) {
   if (env.TERM === "xterm-ghostty") {
     return 3;
   }
+  if (env.TERM === "wezterm") {
+    return 3;
+  }
   if ("TERM_PROGRAM" in env) {
     const version = Number.parseInt((env.TERM_PROGRAM_VERSION || "").split(".")[0], 10);
     switch (env.TERM_PROGRAM) {
