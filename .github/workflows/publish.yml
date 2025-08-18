@@ -23,16 +23,17 @@ jobs:
         env:
           FORCE_COLOR: 3
       - run: |
-          node scripts/build-jsr.mjs
-          node scripts/prepublish-clean.mjs
+          npm run build:jsr
+          npm run build:lite
+          npm run build:pkgjson
       - uses: actions/upload-artifact@v4
         with:
           name: build-${{ github.run_id }}
           path: |
             build
             package.json
+            package-lite.json
             jsr.json
-            node_modules/depseek
           retention-days: 1
 
   npm-publish:
@@ -77,10 +78,26 @@ jobs:
 
       - name: pushing lite snapshot to ${{ env.GOOGLE_NPM_REGISTRY }}
         run: |
-          cat <<< $(jq '.name="zx"' package.json) > package.json
-          node scripts/prepublish-lite.mjs
+          mv package-lite.json package.json
           npm publish --provenance --access=public --no-git-tag-version --tag lite --registry https://${{ env.GOOGLE_NPM_REGISTRY }}
 
+  jsr-publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-${{ github.run_id }}
       - name: pushing to jsr.io
         run: npx jsr publish --allow-dirty
 

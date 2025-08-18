@@ -4,10 +4,13 @@
     "path": [
       "build/3rd-party-licenses",
       "build/core.cjs",
-      "build/core.js",
       "build/core.d.ts",
+      "build/core.js",
       "build/deno.js",
+      "build/error.d.ts",
       "build/esblib.cjs",
+      "build/internals.cjs",
+      "build/log.d.ts",
       "build/util.cjs",
       "build/util.d.ts",
       "build/vendor-core.cjs",
@@ -15,7 +18,7 @@
       "README.md",
       "LICENSE"
     ],
-    "limit": "124.85 kB",
+    "limit": "127.60 kB",
     "brotli": false,
     "gzip": false
   },

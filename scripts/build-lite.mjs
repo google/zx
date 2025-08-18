@@ -40,8 +40,32 @@ for (const entry of entries) {
   }
 }
 
+const whitelist = new Set([
+  'name',
+  'version',
+  'description',
+  'type',
+  'main',
+  'types',
+  'typesVersions',
+  'exports',
+  'files',
+  'engines',
+  'optionalDependencies',
+  'publishConfig',
+  'keywords',
+  'repository',
+  'homepage',
+  'author',
+  'license',
+])
+
+const __pkgJson = Object.fromEntries(
+  Object.entries(_pkgJson).filter(([k]) => whitelist.has(k))
+)
+
 const pkgJson = {
-  ..._pkgJson,
+  ...__pkgJson,
   version: _pkgJson.version + '-lite',
   exports: {
     '.': {
@@ -59,10 +83,9 @@ const pkgJson = {
       '.': ['./build/core.d.ts'],
     },
   },
-  man: undefined,
   files: [...files].map((f) => path.join('build', f)).sort(),
 }
 
-fs.writeFileSync(pkgJsonFile, JSON.stringify(pkgJson, null, 2))
+fs.writeFileSync('package-lite.json', JSON.stringify(pkgJson, null, 2))
 
-console.log('package.json prepared for zx-lite publishing')
+console.log('package-lite.json prepared for zx-lite publishing')
