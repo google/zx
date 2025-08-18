@@ -80,7 +80,7 @@ jobs:
 
       - name: pushing to ${{ env.GOOGLE_NPM_REGISTRY }}
         run: |
-          mv package-main.json package.json
+          mv -f package-main.json package.json
           npm publish --provenance --access=public --registry https://${{ env.GOOGLE_NPM_REGISTRY }}
 
       - name: pushing to ${{ env.GH_NPM_REGISTRY }}
@@ -90,7 +90,7 @@ jobs:
 
       - name: pushing lite snapshot to ${{ env.GOOGLE_NPM_REGISTRY }}
         run: |
-          mv package-lite.json package.json
+          mv -f package-lite.json package.json
           npm publish --provenance --access=public --no-git-tag-version --tag lite --registry https://${{ env.GOOGLE_NPM_REGISTRY }}
 
   jsr-publish:
