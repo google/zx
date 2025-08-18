@@ -34,8 +34,24 @@ jobs:
             package-lite.json
           retention-days: 1
 
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      v: ${{ steps.ref.outputs.ZX_VERSION }}
+      lite: ${{ steps.dev.outputs.ZX_VERSION }}-lite
+      dev: ${{ steps.ref.outputs.ZX_VERSION }}-dev.${{ steps.ref.outputs.SHA_SHORT }}
+      lite-dev: ${{ steps.ref.outputs.ZX_VERSION }}-lite-dev.${{ steps.ref.outputs.SHA_SHORT }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - id: ref
+        run: |
+          echo SHA_SHORT=$(git rev-parse --short HEAD) >> $GITHUB_OUTPUT
+          echo ZX_VERSION=$(jq -r '.version' package.json) >> $GITHUB_OUTPUT
+
   npm-publish:
-    needs: build
+    needs: [build, version]
     runs-on: ubuntu-latest
     permissions:
       checks: read
@@ -48,6 +64,9 @@ jobs:
       GOOGLE_NPM_TOKEN: ${{ secrets.AUTH_TOKEN }}
       GH_NPM_REGISTRY: npm.pkg.github.com
       GH_NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ZX_VERSION: ${{ needs.version.outputs.v }}
+      ZX_DEV_VERSION: ${{ needs.version.outputs.dev }}
+      ZX_LITE_DEV_VERSION: ${{ needs.version.outputs.lite-dev }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -56,13 +75,6 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
-      - name: Get zx version info
-        run: |
-          echo SHA_SHORT=$(git rev-parse --short HEAD) >> $GITHUB_ENV
-          echo ZX_VERSION=$(jq -r '.version' package.json) >> $GITHUB_ENV
-      - run: |
-          echo ZX_DEV_VERSION="${{ env.ZX_VERSION }}-dev.${{ env.SHA_SHORT }}" >> $GITHUB_ENV
-          echo ZX_LITE_DEV_VERSION="${{ env.ZX_VERSION }}-lite-dev.${{ env.SHA_SHORT }}" >> $GITHUB_ENV
       - name: Configure npmrc
         run: |
           echo "//${{ env.GOOGLE_NPM_REGISTRY }}/:_authToken=$GOOGLE_NPM_TOKEN" >> .npmrc
@@ -89,11 +101,13 @@ jobs:
           npm publish --provenance --access=public --no-git-tag-version --tag dev --registry https://${{ env.GOOGLE_NPM_REGISTRY }}
 
   jsr-publish:
-    needs: build
+    needs: [build, version]
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
+    env:
+      ZX_DEV_VERSION: ${{ needs.version.outputs.dev }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -105,12 +119,6 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: build-${{ github.run_id }}
-      - name: Get zx version info
-        run: |
-          echo SHA_SHORT=$(git rev-parse --short HEAD) >> $GITHUB_ENV
-          echo ZX_VERSION=$(jq -r '.version' package.json) >> $GITHUB_ENV
-      - run: |
-          echo ZX_DEV_VERSION="${{ env.ZX_VERSION }}-dev.${{ env.SHA_SHORT }}" >> $GITHUB_ENV
       - name: pushing to jsr.io
         run: |
           cat <<< $(jq '.version="${{ env.ZX_DEV_VERSION }}"' jsr.json) > jsr.json
@@ -118,19 +126,20 @@ jobs:
 
   # https://docs.github.com/en/actions/use-cases-and-examples/publishing-packages/publishing-docker-images
   docker-publish:
-    needs: build
+    needs: [build, version]
     runs-on: ubuntu-latest
-    # Defines two custom environment variables for the workflow. These are used for the Container registry domain, and a name for the Docker image that this workflow builds.
-    env:
-      REGISTRY: ghcr.io
-      IMAGE_NAME: ${{ github.repository }}
-
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
       contents: read
       packages: write
       attestations: write
       id-token: write
+
+    # Defines two custom environment variables for the workflow. These are used for the Container registry domain, and a name for the Docker image that this workflow builds.
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: ${{ github.repository }}
+      ZX_DEV_VERSION: ${{ needs.version.outputs.dev }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -140,11 +149,6 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: build-${{ github.run_id }}
-
-      - name: Set zx version
-        run: |
-          echo SHA_SHORT=$(git rev-parse --short HEAD) >> $GITHUB_ENV
-          echo ZX_VERSION=$(jq -r '.version' package.json) >> $GITHUB_ENV
 
       # Uses the `docker/login-action` action to log in to the Container registry using the account and password that will publish the packages. Once published, the packages are scoped to the account defined here.
       - name: Log in to the Container registry
@@ -161,7 +165,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=sha
-            type=semver,pattern={{version}},value=v${{ env.ZX_VERSION }}-dev.${{ env.SHA_SHORT }}
+            type=semver,pattern={{version}},value=v${{ env.ZX_DEV_VERSION }}
       # This step uses the `docker/build-push-action` action to build the image, based on your repository's `Dockerfile`. If the build succeeds, it pushes the image to GitHub Packages.
       # It uses the `context` parameter to define the build's context as the set of files located in the specified path. For more information, see [Usage](https://github.com/docker/build-push-action#usage) in the README of the `docker/build-push-action` repository.
       # It uses the `tags` and `labels` parameters to tag and label the image with the output from the "meta" step.

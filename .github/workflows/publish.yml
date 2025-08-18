@@ -31,13 +31,27 @@ jobs:
           name: build-${{ github.run_id }}
           path: |
             build
+            jsr.json
             package.json
             package-lite.json
-            jsr.json
           retention-days: 1
 
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      v: ${{ steps.ref.outputs.ZX_VERSION }}
+      lite: ${{ steps.dev.outputs.ZX_VERSION }}-lite
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - id: ref
+        run: |
+          echo SHA_SHORT=$(git rev-parse --short HEAD) >> $GITHUB_OUTPUT
+          echo ZX_VERSION=$(jq -r '.version' package.json) >> $GITHUB_OUTPUT
+
   npm-publish:
-    needs: build
+    needs: [build, version]
     runs-on: ubuntu-latest
     permissions:
       checks: read
@@ -50,6 +64,7 @@ jobs:
       GOOGLE_NPM_TOKEN: ${{ secrets.AUTH_TOKEN }}
       GH_NPM_REGISTRY: npm.pkg.github.com
       GH_NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ZX_VERSION: ${{ needs.version.outputs.v }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -58,8 +73,6 @@ jobs:
         with:
           node-version: 22
           cache: 'npm'
-      - name: Get zx version info
-        run: echo ZX_VERSION=$(jq -r '.version' package.json) >> $GITHUB_ENV
       - name: Configure npmrc
         run: |
           echo "//${{ env.GOOGLE_NPM_REGISTRY }}/:_authToken=$GOOGLE_NPM_TOKEN" >> .npmrc
@@ -102,12 +115,13 @@ jobs:
         run: npx jsr publish --allow-dirty
 
   docker-publish:
-    needs: build
+    needs: [build, version]
     runs-on: ubuntu-latest
     # Defines two custom environment variables for the workflow. These are used for the Container registry domain, and a name for the Docker image that this workflow builds.
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: ${{ github.repository }}
+      ZX_VERSION: ${{ needs.version.outputs.v }}
 
     permissions:
       contents: read
@@ -123,9 +137,6 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: build-${{ github.run_id }}
-
-      - name: Get zx version
-        run: echo ZX_VERSION=$(jq -r '.version' package.json) >> $GITHUB_ENV
 
       - name: Log in to the Container registry
         uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 #v3.4.0
