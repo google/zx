@@ -20,7 +20,6 @@ jobs:
       - run: npm test
         env:
           FORCE_COLOR: 3
-      - run: node scripts/build-jsr.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: build-${{ github.run_id }}

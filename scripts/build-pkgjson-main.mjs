@@ -47,6 +47,6 @@ const whitelist = new Set([
 const pkgJson = Object.fromEntries(
   Object.entries(_pkgJson).filter(([k]) => whitelist.has(k))
 )
-fs.writeFileSync(pkgJsonFile, JSON.stringify(pkgJson, null, 2))
+fs.writeFileSync('package-main.json', JSON.stringify(pkgJson, null, 2))
 
-console.log('package.json optimized for npm publishing')
+console.log('package-main.json prepared for npm')

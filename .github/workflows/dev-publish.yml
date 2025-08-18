@@ -20,10 +20,6 @@ jobs:
       - run: npm test
         env:
           FORCE_COLOR: 3
-      - run: |
-          npm run build:jsr
-          npm run build:lite
-          npm run build:pkgjson
       - uses: actions/upload-artifact@v4
         with:
           name: build-${{ github.run_id }}
@@ -32,6 +28,7 @@ jobs:
             jsr.json
             package.json
             package-lite.json
+            package-main.json
           retention-days: 1
 
   version:
@@ -84,8 +81,15 @@ jobs:
         with:
           name: build-${{ github.run_id }}
 
+      - name: pushing lite snapshot to ${{ env.GOOGLE_NPM_REGISTRY }}
+        run: |
+          mv -f package-lite.json package.json
+          cat <<< $(jq '.version="${{ env.ZX_LITE_DEV_VERSION }}"' package.json) > package.json
+          npm publish --provenance --access=public --no-git-tag-version --tag dev --registry https://${{ env.GOOGLE_NPM_REGISTRY }}
+
       - name: pushing to ${{ env.GOOGLE_NPM_REGISTRY }}
         run: |
+          mv -f package-main.json package.json
           cat <<< $(jq '.version="${{ env.ZX_DEV_VERSION }}"' package.json) > package.json
           npm publish --provenance --access=public --no-git-tag-version --tag dev --registry https://${{ env.GOOGLE_NPM_REGISTRY }}
 
@@ -93,12 +97,6 @@ jobs:
         run: |
           cat <<< $(jq '.name="@${{ github.repository }}"' package.json) > package.json
           npm publish --no-git-tag-version --access=public --tag dev --registry https://${{ env.GH_NPM_REGISTRY }}
-
-      - name: pushing lite snapshot to ${{ env.GOOGLE_NPM_REGISTRY }}
-        run: |
-          mv package-lite.json package.json
-          cat <<< $(jq '.version="${{ env.ZX_LITE_DEV_VERSION }}"' package.json) > package.json
-          npm publish --provenance --access=public --no-git-tag-version --tag dev --registry https://${{ env.GOOGLE_NPM_REGISTRY }}
 
   jsr-publish:
     needs: [build, version]

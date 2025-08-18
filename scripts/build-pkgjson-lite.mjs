@@ -88,4 +88,4 @@ const pkgJson = {
 
 fs.writeFileSync('package-lite.json', JSON.stringify(pkgJson, null, 2))
 
-console.log('package-lite.json prepared for zx-lite publishing')
+console.log('package-lite.json prepared for npm')

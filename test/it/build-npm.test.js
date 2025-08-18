@@ -46,12 +46,13 @@ describe('npm artifact', () => {
           'build',
           'man',
           'package.json',
+          'package-main.json',
           'README.md',
           'LICENSE',
         ])
 
         // pack / unpack
-        await $`npm run build:pkgjson`
+        await $`mv package-main.json package.json`
         const pack = await $`npm pack`
         await $`tar xf ${pack}`
         await $`rm ${pack}`.nothrow()
@@ -131,16 +132,14 @@ describe('npm artifact', () => {
         await sync(root, tmp, [
           'build',
           'package.json',
+          'package-lite.json',
           'README.md',
           'LICENSE',
           'scripts',
         ])
 
-        // prepare package.json for lite
-        await $`npm run build:lite`
-        await $`mv package-lite.json package.json`
-
         // pack / unpack
+        await $`mv package-lite.json package.json`
         const pack = await $`npm pack`
         await $`tar xf ${pack}`
         await $`rm ${pack}`.nothrow()

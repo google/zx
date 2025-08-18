@@ -81,3 +81,5 @@ fs.writeFileSync(
     2
   )
 )
+
+console.log('jsr.json prepared for JSR')
