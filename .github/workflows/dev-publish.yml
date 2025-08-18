@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       v: ${{ steps.ref.outputs.ZX_VERSION }}
-      lite: ${{ steps.dev.outputs.ZX_VERSION }}-lite
+      lite: ${{ steps.ref.outputs.ZX_VERSION }}-lite
       dev: ${{ steps.ref.outputs.ZX_VERSION }}-dev.${{ steps.ref.outputs.SHA_SHORT }}
       lite-dev: ${{ steps.ref.outputs.ZX_VERSION }}-lite-dev.${{ steps.ref.outputs.SHA_SHORT }}
     steps:

@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       v: ${{ steps.ref.outputs.ZX_VERSION }}
-      lite: ${{ steps.dev.outputs.ZX_VERSION }}-lite
+      lite: ${{ steps.ref.outputs.ZX_VERSION }}-lite
     steps:
       - uses: actions/checkout@v4
         with:
