@@ -19,8 +19,9 @@ import path from 'node:path'
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname)
 const root = path.resolve(__dirname, '..')
-const pkgJsonFile = path.join(root, 'package.json')
-const _pkgJson = JSON.parse(fs.readFileSync(pkgJsonFile, 'utf-8'))
+const source = 'package.json'
+const dest = 'package-main.json'
+const _pkgJson = JSON.parse(fs.readFileSync(path.join(root, source), 'utf-8'))
 
 const whitelist = new Set([
   'name',
@@ -47,6 +48,7 @@ const whitelist = new Set([
 const pkgJson = Object.fromEntries(
   Object.entries(_pkgJson).filter(([k]) => whitelist.has(k))
 )
-fs.writeFileSync('package-main.json', JSON.stringify(pkgJson, null, 2))
 
-console.log('package-main.json prepared for npm')
+fs.writeFileSync(path.resolve(root, dest), JSON.stringify(pkgJson, null, 2))
+
+console.log(`${dest} prepared for npm`)
