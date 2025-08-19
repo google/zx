@@ -20,8 +20,9 @@ import { depseekSync } from 'depseek'
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname)
 const root = path.resolve(__dirname, '..')
-const pkgJsonFile = path.join(root, 'package.json')
-const _pkgJson = JSON.parse(fs.readFileSync(pkgJsonFile, 'utf-8'))
+const source = 'package.json'
+const dest = 'package-lite.json'
+const _pkgJson = JSON.parse(fs.readFileSync(path.join(root, source), 'utf-8'))
 
 const files = new Set()
 const entries = new Set(['./core.js', './3rd-party-licenses'])
@@ -86,6 +87,6 @@ const pkgJson = {
   files: [...files].map((f) => path.join('build', f)).sort(),
 }
 
-fs.writeFileSync('package-lite.json', JSON.stringify(pkgJson, null, 2))
+fs.writeFileSync(path.resolve(root, dest), JSON.stringify(pkgJson, null, 2))
 
-console.log('package-lite.json prepared for npm')
+console.log(`${dest} prepared for npm`)
