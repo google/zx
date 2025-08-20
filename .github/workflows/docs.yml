@@ -31,16 +31,16 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Install deps
-        run: npm i
+        run: npm сi
 
       - name: Add additional deps
-        run: npm i @rollup/rollup-linux-x64-gnu@4.44.1
+        run: npm i --no-save @rollup/rollup-linux-x64-gnu@4.46.4
 
       - name: Build docs
         run: npm run docs:build
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: 'docs/build'
 
