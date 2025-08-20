@@ -95,7 +95,7 @@
     "test:circular": "madge --circular src/*",
     "test:types": "tsd",
     "test:license": "node ./test/extra.test.js",
-    "test:audit": "npm audit fix",
+    "test:audit": "npm audit --package-lock",
     "test:size": "size-limit",
     "test:smoke:strip-types": "node --experimental-strip-types test/smoke/ts.test.ts",
     "test:smoke:tsx": "tsx test/smoke/ts.test.ts",
