@@ -31,7 +31,7 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Install deps
-        run: npm сi
+        run: npm ci
 
       - name: Add additional deps
         run: npm i --no-save @rollup/rollup-linux-x64-gnu@4.46.4
