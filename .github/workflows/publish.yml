@@ -7,6 +7,10 @@ on:
 
 permissions: {}
 
+env:
+  npm_config_audit: false
+  npm_config_fund: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
