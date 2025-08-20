@@ -10,6 +10,12 @@ concurrency:
 
 permissions: {}
 
+env:
+  npm_config_audit: false
+  npm_config_fund: false
+  npm_config_save: false
+  npm_config_package_lock: false
+
 jobs:
   deploy:
     permissions:
@@ -34,7 +40,7 @@ jobs:
         run: npm ci
 
       - name: Add additional deps
-        run: npm i --no-save @rollup/rollup-linux-x64-gnu@4.46.4
+        run: npm i @rollup/rollup-linux-x64-gnu@4.46.4
 
       - name: Build docs
         run: npm run docs:build

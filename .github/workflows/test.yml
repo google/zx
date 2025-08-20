@@ -9,6 +9,12 @@ on:
 permissions:
   contents: read
 
+env:
+  npm_config_audit: false
+  npm_config_fund: false
+  npm_config_save: false
+  npm_config_package_lock: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -271,10 +277,10 @@ jobs:
       - name: Install deps
         run: npm ci
       - name: Install TypeScript ${{ matrix.ts }}
-        run: npm i --force --no-save --no-package-lock typescript@${{ matrix.ts }}
+        run: npm i --force typescript@${{ matrix.ts }}
       - name: Override @types/node
         if: matrix.ts == 4
-        run: npm i --force --no-save --no-package-lock @types/node@24.2.0
+        run: npm i --force @types/node@24.2.0
 
       - uses: actions/download-artifact@v4
         with:
