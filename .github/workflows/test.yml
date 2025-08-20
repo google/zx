@@ -267,10 +267,15 @@ jobs:
         with:
           node-version: 22.x
           cache: 'npm'
+
       - name: Install deps
         run: npm ci
       - name: Install TypeScript ${{ matrix.ts }}
-        run: npm i --force --no-package-lock --no-fund typescript@${{ matrix.ts }}
+        run: npm i --force --no-save --no-package-lock typescript@${{ matrix.ts }}
+      - name: Override @types/node
+        if: matrix.ts == 4
+        run: npm i --force --no-save --no-package-lock @types/node@24.2.0
+
       - uses: actions/download-artifact@v4
         with:
           name: build
