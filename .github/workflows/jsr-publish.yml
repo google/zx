@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           persist-credentials: false
       - uses: actions/setup-node@v4
@@ -35,14 +35,14 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'npm'
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           name: build-${{ github.run_id }}
 

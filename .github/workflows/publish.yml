@@ -15,7 +15,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           persist-credentials: false
       - uses: actions/setup-node@v4
@@ -43,7 +43,7 @@ jobs:
       v: ${{ steps.ref.outputs.ZX_VERSION }}
       lite: ${{ steps.ref.outputs.ZX_VERSION }}-lite
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           persist-credentials: false
       - id: ref
@@ -67,7 +67,7 @@ jobs:
       GH_NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       ZX_VERSION: ${{ needs.version.outputs.v }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           persist-credentials: false
       - uses: actions/setup-node@v4
@@ -78,7 +78,7 @@ jobs:
         run: |
           echo "//${{ env.GOOGLE_NPM_REGISTRY }}/:_authToken=$GOOGLE_NPM_TOKEN" >> .npmrc
           echo "//${{ env.GH_NPM_REGISTRY }}/:_authToken=$GH_NPM_TOKEN" >> .npmrc
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           name: build-${{ github.run_id }}
 
@@ -104,14 +104,14 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'npm'
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           name: build-${{ github.run_id }}
       - name: pushing to jsr.io
@@ -133,11 +133,11 @@ jobs:
       id-token: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           persist-credentials: false
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           name: build-${{ github.run_id }}
 
