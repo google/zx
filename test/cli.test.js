@@ -211,7 +211,7 @@ console.log(a);
 
   test('scripts from https 500', async () => {
     const port = await getPort()
-    const server = await fakeServer(['HTTP/1.1 500\n\n']).listen(port)
+    const server = await fakeServer([`HTTP/1.1 500\n\n500\n`]).listen(port)
     const out = await $`node build/cli.js http://127.0.0.1:${port}`.nothrow()
     assert.match(out.stderr, /Error: Can't get/)
     await server.stop()

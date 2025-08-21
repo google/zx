@@ -526,6 +526,18 @@ describe('core', () => {
       assert.ok(p.output instanceof ProcessOutput)
     })
 
+    test('id is unique', async () => {
+      const p1 = $`echo foo`
+      const p2 = $`echo bar`
+
+      assert.ok(p1.id !== p2.id)
+      assert.ok(p1.id.length > 5)
+      assert.ok(p2.id.length > 5)
+
+      await p1
+      await p2
+    })
+
     describe('state machine transitions', () => {
       it('running > fulfilled', async () => {
         const p = $`echo foo`
@@ -975,14 +987,14 @@ describe('core', () => {
 
     describe('unpipe()', () => {
       it('disables piping', async () => {
-        const p1 = $`echo foo && sleep 0.1 && echo bar && sleep 0.1 && echo baz && sleep 0.1 && echo qux`
-        const p2 = $`echo 1 && sleep 0.15 && echo 2 && sleep 0.1 && echo 3`
+        const p1 = $`echo foo && sleep 0.2 && echo bar && sleep 0.2 && echo baz && sleep 0.2 && echo qux`
+        const p2 = $`echo 1 && sleep 0.3 && echo 2 && sleep 0.2 && echo 3`
         const p3 = $`cat`
 
         p1.pipe(p3)
         p2.pipe(p3)
 
-        setTimeout(() => p1.unpipe(p3), 150)
+        setTimeout(() => p1.unpipe(p3), 300)
 
         const { stdout } = await p3
         assert.equal(stdout, 'foo\n1\nbar\n2\n3\n')

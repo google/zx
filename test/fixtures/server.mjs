@@ -19,7 +19,7 @@ export const fakeServer = (data = []) => {
   server.on('connection', (conn) => {
     conn.on('data', () => {
       const d = data.shift() || 'pong'
-      const _d = typeof d === 'string' ? d.replace(/\r?\n/gm, '\r\n') : d
+      const _d = d.toString('utf-8').split(/\r?\n/).join('\r\n')
       conn.write(_d)
     })
   })
