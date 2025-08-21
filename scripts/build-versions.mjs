@@ -23,6 +23,7 @@ const copyright = await fs.readFileSync(
   path.resolve(root, 'test/fixtures/copyright.txt'),
   'utf8'
 )
+const license = copyright.replace('YEAR', new Date().getFullYear())
 const deps = [
   'chalk',
   'depseek',
@@ -67,10 +68,10 @@ const list = JSON.stringify(argv, null, 2)
   .replaceAll('"', "'")
   .replace(/\n}$/, ',\n}')
 
-const versionsTs = `${copyright.replace('YEAR', new Date().getFullYear())}
+const versionsTs = `${license}
 export const versions: Record<string, string> = ${list}
 `
-const versionsCjs = `${copyright.replace('YEAR', new Date().getFullYear())}
+const versionsCjs = `${license}
 module.exports = { versions: ${list}
 `
 

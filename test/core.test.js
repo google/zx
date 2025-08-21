@@ -526,6 +526,14 @@ describe('core', () => {
       assert.ok(p.output instanceof ProcessOutput)
     })
 
+    test('id is unique', () => {
+      const p1 = $({ halt: true })`echo foo`
+      const p2 = $({ halt: true })`echo bar`
+      assert.ok(p1.id !== p2.id)
+      assert.ok(p1.id.length === 11)
+      assert.ok(p2.id.length === 11)
+    })
+
     describe('state machine transitions', () => {
       it('running > fulfilled', async () => {
         const p = $`echo foo`
