@@ -39,7 +39,6 @@ function wrap<T extends object>(name: string, api: T): T {
  */
 export const bus = {
   override,
-  store,
   wrap,
   lock,
 }

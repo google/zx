@@ -30,7 +30,6 @@ function wrap(name, api) {
 }
 var bus = {
   override,
-  store,
   wrap,
   lock
 };
