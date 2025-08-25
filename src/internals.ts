@@ -15,11 +15,11 @@
 type TCallable = (...args: any[]) => any
 
 let locked = false
-const lock = () => (locked = true)
+const lock: () => void = () => (locked = true)
 
-const store = new Map<string, any>()
-const override = store.set.bind(store)
-const wrap = <T extends object>(name: string, api: T): T => {
+const store: Map<string, any> = new Map()
+const override: (typeof store)['set'] = store.set.bind(store)
+function wrap<T extends object>(name: string, api: T): T {
   if (locked) throw new Error('bus is locked')
   override(name, api)
   return new Proxy<T>(api, {

@@ -15,7 +15,7 @@ var locked = false;
 var lock = () => locked = true;
 var store = /* @__PURE__ */ new Map();
 var override = store.set.bind(store);
-var wrap = (name, api) => {
+function wrap(name, api) {
   if (locked) throw new Error("bus is locked");
   override(name, api);
   return new Proxy(api, {
@@ -27,7 +27,7 @@ var wrap = (name, api) => {
       return store.get(name).apply(self, args);
     }
   });
-};
+}
 var bus = {
   override,
   store,
