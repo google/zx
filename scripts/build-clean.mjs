@@ -18,10 +18,7 @@ import fs from 'node:fs'
 import glob from 'fast-glob'
 
 const redundants = await glob(
-  [
-    'build/{repl,globals-jsr,internals}.d.ts',
-    'build/{deps,internals,util,vendor*}.js',
-  ],
+  ['build/{repl,globals-jsr}.d.ts', 'build/{deps,internals,util,vendor*}.js'],
   {
     onlyFiles: true,
     absolute: true,

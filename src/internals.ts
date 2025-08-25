@@ -14,9 +14,13 @@
 
 type TCallable = (...args: any[]) => any
 
+let locked = false
+const lock = () => (locked = true)
+
 const store = new Map<string, any>()
 const override = store.set.bind(store)
 const wrap = <T extends object>(name: string, api: T): T => {
+  if (locked) throw new Error('bus is locked')
   override(name, api)
   return new Proxy<T>(api, {
     get(_, key) {
@@ -28,8 +32,14 @@ const wrap = <T extends object>(name: string, api: T): T => {
   })
 }
 
+/**
+ * @internal
+ * @private
+ * @protected
+ */
 export const bus = {
   override,
   store,
   wrap,
+  lock,
 }

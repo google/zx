@@ -11,6 +11,7 @@ import { Fail } from './error.js';
 import { log } from './log.js';
 import { type TSpawnStore } from './vendor-core.js';
 import { type Duration, quote } from './util.js';
+export { bus } from './internals.js';
 export { default as path } from 'node:path';
 export * as os from 'node:os';
 export { Fail } from './error.js';

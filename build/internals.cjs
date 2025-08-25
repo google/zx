@@ -11,9 +11,12 @@ __export(internals_exports, {
   bus: () => bus
 });
 module.exports = __toCommonJS(internals_exports);
+var locked = false;
+var lock = () => locked = true;
 var store = /* @__PURE__ */ new Map();
 var override = store.set.bind(store);
 var wrap = (name, api) => {
+  if (locked) throw new Error("bus is locked");
   override(name, api);
   return new Proxy(api, {
     get(_, key) {
@@ -28,7 +31,8 @@ var wrap = (name, api) => {
 var bus = {
   override,
   store,
-  wrap
+  wrap,
+  lock
 };
 /* c8 ignore next 100 */
 // Annotate the CommonJS export names for ESM import in node:
