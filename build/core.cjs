@@ -20,6 +20,7 @@ __export(core_exports, {
   Fail: () => Fail,
   ProcessOutput: () => ProcessOutput,
   ProcessPromise: () => ProcessPromise,
+  bus: () => import_internals.bus,
   cd: () => cd,
   chalk: () => import_vendor_core3.chalk,
   defaults: () => defaults,
@@ -392,6 +393,7 @@ function formatCmd(cmd) {
 // src/core.ts
 var import_vendor_core2 = require("./vendor-core.cjs");
 var import_util = require("./util.cjs");
+var import_internals = require("./internals.cjs");
 var import_node_path = __toESM(require("path"), 1);
 var os = __toESM(require("os"), 1);
 var import_vendor_core3 = require("./vendor-core.cjs");
@@ -1145,6 +1147,7 @@ function resolveDefaults(defs = defaults, prefix = ENV_PREFIX, env = import_node
   Fail,
   ProcessOutput,
   ProcessPromise,
+  bus,
   cd,
   chalk,
   defaults,

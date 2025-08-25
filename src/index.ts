@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { type ProcessPromise } from './core.ts'
+import { type ProcessPromise, bus } from './core.ts'
 import { versions } from './goods.ts'
+
+bus.lock()
 
 export * from './core.ts'
 export * from './goods.ts'
