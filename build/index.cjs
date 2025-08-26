@@ -41,6 +41,7 @@ __export(index_exports, {
   versions: () => versions
 });
 module.exports = __toCommonJS(index_exports);
+var import_core2 = require("./core.cjs");
 
 // src/goods.ts
 var import_node_buffer = require("buffer");
@@ -251,6 +252,7 @@ function spinner(title, callback) {
 // src/index.ts
 __reExport(index_exports, require("./core.cjs"), module.exports);
 var import_vendor2 = require("./vendor.cjs");
+import_core2.bus.lock();
 var VERSION = versions.zx || "0.0.0";
 var version = VERSION;
 function nothrow(promise) {

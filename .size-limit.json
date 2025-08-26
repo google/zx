@@ -10,6 +10,7 @@
       "build/error.d.ts",
       "build/esblib.cjs",
       "build/internals.cjs",
+      "build/internals.d.ts",
       "build/log.d.ts",
       "build/util.cjs",
       "build/util.d.ts",
@@ -18,7 +19,7 @@
       "README.md",
       "LICENSE"
     ],
-    "limit": "127.66 kB",
+    "limit": "128.17 kB",
     "brotli": false,
     "gzip": false
   },
@@ -32,14 +33,14 @@
       "build/globals.js",
       "build/deno.js"
     ],
-    "limit": "814.901 kB",
+    "limit": "815.20 kB",
     "brotli": false,
     "gzip": false
   },
   {
     "name": "libdefs",
     "path": "build/*.d.ts",
-    "limit": "40.35 kB",
+    "limit": "40.65 kB",
     "brotli": false,
     "gzip": false
   },
@@ -65,7 +66,7 @@
       "README.md",
       "LICENSE"
     ],
-    "limit": "872.10 kB",
+    "limit": "872.75 kB",
     "brotli": false,
     "gzip": false
   }

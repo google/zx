@@ -58,6 +58,7 @@ import {
   bufArrJoin,
 } from './util.ts'
 
+export { bus } from './internals.ts'
 export { default as path } from 'node:path'
 export * as os from 'node:os'
 export { Fail } from './error.ts'

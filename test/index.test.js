@@ -15,6 +15,7 @@
 import assert from 'node:assert'
 import { describe, test } from 'node:test'
 import {
+  bus,
   nothrow,
   quiet,
   versions,
@@ -118,5 +119,9 @@ describe('index', () => {
     assert(tmpdir)
     assert(tmpfile)
     assert(tempfile)
+  })
+
+  test('bus is locked', () => {
+    assert.throws(() => bus.wrap('test', () => {}), /locked/)
   })
 })
