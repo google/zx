@@ -138,7 +138,7 @@ jobs:
           npm run test:dcr
 
   smoke-win32-node16:
-    runs-on: windows-latest
+    runs-on: windows-2025
     needs: build
     steps:
       - uses: actions/checkout@v5
