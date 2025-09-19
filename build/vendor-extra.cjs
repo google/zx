@@ -7151,6 +7151,48 @@ var require_stat = __commonJS({
   }
 });
 
+// node_modules/fs-extra/lib/util/async.js
+var require_async7 = __commonJS({
+  "node_modules/fs-extra/lib/util/async.js"(exports2, module2) {
+    "use strict";
+    function asyncIteratorConcurrentProcess(iterator, fn) {
+      return __async(this, null, function* () {
+        const promises = [];
+        try {
+          for (var iter = __forAwait(iterator), more, temp, error; more = !(temp = yield iter.next()).done; more = false) {
+            const item = temp.value;
+            promises.push(
+              fn(item).then(
+                () => null,
+                (err) => err != null ? err : new Error("unknown error")
+              )
+            );
+          }
+        } catch (temp) {
+          error = [temp];
+        } finally {
+          try {
+            more && (temp = iter.return) && (yield temp.call(iter));
+          } finally {
+            if (error)
+              throw error[0];
+          }
+        }
+        yield Promise.all(
+          promises.map(
+            (promise) => promise.then((possibleErr) => {
+              if (possibleErr !== null) throw possibleErr;
+            })
+          )
+        );
+      });
+    }
+    module2.exports = {
+      asyncIteratorConcurrentProcess
+    };
+  }
+});
+
 // node_modules/fs-extra/lib/copy/copy.js
 var require_copy = __commonJS({
   "node_modules/fs-extra/lib/copy/copy.js"(exports2, module2) {
@@ -7161,6 +7203,7 @@ var require_copy = __commonJS({
     var { pathExists } = require_path_exists();
     var { utimesMillis } = require_utimes();
     var stat = require_stat();
+    var { asyncIteratorConcurrentProcess } = require_async7();
     function copy(_0, _1) {
       return __async(this, arguments, function* (src, dest, opts = {}) {
         if (typeof opts === "function") {
@@ -7241,33 +7284,15 @@ var require_copy = __commonJS({
         if (!destStat) {
           yield fs6.mkdir(dest);
         }
-        const promises = [];
-        try {
-          for (var iter = __forAwait(yield fs6.opendir(src)), more, temp, error; more = !(temp = yield iter.next()).done; more = false) {
-            const item = temp.value;
-            const srcItem = path3.join(src, item.name);
-            const destItem = path3.join(dest, item.name);
-            promises.push(
-              runFilter(srcItem, destItem, opts).then((include) => {
-                if (include) {
-                  return stat.checkPaths(srcItem, destItem, "copy", opts).then(({ destStat: destStat2 }) => {
-                    return getStatsAndPerformCopy(destStat2, srcItem, destItem, opts);
-                  });
-                }
-              })
-            );
+        yield asyncIteratorConcurrentProcess(yield fs6.opendir(src), (item) => __async(null, null, function* () {
+          const srcItem = path3.join(src, item.name);
+          const destItem = path3.join(dest, item.name);
+          const include = yield runFilter(srcItem, destItem, opts);
+          if (include) {
+            const { destStat: destStat2 } = yield stat.checkPaths(srcItem, destItem, "copy", opts);
+            yield getStatsAndPerformCopy(destStat2, srcItem, destItem, opts);
           }
-        } catch (temp) {
-          error = [temp];
-        } finally {
-          try {
-            more && (temp = iter.return) && (yield temp.call(iter));
-          } finally {
-            if (error)
-              throw error[0];
-          }
-        }
-        yield Promise.all(promises);
+        }));
         if (!destStat) {
           yield fs6.chmod(dest, srcStat.mode);
         }

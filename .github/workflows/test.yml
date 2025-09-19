@@ -138,7 +138,7 @@ jobs:
           npm run test:dcr
 
   smoke-win32-node16:
-    runs-on: windows-latest
+    runs-on: windows-2022
     needs: build
     steps:
       - uses: actions/checkout@v5
@@ -156,7 +156,7 @@ jobs:
           name: build
 
       - run: npm run test:smoke:win32
-        timeout-minutes: 1
+        timeout-minutes: 2
         env:
           FORCE_COLOR: 3
 
