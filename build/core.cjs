@@ -1109,6 +1109,8 @@ function cd(dir) {
 }
 function kill(_0) {
   return __async(this, arguments, function* (pid, signal = $.killSignal || SIGTERM) {
+    pid = pid + "";
+    if (!/^\d+$/.test(pid)) throw new Fail(`Invalid pid: ${pid}`);
     $.log({ kind: "kill", pid, signal, verbose: !$.quiet && $.verbose });
     if (import_node_process2.default.platform === "win32" && (yield new Promise((resolve) => {
       import_node_child_process.default.exec(`taskkill /pid ${pid} /t /f`, (err) => resolve(!err));

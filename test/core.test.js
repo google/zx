@@ -33,6 +33,7 @@ import {
   usePwsh,
   useBash,
   Fail,
+  kill,
 } from '../build/core.js'
 import {
   tempfile,
@@ -1639,6 +1640,17 @@ describe('core', () => {
           basename(tmp.toString().trimEnd())
         )
       })
+    })
+  })
+
+  describe('kill()', () => {
+    test('throws if pid is invalid', async () => {
+      await assert.rejects(() => kill(''), /Invalid/)
+      await assert.rejects(() => kill('foo'), /Invalid/)
+      await assert.rejects(() => kill('100 foo'), /Invalid/)
+      await assert.rejects(() => kill(100.1), /Invalid/)
+      await assert.rejects(() => kill(null), /Invalid/)
+      await assert.rejects(() => kill({}), /Invalid/)
     })
   })
 
