@@ -1037,7 +1037,13 @@ export function cd(dir: string | ProcessOutput) {
   $[CWD] = process.cwd()
 }
 
-export async function kill(pid: number, signal = $.killSignal || SIGTERM) {
+export async function kill(
+  pid: number | `${number}`,
+  signal = $.killSignal || SIGTERM
+) {
+  if (!/^\d+$/.test(pid as string)) throw new Fail(`Invalid pid: ${pid}`)
+  pid = (pid + '') as `${number}`
+
   $.log({ kind: 'kill', pid, signal, verbose: !$.quiet && $.verbose })
   if (
     process.platform === 'win32' &&

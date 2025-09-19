@@ -41,7 +41,7 @@ export type LogEntry = {
     data: any;
 } | {
     kind: 'kill';
-    pid: number;
+    pid: number | `${number}`;
     signal: NodeJS.Signals | null;
 });
 type LogFormatters = {

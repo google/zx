@@ -67,7 +67,7 @@ export type LogEntry = {
     }
   | {
       kind: 'kill'
-      pid: number
+      pid: number | `${number}`
       signal: NodeJS.Signals | null
     }
 )
