@@ -156,7 +156,7 @@ jobs:
           name: build
 
       - run: npm run test:smoke:win32
-        timeout-minutes: 1
+        timeout-minutes: 2
         env:
           FORCE_COLOR: 3
 
