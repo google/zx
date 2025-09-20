@@ -1041,8 +1041,11 @@ export async function kill(
   pid: number | `${number}`,
   signal = $.killSignal || SIGTERM
 ) {
-  if (!/^\d+$/.test(pid as string)) throw new Fail(`Invalid pid: ${pid}`)
-  pid = (pid + '') as `${number}`
+  if (
+    (typeof pid !== 'number' && typeof pid !== 'string') ||
+    !/^\d+$/.test(pid as string)
+  )
+    throw new Fail(`Invalid pid: ${pid}`)
 
   $.log({ kind: 'kill', pid, signal, verbose: !$.quiet && $.verbose })
   if (
