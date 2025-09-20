@@ -22,6 +22,17 @@ jobs:
         with:
           node-version: 24
           cache: 'npm'
+      - name: Compare release tag with package.json
+        if: github.event_name == 'release'
+        run: |
+          RELEASE_VERSION=${GITHUB_REF#refs/tags/v}
+          PKG_VERSION=$(node -p "require('./package.json').version")
+
+          echo "Release tag: $RELEASE_VERSION"
+          echo "package.json: $PKG_VERSION"
+
+          [ "$RELEASE_VERSION" = "$PKG_VERSION" ] || { echo "❌ Mismatch"; exit 1; }
+
       - run: npm ci
       - run: npm test
         env:
