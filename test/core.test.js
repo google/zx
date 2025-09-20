@@ -1651,6 +1651,15 @@ describe('core', () => {
       await assert.rejects(() => kill(100.1), /Invalid/)
       await assert.rejects(() => kill(null), /Invalid/)
       await assert.rejects(() => kill({}), /Invalid/)
+      await assert.rejects(
+        () =>
+          kill({
+            toString() {
+              return '12345'
+            },
+          }),
+        /Invalid/
+      )
     })
   })
 
