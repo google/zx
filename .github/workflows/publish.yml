@@ -25,7 +25,7 @@ jobs:
       - name: Compare release tag with package.json
         if: github.event_name == 'release'
         run: |
-          RELEASE_VERSION=${GITHUB_REF#refs/tags/v}
+          RELEASE_VERSION=${GITHUB_REF#refs/tags/}
           PKG_VERSION=$(node -p "require('./package.json').version")
 
           echo "Release tag: $RELEASE_VERSION"
