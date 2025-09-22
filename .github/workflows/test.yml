@@ -138,7 +138,10 @@ jobs:
           npm run test:dcr
 
   smoke-win32-node16:
-    runs-on: windows-2022
+    strategy:
+      matrix:
+        os: [windows-2022, windows-2025]
+    runs-on: ${{ matrix.os }}
     needs: build
     steps:
       - uses: actions/checkout@v5
