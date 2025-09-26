@@ -62,7 +62,7 @@ var versions = {
   fs: "11.3.2",
   glob: "14.1.0",
   minimist: "1.2.8",
-  ps: "0.1.4",
+  ps: "1.0.0",
   which: "5.0.0",
   yaml: "2.8.1"
 };

@@ -773,7 +773,7 @@ var import_which = __toESM(require_lib(), 1);
 // node_modules/@webpod/ps/target/esm/index.mjs
 var import_node_process4 = __toESM(require("process"), 1);
 var import_node_fs = __toESM(require("fs"), 1);
-var import_node_os2 = require("os");
+var import_node_os2 = __toESM(require("os"), 1);
 
 // node_modules/@webpod/ingrid/target/esm/index.mjs
 var EOL = /\r?\n|\r|\n/;
@@ -1196,7 +1196,40 @@ var exec = (ctx) => invoke(normalizeCtx(ctx));
 
 // node_modules/@webpod/ps/target/esm/index.mjs
 var IS_WIN = import_node_process4.default.platform === "win32";
-var WMIC_INPUT = "wmic process get ProcessId,ParentProcessId,CommandLine";
+var IS_WIN2025_PLUS = IS_WIN && Number.parseInt(import_node_os2.default.release().split(".")[2], 10) >= 26e3;
+var LOOKUPS = {
+  wmic: {
+    cmd: "wmic process get ProcessId,ParentProcessId,CommandLine",
+    args: [],
+    parse(stdout) {
+      return parse(removeWmicPrefix(stdout), { format: "win" });
+    }
+  },
+  ps: {
+    cmd: "ps",
+    args: ["-lx"],
+    parse(stdout) {
+      return parse(stdout, { format: "unix" });
+    }
+  },
+  pwsh: {
+    cmd: "pwsh",
+    args: ["-NoProfile", "-Command", '"Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,CommandLine | ConvertTo-Json -Compress"'],
+    parse(stdout) {
+      let arr = [];
+      try {
+        arr = JSON.parse(stdout);
+      } catch (e) {
+        return [];
+      }
+      return arr.map((p) => ({
+        ProcessId: [p.ProcessId + ""],
+        ParentProcessId: [p.ParentProcessId + ""],
+        CommandLine: p.CommandLine ? [p.CommandLine] : []
+      }));
+    }
+  }
+};
 var isBin = (f) => {
   if (f === "") return false;
   if (!f.includes("/") && !f.includes("\\")) return true;
@@ -1220,42 +1253,35 @@ var _lookup = ({
 }) => {
   const pFactory = sync ? makePseudoDeferred.bind(null, []) : makeDeferred;
   const { promise, resolve, reject } = pFactory();
-  const { psargs = ["-lx"] } = query;
-  const args = Array.isArray(psargs) ? psargs : psargs.split(/\s+/);
   const result = [];
-  const extract = IS_WIN ? removeWmicPrefix : identity;
+  const lookupFlow = IS_WIN ? IS_WIN2025_PLUS ? "pwsh" : "wmic" : "ps";
+  const {
+    parse: parse2,
+    cmd,
+    args
+  } = LOOKUPS[lookupFlow];
   const callback = (err, { stdout }) => {
     if (err) {
       reject(err);
       cb(err);
       return;
     }
-    result.push(...parseProcessList(extract(stdout), query));
+    result.push(...filterProcessList(normalizeOutput(parse2(stdout)), query));
     resolve(result);
     cb(null, result);
   };
-  const ctx = IS_WIN ? {
-    cmd: WMIC_INPUT,
-    args: [],
-    callback,
-    sync,
-    run(cb2) {
-      cb2();
-    }
-  } : {
-    cmd: "ps",
+  exec({
+    cmd,
     args,
     callback,
     sync,
     run(cb2) {
       cb2();
     }
-  };
-  exec(ctx);
+  });
   return Object.assign(promise, result);
 };
-var parseProcessList = (output, query = {}) => {
-  const processList = parseGrid(output);
+var filterProcessList = (processList, query = {}) => {
   const pidList = (query.pid === void 0 ? [] : [query.pid].flat(1)).map((v) => v + "");
   const filters = [
     (p) => query.command ? new RegExp(query.command, "i").test(p.command) : true,
@@ -1267,9 +1293,9 @@ var parseProcessList = (output, query = {}) => {
   );
 };
 var removeWmicPrefix = (stdout) => {
-  const s = stdout.indexOf(WMIC_INPUT + import_node_os2.EOL);
-  const e = stdout.includes(">") ? stdout.trimEnd().lastIndexOf(import_node_os2.EOL) : stdout.length;
-  return (s > 0 ? stdout.slice(s + WMIC_INPUT.length, e) : stdout.slice(0, e)).trimStart();
+  const s = stdout.indexOf(LOOKUPS.wmic.cmd + import_node_os2.default.EOL);
+  const e = stdout.includes(">") ? stdout.trimEnd().lastIndexOf(import_node_os2.default.EOL) : stdout.length;
+  return (s > 0 ? stdout.slice(s + LOOKUPS.wmic.cmd.length, e) : stdout.slice(0, e)).trimStart();
 };
 var pickTree = (list, pid, recursive = false) => {
   const children = list.filter((p) => p.ppid === pid + "");
@@ -1363,11 +1389,10 @@ var kill = (pid, opts, next) => {
   }
   return promise;
 };
-var parseGrid = (output) => output ? formatOutput(parse(output, { format: IS_WIN ? "win" : "unix" })) : [];
-var formatOutput = (data) => data.reduce((m, d) => {
-  var _a, _b, _c, _d;
-  const pid = ((_a = d.PID) == null ? void 0 : _a[0]) || ((_b = d.ProcessId) == null ? void 0 : _b[0]);
-  const ppid = ((_c = d.PPID) == null ? void 0 : _c[0]) || ((_d = d.ParentProcessId) == null ? void 0 : _d[0]);
+var normalizeOutput = (data) => data.reduce((m, d) => {
+  var _a, _b;
+  const pid = (_a = d.PID || d.ProcessId) == null ? void 0 : _a[0];
+  const ppid = (_b = d.PPID || d.ParentProcessId) == null ? void 0 : _b[0];
   const _cmd = d.CMD || d.CommandLine || d.COMMAND || [];
   const cmd = _cmd.length === 1 ? _cmd[0].split(/\s+/) : _cmd;
   if (pid && cmd.length > 0) {

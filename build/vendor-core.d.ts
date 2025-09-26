@@ -224,7 +224,6 @@ type TPsLookupQuery = {
 	command?: string;
 	arguments?: string;
 	ppid?: number | string;
-	psargs?: string | string[];
 };
 type TPsKillOptions = {
 	timeout?: number;
