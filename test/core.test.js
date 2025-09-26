@@ -988,7 +988,7 @@ describe('core', () => {
 
     describe('unpipe()', () => {
       it('disables piping', async () => {
-        const p1 = $`echo foo && sleep 0.2 && echo bar && sleep 0.2 && echo baz && sleep 0.2 && echo qux`
+        const p1 = $`echo foo && sleep 0.2 && echo bar && sleep 0.3 && echo baz && sleep 0.4 && echo qux`
         const p2 = $`echo 1 && sleep 0.3 && echo 2 && sleep 0.2 && echo 3`
         const p3 = $`cat`
 
