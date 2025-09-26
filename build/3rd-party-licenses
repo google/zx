@@ -145,7 +145,7 @@ yaml@2.8.1
   github:eemeli/yaml
   ISC
 
-zurk@0.11.4
+zurk@0.11.9
   Anton Golub <antongolub@antongolub.com>
   git+https://github.com/webpod/zurk.git
   MIT

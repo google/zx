@@ -1,6 +1,6 @@
 {
   "name": "zx",
-  "version": "8.8.3",
+  "version": "8.8.4",
   "description": "A tool for writing better scripts",
   "type": "module",
   "main": "./build/index.cjs",
@@ -109,8 +109,8 @@
     "test:workflow": "zizmor .github/workflows -v -p --min-severity=medium"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.8.1",
-    "@commitlint/config-conventional": "^19.8.1",
+    "@commitlint/cli": "^20.0.0",
+    "@commitlint/config-conventional": "^20.0.0",
     "@size-limit/file": "11.2.0",
     "@types/fs-extra": "11.0.4",
     "@types/minimist": "1.2.5",
@@ -137,7 +137,7 @@
     "get-port": "7.1.0",
     "globby": "14.1.0",
     "jsr": "0.13.5",
-    "lefthook": "1.13.1",
+    "lefthook": "1.13.4",
     "madge": "8.0.0",
     "minimist": "1.2.8",
     "node-fetch-native": "1.6.7",
@@ -145,12 +145,12 @@
     "size-limit": "11.2.0",
     "ts-node": "10.9.2",
     "tsd": "0.33.0",
-    "tsx": "4.20.5",
+    "tsx": "4.20.6",
     "typescript": "5.9.2",
     "vitepress": "1.6.4",
     "which": "5.0.0",
     "yaml": "2.8.1",
-    "zurk": "0.11.4"
+    "zurk": "0.11.9"
   },
   "overrides": {
     "globby": {
