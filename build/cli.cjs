@@ -217,7 +217,13 @@ function main() {
     yield runScript(script, scriptPath, tempPath);
   });
 }
-var rmrf = (p) => p && import_index.fs.rmSync(p, { force: true, recursive: true });
+var rmrf = (p) => {
+  if (!p) return;
+  try {
+    import_index.fs.lstatSync(p).isSymbolicLink() ? import_index.fs.unlinkSync(p) : import_index.fs.rmSync(p, { force: true, recursive: true });
+  } catch (e) {
+  }
+};
 function runScript(script, scriptPath, tempPath) {
   return __async(this, null, function* () {
     let nmLink = "";
@@ -232,7 +238,16 @@ function runScript(script, scriptPath, tempPath) {
       }
       const cwd = import_index.path.dirname(scriptPath);
       if (typeof argv.preferLocal === "string") {
-        nmLink = linkNodeModules(cwd, argv.preferLocal);
+        linkNodeModules(cwd, argv.preferLocal);
+        try {
+          const aliasPath = import_index.path.resolve(cwd, "node_modules");
+          if (import_index.fs.existsSync(aliasPath) && import_index.fs.lstatSync(aliasPath).isSymbolicLink()) {
+            nmLink = aliasPath;
+          } else {
+            nmLink = "";
+          }
+        } catch (e) {
+        }
       }
       if (argv.install) {
         yield (0, import_deps.installDeps)((0, import_deps.parseDeps)(script), cwd, argv.registry);
