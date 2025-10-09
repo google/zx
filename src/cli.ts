@@ -128,22 +128,19 @@ export async function main(): Promise<void> {
   await runScript(script, scriptPath, tempPath)
 }
 
-// Short & safe remove: unlink symlinks; recurse only for real dirs/files
 const rmrf = (p: string) => {
   if (!p) return
-  try {
-    fs.lstatSync(p).isSymbolicLink()
-      ? fs.unlinkSync(p)
-      : fs.rmSync(p, { force: true, recursive: true })
-  } catch {}
-}
 
+  lstat(p)?.isSymbolicLink()
+    ? fs.unlinkSync(p)
+    : fs.rmSync(p, { force: true, recursive: true })
+}
 async function runScript(
   script: string,
   scriptPath: string,
   tempPath: string
 ): Promise<void> {
-  let nmLink = '' // will hold the alias path (./node_modules) ONLY if it's a symlink
+  let nmLink = ''
   const rmTemp = () => {
     rmrf(tempPath)
     rmrf(nmLink)
@@ -154,25 +151,9 @@ async function runScript(
       await fs.writeFile(tempPath, script)
     }
     const cwd = path.dirname(scriptPath)
-
     if (typeof argv.preferLocal === 'string') {
-      // Keep original behaviour: linkNodeModules returns TARGET (unchanged API)
-      linkNodeModules(cwd, argv.preferLocal)
-
-      // For cleanup, compute ALIAS and only unlink if it's a symlink
-      try {
-        const aliasPath = path.resolve(cwd, 'node_modules')
-        if (
-          fs.existsSync(aliasPath) &&
-          fs.lstatSync(aliasPath).isSymbolicLink()
-        ) {
-          nmLink = aliasPath
-        } else {
-          nmLink = ''
-        }
-      } catch {}
+      nmLink = linkNodeModules(cwd, argv.preferLocal)
     }
-
     if (argv.install) {
       await installDeps(parseDeps(script), cwd, argv.registry)
     }
@@ -194,12 +175,25 @@ function linkNodeModules(cwd: string, external: string): string {
     path.basename(external) === nm
       ? path.resolve(external)
       : path.resolve(external, nm)
+  const aliasStat = lstat(alias)
+  const targetStat = lstat(target)
 
-  if (fs.existsSync(alias) || !fs.existsSync(target)) return ''
+  if (!targetStat?.isDirectory())
+    throw new Fail(
+      `Can't link node_modules: ${target} doesn't exist or is not a directory`
+    )
+  if (aliasStat?.isDirectory() && alias !== target)
+    throw new Fail(`Can't link node_modules: ${alias} already exists`)
+  if (aliasStat) return ''
 
   fs.symlinkSync(target, alias, 'junction')
-  // Keep behaviour stable: return TARGET (not alias)
-  return target
+  return alias
+}
+
+function lstat(p: string) {
+  try {
+    return fs.lstatSync(p)
+  } catch {}
 }
 
 async function readScript() {

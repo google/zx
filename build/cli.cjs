@@ -218,11 +218,9 @@ function main() {
   });
 }
 var rmrf = (p) => {
+  var _a2;
   if (!p) return;
-  try {
-    import_index.fs.lstatSync(p).isSymbolicLink() ? import_index.fs.unlinkSync(p) : import_index.fs.rmSync(p, { force: true, recursive: true });
-  } catch (e) {
-  }
+  ((_a2 = lstat(p)) == null ? void 0 : _a2.isSymbolicLink()) ? import_index.fs.unlinkSync(p) : import_index.fs.rmSync(p, { force: true, recursive: true });
 };
 function runScript(script, scriptPath, tempPath) {
   return __async(this, null, function* () {
@@ -238,16 +236,7 @@ function runScript(script, scriptPath, tempPath) {
       }
       const cwd = import_index.path.dirname(scriptPath);
       if (typeof argv.preferLocal === "string") {
-        linkNodeModules(cwd, argv.preferLocal);
-        try {
-          const aliasPath = import_index.path.resolve(cwd, "node_modules");
-          if (import_index.fs.existsSync(aliasPath) && import_index.fs.lstatSync(aliasPath).isSymbolicLink()) {
-            nmLink = aliasPath;
-          } else {
-            nmLink = "";
-          }
-        } catch (e) {
-        }
+        nmLink = linkNodeModules(cwd, argv.preferLocal);
       }
       if (argv.install) {
         yield (0, import_deps.installDeps)((0, import_deps.parseDeps)(script), cwd, argv.registry);
@@ -264,9 +253,23 @@ function linkNodeModules(cwd, external) {
   const nm = "node_modules";
   const alias = import_index.path.resolve(cwd, nm);
   const target = import_index.path.basename(external) === nm ? import_index.path.resolve(external) : import_index.path.resolve(external, nm);
-  if (import_index.fs.existsSync(alias) || !import_index.fs.existsSync(target)) return "";
+  const aliasStat = lstat(alias);
+  const targetStat = lstat(target);
+  if (!(targetStat == null ? void 0 : targetStat.isDirectory()))
+    throw new import_index.Fail(
+      `Can't link node_modules: ${target} doesn't exist or is not a directory`
+    );
+  if ((aliasStat == null ? void 0 : aliasStat.isDirectory()) && alias !== target)
+    throw new import_index.Fail(`Can't link node_modules: ${alias} already exists`);
+  if (aliasStat) return "";
   import_index.fs.symlinkSync(target, alias, "junction");
-  return target;
+  return alias;
+}
+function lstat(p) {
+  try {
+    return import_index.fs.lstatSync(p);
+  } catch (e) {
+  }
 }
 function readScript() {
   return __async(this, null, function* () {
