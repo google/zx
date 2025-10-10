@@ -24,7 +24,7 @@ jobs:
           persist-credentials: false
 
       - name: Use Node.js 24
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: 'npm'
@@ -54,7 +54,7 @@ jobs:
           fetch-depth: ${{ github.event_name == 'pull_request' && '15' || '1' }} # to ensure we have enough history for commitlint
 
       - name: Use Node.js 24
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: 'npm'
@@ -105,7 +105,7 @@ jobs:
           persist-credentials: false
 
       - name: Use Node.js 24
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: 'npm'
@@ -149,7 +149,7 @@ jobs:
           persist-credentials: false
 
       - name: Use Node.js 16.x
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 16.x
           cache: 'npm'
@@ -219,7 +219,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
@@ -272,7 +272,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Use Node.js 24
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: 'npm'

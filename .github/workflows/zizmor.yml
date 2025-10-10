@@ -22,9 +22,9 @@ jobs:
           persist-credentials: false
 
       - name: Install the latest version of uv
-        uses: astral-sh/setup-uv@bd01e18f51369d5a26f1651c3cb451d3417e3bba #v6.3.1
+        uses: astral-sh/setup-uv@eb1897b8dc4b5d5bfe39a428a8f2304605e0983c #v7.0.0
         with:
           enable-cache: false
 
       - name: Run zizmor
-        run: uvx zizmor@1.14.0 .github/workflows -v -p --min-severity=medium
+        run: uvx zizmor@1.14.2 .github/workflows -v -p --min-severity=medium
