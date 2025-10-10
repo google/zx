@@ -141,6 +141,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-2022, windows-2025]
+    name: smoke-${{ matrix.os }}-node16
     runs-on: ${{ matrix.os }}
     needs: build
     steps:
@@ -148,10 +149,10 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Use Node.js 16.x
+      - name: Use Node.js 16
         uses: actions/setup-node@v5
         with:
-          node-version: 16.x
+          node-version: 16
           cache: 'npm'
 
       - uses: actions/download-artifact@v5
