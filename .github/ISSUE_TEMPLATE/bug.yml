@@ -1,0 +1,91 @@
+name: Bug Report
+description: File a bug report.
+title: '[Bug]: '
+labels: ['bug']
+assignees:
+  - antongolub
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      placeholder: Tell us what you see.
+      value: 'A bug happened!'
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-expected
+    attributes:
+      label: How it should work?
+      description: Also tell us, what did you expect to happen?
+      value: "Here's how it should work..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: How to reproduce the bug?
+      description: Show an example.
+      value: 'Step-by-step instructions to reproduce the behavior. Code snippet, gist or issue-demo repository are helpful'
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What zx version are you running?
+      placeholder: e.g. 0.0.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: What's OS kind?
+      multiple: true
+      options:
+        - Linux
+        - Mac
+        - Windows
+
+  - type: dropdown
+    id: runtime
+    attributes:
+      label: What JS runtime is used?
+      multiple: true
+      options:
+        - Node.js
+        - Deno
+        - Bun
+        - GraalVM
+
+  - type: input
+    id: runtime-version
+    attributes:
+      label: Runtime Version
+      description: What JS runtime version are you running?
+      placeholder: e.g. 0.0.0
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error stack / relevant log output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/google/zx?tab=coc-ov-file).
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true

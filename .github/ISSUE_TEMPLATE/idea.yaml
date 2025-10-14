@@ -1,0 +1,39 @@
+name: Feature Request
+description: Idea, feature request or proposal.
+title: '[Idea]: '
+labels: ['feature']
+assignees:
+  - antonmedv
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for sharing your vision!
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: What's your idea?
+      placeholder: Tell us what you'd like to add or improve.
+      value: 'A new shiny feature!'
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Why is that needed? How it may be useful?
+      placeholder: What problem does it solve?.
+      value: 'It will make something easier because...'
+    validations:
+      required: true
+
+  - type: textarea
+    id: demo
+    attributes:
+      label: Maybe you have a demo or example?
+      value: 'API sketch, code snippet'
+      render: ts
+    validations:
+      required: false
