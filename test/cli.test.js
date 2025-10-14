@@ -175,28 +175,99 @@ describe('cli', () => {
     }
   })
 
-  test('supports --prefer-local to load modules', async () => {
-    const cwd = tmpdir()
-    const external = tmpdir()
-    await fs.outputJson(path.join(external, 'node_modules/a/package.json'), {
+  describe('`--prefer-local`', () => {
+    const pkgIndex = `export const a = 'AAA'`
+    const pkgJson = {
       name: 'a',
       version: '1.0.0',
       type: 'module',
       exports: './index.js',
-    })
-    await fs.outputFile(
-      path.join(external, 'node_modules/a/index.js'),
-      `
-export const a = 'AAA'
-`
-    )
+    }
     const script = `
 import {a} from 'a'
 console.log(a);
 `
-    const out =
-      await $`node build/cli.js --cwd=${cwd} --prefer-local=${external} --test <<< ${script}`
-    assert.equal(out.stdout, 'AAA\n')
+
+    test('true', async () => {
+      const cwd = tmpdir()
+      await fs.outputFile(path.join(cwd, 'node_modules/a/index.js'), pkgIndex)
+      await fs.outputJson(
+        path.join(cwd, 'node_modules/a/package.json'),
+        pkgJson
+      )
+
+      const out =
+        await $`node build/cli.js --cwd=${cwd} --prefer-local=true --test <<< ${script}`
+      assert.equal(out.stdout, 'AAA\n')
+      assert.ok(await fs.exists(path.join(cwd, 'node_modules/a/index.js')))
+    })
+
+    test('external dir', async () => {
+      const cwd = tmpdir()
+      const external = tmpdir()
+      await fs.outputFile(
+        path.join(external, 'node_modules/a/index.js'),
+        pkgIndex
+      )
+      await fs.outputJson(
+        path.join(external, 'node_modules/a/package.json'),
+        pkgJson
+      )
+
+      const out =
+        await $`node build/cli.js --cwd=${cwd} --prefer-local=${external} --test <<< ${script}`
+      assert.equal(out.stdout, 'AAA\n')
+      assert.ok(await fs.exists(path.join(external, 'node_modules/a/index.js')))
+    })
+
+    test('external alias', async () => {
+      const cwd = tmpdir()
+      const external = tmpdir()
+      await fs.outputFile(
+        path.join(external, 'node_modules/a/index.js'),
+        pkgIndex
+      )
+      await fs.outputJson(
+        path.join(external, 'node_modules/a/package.json'),
+        pkgJson
+      )
+      await fs.symlinkSync(
+        path.join(external, 'node_modules'),
+        path.join(cwd, 'node_modules'),
+        'junction'
+      )
+
+      const out =
+        await $`node build/cli.js --cwd=${cwd} --prefer-local=true --test <<< ${script}`
+      assert.equal(out.stdout, 'AAA\n')
+      assert.ok(await fs.exists(path.join(cwd, 'node_modules')))
+    })
+
+    test('throws if exists', async () => {
+      const cwd = tmpdir()
+      const external = tmpdir()
+      await fs.outputFile(path.join(cwd, 'node_modules/a/index.js'), pkgIndex)
+      await fs.outputFile(
+        path.join(external, 'node_modules/a/index.js'),
+        pkgIndex
+      )
+      assert.rejects(
+        () =>
+          $`node build/cli.js --cwd=${cwd} --prefer-local=${external} --test <<< ${script}`,
+        /node_modules already exists/
+      )
+    })
+
+    test('throws if not dir', async () => {
+      const cwd = tmpdir()
+      const external = tmpdir()
+      await fs.outputFile(path.join(external, 'node_modules'), pkgIndex)
+      assert.rejects(
+        () =>
+          $`node build/cli.js --cwd=${cwd} --prefer-local=${external} --test <<< ${script}`,
+        /node_modules doesn't exist or is not a directory/
+      )
+    })
   })
 
   test('scripts from https 200', async () => {
