@@ -1,7 +1,7 @@
 name: Feature Request
 description: Idea, feature request or proposal.
 title: '[Idea]: '
-labels: ['idea']
+labels: ['feature']
 assignees:
   - antonmedv
 
