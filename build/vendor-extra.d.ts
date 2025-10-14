@@ -266,6 +266,8 @@ type Options$1 = {
 	/**
 	Respect ignore patterns in `.gitignore` files that apply to the globbed files.
 
+	Performance note: This option searches for all `.gitignore` files in the entire directory tree before globbing, which can be slow. For better performance, use `ignoreFiles: '.gitignore'` to only respect the root `.gitignore` file.
+
 	@default false
 	*/
 	readonly gitignore?: boolean;
@@ -273,6 +275,8 @@ type Options$1 = {
 	Glob patterns to look for ignore files, which are then used to ignore globbed files.
 
 	This is a more generic form of the `gitignore` option, allowing you to find ignore files with a [compatible syntax](http://git-scm.com/docs/gitignore). For instance, this works with Babel's `.babelignore`, Prettier's `.prettierignore`, or ESLint's `.eslintignore` files.
+
+	Performance tip: Using a specific path like `'.gitignore'` is much faster than recursive patterns.
 
 	@default undefined
 	*/
@@ -288,6 +292,11 @@ type GitignoreOptions = {
 	readonly cwd?: URL | string;
 };
 type GlobbyFilterFunction = (path: URL | string) => boolean;
+type AsyncIterableReadable<Value> = Omit<NodeJS.ReadableStream, typeof Symbol.asyncIterator> & {
+	[Symbol.asyncIterator](): NodeJS.AsyncIterator<Value>;
+};
+type GlobbyStream = AsyncIterableReadable<string>;
+type GlobbyEntryStream = AsyncIterableReadable<GlobEntry>;
 declare function globby(patterns: string | readonly string[], options: Options$1 & {
 	objectMode: true;
 }): Promise<GlobEntry[]>;
@@ -296,7 +305,10 @@ declare function globbySync(patterns: string | readonly string[], options: Optio
 	objectMode: true;
 }): GlobEntry[];
 declare function globbySync(patterns: string | readonly string[], options?: Options$1): string[];
-declare function globbyStream(patterns: string | readonly string[], options?: Options$1): NodeJS.ReadableStream;
+declare function globbyStream(patterns: string | readonly string[], options: Options$1 & {
+	objectMode: true;
+}): GlobbyEntryStream;
+declare function globbyStream(patterns: string | readonly string[], options?: Options$1): GlobbyStream;
 declare function generateGlobTasks(patterns: string | readonly string[], options?: Options$1): Promise<GlobTask[]>;
 declare function generateGlobTasksSync(patterns: string | readonly string[], options?: Options$1): GlobTask[];
 declare function isDynamicPattern(patterns: string | readonly string[], options?: FastGlobOptionsWithoutCwd & {

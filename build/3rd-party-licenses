@@ -15,7 +15,7 @@ THIRD PARTY LICENSES
   https://github.com/nodelib/nodelib/tree/master/packages/fs/fs.walk
   MIT
 
-@sindresorhus/merge-streams@2.3.0
+@sindresorhus/merge-streams@4.0.0
   Sindre Sorhus <sindresorhus@gmail.com>
   sindresorhus/merge-streams
   MIT
@@ -70,7 +70,7 @@ glob-parent@5.1.2
   gulpjs/glob-parent
   ISC
 
-globby@14.1.0
+globby@15.0.0
   Sindre Sorhus <sindresorhus@gmail.com>
   sindresorhus/globby
   MIT
@@ -145,7 +145,7 @@ yaml@2.8.1
   github:eemeli/yaml
   ISC
 
-zurk@0.11.9
+zurk@0.11.10
   Anton Golub <antongolub@antongolub.com>
   git+https://github.com/webpod/zurk.git
   MIT

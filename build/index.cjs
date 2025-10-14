@@ -60,7 +60,7 @@ var versions = {
   dotenv: "0.2.3",
   fetch: "1.6.7",
   fs: "11.3.2",
-  glob: "14.1.0",
+  glob: "15.0.0",
   minimist: "1.2.8",
   ps: "1.0.0",
   which: "5.0.0",

@@ -13,7 +13,7 @@ export declare const getLast: <T>(arr: {
 }) => T;
 export declare function preferLocalBin(env: NodeJS.ProcessEnv, ...dirs: (string | undefined)[]): {
     [x: string]: string | undefined;
-    TZ?: string;
+    TZ?: string | undefined;
 };
 export declare function quote(arg: string): string;
 export declare function quotePowerShell(arg: string): string;

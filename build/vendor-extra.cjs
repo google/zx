@@ -10890,7 +10890,7 @@ function zn(i) {
     if (i[H].disturbed = true, i[H].error) throw i[H].error;
     const { body: o3 } = i;
     if (o3 === null) return import_node_buffer.Buffer.alloc(0);
-    if (!(o3 instanceof import_node_stream2.default)) return import_node_buffer.Buffer.alloc(0);
+    if (!(o3 instanceof import_node_stream3.default)) return import_node_buffer.Buffer.alloc(0);
     const a = [];
     let f2 = 0;
     try {
@@ -11007,7 +11007,7 @@ function Ai(i, o3) {
       let w2 = null;
       const A = n2(() => {
         const g2 = new _r("The operation was aborted.");
-        f2(g2), l.body && l.body instanceof import_node_stream2.default.Readable && l.body.destroy(g2), !(!w2 || !w2.body) && w2.body.emit("error", g2);
+        f2(g2), l.body && l.body instanceof import_node_stream3.default.Readable && l.body.destroy(g2), !(!w2 || !w2.body) && w2.body.emit("error", g2);
       }, "abort");
       if (v2 && v2.aborted) {
         A();
@@ -11062,7 +11062,7 @@ function Ai(i, o3) {
               }
               const U = { headers: new ye(l.headers), follow: l.follow, counter: l.counter + 1, agent: l.agent, compress: l.compress, method: l.method, body: In(l), signal: l.signal, size: l.size, referrer: l.referrer, referrerPolicy: l.referrerPolicy };
               if (!Js(l.url, j) || !Xs(l.url, j)) for (const jt of ["authorization", "www-authenticate", "cookie", "cookie2"]) U.headers.delete(jt);
-              if (g2.statusCode !== 303 && l.body && o3.body instanceof import_node_stream2.default.Readable) {
+              if (g2.statusCode !== 303 && l.body && o3.body instanceof import_node_stream3.default.Readable) {
                 f2(new G("Cannot follow redirect with body being a readable stream", "unsupported-redirect")), q();
                 return;
               }
@@ -11078,7 +11078,7 @@ function Ai(i, o3) {
         v2 && g2.once("end", () => {
           v2.removeEventListener("abort", T2);
         });
-        let I2 = (0, import_node_stream2.pipeline)(g2, new import_node_stream2.PassThrough(), (z) => {
+        let I2 = (0, import_node_stream3.pipeline)(g2, new import_node_stream3.PassThrough(), (z) => {
           z && f2(z);
         });
         process.version < "v12.10" && g2.on("aborted", T2);
@@ -11089,19 +11089,19 @@ function Ai(i, o3) {
         }
         const ge = { flush: import_node_zlib.default.Z_SYNC_FLUSH, finishFlush: import_node_zlib.default.Z_SYNC_FLUSH };
         if (Q === "gzip" || Q === "x-gzip") {
-          I2 = (0, import_node_stream2.pipeline)(I2, import_node_zlib.default.createGunzip(ge), (z) => {
+          I2 = (0, import_node_stream3.pipeline)(I2, import_node_zlib.default.createGunzip(ge), (z) => {
             z && f2(z);
           }), w2 = new le(I2, F4), a(w2);
           return;
         }
         if (Q === "deflate" || Q === "x-deflate") {
-          const z = (0, import_node_stream2.pipeline)(g2, new import_node_stream2.PassThrough(), (j) => {
+          const z = (0, import_node_stream3.pipeline)(g2, new import_node_stream3.PassThrough(), (j) => {
             j && f2(j);
           });
           z.once("data", (j) => {
-            (j[0] & 15) === 8 ? I2 = (0, import_node_stream2.pipeline)(I2, import_node_zlib.default.createInflate(), (U) => {
+            (j[0] & 15) === 8 ? I2 = (0, import_node_stream3.pipeline)(I2, import_node_zlib.default.createInflate(), (U) => {
               U && f2(U);
-            }) : I2 = (0, import_node_stream2.pipeline)(I2, import_node_zlib.default.createInflateRaw(), (U) => {
+            }) : I2 = (0, import_node_stream3.pipeline)(I2, import_node_zlib.default.createInflateRaw(), (U) => {
               U && f2(U);
             }), w2 = new le(I2, F4), a(w2);
           }), z.once("end", () => {
@@ -11110,7 +11110,7 @@ function Ai(i, o3) {
           return;
         }
         if (Q === "br") {
-          I2 = (0, import_node_stream2.pipeline)(I2, import_node_zlib.default.createBrotliDecompress(), (z) => {
+          I2 = (0, import_node_stream3.pipeline)(I2, import_node_zlib.default.createBrotliDecompress(), (z) => {
             z && f2(z);
           }), w2 = new le(I2, F4), a(w2);
           return;
@@ -11278,14 +11278,14 @@ function Ui() {
   var _a2, _b2, _c, _d;
   !((_b2 = (_a2 = globalThis.process) == null ? void 0 : _a2.versions) == null ? void 0 : _b2.node) && !((_d = (_c = globalThis.process) == null ? void 0 : _c.env) == null ? void 0 : _d.DISABLE_NODE_FETCH_NATIVE_WARN || true) && console.warn("[node-fetch-native] Node.js compatible build of `node-fetch-native` is being used in a non-Node.js environment. Please make sure you are using proper export conditions or report this issue to https://github.com/unjs/node-fetch-native. You can set `process.env.DISABLE_NODE_FETCH_NATIVE_WARN` to disable this warning.");
 }
-var import_node_http, import_node_https, import_node_zlib, import_node_stream2, import_node_buffer, import_node_util2, import_node_url2, import_node_net, import_node_fs4, import_node_path3, Os, fi, n2, ci, O, be, X, ve, zt, bt, Cr, ze, It, Ft, mt, ee, yt, He, Ve, gt, pi, kt, xs, bi, mi, yi, gi, ut, Vs, qn, Wt, Qs, Ys, _i, Gs, Si, On, Ue, br, Un, ft, xn, G, mr, wi, yr, Ks, Js, Xs, el, H, Nn, xe, In, tl, Ri, rl, nl, gr, Fn, Pr, ye, il, jn, se, Ne, le, al, Ci, sl, $2, qt, dl, vr, dt, hl, Hn, _r, Ln, Pi, bl, ml, $n, yl, gl, _l, Sl, vi, Ei, Er, Sr, wl, Bi, Dn, zi, Ii, Fi, wr, Vn, pt, Tr, Mn, $i, ql, Ol, Mi;
+var import_node_http, import_node_https, import_node_zlib, import_node_stream3, import_node_buffer, import_node_util2, import_node_url2, import_node_net, import_node_fs4, import_node_path3, Os, fi, n2, ci, O, be, X, ve, zt, bt, Cr, ze, It, Ft, mt, ee, yt, He, Ve, gt, pi, kt, xs, bi, mi, yi, gi, ut, Vs, qn, Wt, Qs, Ys, _i, Gs, Si, On, Ue, br, Un, ft, xn, G, mr, wi, yr, Ks, Js, Xs, el, H, Nn, xe, In, tl, Ri, rl, nl, gr, Fn, Pr, ye, il, jn, se, Ne, le, al, Ci, sl, $2, qt, dl, vr, dt, hl, Hn, _r, Ln, Pi, bl, ml, $n, yl, gl, _l, Sl, vi, Ei, Er, Sr, wl, Bi, Dn, zi, Ii, Fi, wr, Vn, pt, Tr, Mn, $i, ql, Ol, Mi;
 var init_node = __esm({
   "node_modules/node-fetch-native/dist/node.mjs"() {
     "use strict";
     import_node_http = __toESM(require("http"), 1);
     import_node_https = __toESM(require("https"), 1);
     import_node_zlib = __toESM(require("zlib"), 1);
-    import_node_stream2 = __toESM(require("stream"), 1);
+    import_node_stream3 = __toESM(require("stream"), 1);
     import_node_buffer = require("buffer");
     import_node_util2 = require("util");
     init_node_fetch_native_DfbY2q_x();
@@ -11536,14 +11536,14 @@ var init_node = __esm({
       const a = new URL(o3).protocol, f2 = new URL(i).protocol;
       return a === f2;
     }, "isSameProtocol");
-    el = (0, import_node_util2.promisify)(import_node_stream2.default.pipeline);
+    el = (0, import_node_util2.promisify)(import_node_stream3.default.pipeline);
     H = Symbol("Body internals");
     Nn = class Nn2 {
       constructor(o3, { size: a = 0 } = {}) {
         let f2 = null;
-        o3 === null ? o3 = null : wi(o3) ? o3 = import_node_buffer.Buffer.from(o3.toString()) : yr(o3) || import_node_buffer.Buffer.isBuffer(o3) || (import_node_util2.types.isAnyArrayBuffer(o3) ? o3 = import_node_buffer.Buffer.from(o3) : ArrayBuffer.isView(o3) ? o3 = import_node_buffer.Buffer.from(o3.buffer, o3.byteOffset, o3.byteLength) : o3 instanceof import_node_stream2.default || (o3 instanceof br ? (o3 = Zs(o3), f2 = o3.type.split("=")[1]) : o3 = import_node_buffer.Buffer.from(String(o3))));
+        o3 === null ? o3 = null : wi(o3) ? o3 = import_node_buffer.Buffer.from(o3.toString()) : yr(o3) || import_node_buffer.Buffer.isBuffer(o3) || (import_node_util2.types.isAnyArrayBuffer(o3) ? o3 = import_node_buffer.Buffer.from(o3) : ArrayBuffer.isView(o3) ? o3 = import_node_buffer.Buffer.from(o3.buffer, o3.byteOffset, o3.byteLength) : o3 instanceof import_node_stream3.default || (o3 instanceof br ? (o3 = Zs(o3), f2 = o3.type.split("=")[1]) : o3 = import_node_buffer.Buffer.from(String(o3))));
         let l = o3;
-        import_node_buffer.Buffer.isBuffer(o3) ? l = import_node_stream2.default.Readable.from(o3) : yr(o3) && (l = import_node_stream2.default.Readable.from(o3.stream())), this[H] = { body: o3, stream: l, boundary: f2, disturbed: false, error: null }, this.size = a, o3 instanceof import_node_stream2.default && o3.on("error", (p2) => {
+        import_node_buffer.Buffer.isBuffer(o3) ? l = import_node_stream3.default.Readable.from(o3) : yr(o3) && (l = import_node_stream3.default.Readable.from(o3.stream())), this[H] = { body: o3, stream: l, boundary: f2, disturbed: false, error: null }, this.size = a, o3 instanceof import_node_stream3.default && o3.on("error", (p2) => {
           const h2 = p2 instanceof ft ? p2 : new G(`Invalid response body while trying to fetch ${this.url}: ${p2.message}`, "system", p2);
           this[H].error = h2;
         });
@@ -11602,10 +11602,10 @@ var init_node = __esm({
     In = n2((i, o3) => {
       let a, f2, { body: l } = i[H];
       if (i.bodyUsed) throw new Error("cannot clone body after it is used");
-      return l instanceof import_node_stream2.default && typeof l.getBoundary != "function" && (a = new import_node_stream2.PassThrough({ highWaterMark: o3 }), f2 = new import_node_stream2.PassThrough({ highWaterMark: o3 }), l.pipe(a), l.pipe(f2), i[H].stream = a, l = f2), l;
+      return l instanceof import_node_stream3.default && typeof l.getBoundary != "function" && (a = new import_node_stream3.PassThrough({ highWaterMark: o3 }), f2 = new import_node_stream3.PassThrough({ highWaterMark: o3 }), l.pipe(a), l.pipe(f2), i[H].stream = a, l = f2), l;
     }, "clone");
     tl = (0, import_node_util2.deprecate)((i) => i.getBoundary(), "form-data doesn't follow the spec and requires special treatment. Use alternative package", "https://github.com/node-fetch/node-fetch/issues/1167");
-    Ri = n2((i, o3) => i === null ? null : typeof i == "string" ? "text/plain;charset=UTF-8" : wi(i) ? "application/x-www-form-urlencoded;charset=UTF-8" : yr(i) ? i.type || null : import_node_buffer.Buffer.isBuffer(i) || import_node_util2.types.isAnyArrayBuffer(i) || ArrayBuffer.isView(i) ? null : i instanceof br ? `multipart/form-data; boundary=${o3[H].boundary}` : i && typeof i.getBoundary == "function" ? `multipart/form-data;boundary=${tl(i)}` : i instanceof import_node_stream2.default ? null : "text/plain;charset=UTF-8", "extractContentType");
+    Ri = n2((i, o3) => i === null ? null : typeof i == "string" ? "text/plain;charset=UTF-8" : wi(i) ? "application/x-www-form-urlencoded;charset=UTF-8" : yr(i) ? i.type || null : import_node_buffer.Buffer.isBuffer(i) || import_node_util2.types.isAnyArrayBuffer(i) || ArrayBuffer.isView(i) ? null : i instanceof br ? `multipart/form-data; boundary=${o3[H].boundary}` : i && typeof i.getBoundary == "function" ? `multipart/form-data;boundary=${tl(i)}` : i instanceof import_node_stream3.default ? null : "text/plain;charset=UTF-8", "extractContentType");
     rl = n2((i) => {
       const { body: o3 } = i[H];
       return o3 === null ? 0 : yr(o3) ? o3.size : import_node_buffer.Buffer.isBuffer(o3) ? o3.length : o3 && typeof o3.getLengthSync == "function" && o3.hasKnownLength && o3.hasKnownLength() ? o3.getLengthSync() : null;
@@ -12288,6 +12288,7 @@ module.exports = __toCommonJS(vendor_extra_exports);
 var import_node_process2 = __toESM(require("process"), 1);
 var import_node_fs3 = __toESM(require("fs"), 1);
 var import_node_path2 = __toESM(require("path"), 1);
+var import_node_stream2 = require("stream");
 
 // node_modules/@sindresorhus/merge-streams/index.js
 var import_node_events = require("events");
@@ -12310,19 +12311,16 @@ function mergeStreams(streams) {
   for (const stream of streams) {
     passThroughStream.add(stream);
   }
-  if (streams.length === 0) {
-    endStream(passThroughStream);
-  }
   return passThroughStream;
 }
 var getHighWaterMark = (streams, objectMode) => {
   if (streams.length === 0) {
-    return 16384;
+    return (0, import_node_stream.getDefaultHighWaterMark)(objectMode);
   }
   const highWaterMarks = streams.filter(({ readableObjectMode }) => readableObjectMode === objectMode).map(({ readableHighWaterMark }) => readableHighWaterMark);
   return Math.max(...highWaterMarks);
 };
-var _streams, _ended, _aborted, _onFinished;
+var _streams, _ended, _aborted, _onFinished, _unpipeEvent, _streamPromises;
 var MergedStream = class extends import_node_stream.PassThrough {
   constructor() {
     super(...arguments);
@@ -12330,6 +12328,8 @@ var MergedStream = class extends import_node_stream.PassThrough {
     __privateAdd(this, _ended, /* @__PURE__ */ new Set([]));
     __privateAdd(this, _aborted, /* @__PURE__ */ new Set([]));
     __privateAdd(this, _onFinished);
+    __privateAdd(this, _unpipeEvent, Symbol("unpipe"));
+    __privateAdd(this, _streamPromises, /* @__PURE__ */ new WeakMap());
   }
   add(stream) {
     var _a2;
@@ -12338,37 +12338,49 @@ var MergedStream = class extends import_node_stream.PassThrough {
       return;
     }
     __privateGet(this, _streams).add(stream);
-    (_a2 = __privateGet(this, _onFinished)) != null ? _a2 : __privateSet(this, _onFinished, onMergedStreamFinished(this, __privateGet(this, _streams)));
-    endWhenStreamsDone({
+    (_a2 = __privateGet(this, _onFinished)) != null ? _a2 : __privateSet(this, _onFinished, onMergedStreamFinished(this, __privateGet(this, _streams), __privateGet(this, _unpipeEvent)));
+    const streamPromise = endWhenStreamsDone({
       passThroughStream: this,
       stream,
       streams: __privateGet(this, _streams),
       ended: __privateGet(this, _ended),
       aborted: __privateGet(this, _aborted),
-      onFinished: __privateGet(this, _onFinished)
+      onFinished: __privateGet(this, _onFinished),
+      unpipeEvent: __privateGet(this, _unpipeEvent)
     });
+    __privateGet(this, _streamPromises).set(stream, streamPromise);
     stream.pipe(this, { end: false });
   }
   remove(stream) {
-    validateStream(stream);
-    if (!__privateGet(this, _streams).has(stream)) {
-      return false;
-    }
-    stream.unpipe(this);
-    return true;
+    return __async(this, null, function* () {
+      validateStream(stream);
+      if (!__privateGet(this, _streams).has(stream)) {
+        return false;
+      }
+      const streamPromise = __privateGet(this, _streamPromises).get(stream);
+      if (streamPromise === void 0) {
+        return false;
+      }
+      __privateGet(this, _streamPromises).delete(stream);
+      stream.unpipe(this);
+      yield streamPromise;
+      return true;
+    });
   }
 };
 _streams = new WeakMap();
 _ended = new WeakMap();
 _aborted = new WeakMap();
 _onFinished = new WeakMap();
-var onMergedStreamFinished = (passThroughStream, streams) => __async(null, null, function* () {
+_unpipeEvent = new WeakMap();
+_streamPromises = new WeakMap();
+var onMergedStreamFinished = (passThroughStream, streams, unpipeEvent) => __async(null, null, function* () {
   updateMaxListeners(passThroughStream, PASSTHROUGH_LISTENERS_COUNT);
   const controller = new AbortController();
   try {
     yield Promise.race([
       onMergedStreamEnd(passThroughStream, controller),
-      onInputStreamsUnpipe(passThroughStream, streams, controller)
+      onInputStreamsUnpipe(passThroughStream, streams, unpipeEvent, controller)
     ]);
   } finally {
     controller.abort();
@@ -12376,9 +12388,14 @@ var onMergedStreamFinished = (passThroughStream, streams) => __async(null, null,
   }
 });
 var onMergedStreamEnd = (_0, _1) => __async(null, [_0, _1], function* (passThroughStream, { signal }) {
-  yield (0, import_promises.finished)(passThroughStream, { signal, cleanup: true });
+  try {
+    yield (0, import_promises.finished)(passThroughStream, { signal, cleanup: true });
+  } catch (error) {
+    errorOrAbortStream(passThroughStream, error);
+    throw error;
+  }
 });
-var onInputStreamsUnpipe = (_0, _1, _2) => __async(null, [_0, _1, _2], function* (passThroughStream, streams, { signal }) {
+var onInputStreamsUnpipe = (_0, _1, _2, _3) => __async(null, [_0, _1, _2, _3], function* (passThroughStream, streams, unpipeEvent, { signal }) {
   try {
     for (var iter = __forAwait((0, import_node_events.on)(passThroughStream, "unpipe", { signal })), more, temp, error; more = !(temp = yield iter.next()).done; more = false) {
       const [unpipedStream] = temp.value;
@@ -12402,20 +12419,34 @@ var validateStream = (stream) => {
     throw new TypeError(`Expected a readable stream, got: \`${typeof stream}\`.`);
   }
 };
-var endWhenStreamsDone = (_0) => __async(null, [_0], function* ({ passThroughStream, stream, streams, ended, aborted, onFinished }) {
+var endWhenStreamsDone = (_0) => __async(null, [_0], function* ({ passThroughStream, stream, streams, ended, aborted, onFinished, unpipeEvent }) {
   updateMaxListeners(passThroughStream, PASSTHROUGH_LISTENERS_PER_STREAM);
   const controller = new AbortController();
   try {
     yield Promise.race([
-      afterMergedStreamFinished(onFinished, stream),
-      onInputStreamEnd({ passThroughStream, stream, streams, ended, aborted, controller }),
-      onInputStreamUnpipe({ stream, streams, ended, aborted, controller })
+      afterMergedStreamFinished(onFinished, stream, controller),
+      onInputStreamEnd({
+        passThroughStream,
+        stream,
+        streams,
+        ended,
+        aborted,
+        controller
+      }),
+      onInputStreamUnpipe({
+        stream,
+        streams,
+        ended,
+        aborted,
+        unpipeEvent,
+        controller
+      })
     ]);
   } finally {
     controller.abort();
     updateMaxListeners(passThroughStream, -PASSTHROUGH_LISTENERS_PER_STREAM);
   }
-  if (streams.size === ended.size + aborted.size) {
+  if (streams.size > 0 && streams.size === ended.size + aborted.size) {
     if (ended.size === 0 && aborted.size > 0) {
       abortStream(passThroughStream);
     } else {
@@ -12423,22 +12454,26 @@ var endWhenStreamsDone = (_0) => __async(null, [_0], function* ({ passThroughStr
     }
   }
 });
-var isAbortError = (error) => (error == null ? void 0 : error.code) === "ERR_STREAM_PREMATURE_CLOSE";
-var afterMergedStreamFinished = (onFinished, stream) => __async(null, null, function* () {
+var afterMergedStreamFinished = (_0, _1, _2) => __async(null, [_0, _1, _2], function* (onFinished, stream, { signal }) {
   try {
     yield onFinished;
-    abortStream(stream);
-  } catch (error) {
-    if (isAbortError(error)) {
+    if (!signal.aborted) {
       abortStream(stream);
-    } else {
-      errorStream(stream, error);
+    }
+  } catch (error) {
+    if (!signal.aborted) {
+      errorOrAbortStream(stream, error);
     }
   }
 });
 var onInputStreamEnd = (_0) => __async(null, [_0], function* ({ passThroughStream, stream, streams, ended, aborted, controller: { signal } }) {
   try {
-    yield (0, import_promises.finished)(stream, { signal, cleanup: true, readable: true, writable: false });
+    yield (0, import_promises.finished)(stream, {
+      signal,
+      cleanup: true,
+      readable: true,
+      writable: false
+    });
     if (streams.has(stream)) {
       ended.add(stream);
     }
@@ -12453,18 +12488,28 @@ var onInputStreamEnd = (_0) => __async(null, [_0], function* ({ passThroughStrea
     }
   }
 });
-var onInputStreamUnpipe = (_0) => __async(null, [_0], function* ({ stream, streams, ended, aborted, controller: { signal } }) {
+var onInputStreamUnpipe = (_0) => __async(null, [_0], function* ({ stream, streams, ended, aborted, unpipeEvent, controller: { signal } }) {
   yield (0, import_node_events.once)(stream, unpipeEvent, { signal });
+  if (!stream.readable) {
+    return (0, import_node_events.once)(signal, "abort", { signal });
+  }
   streams.delete(stream);
   ended.delete(stream);
   aborted.delete(stream);
 });
-var unpipeEvent = Symbol("unpipe");
 var endStream = (stream) => {
   if (stream.writable) {
     stream.end();
   }
 };
+var errorOrAbortStream = (stream, error) => {
+  if (isAbortError(error)) {
+    abortStream(stream);
+  } else {
+    errorStream(stream, error);
+  }
+};
+var isAbortError = (error) => (error == null ? void 0 : error.code) === "ERR_STREAM_PREMATURE_CLOSE";
 var abortStream = (stream) => {
   if (stream.readable || stream.writable) {
     stream.destroy();
@@ -12571,7 +12616,24 @@ var ignoreFilesGlobOptions = {
   dot: true
 };
 var GITIGNORE_FILES_PATTERN = "**/.gitignore";
-var applyBaseToPattern = (pattern, base) => isNegativePattern(pattern) ? "!" + import_node_path.default.posix.join(base, pattern.slice(1)) : import_node_path.default.posix.join(base, pattern);
+var applyBaseToPattern = (pattern, base) => {
+  if (!base) {
+    return pattern;
+  }
+  const isNegative = isNegativePattern(pattern);
+  const cleanPattern = isNegative ? pattern.slice(1) : pattern;
+  const slashIndex = cleanPattern.indexOf("/");
+  const hasNonTrailingSlash = slashIndex !== -1 && slashIndex !== cleanPattern.length - 1;
+  let result;
+  if (!hasNonTrailingSlash) {
+    result = import_node_path.default.posix.join(base, "**", cleanPattern);
+  } else if (cleanPattern.startsWith("/")) {
+    result = import_node_path.default.posix.join(base, cleanPattern.slice(1));
+  } else {
+    result = import_node_path.default.posix.join(base, cleanPattern);
+  }
+  return isNegative ? "!" + result : result;
+};
 var parseIgnoreFile = (file, cwd) => {
   const base = slash(import_node_path.default.relative(cwd, import_node_path.default.dirname(file.filePath)));
   return file.content.split(/\r?\n/).filter((line) => line && !line.startsWith("#")).map((pattern) => applyBaseToPattern(pattern, base));
@@ -12584,6 +12646,12 @@ var toRelativePath = (fileOrDirectory, cwd) => {
     }
     throw new Error(`Path ${fileOrDirectory} is not in cwd ${cwd}`);
   }
+  if (fileOrDirectory.startsWith("./")) {
+    return fileOrDirectory.slice(2);
+  }
+  if (fileOrDirectory.startsWith("../")) {
+    return void 0;
+  }
   return fileOrDirectory;
 };
 var getIsIgnoredPredicate = (files, cwd) => {
@@ -12592,6 +12660,9 @@ var getIsIgnoredPredicate = (files, cwd) => {
   return (fileOrDirectory) => {
     fileOrDirectory = toPath(fileOrDirectory);
     fileOrDirectory = toRelativePath(fileOrDirectory, cwd);
+    if (fileOrDirectory === void 0) {
+      return false;
+    }
     return fileOrDirectory ? ignores.ignores(slash(fileOrDirectory)) : false;
   };
 };
@@ -12612,14 +12683,12 @@ var isIgnoredByIgnoreFiles = (patterns, options) => __async(null, null, function
     deep,
     ignore
   }, ignoreFilesGlobOptions));
-  const files = yield Promise.all(
-    paths.map((filePath) => __async(null, null, function* () {
-      return {
-        filePath,
-        content: yield import_promises3.default.readFile(filePath, "utf8")
-      };
-    }))
-  );
+  const files = yield Promise.all(paths.map((filePath) => __async(null, null, function* () {
+    return {
+      filePath,
+      content: yield import_promises3.default.readFile(filePath, "utf8")
+    };
+  })));
   return getIsIgnoredPredicate(files, cwd);
 });
 var isIgnoredByIgnoreFilesSync = (patterns, options) => {
@@ -12649,6 +12718,16 @@ var normalizePathForDirectoryGlob = (filePath, cwd) => {
   const path3 = isNegativePattern(filePath) ? filePath.slice(1) : filePath;
   return import_node_path2.default.isAbsolute(path3) ? path3 : import_node_path2.default.join(cwd, path3);
 };
+var shouldExpandGlobstarDirectory = (pattern) => {
+  const match = pattern == null ? void 0 : pattern.match(/\*\*\/([^/]+)$/);
+  if (!match) {
+    return false;
+  }
+  const dirname = match[1];
+  const hasWildcards = /[*?[\]{}]/.test(dirname);
+  const hasExtension = import_node_path2.default.extname(dirname) && !dirname.startsWith(".");
+  return !hasWildcards && !hasExtension;
+};
 var getDirectoryGlob = ({ directoryPath, files, extensions }) => {
   const extensionGlob = (extensions == null ? void 0 : extensions.length) > 0 ? `.${extensions.length > 1 ? `{${extensions.join(",")}}` : extensions[0]}` : "";
   return files ? files.map((file) => import_node_path2.default.posix.join(directoryPath, `**/${import_node_path2.default.extname(file) ? file : `${file}${extensionGlob}`}`)) : [import_node_path2.default.posix.join(directoryPath, `**${extensionGlob ? `/*${extensionGlob}` : ""}`)];
@@ -12658,18 +12737,28 @@ var directoryToGlob = (_0, ..._1) => __async(null, [_0, ..._1], function* (direc
   files,
   extensions
 } = {}) {
-  const globs = yield Promise.all(
-    directoryPaths.map((directoryPath) => __async(null, null, function* () {
-      return (yield isDirectory(normalizePathForDirectoryGlob(directoryPath, cwd))) ? getDirectoryGlob({ directoryPath, files, extensions }) : directoryPath;
-    }))
-  );
+  const globs = yield Promise.all(directoryPaths.map((directoryPath) => __async(null, null, function* () {
+    const checkPattern = isNegativePattern(directoryPath) ? directoryPath.slice(1) : directoryPath;
+    if (shouldExpandGlobstarDirectory(checkPattern)) {
+      return getDirectoryGlob({ directoryPath, files, extensions });
+    }
+    const pathToCheck = normalizePathForDirectoryGlob(directoryPath, cwd);
+    return (yield isDirectory(pathToCheck)) ? getDirectoryGlob({ directoryPath, files, extensions }) : directoryPath;
+  })));
   return globs.flat();
 });
 var directoryToGlobSync = (directoryPaths, {
   cwd = import_node_process2.default.cwd(),
   files,
   extensions
-} = {}) => directoryPaths.flatMap((directoryPath) => isDirectorySync(normalizePathForDirectoryGlob(directoryPath, cwd)) ? getDirectoryGlob({ directoryPath, files, extensions }) : directoryPath);
+} = {}) => directoryPaths.flatMap((directoryPath) => {
+  const checkPattern = isNegativePattern(directoryPath) ? directoryPath.slice(1) : directoryPath;
+  if (shouldExpandGlobstarDirectory(checkPattern)) {
+    return getDirectoryGlob({ directoryPath, files, extensions });
+  }
+  const pathToCheck = normalizePathForDirectoryGlob(directoryPath, cwd);
+  return isDirectorySync(pathToCheck) ? getDirectoryGlob({ directoryPath, files, extensions }) : directoryPath;
+});
 var toPatternsArray = (patterns) => {
   patterns = [...new Set([patterns].flat())];
   assertPatternsInput(patterns);
@@ -12713,15 +12802,11 @@ var getIgnoreFilesPatterns = (options) => {
 };
 var getFilter = (options) => __async(null, null, function* () {
   const ignoreFilesPatterns = getIgnoreFilesPatterns(options);
-  return createFilterFunction(
-    ignoreFilesPatterns.length > 0 && (yield isIgnoredByIgnoreFiles(ignoreFilesPatterns, options))
-  );
+  return createFilterFunction(ignoreFilesPatterns.length > 0 && (yield isIgnoredByIgnoreFiles(ignoreFilesPatterns, options)));
 });
 var getFilterSync = (options) => {
   const ignoreFilesPatterns = getIgnoreFilesPatterns(options);
-  return createFilterFunction(
-    ignoreFilesPatterns.length > 0 && isIgnoredByIgnoreFilesSync(ignoreFilesPatterns, options)
-  );
+  return createFilterFunction(ignoreFilesPatterns.length > 0 && isIgnoredByIgnoreFilesSync(ignoreFilesPatterns, options));
 };
 var createFilterFunction = (isIgnored) => {
   const seen = /* @__PURE__ */ new Set();
@@ -12771,19 +12856,17 @@ var generateTasks = (patterns, options) => __async(null, null, function* () {
     return globTasks;
   }
   const directoryToGlobOptions = normalizeExpandDirectoriesOption(expandDirectories, cwd);
-  return Promise.all(
-    globTasks.map((task) => __async(null, null, function* () {
-      let { patterns: patterns2, options: options2 } = task;
-      [
-        patterns2,
-        options2.ignore
-      ] = yield Promise.all([
-        directoryToGlob(patterns2, directoryToGlobOptions),
-        directoryToGlob(options2.ignore, { cwd })
-      ]);
-      return { patterns: patterns2, options: options2 };
-    }))
-  );
+  return Promise.all(globTasks.map((task) => __async(null, null, function* () {
+    let { patterns: patterns2, options: options2 } = task;
+    [
+      patterns2,
+      options2.ignore
+    ] = yield Promise.all([
+      directoryToGlob(patterns2, directoryToGlobOptions),
+      directoryToGlob(options2.ignore, { cwd })
+    ]);
+    return { patterns: patterns2, options: options2 };
+  })));
 });
 var generateTasksSync = (patterns, options) => {
   const globTasks = convertNegativePatterns(patterns, options);
@@ -12820,12 +12903,13 @@ var globbyStream = normalizeArgumentsSync((patterns, options) => {
   const tasks = generateTasksSync(patterns, options);
   const filter = getFilterSync(options);
   const streams = tasks.map((task) => import_fast_glob2.default.stream(task.patterns, task.options));
+  if (streams.length === 0) {
+    return import_node_stream2.Readable.from([]);
+  }
   const stream = mergeStreams(streams).filter((fastGlobResult) => filter(fastGlobResult));
   return stream;
 });
-var isDynamicPattern = normalizeArgumentsSync(
-  (patterns, options) => patterns.some((pattern) => import_fast_glob2.default.isDynamicPattern(pattern, options))
-);
+var isDynamicPattern = normalizeArgumentsSync((patterns, options) => patterns.some((pattern) => import_fast_glob2.default.isDynamicPattern(pattern, options)));
 var generateGlobTasks = normalizeArguments(generateTasks);
 var generateGlobTasksSync = normalizeArgumentsSync(generateTasksSync);
 var { convertPathToPattern } = import_fast_glob2.default;
