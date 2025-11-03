@@ -2,7 +2,7 @@ pre-commit:
   parallel: true
   commands:
     format:
-      glob: '*.{js,ts,md,yml}'
+      glob: '*.{js,ts,md,yml,yaml}'
       run: npm run fmt && git add {staged_files}
 
 commit-msg:
