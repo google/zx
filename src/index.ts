@@ -19,7 +19,15 @@ bus.lock()
 
 export * from './core.ts'
 export * from './goods.ts'
-export { minimist, dotenv, fs, YAML, glob, glob as globby } from './vendor.ts'
+export {
+  minimist,
+  dotenv,
+  fs,
+  YAML,
+  MAML,
+  glob,
+  glob as globby,
+} from './vendor.ts'
 
 export const VERSION: string = versions.zx || '0.0.0'
 export const version: string = VERSION

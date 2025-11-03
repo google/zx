@@ -13,6 +13,7 @@ const {
 // src/index.ts
 var index_exports = {};
 __export(index_exports, {
+  MAML: () => import_vendor2.MAML,
   VERSION: () => VERSION,
   YAML: () => import_vendor2.YAML,
   argv: () => argv,
@@ -264,6 +265,7 @@ function quiet(promise) {
 /* c8 ignore next 100 */
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  MAML,
   VERSION,
   YAML,
   argv,
