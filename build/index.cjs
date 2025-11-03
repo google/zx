@@ -54,7 +54,7 @@ var import_vendor = require("./vendor.cjs");
 
 // src/versions.ts
 var versions = {
-  zx: "8.8.5",
+  zx: "8.9.0",
   chalk: "5.6.2",
   depseek: "0.4.3",
   dotenv: "0.2.3",
