@@ -2,6 +2,7 @@
 import "./deno.js"
 import * as __module__ from "./index.cjs"
 const {
+  MAML,
   VERSION,
   YAML,
   argv,
@@ -52,6 +53,7 @@ const {
   within
 } = globalThis.Deno ? globalThis.require("./index.cjs") : __module__
 export {
+  MAML,
   VERSION,
   YAML,
   argv,

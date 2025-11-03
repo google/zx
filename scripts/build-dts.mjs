@@ -46,6 +46,7 @@ const entries = [
         '@webpod/ingrid',
         'depseek',
         'envapi',
+        'maml.js',
       ], // args['external-inlines'],
     },
     output,

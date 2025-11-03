@@ -13,6 +13,7 @@ const {
 // src/index.ts
 var index_exports = {};
 __export(index_exports, {
+  MAML: () => import_vendor2.MAML,
   VERSION: () => VERSION,
   YAML: () => import_vendor2.YAML,
   argv: () => argv,
@@ -54,7 +55,7 @@ var import_vendor = require("./vendor.cjs");
 
 // src/versions.ts
 var versions = {
-  zx: "8.8.5",
+  zx: "8.9.0",
   chalk: "5.6.2",
   depseek: "0.4.3",
   dotenv: "0.2.3",
@@ -264,6 +265,7 @@ function quiet(promise) {
 /* c8 ignore next 100 */
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  MAML,
   VERSION,
   YAML,
   argv,

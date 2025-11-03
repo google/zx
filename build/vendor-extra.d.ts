@@ -322,6 +322,8 @@ declare function isDynamicPattern(patterns: string | readonly string[], options?
 declare function isGitIgnored(options?: GitignoreOptions): Promise<GlobbyFilterFunction>;
 declare function isGitIgnoredSync(options?: GitignoreOptions): GlobbyFilterFunction;
 declare function convertPathToPattern(source: string): FastGlob.Pattern;
+declare function parse(source: string): any;
+declare function stringify(value: any): string;
 declare const fetch$1: typeof globalThis.fetch;
 type TCodeRef = {
 	type: string;
@@ -467,6 +469,7 @@ export declare const depseek: typeof depseekSync;
 export declare const dotenv: typeof _default;
 declare const fs$1: typeof import("fs-extra");
 export declare const YAML: typeof _YAML;
+export declare const MAML: typeof _maml;
 export declare const glob: typeof _glob;
 export declare const nodeFetch: typeof fetch$1;
 declare const minimist$1: typeof minimist;
@@ -475,6 +478,10 @@ declare namespace minimist$1 {
 	}
 	interface ParsedArgs extends minimist.ParsedArgs {
 	}
+}
+
+declare namespace _maml {
+	export { parse, stringify };
 }
 
 export {
