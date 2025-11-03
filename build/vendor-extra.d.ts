@@ -3,6 +3,7 @@
 /// <reference types="node" />
 
 import * as fs from 'fs';
+import * as _maml from 'maml.js';
 import { URL as URL$1 } from 'node:url';
 
 declare type ErrnoException = NodeJS.ErrnoException;
@@ -467,6 +468,7 @@ export declare const depseek: typeof depseekSync;
 export declare const dotenv: typeof _default;
 declare const fs$1: typeof import("fs-extra");
 export declare const YAML: typeof _YAML;
+export declare const MAML: typeof _maml;
 export declare const glob: typeof _glob;
 export declare const nodeFetch: typeof fetch$1;
 declare const minimist$1: typeof minimist;

@@ -397,12 +397,28 @@ The [path](https://nodejs.org/api/path.html) package.
 await $`mkdir ${path.join(basedir, 'output')}`
 ```
 
-## `yaml`
+## `YAML`
 
 The [yaml](https://www.npmjs.com/package/yaml) package.
 
 ```js
 console.log(YAML.parse('foo: bar').foo)
+```
+
+## `MAML`
+
+The [maml.js](https://www.npmjs.com/package/maml.js) package.
+
+```js
+const maml = `{
+  example: "MAML"
+  # Comments are supported
+  notes: """
+This is a multiline string.
+Keeps formatting as‑is.
+"""
+}`
+console.log(MAML.parse(maml).example) // MAML 
 ```
 
 ## `dotenv`

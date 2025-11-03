@@ -403,7 +403,7 @@ var require_stringify = __commonJS({
     "use strict";
     var utils = require_utils();
     module2.exports = (ast, options = {}) => {
-      const stringify5 = (node, parent = {}) => {
+      const stringify6 = (node, parent = {}) => {
         const invalidBlock = options.escapeInvalid && utils.isInvalidBrace(parent);
         const invalidNode = node.invalid === true && options.escapeInvalid === true;
         let output = "";
@@ -418,12 +418,12 @@ var require_stringify = __commonJS({
         }
         if (node.nodes) {
           for (const child of node.nodes) {
-            output += stringify5(child);
+            output += stringify6(child);
           }
         }
         return output;
       };
-      return stringify5(ast);
+      return stringify6(ast);
     };
   }
 });
@@ -677,7 +677,7 @@ var require_fill_range = __commonJS({
       while (value[++index] === "0") ;
       return index > 0;
     };
-    var stringify5 = (start, end, options) => {
+    var stringify6 = (start, end, options) => {
       if (typeof start === "string" || typeof end === "string") {
         return true;
       }
@@ -772,7 +772,7 @@ var require_fill_range = __commonJS({
       step = Math.max(Math.abs(step), 1);
       let padded = zeros(startString) || zeros(endString) || zeros(stepString);
       let maxLen = padded ? Math.max(startString.length, endString.length, stepString.length) : 0;
-      let toNumber = padded === false && stringify5(start, end, options) === false;
+      let toNumber = padded === false && stringify6(start, end, options) === false;
       let format = options.transform || transform(toNumber);
       if (options.toRegex && step === 1) {
         return toRange(toMaxLen(start, maxLen), toMaxLen(end, maxLen), true, options);
@@ -906,7 +906,7 @@ var require_expand = __commonJS({
   "node_modules/braces/lib/expand.js"(exports2, module2) {
     "use strict";
     var fill = require_fill_range();
-    var stringify5 = require_stringify();
+    var stringify6 = require_stringify();
     var utils = require_utils();
     var append = (queue = "", stash = "", enclose = false) => {
       const result = [];
@@ -941,7 +941,7 @@ var require_expand = __commonJS({
           q = p2.queue;
         }
         if (node.invalid || node.dollar) {
-          q.push(append(q.pop(), stringify5(node, options)));
+          q.push(append(q.pop(), stringify6(node, options)));
           return;
         }
         if (node.type === "brace" && node.invalid !== true && node.nodes.length === 2) {
@@ -955,7 +955,7 @@ var require_expand = __commonJS({
           }
           let range = fill(...args, options);
           if (range.length === 0) {
-            range = stringify5(node, options);
+            range = stringify6(node, options);
           }
           q.push(append(q.pop(), range));
           node.nodes = [];
@@ -1100,7 +1100,7 @@ var require_constants = __commonJS({
 var require_parse = __commonJS({
   "node_modules/braces/lib/parse.js"(exports2, module2) {
     "use strict";
-    var stringify5 = require_stringify();
+    var stringify6 = require_stringify();
     var {
       MAX_LENGTH,
       CHAR_BACKSLASH,
@@ -1130,7 +1130,7 @@ var require_parse = __commonJS({
       CHAR_NO_BREAK_SPACE,
       CHAR_ZERO_WIDTH_NOBREAK_SPACE
     } = require_constants();
-    var parse3 = (input, options = {}) => {
+    var parse4 = (input, options = {}) => {
       if (typeof input !== "string") {
         throw new TypeError("Expected a string");
       }
@@ -1272,7 +1272,7 @@ var require_parse = __commonJS({
           if (block.ranges > 0) {
             block.ranges = 0;
             const open = block.nodes.shift();
-            block.nodes = [open, { type: "text", value: stringify5(block) }];
+            block.nodes = [open, { type: "text", value: stringify6(block) }];
           }
           push({ type: "comma", value });
           block.commas++;
@@ -1330,7 +1330,7 @@ var require_parse = __commonJS({
       push({ type: "eos" });
       return ast;
     };
-    module2.exports = parse3;
+    module2.exports = parse4;
   }
 });
 
@@ -1338,10 +1338,10 @@ var require_parse = __commonJS({
 var require_braces = __commonJS({
   "node_modules/braces/index.js"(exports2, module2) {
     "use strict";
-    var stringify5 = require_stringify();
+    var stringify6 = require_stringify();
     var compile = require_compile();
     var expand = require_expand();
-    var parse3 = require_parse();
+    var parse4 = require_parse();
     var braces = (input, options = {}) => {
       let output = [];
       if (Array.isArray(input)) {
@@ -1361,12 +1361,12 @@ var require_braces = __commonJS({
       }
       return output;
     };
-    braces.parse = (input, options = {}) => parse3(input, options);
+    braces.parse = (input, options = {}) => parse4(input, options);
     braces.stringify = (input, options = {}) => {
       if (typeof input === "string") {
-        return stringify5(braces.parse(input, options), options);
+        return stringify6(braces.parse(input, options), options);
       }
-      return stringify5(input, options);
+      return stringify6(input, options);
     };
     braces.compile = (input, options = {}) => {
       if (typeof input === "string") {
@@ -2013,7 +2013,7 @@ var require_parse2 = __commonJS({
     var syntaxError = (type, char) => {
       return `Missing ${type}: "${char}" - use "\\\\${char}" to match literal characters`;
     };
-    var parse3 = (input, options) => {
+    var parse4 = (input, options) => {
       if (typeof input !== "string") {
         throw new TypeError("Expected a string");
       }
@@ -2162,7 +2162,7 @@ var require_parse2 = __commonJS({
             output = token.close = `)$))${extglobStar}`;
           }
           if (token.inner.includes("*") && (rest = remaining()) && /^\.[^\\/.]+$/.test(rest)) {
-            const expression = parse3(rest, __spreadProps(__spreadValues({}, options), { fastpaths: false })).output;
+            const expression = parse4(rest, __spreadProps(__spreadValues({}, options), { fastpaths: false })).output;
             output = token.close = `)${expression})${extglobStar})`;
           }
           if (token.prev.type === "bos") {
@@ -2687,7 +2687,7 @@ var require_parse2 = __commonJS({
       }
       return state;
     };
-    parse3.fastpaths = (input, options) => {
+    parse4.fastpaths = (input, options) => {
       const opts = __spreadValues({}, options);
       const max = typeof opts.maxLength === "number" ? Math.min(MAX_LENGTH, opts.maxLength) : MAX_LENGTH;
       const len = input.length;
@@ -2753,7 +2753,7 @@ var require_parse2 = __commonJS({
       }
       return source;
     };
-    module2.exports = parse3;
+    module2.exports = parse4;
   }
 });
 
@@ -2763,7 +2763,7 @@ var require_picomatch = __commonJS({
     "use strict";
     var path3 = require("path");
     var scan = require_scan();
-    var parse3 = require_parse2();
+    var parse4 = require_parse2();
     var utils = require_utils2();
     var constants = require_constants2();
     var isObject = (val) => val && typeof val === "object" && !Array.isArray(val);
@@ -2851,7 +2851,7 @@ var require_picomatch = __commonJS({
     picomatch.isMatch = (str, patterns, options) => picomatch(patterns, options)(str);
     picomatch.parse = (pattern, options) => {
       if (Array.isArray(pattern)) return pattern.map((p2) => picomatch.parse(p2, options));
-      return parse3(pattern, __spreadProps(__spreadValues({}, options), { fastpaths: false }));
+      return parse4(pattern, __spreadProps(__spreadValues({}, options), { fastpaths: false }));
     };
     picomatch.scan = (input, options) => scan(input, options);
     picomatch.compileRe = (state, options, returnOutput = false, returnState = false) => {
@@ -2877,10 +2877,10 @@ var require_picomatch = __commonJS({
       }
       let parsed = { negated: false, fastpaths: true };
       if (options.fastpaths !== false && (input[0] === "." || input[0] === "*")) {
-        parsed.output = parse3.fastpaths(input, options);
+        parsed.output = parse4.fastpaths(input, options);
       }
       if (!parsed.output) {
-        parsed = parse3(input, options);
+        parsed = parse4(input, options);
       }
       return picomatch.compileRe(parsed, options, returnOutput, returnState);
     };
@@ -7863,7 +7863,7 @@ var require_ensure = __commonJS({
 var require_utils6 = __commonJS({
   "node_modules/jsonfile/utils.js"(exports2, module2) {
     "use strict";
-    function stringify5(obj, { EOL = "\n", finalEOL = true, replacer = null, spaces } = {}) {
+    function stringify6(obj, { EOL = "\n", finalEOL = true, replacer = null, spaces } = {}) {
       const EOF = finalEOL ? EOL : "";
       const str = JSON.stringify(obj, replacer, spaces);
       return str.replace(/\n/g, EOL) + EOF;
@@ -7872,7 +7872,7 @@ var require_utils6 = __commonJS({
       if (Buffer.isBuffer(content)) content = content.toString("utf8");
       return content.replace(/^\uFEFF/, "");
     }
-    module2.exports = { stringify: stringify5, stripBom };
+    module2.exports = { stringify: stringify6, stripBom };
   }
 });
 
@@ -7887,7 +7887,7 @@ var require_jsonfile = __commonJS({
       _fs2 = require("fs");
     }
     var universalify = require_universalify();
-    var { stringify: stringify5, stripBom } = require_utils6();
+    var { stringify: stringify6, stripBom } = require_utils6();
     function _readFile(_0) {
       return __async(this, arguments, function* (file, options = {}) {
         if (typeof options === "string") {
@@ -7934,14 +7934,14 @@ var require_jsonfile = __commonJS({
     function _writeFile(_0, _1) {
       return __async(this, arguments, function* (file, obj, options = {}) {
         const fs6 = options.fs || _fs2;
-        const str = stringify5(obj, options);
+        const str = stringify6(obj, options);
         yield universalify.fromCallback(fs6.writeFile)(file, str, options);
       });
     }
     var writeFile = universalify.fromPromise(_writeFile);
     function writeFileSync(file, obj, options = {}) {
       const fs6 = options.fs || _fs2;
-      const str = stringify5(obj, options);
+      const str = stringify6(obj, options);
       return fs6.writeFileSync(file, str, options);
     }
     var jsonfile = {
@@ -8005,11 +8005,11 @@ var require_output_file = __commonJS({
 var require_output_json = __commonJS({
   "node_modules/fs-extra/lib/json/output-json.js"(exports2, module2) {
     "use strict";
-    var { stringify: stringify5 } = require_utils6();
+    var { stringify: stringify6 } = require_utils6();
     var { outputFile } = require_output_file();
     function outputJson(_0, _1) {
       return __async(this, arguments, function* (file, data, options = {}) {
-        const str = stringify5(data, options);
+        const str = stringify6(data, options);
         yield outputFile(file, str, options);
       });
     }
@@ -8021,10 +8021,10 @@ var require_output_json = __commonJS({
 var require_output_json_sync = __commonJS({
   "node_modules/fs-extra/lib/json/output-json-sync.js"(exports2, module2) {
     "use strict";
-    var { stringify: stringify5 } = require_utils6();
+    var { stringify: stringify6 } = require_utils6();
     var { outputFileSync } = require_output_file();
     function outputJsonSync(file, data, options) {
-      const str = stringify5(data, options);
+      const str = stringify6(data, options);
       outputFileSync(file, str, options);
     }
     module2.exports = outputJsonSync;
@@ -12273,6 +12273,7 @@ var require_minimist = __commonJS({
 // src/vendor-extra.ts
 var vendor_extra_exports = {};
 __export(vendor_extra_exports, {
+  MAML: () => MAML,
   YAML: () => YAML,
   createRequire: () => createRequire,
   depseek: () => depseek,
@@ -14617,8 +14618,8 @@ var Pair = class _Pair {
 function stringifyCollection(collection, ctx, options) {
   var _a2;
   const flow = (_a2 = ctx.inFlow) != null ? _a2 : collection.flow;
-  const stringify5 = flow ? stringifyFlowCollection : stringifyBlockCollection;
-  return stringify5(collection, ctx, options);
+  const stringify6 = flow ? stringifyFlowCollection : stringifyBlockCollection;
+  return stringify6(collection, ctx, options);
 }
 function stringifyBlockCollection({ comment, items }, ctx, { blockItemPrefix, flowChars, itemIndent, onChompKeep, onComment }) {
   const { indent, options: { commentString } } = ctx;
@@ -19562,6 +19563,418 @@ function stringify3(value, replacer, options) {
 // node_modules/yaml/browser/index.js
 var browser_default = dist_exports;
 
+// node_modules/maml.js/build/index.js
+var build_exports = {};
+__export(build_exports, {
+  parse: () => parse2,
+  stringify: () => stringify4
+});
+
+// node_modules/maml.js/build/parse.js
+function parse2(source) {
+  if (typeof source !== "string")
+    throw TypeError("Source must be a string");
+  let pos = 0, lineNumber = 1, ch, done = false;
+  next();
+  const value = parseValue();
+  skipWhitespace();
+  if (!done) {
+    throw new SyntaxError(errorSnippet());
+  }
+  expectValue(value);
+  return value;
+  function next() {
+    if (pos < source.length) {
+      ch = source[pos];
+      pos++;
+    } else {
+      ch = "";
+      done = true;
+    }
+    if (ch === "\n") {
+      lineNumber++;
+    }
+  }
+  function lookahead2() {
+    return source.substring(pos, pos + 2);
+  }
+  function parseValue() {
+    var _a2, _b2, _c, _d, _e, _f, _g;
+    skipWhitespace();
+    return (_g = (_f = (_e = (_d = (_c = (_b2 = (_a2 = parseMultilineString()) != null ? _a2 : parseString()) != null ? _b2 : parseNumber()) != null ? _c : parseObject()) != null ? _d : parseArray()) != null ? _e : parseKeyword("true", true)) != null ? _f : parseKeyword("false", false)) != null ? _g : parseKeyword("null", null);
+  }
+  function parseString() {
+    if (ch !== '"')
+      return;
+    let str = "";
+    let escaped = false;
+    while (true) {
+      next();
+      if (escaped) {
+        if (ch === "u") {
+          next();
+          if (ch !== "{") {
+            throw new SyntaxError(errorSnippet(errorMap.u + " " + JSON.stringify(ch) + ' (expected "{")'));
+          }
+          let hex = "";
+          while (true) {
+            next();
+            if (ch === "}")
+              break;
+            if (!isHexDigit(ch)) {
+              throw new SyntaxError(errorSnippet(errorMap.u + " " + JSON.stringify(ch)));
+            }
+            hex += ch;
+            if (hex.length > 6) {
+              throw new SyntaxError(errorSnippet(errorMap.u + " (too many hex digits)"));
+            }
+          }
+          if (hex.length === 0) {
+            throw new SyntaxError(errorSnippet(errorMap.u));
+          }
+          const codePoint = parseInt(hex, 16);
+          if (codePoint > 1114111) {
+            throw new SyntaxError(errorSnippet(errorMap.u + " (out of range)"));
+          }
+          str += String.fromCodePoint(codePoint);
+        } else {
+          const escapedChar = escapeMap[ch];
+          if (!escapedChar) {
+            throw new SyntaxError(errorSnippet(errorMap.u + " " + JSON.stringify(ch)));
+          }
+          str += escapedChar;
+        }
+        escaped = false;
+      } else if (ch === "\\") {
+        escaped = true;
+      } else if (ch === '"') {
+        break;
+      } else if (ch === "\n") {
+        throw new SyntaxError(errorSnippet(`Use """ for multiline strings or escape newlines with "\\n"`));
+      } else if (ch < "") {
+        throw new SyntaxError(errorSnippet(`Unescaped control character ${JSON.stringify(ch)}`));
+      } else {
+        str += ch;
+      }
+    }
+    next();
+    return str;
+  }
+  function parseMultilineString() {
+    if (ch !== '"' || lookahead2() !== '""')
+      return;
+    next();
+    next();
+    next();
+    let hasLeadingNewline = false;
+    if (ch === "\n") {
+      hasLeadingNewline = true;
+      next();
+    }
+    let str = "";
+    while (!done) {
+      if (ch === '"' && lookahead2() === '""') {
+        next();
+        next();
+        next();
+        if (str === "" && !hasLeadingNewline) {
+          throw new SyntaxError(errorSnippet("Multiline strings cannot be empty"));
+        }
+        return str;
+      }
+      str += ch;
+      next();
+    }
+    throw new SyntaxError(errorSnippet());
+  }
+  function parseNumber() {
+    if (!isDigit(ch) && ch !== "-")
+      return;
+    let numStr = "";
+    let float3 = false;
+    if (ch === "-") {
+      numStr += ch;
+      next();
+      if (!isDigit(ch)) {
+        throw new SyntaxError(errorSnippet());
+      }
+    }
+    if (ch === "0") {
+      numStr += ch;
+      next();
+    } else {
+      while (isDigit(ch)) {
+        numStr += ch;
+        next();
+      }
+    }
+    if (ch === ".") {
+      float3 = true;
+      numStr += ch;
+      next();
+      if (!isDigit(ch)) {
+        throw new SyntaxError(errorSnippet());
+      }
+      while (isDigit(ch)) {
+        numStr += ch;
+        next();
+      }
+    }
+    if (ch === "e" || ch === "E") {
+      float3 = true;
+      numStr += ch;
+      next();
+      if (ch === "+" || ch === "-") {
+        numStr += ch;
+        next();
+      }
+      if (!isDigit(ch)) {
+        throw new SyntaxError(errorSnippet());
+      }
+      while (isDigit(ch)) {
+        numStr += ch;
+        next();
+      }
+    }
+    return float3 ? parseFloat(numStr) : toSafeNumber(numStr);
+  }
+  function parseObject() {
+    if (ch !== "{")
+      return;
+    next();
+    skipWhitespace();
+    const obj = {};
+    if (ch === "}") {
+      next();
+      return obj;
+    }
+    while (true) {
+      const keyPos = pos;
+      let key;
+      if (ch === '"') {
+        key = parseString();
+      } else {
+        key = parseKey();
+      }
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        pos = keyPos;
+        throw new SyntaxError(errorSnippet(`Duplicate key ${JSON.stringify(key)}`));
+      }
+      skipWhitespace();
+      if (ch !== ":") {
+        throw new SyntaxError(errorSnippet());
+      }
+      next();
+      const value2 = parseValue();
+      expectValue(value2);
+      obj[key] = value2;
+      const newlineAfterValue = skipWhitespace();
+      if (ch === "}") {
+        next();
+        return obj;
+      } else if (ch === ",") {
+        next();
+        skipWhitespace();
+        if (ch === "}") {
+          next();
+          return obj;
+        }
+      } else if (newlineAfterValue) {
+        continue;
+      } else {
+        throw new SyntaxError(errorSnippet("Expected comma or newline between key-value pairs"));
+      }
+    }
+  }
+  function parseKey() {
+    let identifier = "";
+    while (isKeyChar(ch)) {
+      identifier += ch;
+      next();
+    }
+    if (identifier === "") {
+      throw new SyntaxError(errorSnippet());
+    }
+    return identifier;
+  }
+  function parseArray() {
+    if (ch !== "[")
+      return;
+    next();
+    skipWhitespace();
+    const array = [];
+    if (ch === "]") {
+      next();
+      return array;
+    }
+    while (true) {
+      const value2 = parseValue();
+      expectValue(value2);
+      array.push(value2);
+      const newLineAfterValue = skipWhitespace();
+      if (ch === "]") {
+        next();
+        return array;
+      } else if (ch === ",") {
+        next();
+        skipWhitespace();
+        if (ch === "]") {
+          next();
+          return array;
+        }
+      } else if (newLineAfterValue) {
+        continue;
+      } else {
+        throw new SyntaxError(errorSnippet("Expected comma or newline between values"));
+      }
+    }
+  }
+  function parseKeyword(name, value2) {
+    if (ch !== name[0])
+      return;
+    for (let i = 1; i < name.length; i++) {
+      next();
+      if (ch !== name[i]) {
+        throw new SyntaxError(errorSnippet());
+      }
+    }
+    next();
+    if (isWhitespace(ch) || ch === "," || ch === "}" || ch === "]" || ch === void 0) {
+      return value2;
+    }
+    throw new SyntaxError(errorSnippet());
+  }
+  function skipWhitespace() {
+    let hasNewline = false;
+    while (isWhitespace(ch)) {
+      hasNewline || (hasNewline = ch === "\n");
+      next();
+    }
+    const hasNewlineAfterComment = skipComment();
+    return hasNewline || hasNewlineAfterComment;
+  }
+  function skipComment() {
+    if (ch === "#") {
+      while (!done && ch !== "\n") {
+        next();
+      }
+      return skipWhitespace();
+    }
+    return false;
+  }
+  function isWhitespace(ch2) {
+    return ch2 === " " || ch2 === "\n" || ch2 === "	" || ch2 === "\r";
+  }
+  function isHexDigit(ch2) {
+    return ch2 >= "0" && ch2 <= "9" || ch2 >= "A" && ch2 <= "F";
+  }
+  function isDigit(ch2) {
+    return ch2 >= "0" && ch2 <= "9";
+  }
+  function isKeyChar(ch2) {
+    return ch2 >= "A" && ch2 <= "Z" || ch2 >= "a" && ch2 <= "z" || ch2 >= "0" && ch2 <= "9" || ch2 === "_" || ch2 === "-";
+  }
+  function toSafeNumber(str) {
+    if (str == "-0")
+      return -0;
+    const num = Number(str);
+    return num >= Number.MIN_SAFE_INTEGER && num <= Number.MAX_SAFE_INTEGER ? num : BigInt(str);
+  }
+  function expectValue(value2) {
+    if (value2 === void 0) {
+      throw new SyntaxError(errorSnippet());
+    }
+  }
+  function errorSnippet(message = `Unexpected character ${JSON.stringify(ch)}`) {
+    if (!ch)
+      message = "Unexpected end of input";
+    const lines = source.substring(pos - 40, pos).split("\n");
+    let lastLine = lines.at(-1) || "";
+    let postfix = source.substring(pos, pos + 40).split("\n", 1).at(0) || "";
+    if (lastLine === "") {
+      lastLine = lines.at(-2) || "";
+      lastLine += " ";
+      lineNumber--;
+      postfix = "";
+    }
+    const snippet = `    ${lastLine}${postfix}
+`;
+    const pointer = `    ${".".repeat(Math.max(0, lastLine.length - 1))}^
+`;
+    return `${message} on line ${lineNumber}.
+
+${snippet}${pointer}`;
+  }
+}
+var escapeMap = {
+  '"': '"',
+  "\\": "\\",
+  n: "\n",
+  r: "\r",
+  t: "	"
+};
+var errorMap = {
+  u: "Invalid escape sequence"
+};
+
+// node_modules/maml.js/build/stringify.js
+function stringify4(value) {
+  return doStringify(value, 0);
+}
+function doStringify(value, level) {
+  const kind = value === null ? "null" : Array.isArray(value) ? "array" : typeof value;
+  switch (kind) {
+    case "string":
+      return JSON.stringify(value);
+    case "boolean":
+    case "bigint":
+    case "number":
+      return `${value}`;
+    case "null":
+    case "undefined":
+      return "null";
+    case "array": {
+      const len = value.length;
+      if (len === 0)
+        return "[]";
+      const childIndent = getIndent(level + 1);
+      const parentIndent = getIndent(level);
+      let out = "[\n";
+      for (let i = 0; i < len; i++) {
+        if (i > 0)
+          out += "\n";
+        out += childIndent + doStringify(value[i], level + 1);
+      }
+      return out + "\n" + parentIndent + "]";
+    }
+    case "object": {
+      const keys = Object.keys(value);
+      const len = keys.length;
+      if (len === 0)
+        return "{}";
+      const childIndent = getIndent(level + 1);
+      const parentIndent = getIndent(level);
+      let out = "{\n";
+      for (let i = 0; i < len; i++) {
+        if (i > 0)
+          out += "\n";
+        const key = keys[i];
+        out += childIndent + doKeyStringify(key) + ": " + doStringify(value[key], level + 1);
+      }
+      return out + "\n" + parentIndent + "}";
+    }
+    default:
+      throw new Error(`Unsupported value type: ${kind}`);
+  }
+}
+var KEY_RE = /^[A-Za-z0-9_-]+$/;
+function doKeyStringify(key) {
+  return KEY_RE.test(key) ? key : JSON.stringify(key);
+}
+function getIndent(level) {
+  return " ".repeat(2 * level);
+}
+
 // src/vendor-extra.ts
 var _fs = __toESM(require_lib(), 1);
 var import_create_require = __toESM(require_create_require(), 1);
@@ -19659,7 +20072,7 @@ var Q3 = "`";
 var KR = /^[a-zA-Z_]\w*$/;
 var SR = /\s/;
 var decoder = new import_node_util3.TextDecoder();
-var parse2 = (content) => {
+var parse3 = (content) => {
   const e = {};
   let k2 = "";
   let b = "";
@@ -19723,11 +20136,11 @@ var formatValue = (v2) => {
   if (!q1 && !q2 && !q3 && !s) return v2;
   if (!q1) return `${Q1}${v2}${Q1}`;
   if (!q2) return `${Q2}${v2}${Q2}`;
-  if (parse2(`V=${Q3}${v2}${Q3}`).V !== v2) throw new Error(`Invalid value: ${v2}`);
+  if (parse3(`V=${Q3}${v2}${Q3}`).V !== v2) throw new Error(`Invalid value: ${v2}`);
   return `${Q3}${v2}${Q3}`;
 };
-var stringify4 = (env) => Object.entries(env).map(([k2, v2]) => `${k2}=${formatValue(v2 || "")}`).join("\n");
-var _load = (read, ...files) => files.reverse().reduce((m2, f2) => Object.assign(m2, parse2(read(import_node_path4.default.resolve(f2)))), {});
+var stringify5 = (env) => Object.entries(env).map(([k2, v2]) => `${k2}=${formatValue(v2 || "")}`).join("\n");
+var _load = (read, ...files) => files.reverse().reduce((m2, f2) => Object.assign(m2, parse3(read(import_node_path4.default.resolve(f2)))), {});
 var load = (...files) => _load((file) => import_node_fs5.default.readFileSync(file, "utf8"), ...files);
 var loadSafe = (...files) => _load(
   (file) => import_node_fs5.default.existsSync(file) ? import_node_fs5.default.readFileSync(file, "utf8") : "",
@@ -19735,7 +20148,7 @@ var loadSafe = (...files) => _load(
 );
 var populate = (env, extra) => Object.assign(env, extra);
 var config = (def = DOTENV, ...files) => populate(process.env, loadSafe(def, ...files));
-var index_default = { parse: parse2, stringify: stringify4, load, loadSafe, config };
+var index_default = { parse: parse3, stringify: stringify5, load, loadSafe, config };
 
 // src/vendor-extra.ts
 var import_internals = require("./internals.cjs");
@@ -19763,12 +20176,14 @@ var depseek = wrap("depseek", depseekSync);
 var dotenv = wrap("dotenv", index_default);
 var fs5 = wrap("fs", _fs);
 var YAML = wrap("YAML", _YAML);
+var MAML = wrap("MAML", build_exports);
 var glob = wrap("glob", _glob);
 var nodeFetch = wrap("nodeFetch", r);
 var minimist = wrap("minimist", import_minimist.default);
 /* c8 ignore next 100 */
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  MAML,
   YAML,
   createRequire,
   depseek,

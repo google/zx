@@ -26,6 +26,7 @@ import {
   type Options as GlobbyOptions,
 } from 'globby'
 import * as _yaml from 'yaml'
+import * as _maml from 'maml.js'
 import * as _fs from 'fs-extra'
 import _createRequire from 'create-require'
 import { fetch as _nodeFetch, AbortController } from 'node-fetch-native'
@@ -126,6 +127,7 @@ export const depseek: typeof _depseek = wrap('depseek', _depseek)
 export const dotenv: typeof _dotenv = wrap('dotenv', _dotenv)
 export const fs: typeof import('fs-extra') = wrap('fs', _fs)
 export const YAML: typeof _YAML = wrap('YAML', _YAML)
+export const MAML: typeof _maml = wrap('MAML', _maml)
 export const glob: typeof _glob = wrap('glob', _glob)
 export const nodeFetch: typeof _nodeFetch = wrap('nodeFetch', _nodeFetch)
 

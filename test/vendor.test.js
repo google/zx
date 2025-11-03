@@ -16,6 +16,7 @@ import assert from 'node:assert'
 import { test, describe } from 'node:test'
 import {
   YAML,
+  MAML,
   minimist,
   which,
   glob,
@@ -23,12 +24,45 @@ import {
 } from '../build/vendor.cjs'
 
 describe('vendor API', () => {
-  test('YAML.parse', () => {
-    assert.deepEqual(YAML.parse('a: b\n'), { a: 'b' })
+  describe('YAML', () => {
+    test('parse()', () => {
+      assert.deepEqual(YAML.parse('a: b\n'), { a: 'b' })
+    })
+    test('stringify()', () => {
+      assert.equal(YAML.stringify({ a: 'b' }), 'a: b\n')
+    })
   })
 
-  test('YAML.stringify', () => {
-    assert.equal(YAML.stringify({ a: 'b' }), 'a: b\n')
+  describe('MAML', () => {
+    test('parse()/stringify()', () => {
+      const maml = `{
+  project: "MAML"
+  tags: [
+    "minimal"
+    "readable"
+  ]
+  spec: {
+    version: 1
+    author: "Anton Medvedev"
+  }
+  notes: """
+This is a multiline string.
+Keeps formatting as‑is.
+"""
+}`
+      const obj = MAML.parse(maml)
+
+      assert.deepEqual(MAML.parse(MAML.stringify(obj)), obj)
+      assert.deepEqual(obj, {
+        project: 'MAML',
+        tags: ['minimal', 'readable'],
+        spec: {
+          version: 1,
+          author: 'Anton Medvedev',
+        },
+        notes: 'This is a multiline string.\nKeeps formatting as‑is.\n',
+      })
+    })
   })
 
   test('globby() works', async () => {

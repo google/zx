@@ -95,6 +95,11 @@ jsonfile@6.1.0
   git@github.com:jprichardson/node-jsonfile.git
   MIT
 
+maml.js@0.0.3
+  Anton Medvedev <anton@medv.io>
+  git+https://github.com/maml-dev/maml.js.git
+  MIT
+
 merge2@1.4.1
   <unknown>
   git@github.com:teambition/merge2.git
