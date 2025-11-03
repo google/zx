@@ -3,7 +3,6 @@
 /// <reference types="node" />
 
 import * as fs from 'fs';
-import * as _maml from 'maml.js';
 import { URL as URL$1 } from 'node:url';
 
 declare type ErrnoException = NodeJS.ErrnoException;
@@ -323,6 +322,8 @@ declare function isDynamicPattern(patterns: string | readonly string[], options?
 declare function isGitIgnored(options?: GitignoreOptions): Promise<GlobbyFilterFunction>;
 declare function isGitIgnoredSync(options?: GitignoreOptions): GlobbyFilterFunction;
 declare function convertPathToPattern(source: string): FastGlob.Pattern;
+declare function parse(source: string): any;
+declare function stringify(value: any): string;
 declare const fetch$1: typeof globalThis.fetch;
 type TCodeRef = {
 	type: string;
@@ -477,6 +478,10 @@ declare namespace minimist$1 {
 	}
 	interface ParsedArgs extends minimist.ParsedArgs {
 	}
+}
+
+declare namespace _maml {
+	export { parse, stringify };
 }
 
 export {
