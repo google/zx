@@ -48,6 +48,6 @@ zx is distributed in several versions, each with its own set of features.
 | `usePwsh`         | ✔️     | ✔️   |
 | `version`         | ✔️     | ️    |
 | `which`           | ✔️     | ✔️   |
-| `whithin`         | ✔️     | ✔️   |
+| `within`          | ✔️     | ✔️   |
 | `YAML`            | ✔️     | ️    |
 | `MAML`            | ✔️     | ️    |
