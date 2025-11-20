@@ -90,7 +90,7 @@ var require_path = __commonJS({
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.convertPosixPathToPattern = exports2.convertWindowsPathToPattern = exports2.convertPathToPattern = exports2.escapePosixPath = exports2.escapeWindowsPath = exports2.escape = exports2.removeLeadingDotSegment = exports2.makeAbsolute = exports2.unixify = void 0;
     var os = require("os");
-    var path3 = require("path");
+    var path5 = require("path");
     var IS_WINDOWS_PLATFORM = os.platform() === "win32";
     var LEADING_DOT_SEGMENT_CHARACTERS_COUNT = 2;
     var POSIX_UNESCAPED_GLOB_SYMBOLS_RE = /(\\?)([()*?[\]{|}]|^!|[!+@](?=\()|\\(?![!()*+?@[\]{|}]))/g;
@@ -102,7 +102,7 @@ var require_path = __commonJS({
     }
     exports2.unixify = unixify;
     function makeAbsolute(cwd, filepath) {
-      return path3.resolve(cwd, filepath);
+      return path5.resolve(cwd, filepath);
     }
     exports2.makeAbsolute = makeAbsolute;
     function removeLeadingDotSegment(entry) {
@@ -1401,7 +1401,7 @@ var require_braces = __commonJS({
 var require_constants2 = __commonJS({
   "node_modules/picomatch/lib/constants.js"(exports2, module2) {
     "use strict";
-    var path3 = require("path");
+    var path5 = require("path");
     var WIN_SLASH = "\\\\/";
     var WIN_NO_SLASH = `[^${WIN_SLASH}]`;
     var DOT_LITERAL = "\\.";
@@ -1570,7 +1570,7 @@ var require_constants2 = __commonJS({
       /* | */
       CHAR_ZERO_WIDTH_NOBREAK_SPACE: 65279,
       /* \uFEFF */
-      SEP: path3.sep,
+      SEP: path5.sep,
       /**
        * Create EXTGLOB_CHARS
        */
@@ -1597,7 +1597,7 @@ var require_constants2 = __commonJS({
 var require_utils2 = __commonJS({
   "node_modules/picomatch/lib/utils.js"(exports2) {
     "use strict";
-    var path3 = require("path");
+    var path5 = require("path");
     var win32 = process.platform === "win32";
     var {
       REGEX_BACKSLASH,
@@ -1626,7 +1626,7 @@ var require_utils2 = __commonJS({
       if (options && typeof options.windows === "boolean") {
         return options.windows;
       }
-      return win32 === true || path3.sep === "\\";
+      return win32 === true || path5.sep === "\\";
     };
     exports2.escapeLast = (input, char, lastIdx) => {
       const idx = input.lastIndexOf(char, lastIdx);
@@ -2761,7 +2761,7 @@ var require_parse2 = __commonJS({
 var require_picomatch = __commonJS({
   "node_modules/picomatch/lib/picomatch.js"(exports2, module2) {
     "use strict";
-    var path3 = require("path");
+    var path5 = require("path");
     var scan = require_scan();
     var parse4 = require_parse2();
     var utils = require_utils2();
@@ -2846,7 +2846,7 @@ var require_picomatch = __commonJS({
     };
     picomatch.matchBase = (input, glob2, options, posix = utils.isWindows(options)) => {
       const regex = glob2 instanceof RegExp ? glob2 : picomatch.makeRe(glob2, options);
-      return regex.test(path3.basename(input));
+      return regex.test(path5.basename(input));
     };
     picomatch.isMatch = (str, patterns, options) => picomatch(patterns, options)(str);
     picomatch.parse = (pattern, options) => {
@@ -3073,7 +3073,7 @@ var require_pattern = __commonJS({
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.isAbsolute = exports2.partitionAbsoluteAndRelative = exports2.removeDuplicateSlashes = exports2.matchAny = exports2.convertPatternsToRe = exports2.makeRe = exports2.getPatternParts = exports2.expandBraceExpansion = exports2.expandPatternsWithBraceExpansion = exports2.isAffectDepthOfReadingPattern = exports2.endsWithSlashGlobStar = exports2.hasGlobStar = exports2.getBaseDirectory = exports2.isPatternRelatedToParentDirectory = exports2.getPatternsOutsideCurrentDirectory = exports2.getPatternsInsideCurrentDirectory = exports2.getPositivePatterns = exports2.getNegativePatterns = exports2.isPositivePattern = exports2.isNegativePattern = exports2.convertToNegativePattern = exports2.convertToPositivePattern = exports2.isDynamicPattern = exports2.isStaticPattern = void 0;
-    var path3 = require("path");
+    var path5 = require("path");
     var globParent = require_glob_parent();
     var micromatch = require_micromatch();
     var GLOBSTAR = "**";
@@ -3168,7 +3168,7 @@ var require_pattern = __commonJS({
     }
     exports2.endsWithSlashGlobStar = endsWithSlashGlobStar;
     function isAffectDepthOfReadingPattern(pattern) {
-      const basename = path3.basename(pattern);
+      const basename = path5.basename(pattern);
       return endsWithSlashGlobStar(pattern) || isStaticPattern(basename);
     }
     exports2.isAffectDepthOfReadingPattern = isAffectDepthOfReadingPattern;
@@ -3226,7 +3226,7 @@ var require_pattern = __commonJS({
     }
     exports2.partitionAbsoluteAndRelative = partitionAbsoluteAndRelative;
     function isAbsolute(pattern) {
-      return path3.isAbsolute(pattern);
+      return path5.isAbsolute(pattern);
     }
     exports2.isAbsolute = isAbsolute;
   }
@@ -3403,8 +3403,8 @@ var require_utils3 = __commonJS({
     exports2.errno = errno;
     var fs6 = require_fs();
     exports2.fs = fs6;
-    var path3 = require_path();
-    exports2.path = path3;
+    var path5 = require_path();
+    exports2.path = path5;
     var pattern = require_pattern();
     exports2.pattern = pattern;
     var stream = require_stream();
@@ -3516,8 +3516,8 @@ var require_async = __commonJS({
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.read = void 0;
-    function read(path3, settings, callback) {
-      settings.fs.lstat(path3, (lstatError, lstat) => {
+    function read(path5, settings, callback) {
+      settings.fs.lstat(path5, (lstatError, lstat) => {
         if (lstatError !== null) {
           callFailureCallback(callback, lstatError);
           return;
@@ -3526,7 +3526,7 @@ var require_async = __commonJS({
           callSuccessCallback(callback, lstat);
           return;
         }
-        settings.fs.stat(path3, (statError, stat) => {
+        settings.fs.stat(path5, (statError, stat) => {
           if (statError !== null) {
             if (settings.throwErrorOnBrokenSymbolicLink) {
               callFailureCallback(callback, statError);
@@ -3558,13 +3558,13 @@ var require_sync = __commonJS({
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.read = void 0;
-    function read(path3, settings) {
-      const lstat = settings.fs.lstatSync(path3);
+    function read(path5, settings) {
+      const lstat = settings.fs.lstatSync(path5);
       if (!lstat.isSymbolicLink() || !settings.followSymbolicLink) {
         return lstat;
       }
       try {
-        const stat = settings.fs.statSync(path3);
+        const stat = settings.fs.statSync(path5);
         if (settings.markSymbolicLink) {
           stat.isSymbolicLink = () => true;
         }
@@ -3635,17 +3635,17 @@ var require_out = __commonJS({
     var sync = require_sync();
     var settings_1 = require_settings();
     exports2.Settings = settings_1.default;
-    function stat(path3, optionsOrSettingsOrCallback, callback) {
+    function stat(path5, optionsOrSettingsOrCallback, callback) {
       if (typeof optionsOrSettingsOrCallback === "function") {
-        async.read(path3, getSettings(), optionsOrSettingsOrCallback);
+        async.read(path5, getSettings(), optionsOrSettingsOrCallback);
         return;
       }
-      async.read(path3, getSettings(optionsOrSettingsOrCallback), callback);
+      async.read(path5, getSettings(optionsOrSettingsOrCallback), callback);
     }
     exports2.stat = stat;
-    function statSync(path3, optionsOrSettings) {
+    function statSync(path5, optionsOrSettings) {
       const settings = getSettings(optionsOrSettings);
-      return sync.read(path3, settings);
+      return sync.read(path5, settings);
     }
     exports2.statSync = statSync;
     function getSettings(settingsOrOptions = {}) {
@@ -3863,16 +3863,16 @@ var require_async2 = __commonJS({
           return;
         }
         const tasks = names.map((name) => {
-          const path3 = common.joinPathSegments(directory, name, settings.pathSegmentSeparator);
+          const path5 = common.joinPathSegments(directory, name, settings.pathSegmentSeparator);
           return (done) => {
-            fsStat.stat(path3, settings.fsStatSettings, (error, stats) => {
+            fsStat.stat(path5, settings.fsStatSettings, (error, stats) => {
               if (error !== null) {
                 done(error);
                 return;
               }
               const entry = {
                 name,
-                path: path3,
+                path: path5,
                 dirent: utils.fs.createDirentFromStats(name, stats)
               };
               if (settings.stats) {
@@ -3990,7 +3990,7 @@ var require_settings2 = __commonJS({
   "node_modules/@nodelib/fs.scandir/out/settings.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
-    var path3 = require("path");
+    var path5 = require("path");
     var fsStat = require_out();
     var fs6 = require_fs4();
     var Settings = class {
@@ -3998,7 +3998,7 @@ var require_settings2 = __commonJS({
         this._options = _options;
         this.followSymbolicLinks = this._getValue(this._options.followSymbolicLinks, false);
         this.fs = fs6.createFileSystemAdapter(this._options.fs);
-        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path3.sep);
+        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path5.sep);
         this.stats = this._getValue(this._options.stats, false);
         this.throwErrorOnBrokenSymbolicLink = this._getValue(this._options.throwErrorOnBrokenSymbolicLink, true);
         this.fsStatSettings = new fsStat.Settings({
@@ -4025,17 +4025,17 @@ var require_out2 = __commonJS({
     var sync = require_sync2();
     var settings_1 = require_settings2();
     exports2.Settings = settings_1.default;
-    function scandir(path3, optionsOrSettingsOrCallback, callback) {
+    function scandir(path5, optionsOrSettingsOrCallback, callback) {
       if (typeof optionsOrSettingsOrCallback === "function") {
-        async.read(path3, getSettings(), optionsOrSettingsOrCallback);
+        async.read(path5, getSettings(), optionsOrSettingsOrCallback);
         return;
       }
-      async.read(path3, getSettings(optionsOrSettingsOrCallback), callback);
+      async.read(path5, getSettings(optionsOrSettingsOrCallback), callback);
     }
     exports2.scandir = scandir;
-    function scandirSync(path3, optionsOrSettings) {
+    function scandirSync(path5, optionsOrSettings) {
       const settings = getSettings(optionsOrSettings);
-      return sync.read(path3, settings);
+      return sync.read(path5, settings);
     }
     exports2.scandirSync = scandirSync;
     function getSettings(settingsOrOptions = {}) {
@@ -4659,7 +4659,7 @@ var require_settings3 = __commonJS({
   "node_modules/@nodelib/fs.walk/out/settings.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
-    var path3 = require("path");
+    var path5 = require("path");
     var fsScandir = require_out2();
     var Settings = class {
       constructor(_options = {}) {
@@ -4669,7 +4669,7 @@ var require_settings3 = __commonJS({
         this.deepFilter = this._getValue(this._options.deepFilter, null);
         this.entryFilter = this._getValue(this._options.entryFilter, null);
         this.errorFilter = this._getValue(this._options.errorFilter, null);
-        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path3.sep);
+        this.pathSegmentSeparator = this._getValue(this._options.pathSegmentSeparator, path5.sep);
         this.fsScandirSettings = new fsScandir.Settings({
           followSymbolicLinks: this._options.followSymbolicLinks,
           fs: this._options.fs,
@@ -4731,7 +4731,7 @@ var require_reader2 = __commonJS({
   "node_modules/fast-glob/out/readers/reader.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
-    var path3 = require("path");
+    var path5 = require("path");
     var fsStat = require_out();
     var utils = require_utils3();
     var Reader = class {
@@ -4744,7 +4744,7 @@ var require_reader2 = __commonJS({
         });
       }
       _getFullEntryPath(filepath) {
-        return path3.resolve(this._settings.cwd, filepath);
+        return path5.resolve(this._settings.cwd, filepath);
       }
       _makeEntry(stats, pattern) {
         const entry = {
@@ -5162,7 +5162,7 @@ var require_provider = __commonJS({
   "node_modules/fast-glob/out/providers/provider.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
-    var path3 = require("path");
+    var path5 = require("path");
     var deep_1 = require_deep();
     var entry_1 = require_entry();
     var error_1 = require_error();
@@ -5176,7 +5176,7 @@ var require_provider = __commonJS({
         this.entryTransformer = new entry_2.default(this._settings);
       }
       _getRootDirectory(task) {
-        return path3.resolve(this._settings.cwd, task.base);
+        return path5.resolve(this._settings.cwd, task.base);
       }
       _getReaderOptions(task) {
         const basePath = task.base === "." ? "" : task.base;
@@ -5814,7 +5814,7 @@ var require_ignore = __commonJS({
       //   path matching.
       // - check `string` either `MODE_IGNORE` or `MODE_CHECK_IGNORE`
       // @returns {TestResult} true if a file is ignored
-      test(path3, checkUnignored, mode) {
+      test(path5, checkUnignored, mode) {
         let ignored = false;
         let unignored = false;
         let matchedRule;
@@ -5823,7 +5823,7 @@ var require_ignore = __commonJS({
           if (unignored === negative && ignored !== unignored || negative && !ignored && !unignored && !checkUnignored) {
             return;
           }
-          const matched = rule[mode].test(path3);
+          const matched = rule[mode].test(path5);
           if (!matched) {
             return;
           }
@@ -5844,17 +5844,17 @@ var require_ignore = __commonJS({
     var throwError = (message, Ctor) => {
       throw new Ctor(message);
     };
-    var checkPath = (path3, originalPath, doThrow) => {
-      if (!isString(path3)) {
+    var checkPath = (path5, originalPath, doThrow) => {
+      if (!isString(path5)) {
         return doThrow(
           `path must be a string, but got \`${originalPath}\``,
           TypeError
         );
       }
-      if (!path3) {
+      if (!path5) {
         return doThrow(`path must not be empty`, TypeError);
       }
-      if (checkPath.isNotRelative(path3)) {
+      if (checkPath.isNotRelative(path5)) {
         const r2 = "`path.relative()`d";
         return doThrow(
           `path should be a ${r2} string, but got "${originalPath}"`,
@@ -5863,7 +5863,7 @@ var require_ignore = __commonJS({
       }
       return true;
     };
-    var isNotRelative = (path3) => REGEX_TEST_INVALID_PATH.test(path3);
+    var isNotRelative = (path5) => REGEX_TEST_INVALID_PATH.test(path5);
     checkPath.isNotRelative = isNotRelative;
     checkPath.convert = (p2) => p2;
     var Ignore = class {
@@ -5893,19 +5893,19 @@ var require_ignore = __commonJS({
       }
       // @returns {TestResult}
       _test(originalPath, cache, checkUnignored, slices) {
-        const path3 = originalPath && checkPath.convert(originalPath);
+        const path5 = originalPath && checkPath.convert(originalPath);
         checkPath(
-          path3,
+          path5,
           originalPath,
           this._strictPathCheck ? throwError : RETURN_FALSE
         );
-        return this._t(path3, cache, checkUnignored, slices);
+        return this._t(path5, cache, checkUnignored, slices);
       }
-      checkIgnore(path3) {
-        if (!REGEX_TEST_TRAILING_SLASH.test(path3)) {
-          return this.test(path3);
+      checkIgnore(path5) {
+        if (!REGEX_TEST_TRAILING_SLASH.test(path5)) {
+          return this.test(path5);
         }
-        const slices = path3.split(SLASH).filter(Boolean);
+        const slices = path5.split(SLASH).filter(Boolean);
         slices.pop();
         if (slices.length) {
           const parent = this._t(
@@ -5918,18 +5918,18 @@ var require_ignore = __commonJS({
             return parent;
           }
         }
-        return this._rules.test(path3, false, MODE_CHECK_IGNORE);
+        return this._rules.test(path5, false, MODE_CHECK_IGNORE);
       }
-      _t(path3, cache, checkUnignored, slices) {
-        if (path3 in cache) {
-          return cache[path3];
+      _t(path5, cache, checkUnignored, slices) {
+        if (path5 in cache) {
+          return cache[path5];
         }
         if (!slices) {
-          slices = path3.split(SLASH).filter(Boolean);
+          slices = path5.split(SLASH).filter(Boolean);
         }
         slices.pop();
         if (!slices.length) {
-          return cache[path3] = this._rules.test(path3, checkUnignored, MODE_IGNORE);
+          return cache[path5] = this._rules.test(path5, checkUnignored, MODE_IGNORE);
         }
         const parent = this._t(
           slices.join(SLASH) + SLASH,
@@ -5937,29 +5937,29 @@ var require_ignore = __commonJS({
           checkUnignored,
           slices
         );
-        return cache[path3] = parent.ignored ? parent : this._rules.test(path3, checkUnignored, MODE_IGNORE);
+        return cache[path5] = parent.ignored ? parent : this._rules.test(path5, checkUnignored, MODE_IGNORE);
       }
-      ignores(path3) {
-        return this._test(path3, this._ignoreCache, false).ignored;
+      ignores(path5) {
+        return this._test(path5, this._ignoreCache, false).ignored;
       }
       createFilter() {
-        return (path3) => !this.ignores(path3);
+        return (path5) => !this.ignores(path5);
       }
       filter(paths) {
         return makeArray(paths).filter(this.createFilter());
       }
       // @returns {TestResult}
-      test(path3) {
-        return this._test(path3, this._testCache, true);
+      test(path5) {
+        return this._test(path5, this._testCache, true);
       }
     };
     var factory = (options) => new Ignore(options);
-    var isPathValid = (path3) => checkPath(path3 && checkPath.convert(path3), path3, RETURN_FALSE);
+    var isPathValid = (path5) => checkPath(path5 && checkPath.convert(path5), path5, RETURN_FALSE);
     var setupWindows = () => {
       const makePosix = (str) => /^\\\\\?\\/.test(str) || /["<>|\u0000-\u001F]+/u.test(str) ? str : str.replace(/\\/g, "/");
       checkPath.convert = makePosix;
       const REGEX_TEST_WINDOWS_PATH_ABSOLUTE = /^[a-z]:\//i;
-      checkPath.isNotRelative = (path3) => REGEX_TEST_WINDOWS_PATH_ABSOLUTE.test(path3) || isNotRelative(path3);
+      checkPath.isNotRelative = (path5) => REGEX_TEST_WINDOWS_PATH_ABSOLUTE.test(path5) || isNotRelative(path5);
     };
     if (
       // Detect `process` so that it can run in browsers.
@@ -6055,14 +6055,14 @@ var require_polyfills = __commonJS({
       fs6.fstatSync = statFixSync(fs6.fstatSync);
       fs6.lstatSync = statFixSync(fs6.lstatSync);
       if (fs6.chmod && !fs6.lchmod) {
-        fs6.lchmod = function(path3, mode, cb) {
+        fs6.lchmod = function(path5, mode, cb) {
           if (cb) process.nextTick(cb);
         };
         fs6.lchmodSync = function() {
         };
       }
       if (fs6.chown && !fs6.lchown) {
-        fs6.lchown = function(path3, uid, gid, cb) {
+        fs6.lchown = function(path5, uid, gid, cb) {
           if (cb) process.nextTick(cb);
         };
         fs6.lchownSync = function() {
@@ -6129,9 +6129,9 @@ var require_polyfills = __commonJS({
         };
       })(fs6.readSync);
       function patchLchmod(fs7) {
-        fs7.lchmod = function(path3, mode, callback) {
+        fs7.lchmod = function(path5, mode, callback) {
           fs7.open(
-            path3,
+            path5,
             constants.O_WRONLY | constants.O_SYMLINK,
             mode,
             function(err, fd) {
@@ -6147,8 +6147,8 @@ var require_polyfills = __commonJS({
             }
           );
         };
-        fs7.lchmodSync = function(path3, mode) {
-          var fd = fs7.openSync(path3, constants.O_WRONLY | constants.O_SYMLINK, mode);
+        fs7.lchmodSync = function(path5, mode) {
+          var fd = fs7.openSync(path5, constants.O_WRONLY | constants.O_SYMLINK, mode);
           var threw = true;
           var ret;
           try {
@@ -6169,8 +6169,8 @@ var require_polyfills = __commonJS({
       }
       function patchLutimes(fs7) {
         if (constants.hasOwnProperty("O_SYMLINK") && fs7.futimes) {
-          fs7.lutimes = function(path3, at, mt2, cb) {
-            fs7.open(path3, constants.O_SYMLINK, function(er, fd) {
+          fs7.lutimes = function(path5, at, mt2, cb) {
+            fs7.open(path5, constants.O_SYMLINK, function(er, fd) {
               if (er) {
                 if (cb) cb(er);
                 return;
@@ -6182,8 +6182,8 @@ var require_polyfills = __commonJS({
               });
             });
           };
-          fs7.lutimesSync = function(path3, at, mt2) {
-            var fd = fs7.openSync(path3, constants.O_SYMLINK);
+          fs7.lutimesSync = function(path5, at, mt2) {
+            var fd = fs7.openSync(path5, constants.O_SYMLINK);
             var ret;
             var threw = true;
             try {
@@ -6302,11 +6302,11 @@ var require_legacy_streams = __commonJS({
         ReadStream,
         WriteStream
       };
-      function ReadStream(path3, options) {
-        if (!(this instanceof ReadStream)) return new ReadStream(path3, options);
+      function ReadStream(path5, options) {
+        if (!(this instanceof ReadStream)) return new ReadStream(path5, options);
         Stream.call(this);
         var self2 = this;
-        this.path = path3;
+        this.path = path5;
         this.fd = null;
         this.readable = true;
         this.paused = false;
@@ -6351,10 +6351,10 @@ var require_legacy_streams = __commonJS({
           self2._read();
         });
       }
-      function WriteStream(path3, options) {
-        if (!(this instanceof WriteStream)) return new WriteStream(path3, options);
+      function WriteStream(path5, options) {
+        if (!(this instanceof WriteStream)) return new WriteStream(path5, options);
         Stream.call(this);
-        this.path = path3;
+        this.path = path5;
         this.fd = null;
         this.writable = true;
         this.flags = "w";
@@ -6498,14 +6498,14 @@ var require_graceful_fs = __commonJS({
       fs7.createWriteStream = createWriteStream;
       var fs$readFile = fs7.readFile;
       fs7.readFile = readFile;
-      function readFile(path3, options, cb) {
+      function readFile(path5, options, cb) {
         if (typeof options === "function")
           cb = options, options = null;
-        return go$readFile(path3, options, cb);
-        function go$readFile(path4, options2, cb2, startTime) {
-          return fs$readFile(path4, options2, function(err) {
+        return go$readFile(path5, options, cb);
+        function go$readFile(path6, options2, cb2, startTime) {
+          return fs$readFile(path6, options2, function(err) {
             if (err && (err.code === "EMFILE" || err.code === "ENFILE"))
-              enqueue([go$readFile, [path4, options2, cb2], err, startTime || Date.now(), Date.now()]);
+              enqueue([go$readFile, [path6, options2, cb2], err, startTime || Date.now(), Date.now()]);
             else {
               if (typeof cb2 === "function")
                 cb2.apply(this, arguments);
@@ -6515,14 +6515,14 @@ var require_graceful_fs = __commonJS({
       }
       var fs$writeFile = fs7.writeFile;
       fs7.writeFile = writeFile;
-      function writeFile(path3, data, options, cb) {
+      function writeFile(path5, data, options, cb) {
         if (typeof options === "function")
           cb = options, options = null;
-        return go$writeFile(path3, data, options, cb);
-        function go$writeFile(path4, data2, options2, cb2, startTime) {
-          return fs$writeFile(path4, data2, options2, function(err) {
+        return go$writeFile(path5, data, options, cb);
+        function go$writeFile(path6, data2, options2, cb2, startTime) {
+          return fs$writeFile(path6, data2, options2, function(err) {
             if (err && (err.code === "EMFILE" || err.code === "ENFILE"))
-              enqueue([go$writeFile, [path4, data2, options2, cb2], err, startTime || Date.now(), Date.now()]);
+              enqueue([go$writeFile, [path6, data2, options2, cb2], err, startTime || Date.now(), Date.now()]);
             else {
               if (typeof cb2 === "function")
                 cb2.apply(this, arguments);
@@ -6533,14 +6533,14 @@ var require_graceful_fs = __commonJS({
       var fs$appendFile = fs7.appendFile;
       if (fs$appendFile)
         fs7.appendFile = appendFile;
-      function appendFile(path3, data, options, cb) {
+      function appendFile(path5, data, options, cb) {
         if (typeof options === "function")
           cb = options, options = null;
-        return go$appendFile(path3, data, options, cb);
-        function go$appendFile(path4, data2, options2, cb2, startTime) {
-          return fs$appendFile(path4, data2, options2, function(err) {
+        return go$appendFile(path5, data, options, cb);
+        function go$appendFile(path6, data2, options2, cb2, startTime) {
+          return fs$appendFile(path6, data2, options2, function(err) {
             if (err && (err.code === "EMFILE" || err.code === "ENFILE"))
-              enqueue([go$appendFile, [path4, data2, options2, cb2], err, startTime || Date.now(), Date.now()]);
+              enqueue([go$appendFile, [path6, data2, options2, cb2], err, startTime || Date.now(), Date.now()]);
             else {
               if (typeof cb2 === "function")
                 cb2.apply(this, arguments);
@@ -6571,31 +6571,31 @@ var require_graceful_fs = __commonJS({
       var fs$readdir = fs7.readdir;
       fs7.readdir = readdir;
       var noReaddirOptionVersions = /^v[0-5]\./;
-      function readdir(path3, options, cb) {
+      function readdir(path5, options, cb) {
         if (typeof options === "function")
           cb = options, options = null;
-        var go$readdir = noReaddirOptionVersions.test(process.version) ? function go$readdir2(path4, options2, cb2, startTime) {
-          return fs$readdir(path4, fs$readdirCallback(
-            path4,
+        var go$readdir = noReaddirOptionVersions.test(process.version) ? function go$readdir2(path6, options2, cb2, startTime) {
+          return fs$readdir(path6, fs$readdirCallback(
+            path6,
             options2,
             cb2,
             startTime
           ));
-        } : function go$readdir2(path4, options2, cb2, startTime) {
-          return fs$readdir(path4, options2, fs$readdirCallback(
-            path4,
+        } : function go$readdir2(path6, options2, cb2, startTime) {
+          return fs$readdir(path6, options2, fs$readdirCallback(
+            path6,
             options2,
             cb2,
             startTime
           ));
         };
-        return go$readdir(path3, options, cb);
-        function fs$readdirCallback(path4, options2, cb2, startTime) {
+        return go$readdir(path5, options, cb);
+        function fs$readdirCallback(path6, options2, cb2, startTime) {
           return function(err, files) {
             if (err && (err.code === "EMFILE" || err.code === "ENFILE"))
               enqueue([
                 go$readdir,
-                [path4, options2, cb2],
+                [path6, options2, cb2],
                 err,
                 startTime || Date.now(),
                 Date.now()
@@ -6666,7 +6666,7 @@ var require_graceful_fs = __commonJS({
         enumerable: true,
         configurable: true
       });
-      function ReadStream(path3, options) {
+      function ReadStream(path5, options) {
         if (this instanceof ReadStream)
           return fs$ReadStream.apply(this, arguments), this;
         else
@@ -6686,7 +6686,7 @@ var require_graceful_fs = __commonJS({
           }
         });
       }
-      function WriteStream(path3, options) {
+      function WriteStream(path5, options) {
         if (this instanceof WriteStream)
           return fs$WriteStream.apply(this, arguments), this;
         else
@@ -6704,22 +6704,22 @@ var require_graceful_fs = __commonJS({
           }
         });
       }
-      function createReadStream(path3, options) {
-        return new fs7.ReadStream(path3, options);
+      function createReadStream(path5, options) {
+        return new fs7.ReadStream(path5, options);
       }
-      function createWriteStream(path3, options) {
-        return new fs7.WriteStream(path3, options);
+      function createWriteStream(path5, options) {
+        return new fs7.WriteStream(path5, options);
       }
       var fs$open = fs7.open;
       fs7.open = open;
-      function open(path3, flags, mode, cb) {
+      function open(path5, flags, mode, cb) {
         if (typeof mode === "function")
           cb = mode, mode = null;
-        return go$open(path3, flags, mode, cb);
-        function go$open(path4, flags2, mode2, cb2, startTime) {
-          return fs$open(path4, flags2, mode2, function(err, fd) {
+        return go$open(path5, flags, mode, cb);
+        function go$open(path6, flags2, mode2, cb2, startTime) {
+          return fs$open(path6, flags2, mode2, function(err, fd) {
             if (err && (err.code === "EMFILE" || err.code === "ENFILE"))
-              enqueue([go$open, [path4, flags2, mode2, cb2], err, startTime || Date.now(), Date.now()]);
+              enqueue([go$open, [path6, flags2, mode2, cb2], err, startTime || Date.now(), Date.now()]);
             else {
               if (typeof cb2 === "function")
                 cb2.apply(this, arguments);
@@ -6902,10 +6902,10 @@ var require_fs5 = __commonJS({
 var require_utils5 = __commonJS({
   "node_modules/fs-extra/lib/mkdirs/utils.js"(exports2, module2) {
     "use strict";
-    var path3 = require("path");
+    var path5 = require("path");
     module2.exports.checkPath = function checkPath(pth) {
       if (process.platform === "win32") {
-        const pathHasInvalidWinCharacters = /[<>:"|?*]/.test(pth.replace(path3.parse(pth).root, ""));
+        const pathHasInvalidWinCharacters = /[<>:"|?*]/.test(pth.replace(path5.parse(pth).root, ""));
         if (pathHasInvalidWinCharacters) {
           const error = new Error(`Path contains invalid characters: ${pth}`);
           error.code = "EINVAL";
@@ -6969,8 +6969,8 @@ var require_path_exists = __commonJS({
     "use strict";
     var u = require_universalify().fromPromise;
     var fs6 = require_fs5();
-    function pathExists(path3) {
-      return fs6.access(path3).then(() => true).catch(() => false);
+    function pathExists(path5) {
+      return fs6.access(path5).then(() => true).catch(() => false);
     }
     module2.exports = {
       pathExists: u(pathExists),
@@ -6985,9 +6985,9 @@ var require_utimes = __commonJS({
     "use strict";
     var fs6 = require_fs5();
     var u = require_universalify().fromPromise;
-    function utimesMillis(path3, atime, mtime) {
+    function utimesMillis(path5, atime, mtime) {
       return __async(this, null, function* () {
-        const fd = yield fs6.open(path3, "r+");
+        const fd = yield fs6.open(path5, "r+");
         let closeErr = null;
         try {
           yield fs6.futimes(fd, atime, mtime);
@@ -7003,8 +7003,8 @@ var require_utimes = __commonJS({
         }
       });
     }
-    function utimesMillisSync(path3, atime, mtime) {
-      const fd = fs6.openSync(path3, "r+");
+    function utimesMillisSync(path5, atime, mtime) {
+      const fd = fs6.openSync(path5, "r+");
       fs6.futimesSync(fd, atime, mtime);
       return fs6.closeSync(fd);
     }
@@ -7020,7 +7020,7 @@ var require_stat = __commonJS({
   "node_modules/fs-extra/lib/util/stat.js"(exports2, module2) {
     "use strict";
     var fs6 = require_fs5();
-    var path3 = require("path");
+    var path5 = require("path");
     var u = require_universalify().fromPromise;
     function getStats(src, dest, opts) {
       const statFunc = opts.dereference ? (file) => fs6.stat(file, { bigint: true }) : (file) => fs6.lstat(file, { bigint: true });
@@ -7049,8 +7049,8 @@ var require_stat = __commonJS({
         const { srcStat, destStat } = yield getStats(src, dest, opts);
         if (destStat) {
           if (areIdentical(srcStat, destStat)) {
-            const srcBaseName = path3.basename(src);
-            const destBaseName = path3.basename(dest);
+            const srcBaseName = path5.basename(src);
+            const destBaseName = path5.basename(dest);
             if (funcName === "move" && srcBaseName !== destBaseName && srcBaseName.toLowerCase() === destBaseName.toLowerCase()) {
               return { srcStat, destStat, isChangingCase: true };
             }
@@ -7073,8 +7073,8 @@ var require_stat = __commonJS({
       const { srcStat, destStat } = getStatsSync(src, dest, opts);
       if (destStat) {
         if (areIdentical(srcStat, destStat)) {
-          const srcBaseName = path3.basename(src);
-          const destBaseName = path3.basename(dest);
+          const srcBaseName = path5.basename(src);
+          const destBaseName = path5.basename(dest);
           if (funcName === "move" && srcBaseName !== destBaseName && srcBaseName.toLowerCase() === destBaseName.toLowerCase()) {
             return { srcStat, destStat, isChangingCase: true };
           }
@@ -7094,9 +7094,9 @@ var require_stat = __commonJS({
     }
     function checkParentPaths(src, srcStat, dest, funcName) {
       return __async(this, null, function* () {
-        const srcParent = path3.resolve(path3.dirname(src));
-        const destParent = path3.resolve(path3.dirname(dest));
-        if (destParent === srcParent || destParent === path3.parse(destParent).root) return;
+        const srcParent = path5.resolve(path5.dirname(src));
+        const destParent = path5.resolve(path5.dirname(dest));
+        if (destParent === srcParent || destParent === path5.parse(destParent).root) return;
         let destStat;
         try {
           destStat = yield fs6.stat(destParent, { bigint: true });
@@ -7111,9 +7111,9 @@ var require_stat = __commonJS({
       });
     }
     function checkParentPathsSync(src, srcStat, dest, funcName) {
-      const srcParent = path3.resolve(path3.dirname(src));
-      const destParent = path3.resolve(path3.dirname(dest));
-      if (destParent === srcParent || destParent === path3.parse(destParent).root) return;
+      const srcParent = path5.resolve(path5.dirname(src));
+      const destParent = path5.resolve(path5.dirname(dest));
+      if (destParent === srcParent || destParent === path5.parse(destParent).root) return;
       let destStat;
       try {
         destStat = fs6.statSync(destParent, { bigint: true });
@@ -7130,8 +7130,8 @@ var require_stat = __commonJS({
       return destStat.ino !== void 0 && destStat.dev !== void 0 && destStat.ino === srcStat.ino && destStat.dev === srcStat.dev;
     }
     function isSrcSubdir(src, dest) {
-      const srcArr = path3.resolve(src).split(path3.sep).filter((i) => i);
-      const destArr = path3.resolve(dest).split(path3.sep).filter((i) => i);
+      const srcArr = path5.resolve(src).split(path5.sep).filter((i) => i);
+      const destArr = path5.resolve(dest).split(path5.sep).filter((i) => i);
       return srcArr.every((cur, i) => destArr[i] === cur);
     }
     function errMsg(src, dest, funcName) {
@@ -7198,7 +7198,7 @@ var require_copy = __commonJS({
   "node_modules/fs-extra/lib/copy/copy.js"(exports2, module2) {
     "use strict";
     var fs6 = require_fs5();
-    var path3 = require("path");
+    var path5 = require("path");
     var { mkdirs } = require_mkdirs();
     var { pathExists } = require_path_exists();
     var { utimesMillis } = require_utimes();
@@ -7222,7 +7222,7 @@ var require_copy = __commonJS({
         yield stat.checkParentPaths(src, srcStat, dest, "copy");
         const include = yield runFilter(src, dest, opts);
         if (!include) return;
-        const destParent = path3.dirname(dest);
+        const destParent = path5.dirname(dest);
         const dirExists = yield pathExists(destParent);
         if (!dirExists) {
           yield mkdirs(destParent);
@@ -7285,8 +7285,8 @@ var require_copy = __commonJS({
           yield fs6.mkdir(dest);
         }
         yield asyncIteratorConcurrentProcess(yield fs6.opendir(src), (item) => __async(null, null, function* () {
-          const srcItem = path3.join(src, item.name);
-          const destItem = path3.join(dest, item.name);
+          const srcItem = path5.join(src, item.name);
+          const destItem = path5.join(dest, item.name);
           const include = yield runFilter(srcItem, destItem, opts);
           if (include) {
             const { destStat: destStat2 } = yield stat.checkPaths(srcItem, destItem, "copy", opts);
@@ -7302,7 +7302,7 @@ var require_copy = __commonJS({
       return __async(this, null, function* () {
         let resolvedSrc = yield fs6.readlink(src);
         if (opts.dereference) {
-          resolvedSrc = path3.resolve(process.cwd(), resolvedSrc);
+          resolvedSrc = path5.resolve(process.cwd(), resolvedSrc);
         }
         if (!destStat) {
           return fs6.symlink(resolvedSrc, dest);
@@ -7315,7 +7315,7 @@ var require_copy = __commonJS({
           throw e;
         }
         if (opts.dereference) {
-          resolvedDest = path3.resolve(process.cwd(), resolvedDest);
+          resolvedDest = path5.resolve(process.cwd(), resolvedDest);
         }
         if (stat.isSrcSubdir(resolvedSrc, resolvedDest)) {
           throw new Error(`Cannot copy '${resolvedSrc}' to a subdirectory of itself, '${resolvedDest}'.`);
@@ -7336,7 +7336,7 @@ var require_copy_sync = __commonJS({
   "node_modules/fs-extra/lib/copy/copy-sync.js"(exports2, module2) {
     "use strict";
     var fs6 = require_graceful_fs();
-    var path3 = require("path");
+    var path5 = require("path");
     var mkdirsSync = require_mkdirs().mkdirsSync;
     var utimesMillisSync = require_utimes().utimesMillisSync;
     var stat = require_stat();
@@ -7357,7 +7357,7 @@ var require_copy_sync = __commonJS({
       const { srcStat, destStat } = stat.checkPathsSync(src, dest, "copy", opts);
       stat.checkParentPathsSync(src, srcStat, dest, "copy");
       if (opts.filter && !opts.filter(src, dest)) return;
-      const destParent = path3.dirname(dest);
+      const destParent = path5.dirname(dest);
       if (!fs6.existsSync(destParent)) mkdirsSync(destParent);
       return getStats(destStat, src, dest, opts);
     }
@@ -7426,8 +7426,8 @@ var require_copy_sync = __commonJS({
       }
     }
     function copyDirItem(item, src, dest, opts) {
-      const srcItem = path3.join(src, item);
-      const destItem = path3.join(dest, item);
+      const srcItem = path5.join(src, item);
+      const destItem = path5.join(dest, item);
       if (opts.filter && !opts.filter(srcItem, destItem)) return;
       const { destStat } = stat.checkPathsSync(srcItem, destItem, "copy", opts);
       return getStats(destStat, srcItem, destItem, opts);
@@ -7435,7 +7435,7 @@ var require_copy_sync = __commonJS({
     function onLink(destStat, src, dest, opts) {
       let resolvedSrc = fs6.readlinkSync(src);
       if (opts.dereference) {
-        resolvedSrc = path3.resolve(process.cwd(), resolvedSrc);
+        resolvedSrc = path5.resolve(process.cwd(), resolvedSrc);
       }
       if (!destStat) {
         return fs6.symlinkSync(resolvedSrc, dest);
@@ -7448,7 +7448,7 @@ var require_copy_sync = __commonJS({
           throw err;
         }
         if (opts.dereference) {
-          resolvedDest = path3.resolve(process.cwd(), resolvedDest);
+          resolvedDest = path5.resolve(process.cwd(), resolvedDest);
         }
         if (stat.isSrcSubdir(resolvedSrc, resolvedDest)) {
           throw new Error(`Cannot copy '${resolvedSrc}' to a subdirectory of itself, '${resolvedDest}'.`);
@@ -7485,11 +7485,11 @@ var require_remove = __commonJS({
     "use strict";
     var fs6 = require_graceful_fs();
     var u = require_universalify().fromCallback;
-    function remove(path3, callback) {
-      fs6.rm(path3, { recursive: true, force: true }, callback);
+    function remove(path5, callback) {
+      fs6.rm(path5, { recursive: true, force: true }, callback);
     }
-    function removeSync(path3) {
-      fs6.rmSync(path3, { recursive: true, force: true });
+    function removeSync(path5) {
+      fs6.rmSync(path5, { recursive: true, force: true });
     }
     module2.exports = {
       remove: u(remove),
@@ -7504,7 +7504,7 @@ var require_empty = __commonJS({
     "use strict";
     var u = require_universalify().fromPromise;
     var fs6 = require_fs5();
-    var path3 = require("path");
+    var path5 = require("path");
     var mkdir = require_mkdirs();
     var remove = require_remove();
     var emptyDir = u(function emptyDir2(dir) {
@@ -7515,7 +7515,7 @@ var require_empty = __commonJS({
         } catch (e) {
           return mkdir.mkdirs(dir);
         }
-        return Promise.all(items.map((item) => remove.remove(path3.join(dir, item))));
+        return Promise.all(items.map((item) => remove.remove(path5.join(dir, item))));
       });
     });
     function emptyDirSync(dir) {
@@ -7526,7 +7526,7 @@ var require_empty = __commonJS({
         return mkdir.mkdirsSync(dir);
       }
       items.forEach((item) => {
-        item = path3.join(dir, item);
+        item = path5.join(dir, item);
         remove.removeSync(item);
       });
     }
@@ -7544,7 +7544,7 @@ var require_file = __commonJS({
   "node_modules/fs-extra/lib/ensure/file.js"(exports2, module2) {
     "use strict";
     var u = require_universalify().fromPromise;
-    var path3 = require("path");
+    var path5 = require("path");
     var fs6 = require_fs5();
     var mkdir = require_mkdirs();
     function createFile(file) {
@@ -7555,7 +7555,7 @@ var require_file = __commonJS({
         } catch (e) {
         }
         if (stats && stats.isFile()) return;
-        const dir = path3.dirname(file);
+        const dir = path5.dirname(file);
         let dirStats = null;
         try {
           dirStats = yield fs6.stat(dir);
@@ -7582,7 +7582,7 @@ var require_file = __commonJS({
       } catch (e) {
       }
       if (stats && stats.isFile()) return;
-      const dir = path3.dirname(file);
+      const dir = path5.dirname(file);
       try {
         if (!fs6.statSync(dir).isDirectory()) {
           fs6.readdirSync(dir);
@@ -7605,7 +7605,7 @@ var require_link = __commonJS({
   "node_modules/fs-extra/lib/ensure/link.js"(exports2, module2) {
     "use strict";
     var u = require_universalify().fromPromise;
-    var path3 = require("path");
+    var path5 = require("path");
     var fs6 = require_fs5();
     var mkdir = require_mkdirs();
     var { pathExists } = require_path_exists();
@@ -7625,7 +7625,7 @@ var require_link = __commonJS({
           throw err;
         }
         if (dstStat && areIdentical(srcStat, dstStat)) return;
-        const dir = path3.dirname(dstpath);
+        const dir = path5.dirname(dstpath);
         const dirExists = yield pathExists(dir);
         if (!dirExists) {
           yield mkdir.mkdirs(dir);
@@ -7646,7 +7646,7 @@ var require_link = __commonJS({
         err.message = err.message.replace("lstat", "ensureLink");
         throw err;
       }
-      const dir = path3.dirname(dstpath);
+      const dir = path5.dirname(dstpath);
       const dirExists = fs6.existsSync(dir);
       if (dirExists) return fs6.linkSync(srcpath, dstpath);
       mkdir.mkdirsSync(dir);
@@ -7663,13 +7663,13 @@ var require_link = __commonJS({
 var require_symlink_paths = __commonJS({
   "node_modules/fs-extra/lib/ensure/symlink-paths.js"(exports2, module2) {
     "use strict";
-    var path3 = require("path");
+    var path5 = require("path");
     var fs6 = require_fs5();
     var { pathExists } = require_path_exists();
     var u = require_universalify().fromPromise;
     function symlinkPaths(srcpath, dstpath) {
       return __async(this, null, function* () {
-        if (path3.isAbsolute(srcpath)) {
+        if (path5.isAbsolute(srcpath)) {
           try {
             yield fs6.lstat(srcpath);
           } catch (err) {
@@ -7681,8 +7681,8 @@ var require_symlink_paths = __commonJS({
             toDst: srcpath
           };
         }
-        const dstdir = path3.dirname(dstpath);
-        const relativeToDst = path3.join(dstdir, srcpath);
+        const dstdir = path5.dirname(dstpath);
+        const relativeToDst = path5.join(dstdir, srcpath);
         const exists = yield pathExists(relativeToDst);
         if (exists) {
           return {
@@ -7698,12 +7698,12 @@ var require_symlink_paths = __commonJS({
         }
         return {
           toCwd: srcpath,
-          toDst: path3.relative(dstdir, srcpath)
+          toDst: path5.relative(dstdir, srcpath)
         };
       });
     }
     function symlinkPathsSync(srcpath, dstpath) {
-      if (path3.isAbsolute(srcpath)) {
+      if (path5.isAbsolute(srcpath)) {
         const exists2 = fs6.existsSync(srcpath);
         if (!exists2) throw new Error("absolute srcpath does not exist");
         return {
@@ -7711,8 +7711,8 @@ var require_symlink_paths = __commonJS({
           toDst: srcpath
         };
       }
-      const dstdir = path3.dirname(dstpath);
-      const relativeToDst = path3.join(dstdir, srcpath);
+      const dstdir = path5.dirname(dstpath);
+      const relativeToDst = path5.join(dstdir, srcpath);
       const exists = fs6.existsSync(relativeToDst);
       if (exists) {
         return {
@@ -7724,7 +7724,7 @@ var require_symlink_paths = __commonJS({
       if (!srcExists) throw new Error("relative srcpath does not exist");
       return {
         toCwd: srcpath,
-        toDst: path3.relative(dstdir, srcpath)
+        toDst: path5.relative(dstdir, srcpath)
       };
     }
     module2.exports = {
@@ -7774,7 +7774,7 @@ var require_symlink = __commonJS({
   "node_modules/fs-extra/lib/ensure/symlink.js"(exports2, module2) {
     "use strict";
     var u = require_universalify().fromPromise;
-    var path3 = require("path");
+    var path5 = require("path");
     var fs6 = require_fs5();
     var { mkdirs, mkdirsSync } = require_mkdirs();
     var { symlinkPaths, symlinkPathsSync } = require_symlink_paths();
@@ -7798,7 +7798,7 @@ var require_symlink = __commonJS({
         const relative = yield symlinkPaths(srcpath, dstpath);
         srcpath = relative.toDst;
         const toType = yield symlinkType(relative.toCwd, type);
-        const dir = path3.dirname(dstpath);
+        const dir = path5.dirname(dstpath);
         if (!(yield pathExists(dir))) {
           yield mkdirs(dir);
         }
@@ -7819,7 +7819,7 @@ var require_symlink = __commonJS({
       const relative = symlinkPathsSync(srcpath, dstpath);
       srcpath = relative.toDst;
       type = symlinkTypeSync(relative.toCwd, type);
-      const dir = path3.dirname(dstpath);
+      const dir = path5.dirname(dstpath);
       const exists = fs6.existsSync(dir);
       if (exists) return fs6.symlinkSync(srcpath, dstpath, type);
       mkdirsSync(dir);
@@ -7975,12 +7975,12 @@ var require_output_file = __commonJS({
     "use strict";
     var u = require_universalify().fromPromise;
     var fs6 = require_fs5();
-    var path3 = require("path");
+    var path5 = require("path");
     var mkdir = require_mkdirs();
     var pathExists = require_path_exists().pathExists;
     function outputFile(file, data, encoding = "utf-8") {
       return __async(this, null, function* () {
-        const dir = path3.dirname(file);
+        const dir = path5.dirname(file);
         if (!(yield pathExists(dir))) {
           yield mkdir.mkdirs(dir);
         }
@@ -7988,7 +7988,7 @@ var require_output_file = __commonJS({
       });
     }
     function outputFileSync(file, ...args) {
-      const dir = path3.dirname(file);
+      const dir = path5.dirname(file);
       if (!fs6.existsSync(dir)) {
         mkdir.mkdirsSync(dir);
       }
@@ -8054,7 +8054,7 @@ var require_move = __commonJS({
   "node_modules/fs-extra/lib/move/move.js"(exports2, module2) {
     "use strict";
     var fs6 = require_fs5();
-    var path3 = require("path");
+    var path5 = require("path");
     var { copy } = require_copy2();
     var { remove } = require_remove();
     var { mkdirp } = require_mkdirs();
@@ -8065,8 +8065,8 @@ var require_move = __commonJS({
         const overwrite = opts.overwrite || opts.clobber || false;
         const { srcStat, isChangingCase = false } = yield stat.checkPaths(src, dest, "move", opts);
         yield stat.checkParentPaths(src, srcStat, dest, "move");
-        const destParent = path3.dirname(dest);
-        const parsedParentPath = path3.parse(destParent);
+        const destParent = path5.dirname(dest);
+        const parsedParentPath = path5.parse(destParent);
         if (parsedParentPath.root !== destParent) {
           yield mkdirp(destParent);
         }
@@ -8112,7 +8112,7 @@ var require_move_sync = __commonJS({
   "node_modules/fs-extra/lib/move/move-sync.js"(exports2, module2) {
     "use strict";
     var fs6 = require_graceful_fs();
-    var path3 = require("path");
+    var path5 = require("path");
     var copySync = require_copy2().copySync;
     var removeSync = require_remove().removeSync;
     var mkdirpSync = require_mkdirs().mkdirpSync;
@@ -8122,12 +8122,12 @@ var require_move_sync = __commonJS({
       const overwrite = opts.overwrite || opts.clobber || false;
       const { srcStat, isChangingCase = false } = stat.checkPathsSync(src, dest, "move", opts);
       stat.checkParentPathsSync(src, srcStat, dest, "move");
-      if (!isParentRoot(dest)) mkdirpSync(path3.dirname(dest));
+      if (!isParentRoot(dest)) mkdirpSync(path5.dirname(dest));
       return doRename(src, dest, overwrite, isChangingCase);
     }
     function isParentRoot(dest) {
-      const parent = path3.dirname(dest);
-      const parsedPath = path3.parse(parent);
+      const parent = path5.dirname(dest);
+      const parsedPath = path5.parse(parent);
       return parsedPath.root === parent;
     }
     function doRename(src, dest, overwrite, isChangingCase) {
@@ -8185,14 +8185,14 @@ var require_create_require = __commonJS({
   "node_modules/create-require/create-require.js"(exports2, module2) {
     "use strict";
     var nativeModule = require("module");
-    var path3 = require("path");
+    var path5 = require("path");
     var fs6 = require("fs");
     function createRequire2(filename) {
       if (!filename) {
         filename = process.cwd();
       }
       if (isDir(filename)) {
-        filename = path3.join(filename, "index.js");
+        filename = path5.join(filename, "index.js");
       }
       if (nativeModule.createRequire) {
         return nativeModule.createRequire(filename);
@@ -8205,13 +8205,13 @@ var require_create_require = __commonJS({
     function _createRequire2(filename) {
       const mod = new nativeModule.Module(filename, null);
       mod.filename = filename;
-      mod.paths = nativeModule.Module._nodeModulePaths(path3.dirname(filename));
+      mod.paths = nativeModule.Module._nodeModulePaths(path5.dirname(filename));
       mod._compile("module.exports = require;", filename);
       return mod.exports;
     }
-    function isDir(path4) {
+    function isDir(path6) {
       try {
-        const stat = fs6.lstatSync(path4);
+        const stat = fs6.lstatSync(path6);
         return stat.isDirectory();
       } catch (e) {
         return false;
@@ -11278,7 +11278,7 @@ function Ui() {
   var _a2, _b2, _c, _d;
   !((_b2 = (_a2 = globalThis.process) == null ? void 0 : _a2.versions) == null ? void 0 : _b2.node) && !((_d = (_c = globalThis.process) == null ? void 0 : _c.env) == null ? void 0 : _d.DISABLE_NODE_FETCH_NATIVE_WARN || true) && console.warn("[node-fetch-native] Node.js compatible build of `node-fetch-native` is being used in a non-Node.js environment. Please make sure you are using proper export conditions or report this issue to https://github.com/unjs/node-fetch-native. You can set `process.env.DISABLE_NODE_FETCH_NATIVE_WARN` to disable this warning.");
 }
-var import_node_http, import_node_https, import_node_zlib, import_node_stream3, import_node_buffer, import_node_util2, import_node_url2, import_node_net, import_node_fs4, import_node_path3, Os, fi, n2, ci, O, be, X, ve, zt, bt, Cr, ze, It, Ft, mt, ee, yt, He, Ve, gt, pi, kt, xs, bi, mi, yi, gi, ut, Vs, qn, Wt, Qs, Ys, _i, Gs, Si, On, Ue, br, Un, ft, xn, G, mr, wi, yr, Ks, Js, Xs, el, H, Nn, xe, In, tl, Ri, rl, nl, gr, Fn, Pr, ye, il, jn, se, Ne, le, al, Ci, sl, $2, qt, dl, vr, dt, hl, Hn, _r, Ln, Pi, bl, ml, $n, yl, gl, _l, Sl, vi, Ei, Er, Sr, wl, Bi, Dn, zi, Ii, Fi, wr, Vn, pt, Tr, Mn, $i, ql, Ol, Mi;
+var import_node_http, import_node_https, import_node_zlib, import_node_stream3, import_node_buffer, import_node_util3, import_node_url2, import_node_net, import_node_fs4, import_node_path5, Os, fi, n2, ci, O, be, X, ve, zt, bt, Cr, ze, It, Ft, mt, ee, yt, He, Ve, gt, pi, kt, xs, bi, mi, yi, gi, ut, Vs, qn, Wt, Qs, Ys, _i, Gs, Si, On, Ue, br, Un, ft, xn, G, mr, wi, yr, Ks, Js, Xs, el, H, Nn, xe, In, tl, Ri, rl, nl, gr, Fn, Pr, ye, il, jn, se, Ne, le, al, Ci, sl, $2, qt, dl, vr, dt, hl, Hn, _r, Ln, Pi, bl, ml, $n, yl, gl, _l, Sl, vi, Ei, Er, Sr, wl, Bi, Dn, zi, Ii, Fi, wr, Vn, pt, Tr, Mn, $i, ql, Ol, Mi;
 var init_node = __esm({
   "node_modules/node-fetch-native/dist/node.mjs"() {
     "use strict";
@@ -11287,12 +11287,12 @@ var init_node = __esm({
     import_node_zlib = __toESM(require("zlib"), 1);
     import_node_stream3 = __toESM(require("stream"), 1);
     import_node_buffer = require("buffer");
-    import_node_util2 = require("util");
+    import_node_util3 = require("util");
     init_node_fetch_native_DfbY2q_x();
     import_node_url2 = require("url");
     import_node_net = require("net");
     import_node_fs4 = require("fs");
-    import_node_path3 = require("path");
+    import_node_path5 = require("path");
     Os = Object.defineProperty;
     fi = (i) => {
       throw TypeError(i);
@@ -11536,12 +11536,12 @@ var init_node = __esm({
       const a = new URL(o3).protocol, f2 = new URL(i).protocol;
       return a === f2;
     }, "isSameProtocol");
-    el = (0, import_node_util2.promisify)(import_node_stream3.default.pipeline);
+    el = (0, import_node_util3.promisify)(import_node_stream3.default.pipeline);
     H = Symbol("Body internals");
     Nn = class Nn2 {
       constructor(o3, { size: a = 0 } = {}) {
         let f2 = null;
-        o3 === null ? o3 = null : wi(o3) ? o3 = import_node_buffer.Buffer.from(o3.toString()) : yr(o3) || import_node_buffer.Buffer.isBuffer(o3) || (import_node_util2.types.isAnyArrayBuffer(o3) ? o3 = import_node_buffer.Buffer.from(o3) : ArrayBuffer.isView(o3) ? o3 = import_node_buffer.Buffer.from(o3.buffer, o3.byteOffset, o3.byteLength) : o3 instanceof import_node_stream3.default || (o3 instanceof br ? (o3 = Zs(o3), f2 = o3.type.split("=")[1]) : o3 = import_node_buffer.Buffer.from(String(o3))));
+        o3 === null ? o3 = null : wi(o3) ? o3 = import_node_buffer.Buffer.from(o3.toString()) : yr(o3) || import_node_buffer.Buffer.isBuffer(o3) || (import_node_util3.types.isAnyArrayBuffer(o3) ? o3 = import_node_buffer.Buffer.from(o3) : ArrayBuffer.isView(o3) ? o3 = import_node_buffer.Buffer.from(o3.buffer, o3.byteOffset, o3.byteLength) : o3 instanceof import_node_stream3.default || (o3 instanceof br ? (o3 = Zs(o3), f2 = o3.type.split("=")[1]) : o3 = import_node_buffer.Buffer.from(String(o3))));
         let l = o3;
         import_node_buffer.Buffer.isBuffer(o3) ? l = import_node_stream3.default.Readable.from(o3) : yr(o3) && (l = import_node_stream3.default.Readable.from(o3.stream())), this[H] = { body: o3, stream: l, boundary: f2, disturbed: false, error: null }, this.size = a, o3 instanceof import_node_stream3.default && o3.on("error", (p2) => {
           const h2 = p2 instanceof ft ? p2 : new G(`Invalid response body while trying to fetch ${this.url}: ${p2.message}`, "system", p2);
@@ -11596,7 +11596,7 @@ var init_node = __esm({
     };
     n2(Nn, "Body");
     xe = Nn;
-    xe.prototype.buffer = (0, import_node_util2.deprecate)(xe.prototype.buffer, "Please use 'response.arrayBuffer()' instead of 'response.buffer()'", "node-fetch#buffer"), Object.defineProperties(xe.prototype, { body: { enumerable: true }, bodyUsed: { enumerable: true }, arrayBuffer: { enumerable: true }, blob: { enumerable: true }, json: { enumerable: true }, text: { enumerable: true }, data: { get: (0, import_node_util2.deprecate)(() => {
+    xe.prototype.buffer = (0, import_node_util3.deprecate)(xe.prototype.buffer, "Please use 'response.arrayBuffer()' instead of 'response.buffer()'", "node-fetch#buffer"), Object.defineProperties(xe.prototype, { body: { enumerable: true }, bodyUsed: { enumerable: true }, arrayBuffer: { enumerable: true }, blob: { enumerable: true }, json: { enumerable: true }, text: { enumerable: true }, data: { get: (0, import_node_util3.deprecate)(() => {
     }, "data doesn't exist, use json(), text(), arrayBuffer(), or body instead", "https://github.com/node-fetch/node-fetch/issues/1000 (response)") } });
     n2(zn, "consumeBody");
     In = n2((i, o3) => {
@@ -11604,8 +11604,8 @@ var init_node = __esm({
       if (i.bodyUsed) throw new Error("cannot clone body after it is used");
       return l instanceof import_node_stream3.default && typeof l.getBoundary != "function" && (a = new import_node_stream3.PassThrough({ highWaterMark: o3 }), f2 = new import_node_stream3.PassThrough({ highWaterMark: o3 }), l.pipe(a), l.pipe(f2), i[H].stream = a, l = f2), l;
     }, "clone");
-    tl = (0, import_node_util2.deprecate)((i) => i.getBoundary(), "form-data doesn't follow the spec and requires special treatment. Use alternative package", "https://github.com/node-fetch/node-fetch/issues/1167");
-    Ri = n2((i, o3) => i === null ? null : typeof i == "string" ? "text/plain;charset=UTF-8" : wi(i) ? "application/x-www-form-urlencoded;charset=UTF-8" : yr(i) ? i.type || null : import_node_buffer.Buffer.isBuffer(i) || import_node_util2.types.isAnyArrayBuffer(i) || ArrayBuffer.isView(i) ? null : i instanceof br ? `multipart/form-data; boundary=${o3[H].boundary}` : i && typeof i.getBoundary == "function" ? `multipart/form-data;boundary=${tl(i)}` : i instanceof import_node_stream3.default ? null : "text/plain;charset=UTF-8", "extractContentType");
+    tl = (0, import_node_util3.deprecate)((i) => i.getBoundary(), "form-data doesn't follow the spec and requires special treatment. Use alternative package", "https://github.com/node-fetch/node-fetch/issues/1167");
+    Ri = n2((i, o3) => i === null ? null : typeof i == "string" ? "text/plain;charset=UTF-8" : wi(i) ? "application/x-www-form-urlencoded;charset=UTF-8" : yr(i) ? i.type || null : import_node_buffer.Buffer.isBuffer(i) || import_node_util3.types.isAnyArrayBuffer(i) || ArrayBuffer.isView(i) ? null : i instanceof br ? `multipart/form-data; boundary=${o3[H].boundary}` : i && typeof i.getBoundary == "function" ? `multipart/form-data;boundary=${tl(i)}` : i instanceof import_node_stream3.default ? null : "text/plain;charset=UTF-8", "extractContentType");
     rl = n2((i) => {
       const { body: o3 } = i[H];
       return o3 === null ? 0 : yr(o3) ? o3.size : import_node_buffer.Buffer.isBuffer(o3) ? o3.length : o3 && typeof o3.getLengthSync == "function" && o3.hasKnownLength && o3.hasKnownLength() ? o3.getLengthSync() : null;
@@ -11631,13 +11631,13 @@ var init_node = __esm({
         if (o3 instanceof Pr2) {
           const f2 = o3.raw();
           for (const [l, p2] of Object.entries(f2)) a.push(...p2.map((h2) => [l, h2]));
-        } else if (o3 != null) if (typeof o3 == "object" && !import_node_util2.types.isBoxedPrimitive(o3)) {
+        } else if (o3 != null) if (typeof o3 == "object" && !import_node_util3.types.isBoxedPrimitive(o3)) {
           const f2 = o3[Symbol.iterator];
           if (f2 == null) a.push(...Object.entries(o3));
           else {
             if (typeof f2 != "function") throw new TypeError("Header pairs must be iterable");
             a = [...o3].map((l) => {
-              if (typeof l != "object" || import_node_util2.types.isBoxedPrimitive(l)) throw new TypeError("Each header pair must be an iterable object");
+              if (typeof l != "object" || import_node_util3.types.isBoxedPrimitive(l)) throw new TypeError("Each header pair must be an iterable object");
               return [...l];
             }).map((l) => {
               if (l.length !== 2) throw new TypeError("Each header pair must be a name/value tuple");
@@ -11775,7 +11775,7 @@ var init_node = __esm({
     n2(cl, "parseReferrerPolicyFromHeader");
     $2 = Symbol("Request internals");
     qt = n2((i) => typeof i == "object" && typeof i[$2] == "object", "isRequest");
-    dl = (0, import_node_util2.deprecate)(() => {
+    dl = (0, import_node_util3.deprecate)(() => {
     }, ".data is not a valid RequestInit property, use .body instead", "https://github.com/node-fetch/node-fetch/issues/1000 (request)");
     vr = class vr2 extends xe {
       constructor(o3, a = {}) {
@@ -11866,7 +11866,7 @@ var init_node = __esm({
     _l = n2((i, o3) => $n(i).then((a) => Ei(a, i, o3)), "fileFrom");
     Sl = n2((i, o3) => Ei((0, import_node_fs4.statSync)(i), i, o3), "fileFromSync");
     vi = n2((i, o3, a = "") => new ut([new Sr({ path: o3, size: i.size, lastModified: i.mtimeMs, start: 0 })], { type: a }), "fromBlob");
-    Ei = n2((i, o3, a = "") => new qn([new Sr({ path: o3, size: i.size, lastModified: i.mtimeMs, start: 0 })], (0, import_node_path3.basename)(o3), { type: a, lastModified: i.mtimeMs }), "fromFile");
+    Ei = n2((i, o3, a = "") => new qn([new Sr({ path: o3, size: i.size, lastModified: i.mtimeMs, start: 0 })], (0, import_node_path5.basename)(o3), { type: a, lastModified: i.mtimeMs }), "fromFile");
     Er = class Er2 {
       constructor(o3) {
         be(this, He);
@@ -12288,7 +12288,7 @@ module.exports = __toCommonJS(vendor_extra_exports);
 // node_modules/globby/index.js
 var import_node_process2 = __toESM(require("process"), 1);
 var import_node_fs3 = __toESM(require("fs"), 1);
-var import_node_path2 = __toESM(require("path"), 1);
+var import_node_path4 = __toESM(require("path"), 1);
 var import_node_stream2 = require("stream");
 
 // node_modules/@sindresorhus/merge-streams/index.js
@@ -12536,45 +12536,6 @@ var PASSTHROUGH_LISTENERS_PER_STREAM = 1;
 // node_modules/globby/index.js
 var import_fast_glob2 = __toESM(require_out4(), 1);
 
-// node_modules/path-type/index.js
-var import_node_fs = __toESM(require("fs"), 1);
-var import_promises2 = __toESM(require("fs").promises, 1);
-function isType(fsStatType, statsMethodName, filePath) {
-  return __async(this, null, function* () {
-    if (typeof filePath !== "string") {
-      throw new TypeError(`Expected a string, got ${typeof filePath}`);
-    }
-    try {
-      const stats = yield import_promises2.default[fsStatType](filePath);
-      return stats[statsMethodName]();
-    } catch (error) {
-      if (error.code === "ENOENT") {
-        return false;
-      }
-      throw error;
-    }
-  });
-}
-function isTypeSync(fsStatType, statsMethodName, filePath) {
-  if (typeof filePath !== "string") {
-    throw new TypeError(`Expected a string, got ${typeof filePath}`);
-  }
-  try {
-    return import_node_fs.default[fsStatType](filePath)[statsMethodName]();
-  } catch (error) {
-    if (error.code === "ENOENT") {
-      return false;
-    }
-    throw error;
-  }
-}
-var isFile = isType.bind(void 0, "stat", "isFile");
-var isDirectory = isType.bind(void 0, "stat", "isDirectory");
-var isSymlink = isType.bind(void 0, "lstat", "isSymbolicLink");
-var isFileSync = isTypeSync.bind(void 0, "statSync", "isFile");
-var isDirectorySync = isTypeSync.bind(void 0, "statSync", "isDirectory");
-var isSymlinkSync = isTypeSync.bind(void 0, "lstatSync", "isSymbolicLink");
-
 // node_modules/unicorn-magic/node.js
 var import_node_util = require("util");
 var import_node_child_process = require("child_process");
@@ -12588,22 +12549,207 @@ var TEN_MEGABYTES_IN_BYTES = 10 * 1024 * 1024;
 // node_modules/globby/ignore.js
 var import_node_process = __toESM(require("process"), 1);
 var import_node_fs2 = __toESM(require("fs"), 1);
-var import_promises3 = __toESM(require("fs").promises, 1);
-var import_node_path = __toESM(require("path"), 1);
+var import_promises2 = __toESM(require("fs").promises, 1);
+var import_node_path3 = __toESM(require("path"), 1);
 var import_fast_glob = __toESM(require_out4(), 1);
 var import_ignore = __toESM(require_ignore(), 1);
 
+// node_modules/is-path-inside/index.js
+var import_node_path = __toESM(require("path"), 1);
+function isPathInside(childPath, parentPath) {
+  const relation = import_node_path.default.relative(parentPath, childPath);
+  return Boolean(
+    relation && relation !== ".." && !relation.startsWith(`..${import_node_path.default.sep}`) && relation !== import_node_path.default.resolve(childPath)
+  );
+}
+
 // node_modules/slash/index.js
-function slash(path3) {
-  const isExtendedLengthPath = path3.startsWith("\\\\?\\");
+function slash(path5) {
+  const isExtendedLengthPath = path5.startsWith("\\\\?\\");
   if (isExtendedLengthPath) {
-    return path3;
+    return path5;
   }
-  return path3.replace(/\\/g, "/");
+  return path5.replace(/\\/g, "/");
 }
 
 // node_modules/globby/utilities.js
+var import_node_fs = __toESM(require("fs"), 1);
+var import_node_path2 = __toESM(require("path"), 1);
+var import_node_util2 = require("util");
 var isNegativePattern = (pattern) => pattern[0] === "!";
+var bindFsMethod = (object, methodName) => {
+  const method = object == null ? void 0 : object[methodName];
+  return typeof method === "function" ? method.bind(object) : void 0;
+};
+var promisifyFsMethod = (object, methodName) => {
+  const method = object == null ? void 0 : object[methodName];
+  if (typeof method !== "function") {
+    return void 0;
+  }
+  return (0, import_node_util2.promisify)(method.bind(object));
+};
+var normalizeDirectoryPatternForFastGlob = (pattern) => {
+  if (!pattern.endsWith("/")) {
+    return pattern;
+  }
+  const trimmedPattern = pattern.replace(/\/+$/u, "");
+  if (!trimmedPattern) {
+    return "/**";
+  }
+  if (trimmedPattern === "**") {
+    return "**/**";
+  }
+  const hasLeadingSlash = trimmedPattern.startsWith("/");
+  const patternBody = hasLeadingSlash ? trimmedPattern.slice(1) : trimmedPattern;
+  const hasInnerSlash = patternBody.includes("/");
+  const needsRecursivePrefix = !hasLeadingSlash && !hasInnerSlash && !trimmedPattern.startsWith("**/");
+  const recursivePrefix = needsRecursivePrefix ? "**/" : "";
+  return `${recursivePrefix}${trimmedPattern}/**`;
+};
+var getParentDirectoryPrefix = (pattern) => {
+  const normalizedPattern = isNegativePattern(pattern) ? pattern.slice(1) : pattern;
+  const match = normalizedPattern.match(/^(\.\.\/)+/);
+  return match ? match[0] : "";
+};
+var adjustIgnorePatternsForParentDirectories = (patterns, ignorePatterns) => {
+  if (patterns.length === 0 || ignorePatterns.length === 0) {
+    return ignorePatterns;
+  }
+  const parentPrefixes = patterns.map((pattern) => getParentDirectoryPrefix(pattern));
+  const firstPrefix = parentPrefixes[0];
+  if (!firstPrefix) {
+    return ignorePatterns;
+  }
+  const allSamePrefix = parentPrefixes.every((prefix) => prefix === firstPrefix);
+  if (!allSamePrefix) {
+    return ignorePatterns;
+  }
+  return ignorePatterns.map((pattern) => {
+    if (pattern.startsWith("**/") && !pattern.startsWith("../")) {
+      return firstPrefix + pattern;
+    }
+    return pattern;
+  });
+};
+var getAsyncStatMethod = (fsImplementation) => {
+  var _a2;
+  return (_a2 = bindFsMethod(fsImplementation == null ? void 0 : fsImplementation.promises, "stat")) != null ? _a2 : bindFsMethod(import_node_fs.default.promises, "stat");
+};
+var getStatSyncMethod = (fsImplementation) => {
+  if (fsImplementation) {
+    return bindFsMethod(fsImplementation, "statSync");
+  }
+  return bindFsMethod(import_node_fs.default, "statSync");
+};
+var pathHasGitDirectory = (stats) => {
+  var _a2, _b2;
+  return Boolean(((_a2 = stats == null ? void 0 : stats.isDirectory) == null ? void 0 : _a2.call(stats)) || ((_b2 = stats == null ? void 0 : stats.isFile) == null ? void 0 : _b2.call(stats)));
+};
+var buildPathChain = (startPath, rootPath) => {
+  const chain = [];
+  let currentPath = startPath;
+  chain.push(currentPath);
+  while (currentPath !== rootPath) {
+    const parentPath = import_node_path2.default.dirname(currentPath);
+    if (parentPath === currentPath) {
+      break;
+    }
+    currentPath = parentPath;
+    chain.push(currentPath);
+  }
+  return chain;
+};
+var findGitRootInChain = (paths, statMethod) => __async(null, null, function* () {
+  for (const directory of paths) {
+    const gitPath = import_node_path2.default.join(directory, ".git");
+    try {
+      const stats = yield statMethod(gitPath);
+      if (pathHasGitDirectory(stats)) {
+        return directory;
+      }
+    } catch (e) {
+    }
+  }
+  return void 0;
+});
+var findGitRootSyncUncached = (cwd, fsImplementation) => {
+  const statSyncMethod = getStatSyncMethod(fsImplementation);
+  if (!statSyncMethod) {
+    return void 0;
+  }
+  const currentPath = import_node_path2.default.resolve(cwd);
+  const { root } = import_node_path2.default.parse(currentPath);
+  const chain = buildPathChain(currentPath, root);
+  for (const directory of chain) {
+    const gitPath = import_node_path2.default.join(directory, ".git");
+    try {
+      const stats = statSyncMethod(gitPath);
+      if (pathHasGitDirectory(stats)) {
+        return directory;
+      }
+    } catch (e) {
+    }
+  }
+  return void 0;
+};
+var findGitRootSync = (cwd, fsImplementation) => {
+  if (typeof cwd !== "string") {
+    throw new TypeError("cwd must be a string");
+  }
+  return findGitRootSyncUncached(cwd, fsImplementation);
+};
+var findGitRootAsyncUncached = (cwd, fsImplementation) => __async(null, null, function* () {
+  const statMethod = getAsyncStatMethod(fsImplementation);
+  if (!statMethod) {
+    return findGitRootSync(cwd, fsImplementation);
+  }
+  const currentPath = import_node_path2.default.resolve(cwd);
+  const { root } = import_node_path2.default.parse(currentPath);
+  const chain = buildPathChain(currentPath, root);
+  return findGitRootInChain(chain, statMethod);
+});
+var findGitRoot = (cwd, fsImplementation) => __async(null, null, function* () {
+  if (typeof cwd !== "string") {
+    throw new TypeError("cwd must be a string");
+  }
+  return findGitRootAsyncUncached(cwd, fsImplementation);
+});
+var isWithinGitRoot = (gitRoot, cwd) => {
+  const resolvedGitRoot = import_node_path2.default.resolve(gitRoot);
+  const resolvedCwd = import_node_path2.default.resolve(cwd);
+  return resolvedCwd === resolvedGitRoot || isPathInside(resolvedCwd, resolvedGitRoot);
+};
+var getParentGitignorePaths = (gitRoot, cwd) => {
+  if (gitRoot && typeof gitRoot !== "string") {
+    throw new TypeError("gitRoot must be a string or undefined");
+  }
+  if (typeof cwd !== "string") {
+    throw new TypeError("cwd must be a string");
+  }
+  if (!gitRoot) {
+    return [];
+  }
+  if (!isWithinGitRoot(gitRoot, cwd)) {
+    return [];
+  }
+  const chain = buildPathChain(import_node_path2.default.resolve(cwd), import_node_path2.default.resolve(gitRoot));
+  return [...chain].reverse().map((directory) => import_node_path2.default.join(directory, ".gitignore"));
+};
+var convertPatternsForFastGlob = (patterns, usingGitRoot, normalizeDirectoryPatternForFastGlob2) => {
+  if (usingGitRoot) {
+    return [];
+  }
+  const result = [];
+  let hasNegations = false;
+  for (const pattern of patterns) {
+    if (isNegativePattern(pattern)) {
+      hasNegations = true;
+      break;
+    }
+    result.push(normalizeDirectoryPatternForFastGlob2(pattern));
+  }
+  return hasNegations ? [] : result;
+};
 
 // node_modules/globby/ignore.js
 var defaultIgnoredDirectories = [
@@ -12617,6 +12763,81 @@ var ignoreFilesGlobOptions = {
   dot: true
 };
 var GITIGNORE_FILES_PATTERN = "**/.gitignore";
+var getReadFileMethod = (fsImplementation) => {
+  var _a2, _b2;
+  return (_b2 = (_a2 = bindFsMethod(fsImplementation == null ? void 0 : fsImplementation.promises, "readFile")) != null ? _a2 : bindFsMethod(import_promises2.default, "readFile")) != null ? _b2 : promisifyFsMethod(fsImplementation, "readFile");
+};
+var getReadFileSyncMethod = (fsImplementation) => {
+  var _a2;
+  return (_a2 = bindFsMethod(fsImplementation, "readFileSync")) != null ? _a2 : bindFsMethod(import_node_fs2.default, "readFileSync");
+};
+var shouldSkipIgnoreFileError = (error, suppressErrors) => {
+  if (!error) {
+    return Boolean(suppressErrors);
+  }
+  if (error.code === "ENOENT" || error.code === "ENOTDIR") {
+    return true;
+  }
+  return Boolean(suppressErrors);
+};
+var createIgnoreFileReadError = (filePath, error) => {
+  if (error instanceof Error) {
+    error.message = `Failed to read ignore file at ${filePath}: ${error.message}`;
+    return error;
+  }
+  return new Error(`Failed to read ignore file at ${filePath}: ${String(error)}`);
+};
+var processIgnoreFileCore = (filePath, readMethod, suppressErrors) => {
+  try {
+    const content = readMethod(filePath, "utf8");
+    return { filePath, content };
+  } catch (error) {
+    if (shouldSkipIgnoreFileError(error, suppressErrors)) {
+      return void 0;
+    }
+    throw createIgnoreFileReadError(filePath, error);
+  }
+};
+var readIgnoreFilesSafely = (paths, readFileMethod, suppressErrors) => __async(null, null, function* () {
+  const fileResults = yield Promise.all(paths.map((filePath) => __async(null, null, function* () {
+    try {
+      const content = yield readFileMethod(filePath, "utf8");
+      return { filePath, content };
+    } catch (error) {
+      if (shouldSkipIgnoreFileError(error, suppressErrors)) {
+        return void 0;
+      }
+      throw createIgnoreFileReadError(filePath, error);
+    }
+  })));
+  return fileResults.filter(Boolean);
+});
+var readIgnoreFilesSafelySync = (paths, readFileSyncMethod, suppressErrors) => paths.map((filePath) => processIgnoreFileCore(filePath, readFileSyncMethod, suppressErrors)).filter(Boolean);
+var dedupePaths = (paths) => {
+  const seen = /* @__PURE__ */ new Set();
+  return paths.filter((filePath) => {
+    if (seen.has(filePath)) {
+      return false;
+    }
+    seen.add(filePath);
+    return true;
+  });
+};
+var globIgnoreFiles = (globFunction, patterns, normalizedOptions) => globFunction(patterns, __spreadValues(__spreadValues({}, normalizedOptions), ignoreFilesGlobOptions));
+var getParentIgnorePaths = (gitRoot, normalizedOptions) => gitRoot ? getParentGitignorePaths(gitRoot, normalizedOptions.cwd) : [];
+var combineIgnoreFilePaths = (gitRoot, normalizedOptions, childPaths) => dedupePaths([
+  ...getParentIgnorePaths(gitRoot, normalizedOptions),
+  ...childPaths
+]);
+var buildIgnoreResult = (files, normalizedOptions, gitRoot) => {
+  const baseDir = gitRoot || normalizedOptions.cwd;
+  const patterns = getPatternsFromIgnoreFiles(files, baseDir);
+  return {
+    patterns,
+    predicate: createIgnorePredicate(patterns, normalizedOptions.cwd, baseDir),
+    usingGitRoot: Boolean(gitRoot && gitRoot !== normalizedOptions.cwd)
+  };
+};
 var applyBaseToPattern = (pattern, base) => {
   if (!base) {
     return pattern;
@@ -12627,25 +12848,25 @@ var applyBaseToPattern = (pattern, base) => {
   const hasNonTrailingSlash = slashIndex !== -1 && slashIndex !== cleanPattern.length - 1;
   let result;
   if (!hasNonTrailingSlash) {
-    result = import_node_path.default.posix.join(base, "**", cleanPattern);
+    result = import_node_path3.default.posix.join(base, "**", cleanPattern);
   } else if (cleanPattern.startsWith("/")) {
-    result = import_node_path.default.posix.join(base, cleanPattern.slice(1));
+    result = import_node_path3.default.posix.join(base, cleanPattern.slice(1));
   } else {
-    result = import_node_path.default.posix.join(base, cleanPattern);
+    result = import_node_path3.default.posix.join(base, cleanPattern);
   }
   return isNegative ? "!" + result : result;
 };
 var parseIgnoreFile = (file, cwd) => {
-  const base = slash(import_node_path.default.relative(cwd, import_node_path.default.dirname(file.filePath)));
+  const base = slash(import_node_path3.default.relative(cwd, import_node_path3.default.dirname(file.filePath)));
   return file.content.split(/\r?\n/).filter((line) => line && !line.startsWith("#")).map((pattern) => applyBaseToPattern(pattern, base));
 };
 var toRelativePath = (fileOrDirectory, cwd) => {
-  cwd = slash(cwd);
-  if (import_node_path.default.isAbsolute(fileOrDirectory)) {
-    if (slash(fileOrDirectory).startsWith(cwd)) {
-      return import_node_path.default.relative(cwd, fileOrDirectory);
+  if (import_node_path3.default.isAbsolute(fileOrDirectory)) {
+    const relativePath = import_node_path3.default.relative(cwd, fileOrDirectory);
+    if (relativePath && !isPathInside(fileOrDirectory, cwd)) {
+      return void 0;
     }
-    throw new Error(`Path ${fileOrDirectory} is not in cwd ${cwd}`);
+    return relativePath;
   }
   if (fileOrDirectory.startsWith("./")) {
     return fileOrDirectory.slice(2);
@@ -12655,56 +12876,81 @@ var toRelativePath = (fileOrDirectory, cwd) => {
   }
   return fileOrDirectory;
 };
-var getIsIgnoredPredicate = (files, cwd) => {
-  const patterns = files.flatMap((file) => parseIgnoreFile(file, cwd));
+var createIgnorePredicate = (patterns, cwd, baseDir) => {
   const ignores = (0, import_ignore.default)().add(patterns);
+  const resolvedCwd = import_node_path3.default.normalize(import_node_path3.default.resolve(cwd));
+  const resolvedBaseDir = import_node_path3.default.normalize(import_node_path3.default.resolve(baseDir));
   return (fileOrDirectory) => {
     fileOrDirectory = toPath(fileOrDirectory);
-    fileOrDirectory = toRelativePath(fileOrDirectory, cwd);
-    if (fileOrDirectory === void 0) {
+    const normalizedPath = import_node_path3.default.normalize(import_node_path3.default.resolve(fileOrDirectory));
+    if (normalizedPath === resolvedCwd) {
       return false;
     }
-    return fileOrDirectory ? ignores.ignores(slash(fileOrDirectory)) : false;
+    const relativePath = toRelativePath(fileOrDirectory, resolvedBaseDir);
+    if (relativePath === void 0) {
+      return false;
+    }
+    return relativePath ? ignores.ignores(slash(relativePath)) : false;
   };
 };
 var normalizeOptions = (options = {}) => {
-  var _a2, _b2;
+  var _a2, _b2, _c, _d;
+  const ignoreOption = options.ignore ? Array.isArray(options.ignore) ? options.ignore : [options.ignore] : [];
+  const cwd = (_a2 = toPath(options.cwd)) != null ? _a2 : import_node_process.default.cwd();
+  const deep = typeof options.deep === "number" ? Math.max(0, options.deep) + 1 : Number.POSITIVE_INFINITY;
   return {
-    cwd: (_a2 = toPath(options.cwd)) != null ? _a2 : import_node_process.default.cwd(),
-    suppressErrors: Boolean(options.suppressErrors),
-    deep: typeof options.deep === "number" ? options.deep : Number.POSITIVE_INFINITY,
-    ignore: [...(_b2 = options.ignore) != null ? _b2 : [], ...defaultIgnoredDirectories]
+    cwd,
+    suppressErrors: (_b2 = options.suppressErrors) != null ? _b2 : false,
+    deep,
+    ignore: [...ignoreOption, ...defaultIgnoredDirectories],
+    followSymbolicLinks: (_c = options.followSymbolicLinks) != null ? _c : true,
+    concurrency: options.concurrency,
+    throwErrorOnBrokenSymbolicLink: (_d = options.throwErrorOnBrokenSymbolicLink) != null ? _d : false,
+    fs: options.fs
   };
 };
+var collectIgnoreFileArtifactsAsync = (patterns, options, includeParentIgnoreFiles) => __async(null, null, function* () {
+  const normalizedOptions = normalizeOptions(options);
+  const childPaths = yield globIgnoreFiles(import_fast_glob.default, patterns, normalizedOptions);
+  const gitRoot = includeParentIgnoreFiles ? yield findGitRoot(normalizedOptions.cwd, normalizedOptions.fs) : void 0;
+  const allPaths = combineIgnoreFilePaths(gitRoot, normalizedOptions, childPaths);
+  const readFileMethod = getReadFileMethod(normalizedOptions.fs);
+  const files = yield readIgnoreFilesSafely(allPaths, readFileMethod, normalizedOptions.suppressErrors);
+  return { files, normalizedOptions, gitRoot };
+});
+var collectIgnoreFileArtifactsSync = (patterns, options, includeParentIgnoreFiles) => {
+  const normalizedOptions = normalizeOptions(options);
+  const childPaths = globIgnoreFiles(import_fast_glob.default.sync, patterns, normalizedOptions);
+  const gitRoot = includeParentIgnoreFiles ? findGitRootSync(normalizedOptions.cwd, normalizedOptions.fs) : void 0;
+  const allPaths = combineIgnoreFilePaths(gitRoot, normalizedOptions, childPaths);
+  const readFileSyncMethod = getReadFileSyncMethod(normalizedOptions.fs);
+  const files = readIgnoreFilesSafelySync(allPaths, readFileSyncMethod, normalizedOptions.suppressErrors);
+  return { files, normalizedOptions, gitRoot };
+};
 var isIgnoredByIgnoreFiles = (patterns, options) => __async(null, null, function* () {
-  const { cwd, suppressErrors, deep, ignore } = normalizeOptions(options);
-  const paths = yield (0, import_fast_glob.default)(patterns, __spreadValues({
-    cwd,
-    suppressErrors,
-    deep,
-    ignore
-  }, ignoreFilesGlobOptions));
-  const files = yield Promise.all(paths.map((filePath) => __async(null, null, function* () {
-    return {
-      filePath,
-      content: yield import_promises3.default.readFile(filePath, "utf8")
-    };
-  })));
-  return getIsIgnoredPredicate(files, cwd);
+  const { files, normalizedOptions, gitRoot } = yield collectIgnoreFileArtifactsAsync(patterns, options, false);
+  return buildIgnoreResult(files, normalizedOptions, gitRoot).predicate;
 });
 var isIgnoredByIgnoreFilesSync = (patterns, options) => {
-  const { cwd, suppressErrors, deep, ignore } = normalizeOptions(options);
-  const paths = import_fast_glob.default.sync(patterns, __spreadValues({
-    cwd,
-    suppressErrors,
-    deep,
-    ignore
-  }, ignoreFilesGlobOptions));
-  const files = paths.map((filePath) => ({
-    filePath,
-    content: import_node_fs2.default.readFileSync(filePath, "utf8")
-  }));
-  return getIsIgnoredPredicate(files, cwd);
+  const { files, normalizedOptions, gitRoot } = collectIgnoreFileArtifactsSync(patterns, options, false);
+  return buildIgnoreResult(files, normalizedOptions, gitRoot).predicate;
+};
+var getPatternsFromIgnoreFiles = (files, baseDir) => files.flatMap((file) => parseIgnoreFile(file, baseDir));
+var getIgnorePatternsAndPredicate = (patterns, options, includeParentIgnoreFiles = false) => __async(null, null, function* () {
+  const { files, normalizedOptions, gitRoot } = yield collectIgnoreFileArtifactsAsync(
+    patterns,
+    options,
+    includeParentIgnoreFiles
+  );
+  return buildIgnoreResult(files, normalizedOptions, gitRoot);
+});
+var getIgnorePatternsAndPredicateSync = (patterns, options, includeParentIgnoreFiles = false) => {
+  const { files, normalizedOptions, gitRoot } = collectIgnoreFileArtifactsSync(
+    patterns,
+    options,
+    includeParentIgnoreFiles
+  );
+  return buildIgnoreResult(files, normalizedOptions, gitRoot);
 };
 var isGitIgnored = (options) => isIgnoredByIgnoreFiles(GITIGNORE_FILES_PATTERN, options);
 var isGitIgnoredSync = (options) => isIgnoredByIgnoreFilesSync(GITIGNORE_FILES_PATTERN, options);
@@ -12715,9 +12961,33 @@ var assertPatternsInput = (patterns) => {
     throw new TypeError("Patterns must be a string or an array of strings");
   }
 };
+var getStatMethod = (fsImplementation) => {
+  var _a2, _b2;
+  return (_b2 = (_a2 = bindFsMethod(fsImplementation == null ? void 0 : fsImplementation.promises, "stat")) != null ? _a2 : bindFsMethod(import_node_fs3.default.promises, "stat")) != null ? _b2 : promisifyFsMethod(fsImplementation, "stat");
+};
+var getStatSyncMethod2 = (fsImplementation) => {
+  var _a2;
+  return (_a2 = bindFsMethod(fsImplementation, "statSync")) != null ? _a2 : bindFsMethod(import_node_fs3.default, "statSync");
+};
+var isDirectory = (path5, fsImplementation) => __async(null, null, function* () {
+  try {
+    const stats = yield getStatMethod(fsImplementation)(path5);
+    return stats.isDirectory();
+  } catch (e) {
+    return false;
+  }
+});
+var isDirectorySync = (path5, fsImplementation) => {
+  try {
+    const stats = getStatSyncMethod2(fsImplementation)(path5);
+    return stats.isDirectory();
+  } catch (e) {
+    return false;
+  }
+};
 var normalizePathForDirectoryGlob = (filePath, cwd) => {
-  const path3 = isNegativePattern(filePath) ? filePath.slice(1) : filePath;
-  return import_node_path2.default.isAbsolute(path3) ? path3 : import_node_path2.default.join(cwd, path3);
+  const path5 = isNegativePattern(filePath) ? filePath.slice(1) : filePath;
+  return import_node_path4.default.isAbsolute(path5) ? path5 : import_node_path4.default.join(cwd, path5);
 };
 var shouldExpandGlobstarDirectory = (pattern) => {
   const match = pattern == null ? void 0 : pattern.match(/\*\*\/([^/]+)$/);
@@ -12726,17 +12996,18 @@ var shouldExpandGlobstarDirectory = (pattern) => {
   }
   const dirname = match[1];
   const hasWildcards = /[*?[\]{}]/.test(dirname);
-  const hasExtension = import_node_path2.default.extname(dirname) && !dirname.startsWith(".");
+  const hasExtension = import_node_path4.default.extname(dirname) && !dirname.startsWith(".");
   return !hasWildcards && !hasExtension;
 };
 var getDirectoryGlob = ({ directoryPath, files, extensions }) => {
   const extensionGlob = (extensions == null ? void 0 : extensions.length) > 0 ? `.${extensions.length > 1 ? `{${extensions.join(",")}}` : extensions[0]}` : "";
-  return files ? files.map((file) => import_node_path2.default.posix.join(directoryPath, `**/${import_node_path2.default.extname(file) ? file : `${file}${extensionGlob}`}`)) : [import_node_path2.default.posix.join(directoryPath, `**${extensionGlob ? `/*${extensionGlob}` : ""}`)];
+  return files ? files.map((file) => import_node_path4.default.posix.join(directoryPath, `**/${import_node_path4.default.extname(file) ? file : `${file}${extensionGlob}`}`)) : [import_node_path4.default.posix.join(directoryPath, `**${extensionGlob ? `/*${extensionGlob}` : ""}`)];
 };
 var directoryToGlob = (_0, ..._1) => __async(null, [_0, ..._1], function* (directoryPaths, {
   cwd = import_node_process2.default.cwd(),
   files,
-  extensions
+  extensions,
+  fs: fsImplementation
 } = {}) {
   const globs = yield Promise.all(directoryPaths.map((directoryPath) => __async(null, null, function* () {
     const checkPattern = isNegativePattern(directoryPath) ? directoryPath.slice(1) : directoryPath;
@@ -12744,49 +13015,51 @@ var directoryToGlob = (_0, ..._1) => __async(null, [_0, ..._1], function* (direc
       return getDirectoryGlob({ directoryPath, files, extensions });
     }
     const pathToCheck = normalizePathForDirectoryGlob(directoryPath, cwd);
-    return (yield isDirectory(pathToCheck)) ? getDirectoryGlob({ directoryPath, files, extensions }) : directoryPath;
+    return (yield isDirectory(pathToCheck, fsImplementation)) ? getDirectoryGlob({ directoryPath, files, extensions }) : directoryPath;
   })));
   return globs.flat();
 });
 var directoryToGlobSync = (directoryPaths, {
   cwd = import_node_process2.default.cwd(),
   files,
-  extensions
+  extensions,
+  fs: fsImplementation
 } = {}) => directoryPaths.flatMap((directoryPath) => {
   const checkPattern = isNegativePattern(directoryPath) ? directoryPath.slice(1) : directoryPath;
   if (shouldExpandGlobstarDirectory(checkPattern)) {
     return getDirectoryGlob({ directoryPath, files, extensions });
   }
   const pathToCheck = normalizePathForDirectoryGlob(directoryPath, cwd);
-  return isDirectorySync(pathToCheck) ? getDirectoryGlob({ directoryPath, files, extensions }) : directoryPath;
+  return isDirectorySync(pathToCheck, fsImplementation) ? getDirectoryGlob({ directoryPath, files, extensions }) : directoryPath;
 });
 var toPatternsArray = (patterns) => {
   patterns = [...new Set([patterns].flat())];
   assertPatternsInput(patterns);
   return patterns;
 };
-var checkCwdOption = (cwd) => {
-  if (!cwd) {
+var checkCwdOption = (cwd, fsImplementation = import_node_fs3.default) => {
+  if (!cwd || !fsImplementation.statSync) {
     return;
   }
-  let stat;
+  let stats;
   try {
-    stat = import_node_fs3.default.statSync(cwd);
+    stats = fsImplementation.statSync(cwd);
   } catch (e) {
     return;
   }
-  if (!stat.isDirectory()) {
-    throw new Error("The `cwd` option must be a path to a directory");
+  if (!stats.isDirectory()) {
+    throw new Error(`The \`cwd\` option must be a path to a directory, got: ${cwd}`);
   }
 };
 var normalizeOptions2 = (options = {}) => {
-  var _a2, _b2;
+  var _a2;
+  const ignore = options.ignore ? Array.isArray(options.ignore) ? options.ignore : [options.ignore] : [];
   options = __spreadProps(__spreadValues({}, options), {
-    ignore: (_a2 = options.ignore) != null ? _a2 : [],
-    expandDirectories: (_b2 = options.expandDirectories) != null ? _b2 : true,
+    ignore,
+    expandDirectories: (_a2 = options.expandDirectories) != null ? _a2 : true,
     cwd: toPath(options.cwd)
   });
-  checkCwdOption(options.cwd);
+  checkCwdOption(options.cwd, options.fs);
   return options;
 };
 var normalizeArguments = (function_) => (patterns, options) => __async(null, null, function* () {
@@ -12801,21 +13074,66 @@ var getIgnoreFilesPatterns = (options) => {
   }
   return patterns;
 };
-var getFilter = (options) => __async(null, null, function* () {
+var applyIgnoreFilesAndGetFilter = (options) => __async(null, null, function* () {
   const ignoreFilesPatterns = getIgnoreFilesPatterns(options);
-  return createFilterFunction(ignoreFilesPatterns.length > 0 && (yield isIgnoredByIgnoreFiles(ignoreFilesPatterns, options)));
+  if (ignoreFilesPatterns.length === 0) {
+    return {
+      options,
+      filter: createFilterFunction(false, options.cwd)
+    };
+  }
+  const includeParentIgnoreFiles = options.gitignore === true;
+  const { patterns, predicate, usingGitRoot } = yield getIgnorePatternsAndPredicate(ignoreFilesPatterns, options, includeParentIgnoreFiles);
+  const patternsForFastGlob = convertPatternsForFastGlob(patterns, usingGitRoot, normalizeDirectoryPatternForFastGlob);
+  const modifiedOptions = __spreadProps(__spreadValues({}, options), {
+    ignore: [...options.ignore, ...patternsForFastGlob]
+  });
+  return {
+    options: modifiedOptions,
+    filter: createFilterFunction(predicate, options.cwd)
+  };
 });
-var getFilterSync = (options) => {
+var applyIgnoreFilesAndGetFilterSync = (options) => {
   const ignoreFilesPatterns = getIgnoreFilesPatterns(options);
-  return createFilterFunction(ignoreFilesPatterns.length > 0 && isIgnoredByIgnoreFilesSync(ignoreFilesPatterns, options));
+  if (ignoreFilesPatterns.length === 0) {
+    return {
+      options,
+      filter: createFilterFunction(false, options.cwd)
+    };
+  }
+  const includeParentIgnoreFiles = options.gitignore === true;
+  const { patterns, predicate, usingGitRoot } = getIgnorePatternsAndPredicateSync(ignoreFilesPatterns, options, includeParentIgnoreFiles);
+  const patternsForFastGlob = convertPatternsForFastGlob(patterns, usingGitRoot, normalizeDirectoryPatternForFastGlob);
+  const modifiedOptions = __spreadProps(__spreadValues({}, options), {
+    ignore: [...options.ignore, ...patternsForFastGlob]
+  });
+  return {
+    options: modifiedOptions,
+    filter: createFilterFunction(predicate, options.cwd)
+  };
 };
-var createFilterFunction = (isIgnored) => {
+var createFilterFunction = (isIgnored, cwd) => {
   const seen = /* @__PURE__ */ new Set();
+  const basePath = cwd || import_node_process2.default.cwd();
+  const pathCache = /* @__PURE__ */ new Map();
   return (fastGlobResult) => {
     var _a2;
-    const pathKey = import_node_path2.default.normalize((_a2 = fastGlobResult.path) != null ? _a2 : fastGlobResult);
-    if (seen.has(pathKey) || isIgnored && isIgnored(pathKey)) {
+    const pathKey = import_node_path4.default.normalize((_a2 = fastGlobResult.path) != null ? _a2 : fastGlobResult);
+    if (seen.has(pathKey)) {
       return false;
+    }
+    if (isIgnored) {
+      let absolutePath = pathCache.get(pathKey);
+      if (absolutePath === void 0) {
+        absolutePath = import_node_path4.default.isAbsolute(pathKey) ? pathKey : import_node_path4.default.resolve(basePath, pathKey);
+        pathCache.set(pathKey, absolutePath);
+        if (pathCache.size > 1e4) {
+          pathCache.clear();
+        }
+      }
+      if (isIgnored(absolutePath)) {
+        return false;
+      }
     }
     seen.add(pathKey);
     return true;
@@ -12823,6 +13141,9 @@ var createFilterFunction = (isIgnored) => {
 };
 var unionFastGlobResults = (results, filter) => results.flat().filter((fastGlobResult) => filter(fastGlobResult));
 var convertNegativePatterns = (patterns, options) => {
+  if (patterns.length > 0 && patterns.every((pattern) => isNegativePattern(pattern))) {
+    patterns = ["**/*", ...patterns];
+  }
   const tasks = [];
   while (patterns.length > 0) {
     const index = patterns.findIndex((pattern) => isNegativePattern(pattern));
@@ -12849,14 +13170,22 @@ var convertNegativePatterns = (patterns, options) => {
   }
   return tasks;
 };
+var applyParentDirectoryIgnoreAdjustments = (tasks) => tasks.map((task) => ({
+  patterns: task.patterns,
+  options: __spreadProps(__spreadValues({}, task.options), {
+    ignore: adjustIgnorePatternsForParentDirectories(task.patterns, task.options.ignore)
+  })
+}));
 var normalizeExpandDirectoriesOption = (options, cwd) => __spreadValues(__spreadValues({}, cwd ? { cwd } : {}), Array.isArray(options) ? { files: options } : options);
 var generateTasks = (patterns, options) => __async(null, null, function* () {
   const globTasks = convertNegativePatterns(patterns, options);
-  const { cwd, expandDirectories } = options;
+  const { cwd, expandDirectories, fs: fsImplementation } = options;
   if (!expandDirectories) {
-    return globTasks;
+    return applyParentDirectoryIgnoreAdjustments(globTasks);
   }
-  const directoryToGlobOptions = normalizeExpandDirectoriesOption(expandDirectories, cwd);
+  const directoryToGlobOptions = __spreadProps(__spreadValues({}, normalizeExpandDirectoriesOption(expandDirectories, cwd)), {
+    fs: fsImplementation
+  });
   return Promise.all(globTasks.map((task) => __async(null, null, function* () {
     let { patterns: patterns2, options: options2 } = task;
     [
@@ -12864,45 +13193,44 @@ var generateTasks = (patterns, options) => __async(null, null, function* () {
       options2.ignore
     ] = yield Promise.all([
       directoryToGlob(patterns2, directoryToGlobOptions),
-      directoryToGlob(options2.ignore, { cwd })
+      directoryToGlob(options2.ignore, { cwd, fs: fsImplementation })
     ]);
+    options2.ignore = adjustIgnorePatternsForParentDirectories(patterns2, options2.ignore);
     return { patterns: patterns2, options: options2 };
   })));
 });
 var generateTasksSync = (patterns, options) => {
   const globTasks = convertNegativePatterns(patterns, options);
-  const { cwd, expandDirectories } = options;
+  const { cwd, expandDirectories, fs: fsImplementation } = options;
   if (!expandDirectories) {
-    return globTasks;
+    return applyParentDirectoryIgnoreAdjustments(globTasks);
   }
-  const directoryToGlobSyncOptions = normalizeExpandDirectoriesOption(expandDirectories, cwd);
+  const directoryToGlobSyncOptions = __spreadProps(__spreadValues({}, normalizeExpandDirectoriesOption(expandDirectories, cwd)), {
+    fs: fsImplementation
+  });
   return globTasks.map((task) => {
     let { patterns: patterns2, options: options2 } = task;
     patterns2 = directoryToGlobSync(patterns2, directoryToGlobSyncOptions);
-    options2.ignore = directoryToGlobSync(options2.ignore, { cwd });
+    options2.ignore = directoryToGlobSync(options2.ignore, { cwd, fs: fsImplementation });
+    options2.ignore = adjustIgnorePatternsForParentDirectories(patterns2, options2.ignore);
     return { patterns: patterns2, options: options2 };
   });
 };
 var globby = normalizeArguments((patterns, options) => __async(null, null, function* () {
-  const [
-    tasks,
-    filter
-  ] = yield Promise.all([
-    generateTasks(patterns, options),
-    getFilter(options)
-  ]);
+  const { options: modifiedOptions, filter } = yield applyIgnoreFilesAndGetFilter(options);
+  const tasks = yield generateTasks(patterns, modifiedOptions);
   const results = yield Promise.all(tasks.map((task) => (0, import_fast_glob2.default)(task.patterns, task.options)));
   return unionFastGlobResults(results, filter);
 }));
 var globbySync = normalizeArgumentsSync((patterns, options) => {
-  const tasks = generateTasksSync(patterns, options);
-  const filter = getFilterSync(options);
+  const { options: modifiedOptions, filter } = applyIgnoreFilesAndGetFilterSync(options);
+  const tasks = generateTasksSync(patterns, modifiedOptions);
   const results = tasks.map((task) => import_fast_glob2.default.sync(task.patterns, task.options));
   return unionFastGlobResults(results, filter);
 });
 var globbyStream = normalizeArgumentsSync((patterns, options) => {
-  const tasks = generateTasksSync(patterns, options);
-  const filter = getFilterSync(options);
+  const { options: modifiedOptions, filter } = applyIgnoreFilesAndGetFilterSync(options);
+  const tasks = generateTasksSync(patterns, modifiedOptions);
   const streams = tasks.map((task) => import_fast_glob2.default.stream(task.patterns, task.options));
   if (streams.length === 0) {
     return import_node_stream2.Readable.from([]);
@@ -13036,17 +13364,17 @@ function visit(node, visitor) {
 visit.BREAK = BREAK;
 visit.SKIP = SKIP;
 visit.REMOVE = REMOVE;
-function visit_(key, node, visitor, path3) {
-  const ctrl = callVisitor(key, node, visitor, path3);
+function visit_(key, node, visitor, path5) {
+  const ctrl = callVisitor(key, node, visitor, path5);
   if (isNode(ctrl) || isPair(ctrl)) {
-    replaceNode(key, path3, ctrl);
-    return visit_(key, ctrl, visitor, path3);
+    replaceNode(key, path5, ctrl);
+    return visit_(key, ctrl, visitor, path5);
   }
   if (typeof ctrl !== "symbol") {
     if (isCollection(node)) {
-      path3 = Object.freeze(path3.concat(node));
+      path5 = Object.freeze(path5.concat(node));
       for (let i = 0; i < node.items.length; ++i) {
-        const ci2 = visit_(i, node.items[i], visitor, path3);
+        const ci2 = visit_(i, node.items[i], visitor, path5);
         if (typeof ci2 === "number")
           i = ci2 - 1;
         else if (ci2 === BREAK)
@@ -13057,13 +13385,13 @@ function visit_(key, node, visitor, path3) {
         }
       }
     } else if (isPair(node)) {
-      path3 = Object.freeze(path3.concat(node));
-      const ck = visit_("key", node.key, visitor, path3);
+      path5 = Object.freeze(path5.concat(node));
+      const ck = visit_("key", node.key, visitor, path5);
       if (ck === BREAK)
         return BREAK;
       else if (ck === REMOVE)
         node.key = null;
-      const cv = visit_("value", node.value, visitor, path3);
+      const cv = visit_("value", node.value, visitor, path5);
       if (cv === BREAK)
         return BREAK;
       else if (cv === REMOVE)
@@ -13086,18 +13414,18 @@ function visitAsync(node, visitor) {
 visitAsync.BREAK = BREAK;
 visitAsync.SKIP = SKIP;
 visitAsync.REMOVE = REMOVE;
-function visitAsync_(key, node, visitor, path3) {
+function visitAsync_(key, node, visitor, path5) {
   return __async(this, null, function* () {
-    const ctrl = yield callVisitor(key, node, visitor, path3);
+    const ctrl = yield callVisitor(key, node, visitor, path5);
     if (isNode(ctrl) || isPair(ctrl)) {
-      replaceNode(key, path3, ctrl);
-      return visitAsync_(key, ctrl, visitor, path3);
+      replaceNode(key, path5, ctrl);
+      return visitAsync_(key, ctrl, visitor, path5);
     }
     if (typeof ctrl !== "symbol") {
       if (isCollection(node)) {
-        path3 = Object.freeze(path3.concat(node));
+        path5 = Object.freeze(path5.concat(node));
         for (let i = 0; i < node.items.length; ++i) {
-          const ci2 = yield visitAsync_(i, node.items[i], visitor, path3);
+          const ci2 = yield visitAsync_(i, node.items[i], visitor, path5);
           if (typeof ci2 === "number")
             i = ci2 - 1;
           else if (ci2 === BREAK)
@@ -13108,13 +13436,13 @@ function visitAsync_(key, node, visitor, path3) {
           }
         }
       } else if (isPair(node)) {
-        path3 = Object.freeze(path3.concat(node));
-        const ck = yield visitAsync_("key", node.key, visitor, path3);
+        path5 = Object.freeze(path5.concat(node));
+        const ck = yield visitAsync_("key", node.key, visitor, path5);
         if (ck === BREAK)
           return BREAK;
         else if (ck === REMOVE)
           node.key = null;
-        const cv = yield visitAsync_("value", node.value, visitor, path3);
+        const cv = yield visitAsync_("value", node.value, visitor, path5);
         if (cv === BREAK)
           return BREAK;
         else if (cv === REMOVE)
@@ -13142,24 +13470,24 @@ function initVisitor(visitor) {
   }
   return visitor;
 }
-function callVisitor(key, node, visitor, path3) {
+function callVisitor(key, node, visitor, path5) {
   var _a2, _b2, _c, _d, _e;
   if (typeof visitor === "function")
-    return visitor(key, node, path3);
+    return visitor(key, node, path5);
   if (isMap(node))
-    return (_a2 = visitor.Map) == null ? void 0 : _a2.call(visitor, key, node, path3);
+    return (_a2 = visitor.Map) == null ? void 0 : _a2.call(visitor, key, node, path5);
   if (isSeq(node))
-    return (_b2 = visitor.Seq) == null ? void 0 : _b2.call(visitor, key, node, path3);
+    return (_b2 = visitor.Seq) == null ? void 0 : _b2.call(visitor, key, node, path5);
   if (isPair(node))
-    return (_c = visitor.Pair) == null ? void 0 : _c.call(visitor, key, node, path3);
+    return (_c = visitor.Pair) == null ? void 0 : _c.call(visitor, key, node, path5);
   if (isScalar(node))
-    return (_d = visitor.Scalar) == null ? void 0 : _d.call(visitor, key, node, path3);
+    return (_d = visitor.Scalar) == null ? void 0 : _d.call(visitor, key, node, path5);
   if (isAlias(node))
-    return (_e = visitor.Alias) == null ? void 0 : _e.call(visitor, key, node, path3);
+    return (_e = visitor.Alias) == null ? void 0 : _e.call(visitor, key, node, path5);
   return void 0;
 }
-function replaceNode(key, path3, node) {
-  const parent = path3[path3.length - 1];
+function replaceNode(key, path5, node) {
+  const parent = path5[path5.length - 1];
   if (isCollection(parent)) {
     parent.items[key] = node;
   } else if (isPair(parent)) {
@@ -13691,10 +14019,10 @@ function createNode(value, tagName, ctx) {
 }
 
 // node_modules/yaml/browser/dist/nodes/Collection.js
-function collectionFromPath(schema4, path3, value) {
+function collectionFromPath(schema4, path5, value) {
   let v2 = value;
-  for (let i = path3.length - 1; i >= 0; --i) {
-    const k2 = path3[i];
+  for (let i = path5.length - 1; i >= 0; --i) {
+    const k2 = path5[i];
     if (typeof k2 === "number" && Number.isInteger(k2) && k2 >= 0) {
       const a = [];
       a[k2] = v2;
@@ -13713,7 +14041,7 @@ function collectionFromPath(schema4, path3, value) {
     sourceObjects: /* @__PURE__ */ new Map()
   });
 }
-var isEmptyPath = (path3) => path3 == null || typeof path3 === "object" && !!path3[Symbol.iterator]().next().done;
+var isEmptyPath = (path5) => path5 == null || typeof path5 === "object" && !!path5[Symbol.iterator]().next().done;
 var Collection = class extends NodeBase {
   constructor(type, schema4) {
     super(type);
@@ -13743,11 +14071,11 @@ var Collection = class extends NodeBase {
    * be a Pair instance or a `{ key, value }` object, which may not have a key
    * that already exists in the map.
    */
-  addIn(path3, value) {
-    if (isEmptyPath(path3))
+  addIn(path5, value) {
+    if (isEmptyPath(path5))
       this.add(value);
     else {
-      const [key, ...rest] = path3;
+      const [key, ...rest] = path5;
       const node = this.get(key, true);
       if (isCollection(node))
         node.addIn(rest, value);
@@ -13761,8 +14089,8 @@ var Collection = class extends NodeBase {
    * Removes a value from the collection.
    * @returns `true` if the item was found and removed.
    */
-  deleteIn(path3) {
-    const [key, ...rest] = path3;
+  deleteIn(path5) {
+    const [key, ...rest] = path5;
     if (rest.length === 0)
       return this.delete(key);
     const node = this.get(key, true);
@@ -13776,8 +14104,8 @@ var Collection = class extends NodeBase {
    * scalar values from their surrounding node; to disable set `keepScalar` to
    * `true` (collections are always returned intact).
    */
-  getIn(path3, keepScalar) {
-    const [key, ...rest] = path3;
+  getIn(path5, keepScalar) {
+    const [key, ...rest] = path5;
     const node = this.get(key, true);
     if (rest.length === 0)
       return !keepScalar && isScalar(node) ? node.value : node;
@@ -13795,8 +14123,8 @@ var Collection = class extends NodeBase {
   /**
    * Checks if the collection includes a value with the key `key`.
    */
-  hasIn(path3) {
-    const [key, ...rest] = path3;
+  hasIn(path5) {
+    const [key, ...rest] = path5;
     if (rest.length === 0)
       return this.has(key);
     const node = this.get(key, true);
@@ -13806,8 +14134,8 @@ var Collection = class extends NodeBase {
    * Sets a value in this collection. For `!!set`, `value` needs to be a
    * boolean to add/remove the item from the set.
    */
-  setIn(path3, value) {
-    const [key, ...rest] = path3;
+  setIn(path5, value) {
+    const [key, ...rest] = path5;
     if (rest.length === 0) {
       this.set(key, value);
     } else {
@@ -15953,9 +16281,9 @@ var Document = class _Document {
       this.contents.add(value);
   }
   /** Adds a value to the document. */
-  addIn(path3, value) {
+  addIn(path5, value) {
     if (assertCollection(this.contents))
-      this.contents.addIn(path3, value);
+      this.contents.addIn(path5, value);
   }
   /**
    * Create a new `Alias` node, ensuring that the target `node` has the required anchor.
@@ -16030,14 +16358,14 @@ var Document = class _Document {
    * Removes a value from the document.
    * @returns `true` if the item was found and removed.
    */
-  deleteIn(path3) {
-    if (isEmptyPath(path3)) {
+  deleteIn(path5) {
+    if (isEmptyPath(path5)) {
       if (this.contents == null)
         return false;
       this.contents = null;
       return true;
     }
-    return assertCollection(this.contents) ? this.contents.deleteIn(path3) : false;
+    return assertCollection(this.contents) ? this.contents.deleteIn(path5) : false;
   }
   /**
    * Returns item at `key`, or `undefined` if not found. By default unwraps
@@ -16052,10 +16380,10 @@ var Document = class _Document {
    * scalar values from their surrounding node; to disable set `keepScalar` to
    * `true` (collections are always returned intact).
    */
-  getIn(path3, keepScalar) {
-    if (isEmptyPath(path3))
+  getIn(path5, keepScalar) {
+    if (isEmptyPath(path5))
       return !keepScalar && isScalar(this.contents) ? this.contents.value : this.contents;
-    return isCollection(this.contents) ? this.contents.getIn(path3, keepScalar) : void 0;
+    return isCollection(this.contents) ? this.contents.getIn(path5, keepScalar) : void 0;
   }
   /**
    * Checks if the document includes a value with the key `key`.
@@ -16066,10 +16394,10 @@ var Document = class _Document {
   /**
    * Checks if the document includes a value at `path`.
    */
-  hasIn(path3) {
-    if (isEmptyPath(path3))
+  hasIn(path5) {
+    if (isEmptyPath(path5))
       return this.contents !== void 0;
-    return isCollection(this.contents) ? this.contents.hasIn(path3) : false;
+    return isCollection(this.contents) ? this.contents.hasIn(path5) : false;
   }
   /**
    * Sets a value in this document. For `!!set`, `value` needs to be a
@@ -16086,13 +16414,13 @@ var Document = class _Document {
    * Sets a value in this document. For `!!set`, `value` needs to be a
    * boolean to add/remove the item from the set.
    */
-  setIn(path3, value) {
-    if (isEmptyPath(path3)) {
+  setIn(path5, value) {
+    if (isEmptyPath(path5)) {
       this.contents = value;
     } else if (this.contents == null) {
-      this.contents = collectionFromPath(this.schema, Array.from(path3), value);
+      this.contents = collectionFromPath(this.schema, Array.from(path5), value);
     } else if (assertCollection(this.contents)) {
-      this.contents.setIn(path3, value);
+      this.contents.setIn(path5, value);
     }
   }
   /**
@@ -17895,9 +18223,9 @@ function visit2(cst, visitor) {
 visit2.BREAK = BREAK2;
 visit2.SKIP = SKIP2;
 visit2.REMOVE = REMOVE2;
-visit2.itemAtPath = (cst, path3) => {
+visit2.itemAtPath = (cst, path5) => {
   let item = cst;
-  for (const [field, index] of path3) {
+  for (const [field, index] of path5) {
     const tok = item == null ? void 0 : item[field];
     if (tok && "items" in tok) {
       item = tok.items[index];
@@ -17906,23 +18234,23 @@ visit2.itemAtPath = (cst, path3) => {
   }
   return item;
 };
-visit2.parentCollection = (cst, path3) => {
-  const parent = visit2.itemAtPath(cst, path3.slice(0, -1));
-  const field = path3[path3.length - 1][0];
+visit2.parentCollection = (cst, path5) => {
+  const parent = visit2.itemAtPath(cst, path5.slice(0, -1));
+  const field = path5[path5.length - 1][0];
   const coll = parent == null ? void 0 : parent[field];
   if (coll && "items" in coll)
     return coll;
   throw new Error("Parent collection not found");
 };
-function _visit(path3, item, visitor) {
-  let ctrl = visitor(item, path3);
+function _visit(path5, item, visitor) {
+  let ctrl = visitor(item, path5);
   if (typeof ctrl === "symbol")
     return ctrl;
   for (const field of ["key", "value"]) {
     const token = item[field];
     if (token && "items" in token) {
       for (let i = 0; i < token.items.length; ++i) {
-        const ci2 = _visit(Object.freeze(path3.concat([[field, i]])), token.items[i], visitor);
+        const ci2 = _visit(Object.freeze(path5.concat([[field, i]])), token.items[i], visitor);
         if (typeof ci2 === "number")
           i = ci2 - 1;
         else if (ci2 === BREAK2)
@@ -17933,10 +18261,10 @@ function _visit(path3, item, visitor) {
         }
       }
       if (typeof ctrl === "function" && field === "key")
-        ctrl = ctrl(item, path3);
+        ctrl = ctrl(item, path5);
     }
   }
-  return typeof ctrl === "function" ? ctrl(item, path3) : ctrl;
+  return typeof ctrl === "function" ? ctrl(item, path5) : ctrl;
 }
 
 // node_modules/yaml/browser/dist/parse/cst.js
@@ -20063,15 +20391,15 @@ var import_minimist = __toESM(require_minimist(), 1);
 
 // node_modules/envapi/target/esm/index.mjs
 var import_node_fs5 = __toESM(require("fs"), 1);
-var import_node_path4 = __toESM(require("path"), 1);
-var import_node_util3 = require("util");
+var import_node_path6 = __toESM(require("path"), 1);
+var import_node_util4 = require("util");
 var DOTENV = ".env";
 var Q1 = '"';
 var Q2 = "'";
 var Q3 = "`";
 var KR = /^[a-zA-Z_]\w*$/;
 var SR = /\s/;
-var decoder = new import_node_util3.TextDecoder();
+var decoder = new import_node_util4.TextDecoder();
 var parse3 = (content) => {
   const e = {};
   let k2 = "";
@@ -20140,7 +20468,7 @@ var formatValue = (v2) => {
   return `${Q3}${v2}${Q3}`;
 };
 var stringify5 = (env) => Object.entries(env).map(([k2, v2]) => `${k2}=${formatValue(v2 || "")}`).join("\n");
-var _load = (read, ...files) => files.reverse().reduce((m2, f2) => Object.assign(m2, parse3(read(import_node_path4.default.resolve(f2)))), {});
+var _load = (read, ...files) => files.reverse().reduce((m2, f2) => Object.assign(m2, parse3(read(import_node_path6.default.resolve(f2)))), {});
 var load = (...files) => _load((file) => import_node_fs5.default.readFileSync(file, "utf8"), ...files);
 var loadSafe = (...files) => _load(
   (file) => import_node_fs5.default.existsSync(file) ? import_node_fs5.default.readFileSync(file, "utf8") : "",
