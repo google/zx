@@ -266,7 +266,11 @@ type Options$1 = {
 	/**
 	Respect ignore patterns in `.gitignore` files that apply to the globbed files.
 
-	Performance note: This option searches for all `.gitignore` files in the entire directory tree before globbing, which can be slow. For better performance, use `ignoreFiles: '.gitignore'` to only respect the root `.gitignore` file.
+	When enabled, globby searches for `.gitignore` files from the current working directory downward, and if a Git repository is detected (by finding a `.git` directory), it also respects `.gitignore` files in parent directories up to the repository root. This matches Git's actual behavior where patterns from parent `.gitignore` files apply to subdirectories.
+
+	Gitignore patterns take priority over user patterns, matching Git's behavior. To include gitignored files, set this to `false`.
+
+	Performance: Globby reads `.gitignore` files before globbing. When there are no negation patterns (like `!important.log`) and no parent `.gitignore` files are found, it passes ignore patterns to fast-glob to skip traversing ignored directories entirely, which significantly improves performance for large `node_modules` or build directories. When negation patterns or parent `.gitignore` files are present, all filtering is done after traversal to ensure correct Git-compatible behavior. For optimal performance, prefer specific `.gitignore` patterns without negations, or use `ignoreFiles: '.gitignore'` to target only the root ignore file.
 
 	@default false
 	*/
@@ -289,7 +293,56 @@ type Options$1 = {
 	readonly cwd?: URL | string;
 } & FastGlobOptionsWithoutCwd;
 type GitignoreOptions = {
+	/**
+	The current working directory in which to search.
+
+	@default process.cwd()
+	*/
 	readonly cwd?: URL | string;
+	/**
+	Suppress errors when encountering directories or files without read permissions.
+
+	By default, fast-glob only suppresses `ENOENT` errors. Set to `true` to suppress any error.
+
+	@default false
+	*/
+	readonly suppressErrors?: boolean;
+	/**
+	Specifies the maximum depth of ignore file search relative to the start directory.
+
+	@default Infinity
+	*/
+	readonly deep?: number;
+	/**
+	Glob patterns to exclude from ignore file search.
+
+	@default []
+	*/
+	readonly ignore?: string | readonly string[];
+	/**
+	Indicates whether to traverse descendants of symbolic link directories.
+
+	@default true
+	*/
+	readonly followSymbolicLinks?: boolean;
+	/**
+	Specifies the maximum number of concurrent requests from a reader to read directories.
+
+	@default os.cpus().length
+	*/
+	readonly concurrency?: number;
+	/**
+	Throw an error when symbolic link is broken if `true` or safely return `lstat` call if `false`.
+
+	@default false
+	*/
+	readonly throwErrorOnBrokenSymbolicLink?: boolean;
+	/**
+	Custom file system implementation (useful for testing or virtual file systems).
+
+	@default undefined
+	*/
+	readonly fs?: FastGlob.Options["fs"];
 };
 type GlobbyFilterFunction = (path: URL | string) => boolean;
 type AsyncIterableReadable<Value> = Omit<NodeJS.ReadableStream, typeof Symbol.asyncIterator> & {
@@ -297,17 +350,23 @@ type AsyncIterableReadable<Value> = Omit<NodeJS.ReadableStream, typeof Symbol.as
 };
 type GlobbyStream = AsyncIterableReadable<string>;
 type GlobbyEntryStream = AsyncIterableReadable<GlobEntry>;
-declare function globby(patterns: string | readonly string[], options: Options$1 & {
+declare function globby(patterns: string | readonly string[], options: Options$1 & ({
 	objectMode: true;
-}): Promise<GlobEntry[]>;
+} | {
+	stats: true;
+})): Promise<GlobEntry[]>;
 declare function globby(patterns: string | readonly string[], options?: Options$1): Promise<string[]>;
-declare function globbySync(patterns: string | readonly string[], options: Options$1 & {
+declare function globbySync(patterns: string | readonly string[], options: Options$1 & ({
 	objectMode: true;
-}): GlobEntry[];
+} | {
+	stats: true;
+})): GlobEntry[];
 declare function globbySync(patterns: string | readonly string[], options?: Options$1): string[];
-declare function globbyStream(patterns: string | readonly string[], options: Options$1 & {
+declare function globbyStream(patterns: string | readonly string[], options: Options$1 & ({
 	objectMode: true;
-}): GlobbyEntryStream;
+} | {
+	stats: true;
+})): GlobbyEntryStream;
 declare function globbyStream(patterns: string | readonly string[], options?: Options$1): GlobbyStream;
 declare function generateGlobTasks(patterns: string | readonly string[], options?: Options$1): Promise<GlobTask[]>;
 declare function generateGlobTasksSync(patterns: string | readonly string[], options?: Options$1): GlobTask[];

@@ -70,7 +70,7 @@ glob-parent@5.1.2
   gulpjs/glob-parent
   ISC
 
-globby@15.0.0
+globby@16.0.0
   Sindre Sorhus <sindresorhus@gmail.com>
   sindresorhus/globby
   MIT
@@ -83,6 +83,11 @@ graceful-fs@4.2.11
 is-glob@4.0.3
   Jon Schlinkert (https://github.com/jonschlinkert)
   micromatch/is-glob
+  MIT
+
+is-path-inside@4.0.0
+  Sindre Sorhus <sindresorhus@gmail.com>
+  sindresorhus/is-path-inside
   MIT
 
 isexe@3.1.1
@@ -115,11 +120,6 @@ node-fetch-native@1.6.7
   unjs/node-fetch-native
   MIT
 
-path-type@6.0.0
-  Sindre Sorhus <sindresorhus@gmail.com>
-  sindresorhus/path-type
-  MIT
-
 picomatch@2.3.1
   Jon Schlinkert (https://github.com/jonschlinkert)
   micromatch/picomatch
@@ -135,12 +135,12 @@ to-regex-range@5.0.1
   micromatch/to-regex-range
   MIT
 
-unicorn-magic@0.3.0
+unicorn-magic@0.4.0
   Sindre Sorhus <sindresorhus@gmail.com>
   sindresorhus/unicorn-magic
   MIT
 
-which@5.0.0
+which@6.0.0
   GitHub Inc.
   git+https://github.com/npm/node-which.git
   ISC
