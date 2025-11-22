@@ -207,5 +207,8 @@
     "compilerOptions": {
       "rootDir": "."
     }
+  },
+  "dependencies": {
+    "semver": "^7.7.2"
   }
 }
