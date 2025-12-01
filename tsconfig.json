@@ -14,5 +14,5 @@
     "types": ["node", "fs-extra"]
   },
   "include": ["./src/**/*"],
-  "exclude": ["./src/globals.ts"]
+  "exclude": ["./src/globals-jsr.ts"]
 }
