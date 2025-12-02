@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "node16",
+    "esModuleInterop": true,
+    "rootDir": ".",
+    "emitDeclarationOnly": false,
+    "outDir": "./temp"
+  },
+  "include": ["./ts.test.ts"],
+  "exclude": []
+}
