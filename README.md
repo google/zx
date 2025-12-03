@@ -49,6 +49,11 @@ See also [**zx@lite**](https://google.github.io/zx/lite).
 * [Both CJS or ESM](https://google.github.io/zx/setup#hybrid) modules in [JS or TS](https://google.github.io/zx/typescript)
 
 
+## See also
+
+- [srf](https://github.com/antonmedv/srf) — a tiny, dependency-free static file server for Node.js
+- [fx](https://fx.wtf) — a JSON cli tool and terminal JSON viewer 
+
 ## License
 
 [Apache-2.0](LICENSE)
