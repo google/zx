@@ -13877,7 +13877,7 @@ var Alias = class extends NodeBase {
       toJS(source, null, ctx);
       data = anchors.get(source);
     }
-    if (!data || data.res === void 0) {
+    if ((data == null ? void 0 : data.res) === void 0) {
       const msg = "This should not happen: Alias anchor was not resolved?";
       throw new ReferenceError(msg);
     }
@@ -14766,7 +14766,7 @@ ${indent}:`;
 ${indentComment(cs, ctx.indent)}`;
     }
     if (valueStr === "" && !ctx.inFlow) {
-      if (ws === "\n")
+      if (ws === "\n" && valueComment)
         ws = "\n\n";
     } else {
       ws += `
@@ -15390,7 +15390,7 @@ function stringifyNumber({ format, minFractionDigits, tag, value }) {
   const num = typeof value === "number" ? value : Number(value);
   if (!isFinite(num))
     return isNaN(num) ? ".nan" : num < 0 ? "-.inf" : ".inf";
-  let n4 = JSON.stringify(value);
+  let n4 = Object.is(value, -0) ? "-0" : JSON.stringify(value);
   if (!format && minFractionDigits && (!tag || tag === "tag:yaml.org,2002:float") && /^\d/.test(n4)) {
     let i = n4.indexOf(".");
     if (i < 0) {
@@ -16553,7 +16553,7 @@ var prettifyError = (src, lc) => (error) => {
   if (/[^ ]/.test(lineStr)) {
     let count = 1;
     const end = error.linePos[1];
-    if (end && end.line === line && end.col > col) {
+    if ((end == null ? void 0 : end.line) === line && end.col > col) {
       count = Math.max(1, Math.min(end.col - col, 80 - ci2));
     }
     const pointer = " ".repeat(ci2) + "^".repeat(count);
@@ -16868,7 +16868,7 @@ function resolveBlockSeq({ composeNode: composeNode2, composeEmptyNode: composeE
     });
     if (!props.found) {
       if (props.anchor || props.tag || value) {
-        if (value && value.type === "block-seq")
+        if ((value == null ? void 0 : value.type) === "block-seq")
           onError(props.end, "BAD_INDENT", "All sequence items must start at the same column");
         else
           onError(offset, "MISSING_CHAR", "Sequence item without - indicator");
@@ -16930,7 +16930,7 @@ function resolveEnd(end, offset, reqSpace, onError) {
 var blockMsg = "Block collections are not allowed within flow collections";
 var isBlock = (token) => token && (token.type === "block-map" || token.type === "block-seq");
 function resolveFlowCollection({ composeNode: composeNode2, composeEmptyNode: composeEmptyNode2 }, ctx, fc, onError, tag) {
-  var _a2, _b2;
+  var _a2, _b2, _c;
   const isMap2 = fc.start.source === "{";
   const fcName = isMap2 ? "flow map" : "flow sequence";
   const NodeClass = (_a2 = tag == null ? void 0 : tag.nodeClass) != null ? _a2 : isMap2 ? YAMLMap : YAMLSeq;
@@ -17046,7 +17046,7 @@ function resolveFlowCollection({ composeNode: composeNode2, composeEmptyNode: co
             onError(valueProps.found, "KEY_OVER_1024_CHARS", "The : indicator must be at most 1024 chars after the start of an implicit flow sequence key");
         }
       } else if (value) {
-        if ("source" in value && value.source && value.source[0] === ":")
+        if ("source" in value && ((_c = value.source) == null ? void 0 : _c[0]) === ":")
           onError(value, "MISSING_CHAR", `Missing space after : in ${fcName}`);
         else
           onError(valueProps.start, "MISSING_CHAR", `Missing , or : between ${fcName} items`);
@@ -17083,7 +17083,7 @@ function resolveFlowCollection({ composeNode: composeNode2, composeEmptyNode: co
   const expectedEnd = isMap2 ? "}" : "]";
   const [ce, ...ee2] = fc.end;
   let cePos = offset;
-  if (ce && ce.source === expectedEnd)
+  if ((ce == null ? void 0 : ce.source) === expectedEnd)
     cePos = ce.offset + ce.source.length;
   else {
     const name = fcName[0].toUpperCase() + fcName.substring(1);
@@ -17138,7 +17138,7 @@ function composeCollection(CN2, ctx, token, props, onError) {
   let tag = ctx.schema.tags.find((t3) => t3.tag === tagName && t3.collection === expType);
   if (!tag) {
     const kt2 = ctx.schema.knownTags[tagName];
-    if (kt2 && kt2.collection === expType) {
+    if ((kt2 == null ? void 0 : kt2.collection) === expType) {
       ctx.schema.tags.push(Object.assign({}, kt2, { default: false }));
       tag = kt2;
     } else {
@@ -19130,7 +19130,7 @@ var Parser = class {
   }
   *step() {
     const top = this.peek(1);
-    if (this.type === "doc-end" && (!top || top.type !== "doc-end")) {
+    if (this.type === "doc-end" && (top == null ? void 0 : top.type) !== "doc-end") {
       while (this.stack.length > 0)
         yield* __yieldStar(this.pop());
       this.stack.push({
@@ -19610,7 +19610,7 @@ var Parser = class {
       do {
         yield* __yieldStar(this.pop());
         top = this.peek(1);
-      } while (top && top.type === "flow-collection");
+      } while ((top == null ? void 0 : top.type) === "flow-collection");
     } else if (fc.end.length === 0) {
       switch (this.type) {
         case "comma":
