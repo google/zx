@@ -17,7 +17,7 @@ THIRD PARTY LICENSES
 
 @sindresorhus/merge-streams@4.0.0
   Sindre Sorhus <sindresorhus@gmail.com>
-  sindresorhus/merge-streams
+  git+https://github.com/sindresorhus/merge-streams.git
   MIT
 
 @webpod/ps@1.0.0
@@ -26,18 +26,18 @@ THIRD PARTY LICENSES
   MIT
 
 braces@3.0.3
-  Jon Schlinkert (https://github.com/jonschlinkert)
-  micromatch/braces
+  Jon Schlinkert <undefined>
+  git+https://github.com/micromatch/braces.git
   MIT
 
 chalk@5.6.2
   <unknown>
-  chalk/chalk
+  git+https://github.com/chalk/chalk.git
   MIT
 
 create-require@1.1.1
   Maël Nison <nison.mael@gmail.com>, Paul Soporan <paul.soporan@gmail.com>, Pooya Parsa <pyapar@gmail.com>
-  nuxt-contrib/create-require
+  git+https://github.com/nuxt-contrib/create-require.git
   MIT
 
 envapi@0.2.3
@@ -47,7 +47,7 @@ envapi@0.2.3
 
 fast-glob@3.3.3
   Denis Malinochkin <undefined>
-  mrmlnc/fast-glob
+  git+https://github.com/mrmlnc/fast-glob.git
   MIT
 
 fastq@1.19.1
@@ -56,38 +56,38 @@ fastq@1.19.1
   ISC
 
 fill-range@7.1.1
-  Jon Schlinkert (https://github.com/jonschlinkert)
-  jonschlinkert/fill-range
+  Jon Schlinkert <undefined>
+  git+https://github.com/jonschlinkert/fill-range.git
   MIT
 
 fs-extra@11.3.2
   JP Richardson <jprichardson@gmail.com>
-  https://github.com/jprichardson/node-fs-extra
+  git+https://github.com/jprichardson/node-fs-extra.git
   MIT
 
 glob-parent@5.1.2
-  Gulp Team <team@gulpjs.com> (https://gulpjs.com/)
-  gulpjs/glob-parent
+  Gulp Team <team@gulpjs.com>
+  git+https://github.com/gulpjs/glob-parent.git
   ISC
 
 globby@16.0.0
   Sindre Sorhus <sindresorhus@gmail.com>
-  sindresorhus/globby
+  git+https://github.com/sindresorhus/globby.git
   MIT
 
 graceful-fs@4.2.11
   <unknown>
-  https://github.com/isaacs/node-graceful-fs
+  git+https://github.com/isaacs/node-graceful-fs.git
   ISC
 
 is-glob@4.0.3
-  Jon Schlinkert (https://github.com/jonschlinkert)
-  micromatch/is-glob
+  Jon Schlinkert <undefined>
+  git+https://github.com/micromatch/is-glob.git
   MIT
 
 is-path-inside@4.0.0
   Sindre Sorhus <sindresorhus@gmail.com>
-  sindresorhus/is-path-inside
+  git+https://github.com/sindresorhus/is-path-inside.git
   MIT
 
 isexe@3.1.1
@@ -107,22 +107,22 @@ maml.js@0.0.3
 
 merge2@1.4.1
   <unknown>
-  git@github.com:teambition/merge2.git
+  git+ssh://git@github.com/teambition/merge2.git
   MIT
 
 micromatch@4.0.8
-  Jon Schlinkert (https://github.com/jonschlinkert)
-  micromatch/micromatch
+  Jon Schlinkert <undefined>
+  git+https://github.com/micromatch/micromatch.git
   MIT
 
 node-fetch-native@1.6.7
   <unknown>
-  unjs/node-fetch-native
+  git+https://github.com/unjs/node-fetch-native.git
   MIT
 
 picomatch@2.3.1
-  Jon Schlinkert (https://github.com/jonschlinkert)
-  micromatch/picomatch
+  Jon Schlinkert <undefined>
+  git+https://github.com/micromatch/picomatch.git
   MIT
 
 run-parallel@1.2.0
@@ -131,8 +131,8 @@ run-parallel@1.2.0
   MIT
 
 to-regex-range@5.0.1
-  Jon Schlinkert (https://github.com/jonschlinkert)
-  micromatch/to-regex-range
+  Jon Schlinkert <undefined>
+  git+https://github.com/micromatch/to-regex-range.git
   MIT
 
 unicorn-magic@0.4.0
@@ -141,13 +141,13 @@ unicorn-magic@0.4.0
   MIT
 
 which@6.0.0
-  GitHub Inc.
+  GitHub Inc. <undefined>
   git+https://github.com/npm/node-which.git
   ISC
 
 yaml@2.8.2
   Eemeli Aro <eemeli@gmail.com>
-  github:eemeli/yaml
+  git+https://github.com/eemeli/yaml.git
   ISC
 
 zurk@0.11.10
