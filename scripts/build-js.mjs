@@ -142,15 +142,15 @@ plugins.push(
         transform(contents) {
           return contents
             .toString()
-            .replaceAll('import.meta.url', 'import_meta_url')
-            .replaceAll('import_meta.url', 'import_meta_url')
-            .replaceAll('"node:', '"')
-            .replaceAll(
-              'require("stream/promises")',
+            .replace(/import\.meta\.url/g, 'import_meta_url')
+            .replace(/import_meta\.url/g, 'import_meta_url')
+            .replace(/"node:/g, '"')
+            .replace(
+              /require\("stream\/promises"\)/g,
               'require("stream").promises'
             )
-            .replaceAll('require("fs/promises")', 'require("fs").promises')
-            .replaceAll('}).prototype', '}).prototype || {}')
+            .replace(/require\("fs\/promises"\)/g, 'require("fs").promises')
+            .replace(/}\)\.prototype/g, '}).prototype || {}')
             .replace(/DISABLE_NODE_FETCH_NATIVE_WARN/, ($0) => `${$0} || true`)
             .replace(
               /\/\/ Annotate the CommonJS export names for ESM import in node:/,

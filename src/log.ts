@@ -218,5 +218,5 @@ export function formatCmd(cmd: string): string {
     }
   }
   cap()
-  return out.replaceAll('\n', chalk.reset('\n> ')) + '\n'
+  return out.replace(/\n/g, chalk.reset('\n> ')) + '\n'
 }
