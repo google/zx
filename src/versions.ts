@@ -1,4 +1,4 @@
-// Copyright 2025 Google LLC
+// Copyright 2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ export const versions: Record<string, string> = {
   depseek: '0.4.3',
   dotenv: '0.2.3',
   fetch: '1.6.7',
-  fs: '11.3.2',
-  glob: '16.0.0',
+  fs: '11.3.3',
+  glob: '16.1.0',
   minimist: '1.2.8',
   ps: '1.0.0',
   which: '6.0.0',

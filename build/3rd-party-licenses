@@ -50,7 +50,7 @@ fast-glob@3.3.3
   mrmlnc/fast-glob
   MIT
 
-fastq@1.19.1
+fastq@1.20.1
   Matteo Collina <hello@matteocollina.com>
   git+https://github.com/mcollina/fastq.git
   ISC
@@ -60,7 +60,7 @@ fill-range@7.1.1
   jonschlinkert/fill-range
   MIT
 
-fs-extra@11.3.2
+fs-extra@11.3.3
   JP Richardson <jprichardson@gmail.com>
   https://github.com/jprichardson/node-fs-extra
   MIT
@@ -70,7 +70,7 @@ glob-parent@5.1.2
   gulpjs/glob-parent
   ISC
 
-globby@16.0.0
+globby@16.1.0
   Sindre Sorhus <sindresorhus@gmail.com>
   sindresorhus/globby
   MIT
@@ -95,7 +95,7 @@ isexe@3.1.1
   https://github.com/isaacs/isexe
   ISC
 
-jsonfile@6.1.0
+jsonfile@6.2.0
   JP Richardson <jprichardson@gmail.com>
   git@github.com:jprichardson/node-jsonfile.git
   MIT

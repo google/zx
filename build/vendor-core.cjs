@@ -623,9 +623,9 @@ function stringEncaseCRLFWithFirstIndex(string, prefix, postfix, index) {
 
 // node_modules/chalk/source/index.js
 var { stdout: stdoutColor, stderr: stderrColor } = supports_color_default;
-var GENERATOR = Symbol("GENERATOR");
-var STYLER = Symbol("STYLER");
-var IS_EMPTY = Symbol("IS_EMPTY");
+var GENERATOR = /* @__PURE__ */ Symbol("GENERATOR");
+var STYLER = /* @__PURE__ */ Symbol("STYLER");
+var IS_EMPTY = /* @__PURE__ */ Symbol("IS_EMPTY");
 var levelMapping = [
   "ansi",
   "ansi",
