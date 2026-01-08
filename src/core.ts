@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import { type AsyncHook, AsyncLocalStorage, createHook } from 'node:async_hooks'
-import { Buffer } from 'node:buffer'
+import { type BlobPart, Buffer } from 'node:buffer'
 import cp, {
   type ChildProcess,
   type IOType,
@@ -929,7 +929,7 @@ export class ProcessOutput extends Error {
       throw new Fail(
         'Blob is not supported in this environment. Provide a polyfill'
       )
-    return new Blob([this.buffer()], { type })
+    return new Blob([this.buffer() as BlobPart], { type })
   }
 
   text(encoding: Encoding = 'utf8'): string {

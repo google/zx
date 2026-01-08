@@ -359,10 +359,10 @@ describe('goods', () => {
 
     assert.equal((await req1).status, 200)
     assert.equal((await req2).status, 200)
-    assert.equal((await req3).status, 501)
+    assert.equal((await req3).status, 405)
     assert(p1.includes('Example Domain'))
     assert(p2.includes('Example Domain'))
-    assert(!p3.includes('Example Domain'))
+    assert(p3.includes('Example Domain'))
   })
 
   describe('dotenv', () => {

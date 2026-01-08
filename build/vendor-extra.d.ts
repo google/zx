@@ -286,6 +286,27 @@ type Options$1 = {
 	*/
 	readonly ignoreFiles?: string | readonly string[];
 	/**
+	When only negation patterns are provided (e.g., `['!*.json']`), automatically prepend a catch-all pattern (`**\/*`) to match all files before applying negations.
+
+	Set to `false` to return an empty array when only negation patterns are provided. This can be useful when patterns are user-controlled, to avoid unexpectedly matching all files.
+
+	@default true
+
+	@example
+	```
+	import {globby} from 'globby';
+
+	// Default behavior: matches all files except .json
+	await globby(['!*.json']);
+	//=> ['file.txt', 'image.png', ...]
+
+	// Disable expansion: returns empty array
+	await globby(['!*.json'], {expandNegationOnlyPatterns: false});
+	//=> []
+	```
+	*/
+	readonly expandNegationOnlyPatterns?: boolean;
+	/**
 	The current working directory in which to search.
 
 	@default process.cwd()

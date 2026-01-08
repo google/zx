@@ -4126,7 +4126,8 @@ var require_queue = __commonJS({
         empty: noop2,
         kill,
         killAndDrain,
-        error
+        error,
+        abort
       };
       return self2;
       function running() {
@@ -4243,6 +4244,28 @@ var require_queue = __commonJS({
         queueHead = null;
         queueTail = null;
         self2.drain();
+        self2.drain = noop2;
+      }
+      function abort() {
+        var current = queueHead;
+        queueHead = null;
+        queueTail = null;
+        while (current) {
+          var next = current.next;
+          var callback = current.callback;
+          var errorHandler2 = current.errorHandler;
+          var val = current.value;
+          var context2 = current.context;
+          current.value = null;
+          current.callback = noop2;
+          current.errorHandler = null;
+          if (errorHandler2) {
+            errorHandler2(new Error("abort"), val);
+          }
+          callback.call(context2, new Error("abort"));
+          current.release(current);
+          current = next;
+        }
         self2.drain = noop2;
       }
       function error(handler) {
@@ -5537,7 +5560,7 @@ var require_ignore = __commonJS({
     var SLASH = "/";
     var TMP_KEY_IGNORE = "node-ignore";
     if (typeof Symbol !== "undefined") {
-      TMP_KEY_IGNORE = Symbol.for("node-ignore");
+      TMP_KEY_IGNORE = /* @__PURE__ */ Symbol.for("node-ignore");
     }
     var KEY_IGNORE = TMP_KEY_IGNORE;
     var define = (object, key, value) => {
@@ -5970,7 +5993,7 @@ var require_ignore = __commonJS({
     module2.exports = factory;
     factory.default = factory;
     module2.exports.isPathValid = isPathValid;
-    define(module2.exports, Symbol.for("setupWindows"), setupWindows);
+    define(module2.exports, /* @__PURE__ */ Symbol.for("setupWindows"), setupWindows);
   }
 });
 
@@ -6423,8 +6446,8 @@ var require_graceful_fs = __commonJS({
     var gracefulQueue;
     var previousSymbol;
     if (typeof Symbol === "function" && typeof Symbol.for === "function") {
-      gracefulQueue = Symbol.for("graceful-fs.queue");
-      previousSymbol = Symbol.for("graceful-fs.previous");
+      gracefulQueue = /* @__PURE__ */ Symbol.for("graceful-fs.queue");
+      previousSymbol = /* @__PURE__ */ Symbol.for("graceful-fs.previous");
     } else {
       gracefulQueue = "___graceful-fs.queue";
       previousSymbol = "___graceful-fs.previous";
@@ -7317,11 +7340,13 @@ var require_copy = __commonJS({
         if (opts.dereference) {
           resolvedDest = path5.resolve(process.cwd(), resolvedDest);
         }
-        if (stat.isSrcSubdir(resolvedSrc, resolvedDest)) {
-          throw new Error(`Cannot copy '${resolvedSrc}' to a subdirectory of itself, '${resolvedDest}'.`);
-        }
-        if (stat.isSrcSubdir(resolvedDest, resolvedSrc)) {
-          throw new Error(`Cannot overwrite '${resolvedDest}' with '${resolvedSrc}'.`);
+        if (resolvedSrc !== resolvedDest) {
+          if (stat.isSrcSubdir(resolvedSrc, resolvedDest)) {
+            throw new Error(`Cannot copy '${resolvedSrc}' to a subdirectory of itself, '${resolvedDest}'.`);
+          }
+          if (stat.isSrcSubdir(resolvedDest, resolvedSrc)) {
+            throw new Error(`Cannot overwrite '${resolvedDest}' with '${resolvedSrc}'.`);
+          }
         }
         yield fs6.unlink(dest);
         return fs6.symlink(resolvedSrc, dest);
@@ -7450,11 +7475,13 @@ var require_copy_sync = __commonJS({
         if (opts.dereference) {
           resolvedDest = path5.resolve(process.cwd(), resolvedDest);
         }
-        if (stat.isSrcSubdir(resolvedSrc, resolvedDest)) {
-          throw new Error(`Cannot copy '${resolvedSrc}' to a subdirectory of itself, '${resolvedDest}'.`);
-        }
-        if (stat.isSrcSubdir(resolvedDest, resolvedSrc)) {
-          throw new Error(`Cannot overwrite '${resolvedDest}' with '${resolvedSrc}'.`);
+        if (resolvedSrc !== resolvedDest) {
+          if (stat.isSrcSubdir(resolvedSrc, resolvedDest)) {
+            throw new Error(`Cannot copy '${resolvedSrc}' to a subdirectory of itself, '${resolvedDest}'.`);
+          }
+          if (stat.isSrcSubdir(resolvedDest, resolvedSrc)) {
+            throw new Error(`Cannot overwrite '${resolvedDest}' with '${resolvedSrc}'.`);
+          }
         }
         return copyLink(resolvedSrc, dest);
       }
@@ -7944,13 +7971,12 @@ var require_jsonfile = __commonJS({
       const str = stringify6(obj, options);
       return fs6.writeFileSync(file, str, options);
     }
-    var jsonfile = {
+    module2.exports = {
       readFile,
       readFileSync,
       writeFile,
       writeFileSync
     };
-    module2.exports = jsonfile;
   }
 });
 
@@ -8550,7 +8576,7 @@ function Ns() {
       };
       n2(bn, "SimpleQueue");
       let D2 = bn;
-      const jt = Symbol("[[AbortSteps]]"), Qn = Symbol("[[ErrorSteps]]"), Ar = Symbol("[[CancelSteps]]"), Br = Symbol("[[PullSteps]]"), kr = Symbol("[[ReleaseSteps]]");
+      const jt = /* @__PURE__ */ Symbol("[[AbortSteps]]"), Qn = /* @__PURE__ */ Symbol("[[ErrorSteps]]"), Ar = /* @__PURE__ */ Symbol("[[CancelSteps]]"), Br = /* @__PURE__ */ Symbol("[[PullSteps]]"), kr = /* @__PURE__ */ Symbol("[[ReleaseSteps]]");
       function Yn(e, t3) {
         e._ownerReadableStream = t3, t3._reader = e, t3._state === "readable" ? qr(e) : t3._state === "closed" ? xi(e) : Gn(e, t3._storedError);
       }
@@ -11537,7 +11563,7 @@ var init_node = __esm({
       return a === f2;
     }, "isSameProtocol");
     el = (0, import_node_util3.promisify)(import_node_stream3.default.pipeline);
-    H = Symbol("Body internals");
+    H = /* @__PURE__ */ Symbol("Body internals");
     Nn = class Nn2 {
       constructor(o3, { size: a = 0 } = {}) {
         let f2 = null;
@@ -11688,7 +11714,7 @@ var init_node = __esm({
       raw() {
         return [...this.keys()].reduce((o3, a) => (o3[a] = this.getAll(a), o3), {});
       }
-      [Symbol.for("nodejs.util.inspect.custom")]() {
+      [/* @__PURE__ */ Symbol.for("nodejs.util.inspect.custom")]() {
         return [...this.keys()].reduce((o3, a) => {
           const f2 = this.getAll(a);
           return a === "host" ? o3[a] = f2[0] : o3[a] = f2.length > 1 ? f2 : f2[0], o3;
@@ -11701,7 +11727,7 @@ var init_node = __esm({
     n2(ol, "fromRawHeaders");
     il = /* @__PURE__ */ new Set([301, 302, 303, 307, 308]);
     jn = n2((i) => il.has(i), "isRedirect");
-    se = Symbol("Response internals");
+    se = /* @__PURE__ */ Symbol("Response internals");
     Ne = class Ne2 extends xe {
       constructor(o3 = null, a = {}) {
         super(o3, a);
@@ -11773,7 +11799,7 @@ var init_node = __esm({
     n2(ct, "isUrlPotentiallyTrustworthy");
     n2(fl, "determineRequestsReferrer");
     n2(cl, "parseReferrerPolicyFromHeader");
-    $2 = Symbol("Request internals");
+    $2 = /* @__PURE__ */ Symbol("Request internals");
     qt = n2((i) => typeof i == "object" && typeof i[$2] == "object", "isRequest");
     dl = (0, import_node_util3.deprecate)(() => {
     }, ".data is not a valid RequestInit property, use .body instead", "https://github.com/node-fetch/node-fetch/issues/1000 (request)");
@@ -11847,7 +11873,7 @@ var init_node = __esm({
       f2 && a.set("Content-Length", f2), i.referrerPolicy === "" && (i.referrerPolicy = sl), i.referrer && i.referrer !== "no-referrer" ? i[$2].referrer = fl(i) : i[$2].referrer = "no-referrer", i[$2].referrer instanceof URL && a.set("Referer", i.referrer), a.has("User-Agent") || a.set("User-Agent", "node-fetch"), i.compress && !a.has("Accept-Encoding") && a.set("Accept-Encoding", "gzip, deflate, br");
       let { agent: l } = i;
       typeof l == "function" && (l = l(o3));
-      const p2 = al(o3), h2 = { path: o3.pathname + p2, method: i.method, headers: a[Symbol.for("nodejs.util.inspect.custom")](), insecureHTTPParser: i.insecureHTTPParser, agent: l };
+      const p2 = al(o3), h2 = { path: o3.pathname + p2, method: i.method, headers: a[/* @__PURE__ */ Symbol.for("nodejs.util.inspect.custom")](), insecureHTTPParser: i.insecureHTTPParser, agent: l };
       return { parsedURL: o3, options: h2 };
     }, "getNodeRequestOptions");
     Hn = class Hn2 extends ft {
@@ -12329,7 +12355,7 @@ var MergedStream = class extends import_node_stream.PassThrough {
     __privateAdd(this, _ended, /* @__PURE__ */ new Set([]));
     __privateAdd(this, _aborted, /* @__PURE__ */ new Set([]));
     __privateAdd(this, _onFinished);
-    __privateAdd(this, _unpipeEvent, Symbol("unpipe"));
+    __privateAdd(this, _unpipeEvent, /* @__PURE__ */ Symbol("unpipe"));
     __privateAdd(this, _streamPromises, /* @__PURE__ */ new WeakMap());
   }
   add(stream) {
@@ -12536,7 +12562,7 @@ var PASSTHROUGH_LISTENERS_PER_STREAM = 1;
 // node_modules/globby/index.js
 var import_fast_glob2 = __toESM(require_out4(), 1);
 
-// node_modules/unicorn-magic/node.js
+// node_modules/globby/node_modules/unicorn-magic/node.js
 var import_node_util = require("util");
 var import_node_child_process = require("child_process");
 var import_node_url = require("url");
@@ -12577,6 +12603,7 @@ var import_node_fs = __toESM(require("fs"), 1);
 var import_node_path2 = __toESM(require("path"), 1);
 var import_node_util2 = require("util");
 var isNegativePattern = (pattern) => pattern[0] === "!";
+var normalizeAbsolutePatternToRelative = (pattern) => pattern.startsWith("/") ? pattern.slice(1) : pattern;
 var bindFsMethod = (object, methodName) => {
   const method = object == null ? void 0 : object[methodName];
   return typeof method === "function" ? method.bind(object) : void 0;
@@ -13142,8 +13169,12 @@ var createFilterFunction = (isIgnored, cwd) => {
 var unionFastGlobResults = (results, filter) => results.flat().filter((fastGlobResult) => filter(fastGlobResult));
 var convertNegativePatterns = (patterns, options) => {
   if (patterns.length > 0 && patterns.every((pattern) => isNegativePattern(pattern))) {
+    if (options.expandNegationOnlyPatterns === false) {
+      return [];
+    }
     patterns = ["**/*", ...patterns];
   }
+  patterns = patterns.map((pattern) => isNegativePattern(pattern) ? `!${normalizeAbsolutePatternToRelative(pattern.slice(1))}` : pattern);
   const tasks = [];
   while (patterns.length > 0) {
     const index = patterns.findIndex((pattern) => isNegativePattern(pattern));
@@ -13313,13 +13344,13 @@ __export(dist_exports, {
 });
 
 // node_modules/yaml/browser/dist/nodes/identity.js
-var ALIAS = Symbol.for("yaml.alias");
-var DOC = Symbol.for("yaml.document");
-var MAP = Symbol.for("yaml.map");
-var PAIR = Symbol.for("yaml.pair");
-var SCALAR = Symbol.for("yaml.scalar");
-var SEQ = Symbol.for("yaml.seq");
-var NODE_TYPE = Symbol.for("yaml.node.type");
+var ALIAS = /* @__PURE__ */ Symbol.for("yaml.alias");
+var DOC = /* @__PURE__ */ Symbol.for("yaml.document");
+var MAP = /* @__PURE__ */ Symbol.for("yaml.map");
+var PAIR = /* @__PURE__ */ Symbol.for("yaml.pair");
+var SCALAR = /* @__PURE__ */ Symbol.for("yaml.scalar");
+var SEQ = /* @__PURE__ */ Symbol.for("yaml.seq");
+var NODE_TYPE = /* @__PURE__ */ Symbol.for("yaml.node.type");
 var isAlias = (node) => !!node && typeof node === "object" && node[NODE_TYPE] === ALIAS;
 var isDocument = (node) => !!node && typeof node === "object" && node[NODE_TYPE] === DOC;
 var isMap = (node) => !!node && typeof node === "object" && node[NODE_TYPE] === MAP;
@@ -13349,9 +13380,9 @@ function isNode(node) {
 var hasAnchor = (node) => (isScalar(node) || isCollection(node)) && !!node.anchor;
 
 // node_modules/yaml/browser/dist/visit.js
-var BREAK = Symbol("break visit");
-var SKIP = Symbol("skip children");
-var REMOVE = Symbol("remove node");
+var BREAK = /* @__PURE__ */ Symbol("break visit");
+var SKIP = /* @__PURE__ */ Symbol("skip children");
+var REMOVE = /* @__PURE__ */ Symbol("remove node");
 function visit(node, visitor) {
   const visitor_ = initVisitor(visitor);
   if (isDocument(node)) {
@@ -18212,9 +18243,9 @@ function stringifyItem({ start, key, sep, value }) {
 }
 
 // node_modules/yaml/browser/dist/parse/cst-visit.js
-var BREAK2 = Symbol("break visit");
-var SKIP2 = Symbol("skip children");
-var REMOVE2 = Symbol("remove item");
+var BREAK2 = /* @__PURE__ */ Symbol("break visit");
+var SKIP2 = /* @__PURE__ */ Symbol("skip children");
+var REMOVE2 = /* @__PURE__ */ Symbol("remove item");
 function visit2(cst, visitor) {
   if ("type" in cst && cst.type === "document")
     cst = { start: cst.start, value: cst.value };
