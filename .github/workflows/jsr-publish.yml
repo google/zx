@@ -9,10 +9,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: 'npm'
@@ -20,7 +20,7 @@ jobs:
       - run: npm test
         env:
           FORCE_COLOR: 3
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: build-${{ github.run_id }}
           path: |
@@ -35,14 +35,14 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: 'npm'
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v7
         with:
           name: build-${{ github.run_id }}
 

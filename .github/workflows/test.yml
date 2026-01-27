@@ -19,12 +19,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
 
       - name: Use Node.js 24
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: 'npm'
@@ -33,7 +33,7 @@ jobs:
       - run: |
           npm run build
           cd build && ls -l
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: build
           path: |
@@ -48,18 +48,18 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
           fetch-depth: ${{ github.event_name == 'pull_request' && '15' || '1' }} # to ensure we have enough history for commitlint
 
       - name: Use Node.js 24
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: 'npm'
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v7
         with:
           name: build
       - run: npm ci
@@ -100,17 +100,17 @@ jobs:
       FORCE_COLOR: 3
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
 
       - name: Use Node.js 24
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: 'npm'
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v7
         with:
           name: build
       - run: npm ci
@@ -126,11 +126,11 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v7
         with:
           name: build
       - run: |
@@ -145,17 +145,17 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: build
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
 
       - name: Use Node.js 16
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: 16
           cache: 'npm'
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v7
         with:
           name: build
 
@@ -168,13 +168,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
 
       - name: Setup Bun
         uses: antongolub/action-setup-bun@f0b9f339a7ce9ba1174a58484e4dc9bbd6f7b133 # v1.13.2
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v7
         with:
           name: build
       - run: |
@@ -192,7 +192,7 @@ jobs:
       matrix:
         deno-version: [1, 2]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Setup Deno
@@ -200,7 +200,7 @@ jobs:
         with:
           deno-version: ${{ matrix.deno-version }}
       - run: deno install npm:types/node npm:types/fs-extra
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v7
         with:
           name: build
       - run: deno test --allow-read --allow-sys --allow-env --allow-run ./test/smoke/deno.test.js
@@ -216,15 +216,15 @@ jobs:
       matrix:
         node-version: [12, 14, 16, 18, 20, 22, 24, 25-nightly]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v7
         with:
           name: build
       - name: cjs smoke test
@@ -243,7 +243,7 @@ jobs:
       matrix:
         version: [17, 20]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - uses: graalvm/setup-graalvm@7f61f4917e70cddcfee9df637f280f10d5ae3566 #v1
@@ -252,7 +252,7 @@ jobs:
           distribution: 'graalvm-community'
           components: 'nodejs'
           github-token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v7
         with:
           name: build
       - name: smoke tests
@@ -269,11 +269,11 @@ jobs:
       matrix:
         ts: [4, 5, rc, next]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Use Node.js 24
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: 'npm'
@@ -286,7 +286,7 @@ jobs:
         if: matrix.ts == 4
         run: npm i --force @types/node@24.2.0
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v7
         with:
           name: build
       - name: tsc

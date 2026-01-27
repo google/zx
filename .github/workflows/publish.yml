@@ -15,10 +15,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: 'npm'
@@ -37,7 +37,7 @@ jobs:
       - run: npm test
         env:
           FORCE_COLOR: 3
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: build-${{ github.run_id }}
           path: |
@@ -54,7 +54,7 @@ jobs:
       v: ${{ steps.ref.outputs.ZX_VERSION }}
       lite: ${{ steps.ref.outputs.ZX_VERSION }}-lite
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - id: ref
@@ -78,10 +78,10 @@ jobs:
       GH_NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       ZX_VERSION: ${{ needs.version.outputs.v }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: 'npm'
@@ -89,7 +89,7 @@ jobs:
         run: |
           echo "//${{ env.GOOGLE_NPM_REGISTRY }}/:_authToken=$GOOGLE_NPM_TOKEN" >> .npmrc
           echo "//${{ env.GH_NPM_REGISTRY }}/:_authToken=$GH_NPM_TOKEN" >> .npmrc
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v7
         with:
           name: build-${{ github.run_id }}
 
@@ -115,14 +115,14 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: 'npm'
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v7
         with:
           name: build-${{ github.run_id }}
       - name: pushing to jsr.io
@@ -144,11 +144,11 @@ jobs:
       id-token: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v7
         with:
           name: build-${{ github.run_id }}
 
