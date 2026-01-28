@@ -256,15 +256,28 @@ describe('core', () => {
       assert.match(err[inspect.custom](), /Command not found/)
     })
 
-    test('error event is handled', async () => {
+    test('error is thrown for non-existent cwd', async () => {
       await within(async () => {
         $.cwd = 'wtf'
         try {
           await $`pwd`
           assert.unreachable('should have thrown')
         } catch (err) {
-          assert.ok(err instanceof ProcessOutput)
-          assert.match(err.message, /No such file or directory/)
+          assert.ok(err instanceof Fail)
+          assert.match(err.message, /The cwd directory does not exist: wtf/)
+        }
+      })
+    })
+
+    test('error is thrown when cwd is a file', async () => {
+      await within(async () => {
+        $.cwd = './README.md'
+        try {
+          await $`pwd`
+          assert.unreachable('should have thrown')
+        } catch (err) {
+          assert.ok(err instanceof Fail)
+          assert.match(err.message, /The cwd option is not a directory/)
         }
       })
     })
