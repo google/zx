@@ -387,7 +387,7 @@ function formatCmd(cmd) {
     }
   }
   cap();
-  return out.replaceAll("\n", import_vendor_core.chalk.reset("\n> ")) + "\n";
+  return out.replace(/\n/g, import_vendor_core.chalk.reset("\n> ")) + "\n";
 }
 
 // src/core.ts

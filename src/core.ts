@@ -1059,14 +1059,19 @@ export async function kill(
   for (const p of await ps.tree({ pid, recursive: true })) {
     try {
       process.kill(+p.pid, signal)
-    } catch (e) {}
+    } catch (e) {
+      // Ignore if process is already dead
+    }
   }
   try {
     process.kill(-pid, signal)
   } catch (e) {
+    // Ignore if process group is already dead
     try {
       process.kill(+pid, signal)
-    } catch (e) {}
+    } catch (e) {
+      // Ignore if process is already dead
+    }
   }
 }
 
