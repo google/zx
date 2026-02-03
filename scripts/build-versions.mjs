@@ -19,7 +19,7 @@ import path from 'node:path'
 import minimist from 'minimist'
 
 const root = path.resolve(new URL(import.meta.url).pathname, '../..')
-const copyright = await fs.readFileSync(
+const copyright = fs.readFileSync(
   path.resolve(root, 'test/fixtures/copyright.txt'),
   'utf8'
 )
