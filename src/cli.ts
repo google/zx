@@ -232,7 +232,7 @@ async function readScript() {
   }
   if (ext === '.md') {
     script = transformMarkdown(script)
-    tempPath = getFilepath(dir, base)
+    tempPath = getFilepath(dir, base, EXT)
   }
   if (argSlice) updateArgv(argv._.slice(argSlice))
 
