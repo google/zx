@@ -19,7 +19,7 @@ import { transformMarkdown } from '../src/md.ts'
 describe('md', () => {
   test('transformMarkdown()', () => {
     assert.equal(transformMarkdown('\n'), '// \n// ')
-    assert.equal(transformMarkdown('  \n    '), '  \n    ')
+    assert.equal(transformMarkdown('  \n    '), '//   \n//     ')
     assert.equal(
       transformMarkdown(`
 \t~~~js

@@ -62,7 +62,7 @@ var import_util = require("./util.cjs");
 function transformMarkdown(buf) {
   var _a2;
   const output = [];
-  const tabRe = /^(  +|\t)/;
+  const tabRe = /^(    +|\t)/;
   const codeBlockRe = new RegExp("^(?<fence>(`{3,20}|~{3,20}))(?:(?<js>(js|javascript|ts|typescript))|(?<bash>(sh|shell|bash))|.*)$");
   let state = "root";
   let codeBlockEnd = "";
