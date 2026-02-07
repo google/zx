@@ -347,6 +347,12 @@ console.log(a);
     assert.ok(p.stdout.includes('Hello, world!'))
   })
 
+  test('markdown scripts from stdin with --ext .md', async () => {
+    const md = '# Test\n\n```js\necho("md-stdin-ok")\n```\n'
+    const p = await $`node build/cli.js --ext='.md' <<< ${md}`
+    assert.match(p.stdout, /md-stdin-ok/)
+  })
+
   test('exceptions are caught', async () => {
     const out1 = await $`node build/cli.js <<<${'await $`wtf`'}`.nothrow()
     const out2 = await $`node build/cli.js <<<'throw 42'`.nothrow()
