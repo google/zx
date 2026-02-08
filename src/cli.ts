@@ -193,7 +193,9 @@ function linkNodeModules(cwd: string, external: string): string {
 function lstat(p: string) {
   try {
     return fs.lstatSync(p)
-  } catch {}
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException).code !== 'ENOENT') throw e
+  }
 }
 
 async function readScript() {
@@ -279,10 +281,10 @@ export function normalizeExt(ext?: string): string | undefined {
 // prettier-ignore
 function getFilepath(cwd = '.', name = 'zx', _ext?: string): string {
   const ext = _ext || argv.ext || EXT
-  return [
-    name + ext,
-    name + '-' + randomId() + ext,
-  ]
-    .map(f => path.resolve(process.cwd(), cwd, f))
-    .find(f => !fs.existsSync(f))!
+  const basePath = path.resolve(process.cwd(), cwd, name)
+  let filepath = basePath + ext
+  while (fs.existsSync(filepath)) {
+    filepath = basePath + '-' + randomId() + ext
+  }
+  return filepath
 }
