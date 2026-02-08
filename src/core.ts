@@ -289,6 +289,16 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       throw new Fail(`No quote function is defined: ${Fail.DOCS_URL}/quotes`)
     if ($.pieces.some((p) => p == null))
       throw new Fail(`Malformed command at ${$.from}`)
+    if ($.cwd) {
+      try {
+        const stat = fs.statSync($.cwd)
+        if (!stat.isDirectory())
+          throw new Fail(`The cwd option is not a directory: ${$.cwd}`)
+      } catch (err) {
+        if (err instanceof Fail) throw err
+        throw new Fail(`The cwd directory does not exist: ${$.cwd}`)
+      }
+    }
 
     $.cmd = buildCmd(
       $.quote!,
