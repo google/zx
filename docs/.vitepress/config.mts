@@ -67,6 +67,7 @@ export default defineConfig({
             { text: 'Configuration', link: '/configuration' },
             { text: 'Process Promise', link: '/process-promise' },
             { text: 'Process Output', link: '/process-output' },
+            { text: 'Testing', link: '/testing' },
             { text: 'Contribution Guide', link: '/contribution' },
             { text: 'Architecture', link: '/architecture' },
             { text: 'Migration from v7', link: '/migration-from-v7' },
