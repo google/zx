@@ -304,7 +304,7 @@ function readScript() {
     }
     if (ext === ".md") {
       script = transformMarkdown(script);
-      tempPath = getFilepath(dir, base);
+      tempPath = getFilepath(dir, base, EXT);
     }
     if (argSlice) (0, import_index.updateArgv)(argv._.slice(argSlice));
     return { script, scriptPath, tempPath };
