@@ -142,6 +142,10 @@ plugins.push(
         transform(contents) {
           return contents
             .toString()
+            .replaceAll(
+              'import_meta = {};',
+              'import_meta = { url: import_meta_url };'
+            )
             .replaceAll('import.meta.url', 'import_meta_url')
             .replaceAll('import_meta.url', 'import_meta_url')
             .replaceAll('"node:', '"')

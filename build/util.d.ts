@@ -4,6 +4,7 @@ export { isStringLiteral } from './vendor-core.js';
 export declare function noop(): void;
 export declare function identity<T>(v: T): T;
 export declare function randomId(): string;
+export declare function isMain(meta: ImportMeta, scriptPath?: string): boolean;
 export declare function isString(obj: any): obj is string;
 export declare const bufToString: (buf: Buffer | string) => string;
 export declare const bufArrJoin: (arr: TSpawnStore[keyof TSpawnStore]) => string;
