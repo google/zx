@@ -42,8 +42,11 @@ If the argument to the `zx` executable starts with `https://`, the file will be
 downloaded and executed.
 
 ```bash
-zx https://medv.io/game-of-life.js
+zx https://raw.githubusercontent.com/google/zx/refs/heads/main/examples/hello.mjs
 ```
+
+> [!WARNING]
+Make sure you trust the remote source and understand the code before running it.
 
 ## Scripts from stdin
 
