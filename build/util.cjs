@@ -16,6 +16,7 @@ __export(util_exports, {
   getLast: () => getLast,
   getLines: () => getLines,
   identity: () => identity,
+  isMain: () => isMain,
   isString: () => isString,
   isStringLiteral: () => import_vendor_core.isStringLiteral,
   iteratorToArray: () => iteratorToArray,
@@ -33,6 +34,8 @@ __export(util_exports, {
 module.exports = __toCommonJS(util_exports);
 var import_node_path = __toESM(require("path"), 1);
 var import_node_process = __toESM(require("process"), 1);
+var import_node_url = __toESM(require("url"), 1);
+var import_vendor_extra = require("./vendor-extra.cjs");
 var import_vendor_core = require("./vendor-core.cjs");
 function noop() {
 }
@@ -41,6 +44,25 @@ function identity(v) {
 }
 function randomId() {
   return Math.random().toString(36).slice(2);
+}
+var getDefaultScriptPath = () => {
+  return "undefined" !== typeof import_node_process.default && import_node_process.default.argv ? import_node_process.default.argv[1] : "";
+};
+function isMain(meta, scriptPath = getDefaultScriptPath()) {
+  const m = meta;
+  if ("boolean" === typeof m.main) {
+    return m.main;
+  }
+  if (scriptPath && meta && meta.url && meta.url.startsWith("file:")) {
+    const normalize = (p, resolve = false) => {
+      const resolved = resolve ? import_vendor_extra.fs.realpathSync(p) : p;
+      const parsed = import_node_path.default.parse(resolved);
+      return import_node_path.default.join(parsed.dir, parsed.name);
+    };
+    const modulePath = import_node_url.default.fileURLToPath(meta.url);
+    return normalize(modulePath) === normalize(scriptPath, true);
+  }
+  return false;
 }
 function isString(obj) {
   return typeof obj === "string";
@@ -112,6 +134,7 @@ var iteratorToArray = (it) => {
   getLast,
   getLines,
   identity,
+  isMain,
   isString,
   isStringLiteral,
   iteratorToArray,

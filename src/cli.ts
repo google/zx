@@ -33,11 +33,12 @@ import {
 } from './index.ts'
 import { installDeps, parseDeps } from './deps.ts'
 import { startRepl } from './repl.ts'
-import { randomId } from './util.ts'
+import { isMain, randomId } from './util.ts'
 import { transformMarkdown } from './md.ts'
 import { createRequire, type minimist } from './vendor.ts'
 
 export { transformMarkdown } from './md.ts'
+export { isMain } from './util.ts'
 
 const EXT = '.mjs'
 const EXT_RE = /^\.[mc]?[jt]sx?$/
@@ -54,7 +55,7 @@ export const argv: minimist.ParsedArgs = parseArgv(process.argv.slice(2), {
   camelCase: true,
 })
 
-isMain() &&
+isMain(import.meta) &&
   main().catch((err) => {
     if (err instanceof ProcessOutput) {
       console.error('Error:', err.message)
@@ -257,19 +258,6 @@ export function injectGlobalRequire(origin: string): void {
   const __dirname = path.dirname(__filename)
   const require = createRequire(origin)
   Object.assign(globalThis, { __filename, __dirname, require })
-}
-
-export function isMain(
-  metaurl: string = import.meta.url,
-  scriptpath: string = process.argv[1]
-): boolean {
-  if (metaurl.startsWith('file:')) {
-    const modulePath = url.fileURLToPath(metaurl).replace(/\.\w+$/, '')
-    const mainPath = fs.realpathSync(scriptpath).replace(/\.\w+$/, '')
-    return mainPath === modulePath
-  }
-
-  return false
 }
 
 export function normalizeExt(ext?: string): string | undefined {

@@ -19,7 +19,7 @@ var cli_exports = {};
 __export(cli_exports, {
   argv: () => argv,
   injectGlobalRequire: () => injectGlobalRequire,
-  isMain: () => isMain,
+  isMain: () => import_util3.isMain,
   main: () => main,
   normalizeExt: () => normalizeExt,
   printUsage: () => printUsage,
@@ -134,7 +134,8 @@ function transformMarkdown(buf) {
 
 // src/cli.ts
 var import_vendor = require("./vendor.cjs");
-var import_meta = {};
+var import_util3 = require("./util.cjs");
+var import_meta = { url: import_meta_url };
 var EXT = ".mjs";
 var EXT_RE = /^\.[mc]?[jt]sx?$/;
 var argv = (0, import_index.parseArgv)(import_node_process2.default.argv.slice(2), {
@@ -147,7 +148,7 @@ var argv = (0, import_index.parseArgv)(import_node_process2.default.argv.slice(2
   parseBoolean: true,
   camelCase: true
 });
-isMain() && main().catch((err) => {
+(0, import_util2.isMain)(import_meta) && main().catch((err) => {
   if (err instanceof import_index.ProcessOutput) {
     console.error("Error:", err.message);
   } else {
@@ -330,14 +331,6 @@ function injectGlobalRequire(origin) {
   const __dirname = import_index.path.dirname(__filename);
   const require2 = (0, import_vendor.createRequire)(origin);
   Object.assign(globalThis, { __filename, __dirname, require: require2 });
-}
-function isMain(metaurl = import_meta_url, scriptpath = import_node_process2.default.argv[1]) {
-  if (metaurl.startsWith("file:")) {
-    const modulePath = import_node_url.default.fileURLToPath(metaurl).replace(/\.\w+$/, "");
-    const mainPath = import_index.fs.realpathSync(scriptpath).replace(/\.\w+$/, "");
-    return mainPath === modulePath;
-  }
-  return false;
 }
 function normalizeExt(ext) {
   return ext ? import_index.path.parse(`foo.${ext}`).ext : ext;
