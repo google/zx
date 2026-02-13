@@ -23,7 +23,7 @@ export function transformMarkdown(buf: Buffer | string): string {
   let state = 'root'
   let codeBlockEnd = ''
   let prevLineIsEmpty = true
-  for (const line of bufToString(buf).split(/\r?\n/)) {
+  for (const line of bufToString(buf).split(/\r?\n|\r|\u2028|\u2029/)) {
     switch (state) {
       case 'root':
         if (tabRe.test(line) && prevLineIsEmpty) {
