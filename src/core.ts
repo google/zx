@@ -1085,3 +1085,27 @@ export function resolveDefaults(
     return m
   }, defs)
 }
+
+/**
+ * Runs tasks with limited concurrency.
+ * @param limit Max number of concurrent tasks.
+ * @param tasks Array of functions returning promises.
+ */
+export async function pool<T>(
+  limit: number,
+  tasks: (() => Promise<T>)[]
+): Promise<T[]> {
+  const results = new Array<T>(tasks.length)
+  const queue = tasks.entries()
+
+  const worker = async () => {
+    for (const [index, task] of queue) {
+      results[index] = await task()
+    }
+  }
+
+  const workers = Array.from({ length: Math.min(limit, tasks.length) }, worker)
+  await Promise.all(workers)
+
+  return results
+}
