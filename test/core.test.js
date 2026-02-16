@@ -264,7 +264,24 @@ describe('core', () => {
           assert.unreachable('should have thrown')
         } catch (err) {
           assert.ok(err instanceof ProcessOutput)
-          assert.match(err.message, /No such file or directory/)
+          assert.match(err.message, /does not exist/)
+        }
+      })
+    })
+
+    test('provides clear error when cwd does not exist', async () => {
+      await within(async () => {
+        const fakePath = '/path/that/does/not/exist'
+        $.cwd = fakePath
+        try {
+          await $`echo hello`
+          assert.unreachable('should have thrown')
+        } catch (err) {
+          assert.ok(err instanceof ProcessOutput)
+          assert.match(
+            err.message,
+            /The working directory '\/path\/that\/does\/not\/exist' does not exist/
+          )
         }
       })
     })
