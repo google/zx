@@ -71,6 +71,14 @@ describe('util', () => {
     assert.ok(quote('string') === 'string')
     assert.ok(quote('') === `$''`)
     assert.ok(quote(`'\f\n\r\t\v\0`) === `$'\\'\\f\\n\\r\\t\\v\\0'`)
+
+    // Commas should not trigger $'...' quoting (issue #1402)
+    assert.equal(
+      quote('id=my-secret,src=my-secret-file.txt'),
+      'id=my-secret,src=my-secret-file.txt'
+    )
+    assert.equal(quote('a,b,c'), 'a,b,c')
+    assert.equal(quote('key=val1,val2'), 'key=val1,val2')
   })
 
   test('quotePowerShell()', () => {

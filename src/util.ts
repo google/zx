@@ -74,7 +74,7 @@ export function preferLocalBin(
 
 export function quote(arg: string): string {
   if (arg === '') return `$''`
-  if (/^[\w/.\-@:=]+$/.test(arg)) return arg
+  if (/^[\w/.\-@:=,]+$/.test(arg)) return arg
 
   return (
     `$'` +
