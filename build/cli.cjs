@@ -343,10 +343,9 @@ function isMain(meta = import_meta_url, scriptpath = import_node_process2.defaul
       const mainPath = import_index.fs.realpathSync(scriptpath).replace(/\.\w+$/, "");
       return mainPath === modulePath;
     }
-  } else {
-    return meta.main;
+    return false;
   }
-  return false;
+  return !!meta.main;
 }
 function normalizeExt(ext) {
   return ext ? import_index.path.parse(`foo.${ext}`).ext : ext;

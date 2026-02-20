@@ -274,11 +274,11 @@ export function isMain(
       const mainPath = fs.realpathSync(scriptpath).replace(/\.\w+$/, '')
       return mainPath === modulePath
     }
-  } else {
-    return meta.main
+
+    return false
   }
 
-  return false
+  return !!meta.main
 }
 
 export function normalizeExt(ext?: string): string | undefined {

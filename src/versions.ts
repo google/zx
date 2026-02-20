@@ -19,9 +19,9 @@ export const versions: Record<string, string> = {
   dotenv: '0.2.3',
   fetch: '1.6.7',
   fs: '11.3.3',
-  glob: '16.1.0',
+  glob: '16.1.1',
   minimist: '1.2.8',
   ps: '1.0.0',
-  which: '6.0.0',
+  which: '6.0.1',
   yaml: '2.8.2',
 }
