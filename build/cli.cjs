@@ -18,6 +18,7 @@ const import_meta_url =
 var cli_exports = {};
 __export(cli_exports, {
   argv: () => argv,
+  autorun: () => autorun,
   injectGlobalRequire: () => injectGlobalRequire,
   isMain: () => isMain,
   main: () => main,
@@ -147,14 +148,18 @@ var argv = (0, import_index.parseArgv)(import_node_process2.default.argv.slice(2
   parseBoolean: true,
   camelCase: true
 });
-isMain() && main().catch((err) => {
-  if (err instanceof import_index.ProcessOutput) {
-    console.error("Error:", err.message);
-  } else {
-    console.error(err);
-  }
-  import_node_process2.default.exitCode = 1;
-});
+autorun(import_meta);
+function autorun(meta) {
+  if (meta && isMain(meta))
+    main().catch((err) => {
+      if (err instanceof import_index.ProcessOutput) {
+        console.error("Error:", err.message);
+      } else {
+        console.error(err);
+      }
+      import_node_process2.default.exitCode = 1;
+    });
+}
 function printUsage() {
   console.log(`
  ${import_index.chalk.bold("zx " + import_index.VERSION)}
@@ -331,13 +336,16 @@ function injectGlobalRequire(origin) {
   const require2 = (0, import_vendor.createRequire)(origin);
   Object.assign(globalThis, { __filename, __dirname, require: require2 });
 }
-function isMain(metaurl = import_meta_url, scriptpath = import_node_process2.default.argv[1]) {
-  if (metaurl.startsWith("file:")) {
-    const modulePath = import_node_url.default.fileURLToPath(metaurl).replace(/\.\w+$/, "");
-    const mainPath = import_index.fs.realpathSync(scriptpath).replace(/\.\w+$/, "");
-    return mainPath === modulePath;
+function isMain(meta = import_meta_url, scriptpath = import_node_process2.default.argv[1]) {
+  if (typeof meta === "string") {
+    if (meta.startsWith("file:")) {
+      const modulePath = import_node_url.default.fileURLToPath(meta).replace(/\.\w+$/, "");
+      const mainPath = import_index.fs.realpathSync(scriptpath).replace(/\.\w+$/, "");
+      return mainPath === modulePath;
+    }
+    return false;
   }
-  return false;
+  return !!meta.main;
 }
 function normalizeExt(ext) {
   return ext ? import_index.path.parse(`foo.${ext}`).ext : ext;
@@ -353,6 +361,7 @@ function getFilepath(cwd = ".", name = "zx", _ext) {
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   argv,
+  autorun,
   injectGlobalRequire,
   isMain,
   main,

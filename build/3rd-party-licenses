@@ -70,7 +70,7 @@ glob-parent@5.1.2
   gulpjs/glob-parent
   ISC
 
-globby@16.1.0
+globby@16.1.1
   Sindre Sorhus <sindresorhus@gmail.com>
   sindresorhus/globby
   MIT
@@ -90,10 +90,10 @@ is-path-inside@4.0.0
   sindresorhus/is-path-inside
   MIT
 
-isexe@3.1.1
+isexe@4.0.0
   Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)
   https://github.com/isaacs/isexe
-  ISC
+  BlueOak-1.0.0
 
 jsonfile@6.2.0
   JP Richardson <jprichardson@gmail.com>
@@ -140,7 +140,7 @@ unicorn-magic@0.4.0
   sindresorhus/unicorn-magic
   MIT
 
-which@6.0.0
+which@6.0.1
   GitHub Inc.
   git+https://github.com/npm/node-which.git
   ISC

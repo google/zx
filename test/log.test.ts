@@ -78,13 +78,13 @@ describe('log', () => {
     test('fetch', () => {
       log({
         kind: 'fetch',
-        url: 'https://example.com',
+        url: 'https://github.com',
         init: { method: 'GET' },
         verbose: true,
       })
       assert.equal(
         data.join(''),
-        "$ \x1B[92mfetch\x1B[39m https://example.com { method: 'GET' }\n"
+        "$ \x1B[92mfetch\x1B[39m https://github.com { method: 'GET' }\n"
       )
     })
 

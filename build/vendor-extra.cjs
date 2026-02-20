@@ -12560,7 +12560,7 @@ var PASSTHROUGH_LISTENERS_COUNT = 2;
 var PASSTHROUGH_LISTENERS_PER_STREAM = 1;
 
 // node_modules/globby/index.js
-var import_fast_glob2 = __toESM(require_out4(), 1);
+var import_fast_glob3 = __toESM(require_out4(), 1);
 
 // node_modules/globby/node_modules/unicorn-magic/node.js
 var import_node_util = require("util");
@@ -12577,7 +12577,7 @@ var import_node_process = __toESM(require("process"), 1);
 var import_node_fs2 = __toESM(require("fs"), 1);
 var import_promises2 = __toESM(require("fs").promises, 1);
 var import_node_path3 = __toESM(require("path"), 1);
-var import_fast_glob = __toESM(require_out4(), 1);
+var import_fast_glob2 = __toESM(require_out4(), 1);
 var import_ignore = __toESM(require_ignore(), 1);
 
 // node_modules/is-path-inside/index.js
@@ -12602,8 +12602,52 @@ function slash(path5) {
 var import_node_fs = __toESM(require("fs"), 1);
 var import_node_path2 = __toESM(require("path"), 1);
 var import_node_util2 = require("util");
+var import_fast_glob = __toESM(require_out4(), 1);
 var isNegativePattern = (pattern) => pattern[0] === "!";
-var normalizeAbsolutePatternToRelative = (pattern) => pattern.startsWith("/") ? pattern.slice(1) : pattern;
+var normalizeAbsolutePatternToRelative = (pattern) => {
+  if (!pattern.startsWith("/")) {
+    return pattern;
+  }
+  const inner = pattern.slice(1);
+  const firstSlashIndex = inner.indexOf("/");
+  const firstSegment = firstSlashIndex > 0 ? inner.slice(0, firstSlashIndex) : inner;
+  if (firstSlashIndex > 0 && !import_fast_glob.default.isDynamicPattern(firstSegment)) {
+    return pattern;
+  }
+  return inner;
+};
+var absolutePrefixesMatch = (positivePrefix, negativePrefix) => negativePrefix === positivePrefix;
+var getStaticAbsolutePathPrefix = (pattern) => {
+  if (!import_node_path2.default.isAbsolute(pattern)) {
+    return void 0;
+  }
+  const staticSegments = [];
+  for (const segment of pattern.split("/")) {
+    if (!segment) {
+      continue;
+    }
+    if (import_fast_glob.default.isDynamicPattern(segment)) {
+      break;
+    }
+    staticSegments.push(segment);
+  }
+  return staticSegments.length === 0 ? void 0 : `/${staticSegments.join("/")}`;
+};
+var normalizeNegativePattern = (pattern, positiveAbsolutePathPrefixes = [], hasRelativePositivePattern = false) => {
+  if (!pattern.startsWith("/")) {
+    return pattern;
+  }
+  const normalizedPattern = normalizeAbsolutePatternToRelative(pattern);
+  if (normalizedPattern !== pattern) {
+    return normalizedPattern;
+  }
+  if (hasRelativePositivePattern) {
+    return pattern.slice(1);
+  }
+  const negativeAbsolutePathPrefix = getStaticAbsolutePathPrefix(pattern);
+  const preserveAsAbsolutePattern = negativeAbsolutePathPrefix !== void 0 && positiveAbsolutePathPrefixes.some((positiveAbsolutePathPrefix) => absolutePrefixesMatch(positiveAbsolutePathPrefix, negativeAbsolutePathPrefix));
+  return preserveAsAbsolutePattern ? pattern : pattern.slice(1);
+};
 var bindFsMethod = (object, methodName) => {
   const method = object == null ? void 0 : object[methodName];
   return typeof method === "function" ? method.bind(object) : void 0;
@@ -12938,7 +12982,7 @@ var normalizeOptions = (options = {}) => {
 };
 var collectIgnoreFileArtifactsAsync = (patterns, options, includeParentIgnoreFiles) => __async(null, null, function* () {
   const normalizedOptions = normalizeOptions(options);
-  const childPaths = yield globIgnoreFiles(import_fast_glob.default, patterns, normalizedOptions);
+  const childPaths = yield globIgnoreFiles(import_fast_glob2.default, patterns, normalizedOptions);
   const gitRoot = includeParentIgnoreFiles ? yield findGitRoot(normalizedOptions.cwd, normalizedOptions.fs) : void 0;
   const allPaths = combineIgnoreFilePaths(gitRoot, normalizedOptions, childPaths);
   const readFileMethod = getReadFileMethod(normalizedOptions.fs);
@@ -12947,7 +12991,7 @@ var collectIgnoreFileArtifactsAsync = (patterns, options, includeParentIgnoreFil
 });
 var collectIgnoreFileArtifactsSync = (patterns, options, includeParentIgnoreFiles) => {
   const normalizedOptions = normalizeOptions(options);
-  const childPaths = globIgnoreFiles(import_fast_glob.default.sync, patterns, normalizedOptions);
+  const childPaths = globIgnoreFiles(import_fast_glob2.default.sync, patterns, normalizedOptions);
   const gitRoot = includeParentIgnoreFiles ? findGitRootSync(normalizedOptions.cwd, normalizedOptions.fs) : void 0;
   const allPaths = combineIgnoreFilePaths(gitRoot, normalizedOptions, childPaths);
   const readFileSyncMethod = getReadFileSyncMethod(normalizedOptions.fs);
@@ -13174,7 +13218,23 @@ var convertNegativePatterns = (patterns, options) => {
     }
     patterns = ["**/*", ...patterns];
   }
-  patterns = patterns.map((pattern) => isNegativePattern(pattern) ? `!${normalizeAbsolutePatternToRelative(pattern.slice(1))}` : pattern);
+  const positiveAbsolutePathPrefixes = [];
+  let hasRelativePositivePattern = false;
+  const normalizedPatterns = [];
+  for (const pattern of patterns) {
+    if (isNegativePattern(pattern)) {
+      normalizedPatterns.push(`!${normalizeNegativePattern(pattern.slice(1), positiveAbsolutePathPrefixes, hasRelativePositivePattern)}`);
+      continue;
+    }
+    normalizedPatterns.push(pattern);
+    const staticAbsolutePathPrefix = getStaticAbsolutePathPrefix(pattern);
+    if (staticAbsolutePathPrefix === void 0) {
+      hasRelativePositivePattern = true;
+      continue;
+    }
+    positiveAbsolutePathPrefixes.push(staticAbsolutePathPrefix);
+  }
+  patterns = normalizedPatterns;
   const tasks = [];
   while (patterns.length > 0) {
     const index = patterns.findIndex((pattern) => isNegativePattern(pattern));
@@ -13250,29 +13310,29 @@ var generateTasksSync = (patterns, options) => {
 var globby = normalizeArguments((patterns, options) => __async(null, null, function* () {
   const { options: modifiedOptions, filter } = yield applyIgnoreFilesAndGetFilter(options);
   const tasks = yield generateTasks(patterns, modifiedOptions);
-  const results = yield Promise.all(tasks.map((task) => (0, import_fast_glob2.default)(task.patterns, task.options)));
+  const results = yield Promise.all(tasks.map((task) => (0, import_fast_glob3.default)(task.patterns, task.options)));
   return unionFastGlobResults(results, filter);
 }));
 var globbySync = normalizeArgumentsSync((patterns, options) => {
   const { options: modifiedOptions, filter } = applyIgnoreFilesAndGetFilterSync(options);
   const tasks = generateTasksSync(patterns, modifiedOptions);
-  const results = tasks.map((task) => import_fast_glob2.default.sync(task.patterns, task.options));
+  const results = tasks.map((task) => import_fast_glob3.default.sync(task.patterns, task.options));
   return unionFastGlobResults(results, filter);
 });
 var globbyStream = normalizeArgumentsSync((patterns, options) => {
   const { options: modifiedOptions, filter } = applyIgnoreFilesAndGetFilterSync(options);
   const tasks = generateTasksSync(patterns, modifiedOptions);
-  const streams = tasks.map((task) => import_fast_glob2.default.stream(task.patterns, task.options));
+  const streams = tasks.map((task) => import_fast_glob3.default.stream(task.patterns, task.options));
   if (streams.length === 0) {
     return import_node_stream2.Readable.from([]);
   }
   const stream = mergeStreams(streams).filter((fastGlobResult) => filter(fastGlobResult));
   return stream;
 });
-var isDynamicPattern = normalizeArgumentsSync((patterns, options) => patterns.some((pattern) => import_fast_glob2.default.isDynamicPattern(pattern, options)));
+var isDynamicPattern = normalizeArgumentsSync((patterns, options) => patterns.some((pattern) => import_fast_glob3.default.isDynamicPattern(pattern, options)));
 var generateGlobTasks = normalizeArguments(generateTasks);
 var generateGlobTasksSync = normalizeArgumentsSync(generateTasksSync);
-var { convertPathToPattern } = import_fast_glob2.default;
+var { convertPathToPattern } = import_fast_glob3.default;
 
 // node_modules/yaml/browser/index.js
 var browser_exports = {};
