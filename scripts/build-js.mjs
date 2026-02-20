@@ -125,8 +125,7 @@ plugins.push(
         if: !hybrid,
         pattern: /cli\.js$/,
         transform(contents) {
-          return `${contents}
-autorun(import.meta)
+          return `${contents}autorun(import.meta)
 `
         },
       },
