@@ -848,20 +848,22 @@ describe('core', () => {
           }
 
           const p = (
-            await fetch('https://example.com').then(responseToReadable)
+            await fetch('https://github.com').then(responseToReadable)
           ).pipe($`cat`)
           const o = await p
 
-          assert.match(o.stdout, /Example Domain/)
+          assert.match(o.stdout, /GitHub/)
         })
 
         test('fetch (pipe) > $', async () => {
-          const p1 = fetch('https://example.com').pipe($`cat`)
-          const p2 = fetch('https://example.com').pipe`cat`
+          const zxPkgJsonUrl =
+            'https://raw.githubusercontent.com/google/zx/refs/heads/main/package.json'
+          const p1 = fetch(zxPkgJsonUrl).pipe($`cat`)
+          const p2 = fetch(zxPkgJsonUrl).pipe`cat`
           const o1 = await p1
           const o2 = await p2
 
-          assert.match(o1.stdout, /Example Domain/)
+          assert.match(o1.stdout, /"name": "zx"/)
           assert.equal(o1.stdout, o2.stdout)
         })
 

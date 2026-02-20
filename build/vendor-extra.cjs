@@ -12562,7 +12562,7 @@ var PASSTHROUGH_LISTENERS_PER_STREAM = 1;
 // node_modules/globby/index.js
 var import_fast_glob3 = __toESM(require_out4(), 1);
 
-// node_modules/unicorn-magic/node.js
+// node_modules/globby/node_modules/unicorn-magic/node.js
 var import_node_util = require("util");
 var import_node_child_process = require("child_process");
 var import_node_url = require("url");

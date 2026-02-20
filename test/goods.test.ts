@@ -349,9 +349,9 @@ describe('goods', () => {
   })
 
   test('fetch()', async () => {
-    const req1 = fetch('https://example.com/')
-    const req2 = fetch('https://example.com/')
-    const req3 = fetch('https://example.com/', { method: 'OPTIONS' })
+    const req1 = fetch('https://github.com/')
+    const req2 = fetch('https://github.com/')
+    const req3 = fetch('https://github.com/', { method: 'OPTIONS' })
 
     const p1 = (await req1.pipe`cat`).stdout
     const p2 = (await req2.pipe($`cat`)).stdout
@@ -359,10 +359,10 @@ describe('goods', () => {
 
     assert.equal((await req1).status, 200)
     assert.equal((await req2).status, 200)
-    assert.equal((await req3).status, 405)
-    assert(p1.includes('Example Domain'))
-    assert(p2.includes('Example Domain'))
-    assert(p3.includes('Example Domain'))
+    assert.equal((await req3).status, 404)
+    assert(p1.includes('GitHub'))
+    assert(p2.includes('GitHub'))
+    assert(p3.includes('GitHub'))
   })
 
   describe('dotenv', () => {
