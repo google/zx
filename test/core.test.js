@@ -256,19 +256,6 @@ describe('core', () => {
       assert.match(err[inspect.custom](), /Command not found/)
     })
 
-    test('error event is handled', async () => {
-      await within(async () => {
-        $.cwd = 'wtf'
-        try {
-          await $`pwd`
-          assert.unreachable('should have thrown')
-        } catch (err) {
-          assert.ok(err instanceof ProcessOutput)
-          assert.match(err.message, /does not exist/)
-        }
-      })
-    })
-
     test('provides clear error when cwd does not exist', async () => {
       await within(async () => {
         const fakePath = '/path/that/does/not/exist'

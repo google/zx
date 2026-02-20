@@ -306,7 +306,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     const id = self.id
     const cwd = $.cwd || $[CWD]
 
-    if (cwd && !fs.existsSync(cwd)) {
+    if (!fs.existsSync(cwd)) {
       this.finalize(
         ProcessOutput.fromError(
           new Error(`The working directory '${cwd}' does not exist.`)
