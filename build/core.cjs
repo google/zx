@@ -534,6 +534,14 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     const $2 = self._snapshot;
     const id = self.id;
     const cwd = $2.cwd || $2[CWD];
+    if (!import_node_fs.default.existsSync(cwd)) {
+      this.finalize(
+        ProcessOutput.fromError(
+          new Error(`The working directory '${cwd}' does not exist.`)
+        )
+      );
+      return this;
+    }
     if ($2.preferLocal) {
       const dirs = $2.preferLocal === true ? [$2.cwd, $2[CWD]] : [$2.preferLocal].flat();
       $2.env = (0, import_util.preferLocalBin)($2.env, ...dirs);
