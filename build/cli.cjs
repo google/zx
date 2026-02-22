@@ -325,7 +325,8 @@ function readScriptFromHttp(remote) {
     const res = yield (0, import_index.fetch)(remote);
     if (!res.ok) {
       console.error(`Error: Can't get ${remote}`);
-      import_node_process2.default.exit(1);
+      import_node_process2.default.exitCode = 1;
+      throw new import_index.Fail(`Failed to fetch remote script: ${remote} (${res.status})`);
     }
     return res.text();
   });

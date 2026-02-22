@@ -252,7 +252,8 @@ async function readScriptFromHttp(remote: string): Promise<string> {
   const res = await fetch(remote)
   if (!res.ok) {
     console.error(`Error: Can't get ${remote}`)
-    process.exit(1)
+    process.exitCode = 1
+    throw new Fail(`Failed to fetch remote script: ${remote} (${res.status})`)
   }
   return res.text()
 }
