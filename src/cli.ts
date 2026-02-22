@@ -225,7 +225,15 @@ async function readScript() {
     script = await readScriptFromHttp(firstArg)
     tempPath = getFilepath($.cwd, name, ext)
   } else {
-    script = await fs.readFile(firstArg, 'utf8')
+    try {
+      script = await fs.readFile(firstArg, 'utf8')
+    } catch (err: any) {
+      console.error(`Error: Can't read ${firstArg}`)
+      process.exitCode = 1
+      throw new Fail(
+        `Failed to read local script: ${firstArg} (${err.message})`
+      )
+    }
     scriptPath = firstArg.startsWith('file:')
       ? url.fileURLToPath(firstArg)
       : path.resolve(firstArg)

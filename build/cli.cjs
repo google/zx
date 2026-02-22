@@ -300,7 +300,13 @@ function readScript() {
       script = yield readScriptFromHttp(firstArg);
       tempPath = getFilepath(import_index.$.cwd, name, ext2);
     } else {
-      script = yield import_index.fs.readFile(firstArg, "utf8");
+      try {
+        script = yield import_index.fs.readFile(firstArg, "utf8");
+      } catch (err) {
+        console.error(`Error: Can't read ${firstArg}`);
+        import_node_process2.default.exitCode = 1;
+        throw new import_index.Fail(`Failed to read local script: ${firstArg} (${err.message})`);
+      }
       scriptPath = firstArg.startsWith("file:") ? import_node_url.default.fileURLToPath(firstArg) : import_index.path.resolve(firstArg);
     }
     const { ext, base, dir } = import_index.path.parse(tempPath || scriptPath);

@@ -27,7 +27,9 @@ import esbuildResolvePlugin from 'esbuild-plugin-resolve'
 import minimist from 'minimist'
 import glob from 'fast-glob'
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname)
+import { fileURLToPath } from 'node:url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const argv = minimist(process.argv.slice(2), {
   default: {
