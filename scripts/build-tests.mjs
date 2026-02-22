@@ -26,10 +26,12 @@ const modules = [
   ['cli', cli],
   ['index', index],
 ]
-const root = path.resolve(new URL(import.meta.url).pathname, '../..')
+import { fileURLToPath } from 'node:url'
+
+const root = path.resolve(fileURLToPath(import.meta.url), '../..')
 const filePath = path.resolve(root, `test/export.test.js`)
 
-const copyright = await fs.readFileSync(
+const copyright = fs.readFileSync(
   path.resolve(root, 'test/fixtures/copyright.txt'),
   'utf8'
 )

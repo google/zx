@@ -290,6 +290,13 @@ console.log(a);
     await server.stop()
   })
 
+  test('scripts from missing local file', async () => {
+    const out = await $`node build/cli.js non-existent-script.mjs`.nothrow()
+    assert.match(out.stderr, /Error: Can't read non-existent-script.mjs/)
+    assert.match(out.stderr, /Failed to read local script/)
+    assert.equal(out.exitCode, 1)
+  })
+
   test('scripts (md) from https', async () => {
     const resp = await fs.readFile(path.resolve('test/fixtures/md.http'))
     const port = await getPort()

@@ -17,7 +17,9 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname)
+import { fileURLToPath } from 'node:url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(__dirname, '..')
 const source = 'package.json'
 const dest = 'package-main.json'

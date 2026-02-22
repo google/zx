@@ -16,7 +16,9 @@ import assert from 'node:assert'
 import { test, describe } from 'node:test'
 import { globby, fs, path } from '../build/index.js'
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname)
+import { fileURLToPath } from 'node:url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 describe('extra', () => {
   test('every file should have a license', async () => {

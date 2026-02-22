@@ -17,9 +17,10 @@
 import fs from 'fs-extra'
 import path from 'node:path'
 import minimist from 'minimist'
+import { fileURLToPath } from 'node:url'
 
-const root = path.resolve(new URL(import.meta.url).pathname, '../..')
-const copyright = await fs.readFileSync(
+const root = path.resolve(fileURLToPath(import.meta.url), '../..')
+const copyright = fs.readFileSync(
   path.resolve(root, 'test/fixtures/copyright.txt'),
   'utf8'
 )

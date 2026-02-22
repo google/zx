@@ -14,8 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { fileURLToPath } from 'node:url'
+import path from 'node:path'
 import fs from 'node:fs'
 import glob from 'fast-glob'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const redundants = await glob(
   ['build/{repl,globals-jsr}.d.ts', 'build/{deps,internals,util,vendor*}.js'],
