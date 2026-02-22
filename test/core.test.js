@@ -513,6 +513,7 @@ describe('core', () => {
       const p = $`echo foo`
       assert.ok(typeof p.pid === 'number')
       assert.ok(typeof p.id === 'string')
+      assert.ok(typeof p.cwd === 'string')
       assert.ok(typeof p.cmd === 'string')
       assert.ok(typeof p.fullCmd === 'string')
       assert.ok(typeof p.stage === 'string')
