@@ -7,9 +7,9 @@ Fixes #issue / suggests an improvement
 import {$} from 'zx'
 
 ```
-
+- [ ] **Setup** Set the latest Node.js LTS version.
 - [ ] **Build**: I’ve run `npm build` before committing and verified the bundle updates correctly.
-- [ ] **Tests**: I’ve `run test` and confirmed all tests succeed.
+- [ ] **Tests**: I’ve `run test` and confirmed all tests succeed. Added tests to cover my changes if needed.
 - [ ] **Docs**: I’ve added or updated relevant documentation as needed.
 - [ ] **Sign** Commits have [verified signatures](https://docs.github.com/en/enterprise-cloud@latest/authentication/managing-commit-signature-verification/about-commit-signature-verification) and follow [conventinal commits spec](https://www.conventionalcommits.org/en/v1.0.0/)
 - [ ] **CoC**: My changes follow [the project’s coding guidelines and Code of Conduct](https://github.com/google/zx?tab=coc-ov-file).  

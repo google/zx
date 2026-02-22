@@ -209,7 +209,7 @@
   "author": "Anton Medvedev <anton@medv.io>",
   "license": "Apache-2.0",
   "volta": {
-    "node": "24.6.0"
+    "node": "24.13.1"
   },
   "tsd": {
     "compilerOptions": {
