@@ -9,11 +9,13 @@ export function transformMarkdown(buf: Buffer | string): string {
 
   let state = 'root'
   let prevEmpty = true
+
   let fenceChar = ''
   let stripRe = /^/
   let endRe = /^$/
   let linePrefix = ''
   let closeOut = ''
+  let closeBlank = false
 
   const isEnd = (s: string) => fenceChar && endRe.test(s)
 
@@ -30,14 +32,17 @@ export function transformMarkdown(buf: Buffer | string): string {
             out.push('')
             linePrefix = ''
             closeOut = ''
+            closeBlank = true
           } else if (g.bash) {
             out.push('await $`')
             linePrefix = ''
             closeOut = '`'
+            closeBlank = false
           } else {
             out.push('')
             linePrefix = '// '
             closeOut = ''
+            closeBlank = true
           }
 
           state = 'fence'
@@ -53,6 +58,7 @@ export function transformMarkdown(buf: Buffer | string): string {
 
         prevEmpty = line === ''
         out.push('// ' + line)
+        continue
       }
 
       case 'tab':
@@ -67,7 +73,8 @@ export function transformMarkdown(buf: Buffer | string): string {
 
       case 'fence':
         if (isEnd(line)) {
-          if (closeOut) out.push(closeOut) // only bash needs a closing "`"
+          if (closeOut) out.push(closeOut)
+          else if (closeBlank) out.push('')
           state = 'root'
           prevEmpty = true
         } else {

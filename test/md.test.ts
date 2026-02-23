@@ -12,22 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { test, describe } from 'node:test'
+import { describe, test } from 'node:test'
 import assert from 'node:assert'
 import { transformMarkdown } from '../src/md.ts'
 
-describe('md', () => {
-  test('transformMarkdown()', () => {
-    assert.equal(transformMarkdown('\n'), '// \n// ')
-    assert.equal(transformMarkdown('  \n    '), '  \n    ')
-    assert.equal(
-      transformMarkdown(`
+describe('transformMarkdown', () => {
+  describe('root handling', () => {
+    test('comments out plain lines (including empty line)', () => {
+      assert.equal(transformMarkdown('\n'), '// \n// ')
+    })
+
+    test('preserves tab-indented blocks after a blank line (legacy behavior)', () => {
+      assert.equal(transformMarkdown('  \n    '), '  \n    ')
+    })
+
+    test('does not treat a mid-paragraph fence as a fenced block (legacy behavior)', () => {
+      assert.equal(
+        transformMarkdown(`
 \t~~~js
 console.log('js')`),
-      `// \n\t~~~js\n// console.log('js')`
-    )
-    // prettier-ignore
-    assert.equal(transformMarkdown(`
+        `// \n\t~~~js\n// console.log('js')`
+      )
+    })
+  })
+
+  describe('fenced code blocks', () => {
+    test('converts js/ts to raw code, bash to await $`...` and comments unknown fences', () => {
+      // prettier-ignore
+      assert.equal(transformMarkdown(`
 # Title
     
 ~~~js
@@ -68,12 +80,10 @@ echo foo
 \`
 // 
 // `)
-  })
+    })
 
-  test('transformMarkdown() handles indented code fences in list items (#1389)', () => {
-    // Fenced code blocks may be indented up to 3 spaces (CommonMark).
-    // They must still be recognized as fenced blocks, not treated as text.
-    const input = `# h1
+    test('accepts fences indented up to 3 spaces (CommonMark) and converts them', () => {
+      const input = `# h1
 
 paragraph
 
@@ -99,22 +109,11 @@ echo "1"
 echo "4"
 \`\`\`
 `
+      const result = transformMarkdown(input)
 
-    const result = transformMarkdown(input)
-
-    // No raw markdown fences should survive transformation.
-    assert.ok(!/```|~~~/.test(result), 'no raw fences should remain')
-
-    // All bash blocks should become template invocations.
-    const opens = result.match(/await \$`/g) ?? []
-    assert.equal(opens.length, 3, 'all three bash blocks should be converted')
-
-    // Each bash block should also close correctly.
-    const closes = result.match(/^`$/gm) ?? []
-    assert.equal(
-      closes.length,
-      3,
-      'all bash blocks should close with a backtick'
-    )
+      assert.ok(!/```|~~~/.test(result), 'no raw markdown fences should remain')
+      assert.equal((result.match(/await \$`/g) ?? []).length, 3)
+      assert.equal((result.match(/^`$/gm) ?? []).length, 3)
+    })
   })
 })
