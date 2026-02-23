@@ -1013,7 +1013,14 @@ function setShell(n: string, ps = true) {
 
 try {
   const { shell, prefix, postfix } = $
-  useBash()
+  if (process.platform === 'win32') {
+    $.shell = true
+    $.prefix = ''
+    $.postfix = ''
+    $.quote = quote
+  } else {
+    useBash()
+  }
   if (isString(shell)) $.shell = shell
   if (isString(prefix)) $.prefix = prefix
   if (isString(postfix)) $.postfix = postfix

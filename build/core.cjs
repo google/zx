@@ -1088,7 +1088,14 @@ function setShell(n, ps3 = true) {
 }
 try {
   const { shell, prefix, postfix } = $;
-  useBash();
+  if (import_node_process2.default.platform === "win32") {
+    $.shell = true;
+    $.prefix = "";
+    $.postfix = "";
+    $.quote = import_util.quote;
+  } else {
+    useBash();
+  }
   if ((0, import_util.isString)(shell)) $.shell = shell;
   if ((0, import_util.isString)(prefix)) $.prefix = prefix;
   if ((0, import_util.isString)(postfix)) $.postfix = postfix;
