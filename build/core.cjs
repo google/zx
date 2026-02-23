@@ -574,9 +574,17 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
         )) || cb();
       },
       on: {
-        start: () => {
+        start: (child) => {
+          var _a2;
           $2.log({ kind: "cmd", cmd: $2.cmd, cwd, verbose: self.isVerbose(), id });
           self.timeout($2.timeout, $2.timeoutSignal);
+          if (!$2.input && !self.sync && (child == null ? void 0 : child.stdin) && !child.stdin.destroyed && ((_a2 = import_node_process2.default.stdin) == null ? void 0 : _a2.readable) && !import_node_process2.default.stdin.readableEnded && _ProcessPromise.bus.sources(self).length === 0) {
+            import_node_process2.default.stdin.pipe(child.stdin);
+            child.stdin.on("error", import_util.noop);
+            child.once("close", () => {
+              if (child.stdin) import_node_process2.default.stdin.unpipe(child.stdin);
+            });
+          }
         },
         stdout: (data) => {
           $2.log({ kind: "stdout", data, verbose: !self._piped && self.isVerbose(), id });
