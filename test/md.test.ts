@@ -69,4 +69,52 @@ echo foo
 // 
 // `)
   })
+
+  test('transformMarkdown() handles indented code fences in list items (#1389)', () => {
+    // Fenced code blocks may be indented up to 3 spaces (CommonMark).
+    // They must still be recognized as fenced blocks, not treated as text.
+    const input = `# h1
+
+paragraph
+
+## h2
+
+### h3
+
+\`\`\`bash
+echo "1"
+\`\`\`
+
+### h3
+
+- item 1
+
+   \`\`\`bash
+   echo "2"
+   \`\`\`
+
+### h3
+
+\`\`\`bash
+echo "4"
+\`\`\`
+`
+
+    const result = transformMarkdown(input)
+
+    // No raw markdown fences should survive transformation.
+    assert.ok(!/```|~~~/.test(result), 'no raw fences should remain')
+
+    // All bash blocks should become template invocations.
+    const opens = result.match(/await \$`/g) ?? []
+    assert.equal(opens.length, 3, 'all three bash blocks should be converted')
+
+    // Each bash block should also close correctly.
+    const closes = result.match(/^`$/gm) ?? []
+    assert.equal(
+      closes.length,
+      3,
+      'all bash blocks should close with a backtick'
+    )
+  })
 })
