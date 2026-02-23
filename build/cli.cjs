@@ -64,10 +64,16 @@ function transformMarkdown(buf) {
   var _a2;
   const output = [];
   const tabRe = /^(  +|\t)/;
-  const codeBlockRe = new RegExp("^(?<fence>(`{3,20}|~{3,20}))(?:(?<js>(js|javascript|ts|typescript))|(?<bash>(sh|shell|bash))|.*)$");
+  const codeBlockRe = new RegExp("^(?<indent> {0,3})(?<fence>(`{3,20}|~{3,20}))(?:(?<js>(js|javascript|ts|typescript))|(?<bash>(sh|shell|bash))|.*)$");
   let state = "root";
-  let codeBlockEnd = "";
+  let fenceChar = "";
+  let fenceLen = 0;
+  let fenceIndent = 0;
   let prevLineIsEmpty = true;
+  let fenceIndentRe = /^/;
+  let fenceEndRe = /^$/;
+  const isFenceEnd = (line) => !!fenceChar && fenceEndRe.test(line);
+  const stripFenceIndent = (line) => line.replace(fenceIndentRe, "");
   for (const line of (0, import_util.bufToString)(buf).split(/\r?\n/)) {
     switch (state) {
       case "root":
@@ -76,13 +82,18 @@ function transformMarkdown(buf) {
           state = "tab";
           continue;
         }
-        const { fence, js, bash } = ((_a2 = line.match(codeBlockRe)) == null ? void 0 : _a2.groups) || {};
+        const m = ((_a2 = line.match(codeBlockRe)) == null ? void 0 : _a2.groups) || {};
+        const { indent = "", fence, js, bash } = m;
         if (!fence) {
           prevLineIsEmpty = line === "";
           output.push("// " + line);
           continue;
         }
-        codeBlockEnd = fence;
+        fenceChar = fence[0];
+        fenceLen = fence.length;
+        fenceIndent = indent.length;
+        fenceIndentRe = new RegExp(`^ {0,${fenceIndent}}`);
+        fenceEndRe = new RegExp(`^ {0,3}${fenceChar}{${fenceLen},}[ \\t]*$`);
         if (js) {
           state = "js";
           output.push("");
@@ -105,27 +116,27 @@ function transformMarkdown(buf) {
         }
         break;
       case "js":
-        if (line === codeBlockEnd) {
+        if (isFenceEnd(line)) {
           output.push("");
           state = "root";
         } else {
-          output.push(line);
+          output.push(stripFenceIndent(line));
         }
         break;
       case "bash":
-        if (line === codeBlockEnd) {
+        if (isFenceEnd(line)) {
           output.push("`");
           state = "root";
         } else {
-          output.push(line);
+          output.push(stripFenceIndent(line));
         }
         break;
       case "other":
-        if (line === codeBlockEnd) {
+        if (isFenceEnd(line)) {
           output.push("");
           state = "root";
         } else {
-          output.push("// " + line);
+          output.push("// " + stripFenceIndent(line));
         }
         break;
     }

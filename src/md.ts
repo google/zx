@@ -1,17 +1,3 @@
-// Copyright 2025 Google LLC
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 import { type Buffer } from 'node:buffer'
 import { bufToString } from './util.ts'
 
@@ -19,10 +5,19 @@ export function transformMarkdown(buf: Buffer | string): string {
   const output = []
   const tabRe = /^(  +|\t)/
   const codeBlockRe =
-    /^(?<fence>(`{3,20}|~{3,20}))(?:(?<js>(js|javascript|ts|typescript))|(?<bash>(sh|shell|bash))|.*)$/
+    /^(?<indent> {0,3})(?<fence>(`{3,20}|~{3,20}))(?:(?<js>(js|javascript|ts|typescript))|(?<bash>(sh|shell|bash))|.*)$/
+
   let state = 'root'
-  let codeBlockEnd = ''
+  let fenceChar = ''
+  let fenceLen = 0
+  let fenceIndent = 0
   let prevLineIsEmpty = true
+  let fenceIndentRe = /^/
+  let fenceEndRe = /^$/
+
+  const isFenceEnd = (line: string) => !!fenceChar && fenceEndRe.test(line)
+  const stripFenceIndent = (line: string) => line.replace(fenceIndentRe, '')
+
   for (const line of bufToString(buf).split(/\r?\n/)) {
     switch (state) {
       case 'root':
@@ -31,13 +26,21 @@ export function transformMarkdown(buf: Buffer | string): string {
           state = 'tab'
           continue
         }
-        const { fence, js, bash } = line.match(codeBlockRe)?.groups || {}
+
+        const m = line.match(codeBlockRe)?.groups || {}
+        const { indent = '', fence, js, bash } = m
         if (!fence) {
           prevLineIsEmpty = line === ''
           output.push('// ' + line)
           continue
         }
-        codeBlockEnd = fence
+
+        fenceChar = fence[0]
+        fenceLen = fence.length
+        fenceIndent = indent.length
+        fenceIndentRe = new RegExp(`^ {0,${fenceIndent}}`)
+        fenceEndRe = new RegExp(`^ {0,3}${fenceChar}{${fenceLen},}[ \\t]*$`)
+
         if (js) {
           state = 'js'
           output.push('')
@@ -49,6 +52,7 @@ export function transformMarkdown(buf: Buffer | string): string {
           output.push('')
         }
         break
+
       case 'tab':
         if (line === '') {
           output.push('')
@@ -59,31 +63,35 @@ export function transformMarkdown(buf: Buffer | string): string {
           state = 'root'
         }
         break
+
       case 'js':
-        if (line === codeBlockEnd) {
+        if (isFenceEnd(line)) {
           output.push('')
           state = 'root'
         } else {
-          output.push(line)
+          output.push(stripFenceIndent(line))
         }
         break
+
       case 'bash':
-        if (line === codeBlockEnd) {
+        if (isFenceEnd(line)) {
           output.push('`')
           state = 'root'
         } else {
-          output.push(line)
+          output.push(stripFenceIndent(line))
         }
         break
+
       case 'other':
-        if (line === codeBlockEnd) {
+        if (isFenceEnd(line)) {
           output.push('')
           state = 'root'
         } else {
-          output.push('// ' + line)
+          output.push('// ' + stripFenceIndent(line))
         }
         break
     }
   }
+
   return output.join('\n')
 }
