@@ -72,6 +72,7 @@ function transformMarkdown(buf) {
   let endRe = /^$/;
   let linePrefix = "";
   let closeOut = "";
+  let closeBlank = false;
   const isEnd = (s) => fenceChar && endRe.test(s);
   for (const line of (0, import_util.bufToString)(buf).split(/\r?\n/)) {
     switch (state) {
@@ -85,14 +86,17 @@ function transformMarkdown(buf) {
             out.push("");
             linePrefix = "";
             closeOut = "";
+            closeBlank = true;
           } else if (g.bash) {
             out.push("await $`");
             linePrefix = "";
             closeOut = "`";
+            closeBlank = false;
           } else {
             out.push("");
             linePrefix = "// ";
             closeOut = "";
+            closeBlank = true;
           }
           state = "fence";
           prevEmpty = false;
@@ -105,6 +109,7 @@ function transformMarkdown(buf) {
         }
         prevEmpty = line === "";
         out.push("// " + line);
+        continue;
       }
       case "tab":
         if (line === "") out.push("");
@@ -118,6 +123,7 @@ function transformMarkdown(buf) {
       case "fence":
         if (isEnd(line)) {
           if (closeOut) out.push(closeOut);
+          else if (closeBlank) out.push("");
           state = "root";
           prevEmpty = true;
         } else {
