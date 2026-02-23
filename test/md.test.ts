@@ -69,4 +69,54 @@ echo foo
 // 
 // `)
   })
+
+  test('transformMarkdown() handles indented code fences in list items (#1389)', () => {
+    // Code fences indented with up to 3 spaces (e.g. inside list items) should
+    // be recognized as fenced code blocks, not as tab-indented code.
+    const input = [
+      '# h1',
+      '',
+      'paragraph',
+      '',
+      '## h2',
+      '',
+      '### h3',
+      '',
+      '```bash',
+      'echo "1"',
+      '```',
+      '',
+      '### h3',
+      '',
+      '- item 1',
+      '',
+      '',
+      '  ```bash',
+      '  echo "2"',
+      '  ```',
+      '',
+      '',
+      '### h3',
+      '',
+      '```bash',
+      'echo "4"',
+      '```',
+    ].join('\n')
+
+    const result = transformMarkdown(input)
+
+    // The indented code fence must produce a valid $`` invocation,
+    // not raw backticks that cause "$(...) is not a function".
+    assert.ok(
+      !result.includes('  ```bash'),
+      'indented fence opener should not appear as raw code'
+    )
+    assert.ok(
+      result.includes('await $`'),
+      'indented bash fence should produce await $`'
+    )
+    // Verify all three bash blocks are converted
+    const bashBlocks = result.match(/await \$`/g)
+    assert.equal(bashBlocks?.length, 3, 'all three bash blocks should be converted')
+  })
 })

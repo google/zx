@@ -26,29 +26,31 @@ export function transformMarkdown(buf: Buffer | string): string {
   for (const line of bufToString(buf).split(/\r?\n/)) {
     switch (state) {
       case 'root':
+        // Strip up to 3 leading spaces before checking for code fences (per CommonMark spec)
+        const stripped = line.replace(/^ {0,3}/, '')
+        const { fence, js, bash } = stripped.match(codeBlockRe)?.groups || {}
+        if (fence) {
+          codeBlockEnd = fence
+          if (js) {
+            state = 'js'
+            output.push('')
+          } else if (bash) {
+            state = 'bash'
+            output.push('await $`')
+          } else {
+            state = 'other'
+            output.push('')
+          }
+          break
+        }
         if (tabRe.test(line) && prevLineIsEmpty) {
           output.push(line)
           state = 'tab'
           continue
         }
-        const { fence, js, bash } = line.match(codeBlockRe)?.groups || {}
-        if (!fence) {
-          prevLineIsEmpty = line === ''
-          output.push('// ' + line)
-          continue
-        }
-        codeBlockEnd = fence
-        if (js) {
-          state = 'js'
-          output.push('')
-        } else if (bash) {
-          state = 'bash'
-          output.push('await $`')
-        } else {
-          state = 'other'
-          output.push('')
-        }
-        break
+        prevLineIsEmpty = line === ''
+        output.push('// ' + line)
+        continue
       case 'tab':
         if (line === '') {
           output.push('')
@@ -60,7 +62,7 @@ export function transformMarkdown(buf: Buffer | string): string {
         }
         break
       case 'js':
-        if (line === codeBlockEnd) {
+        if (line.replace(/^ {0,3}/, '') === codeBlockEnd) {
           output.push('')
           state = 'root'
         } else {
@@ -68,7 +70,7 @@ export function transformMarkdown(buf: Buffer | string): string {
         }
         break
       case 'bash':
-        if (line === codeBlockEnd) {
+        if (line.replace(/^ {0,3}/, '') === codeBlockEnd) {
           output.push('`')
           state = 'root'
         } else {
@@ -76,7 +78,7 @@ export function transformMarkdown(buf: Buffer | string): string {
         }
         break
       case 'other':
-        if (line === codeBlockEnd) {
+        if (line.replace(/^ {0,3}/, '') === codeBlockEnd) {
           output.push('')
           state = 'root'
         } else {
