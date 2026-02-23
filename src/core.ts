@@ -348,9 +348,29 @@ export class ProcessPromise extends Promise<ProcessOutput> {
         ) || cb()
       },
       on: {
-        start: () => {
+        start: (child) => {
           $.log({ kind: 'cmd', cmd: $.cmd, cwd, verbose: self.isVerbose(), id })
           self.timeout($.timeout, $.timeoutSignal)
+
+          // Forward process.stdin to the child when no explicit input is
+          // provided and the process isn't receiving piped input from another
+          // process.  This enables interactive commands like `$\`cat\`` to
+          // read from the terminal, matching standard shell behavior.
+          if (
+            !$.input &&
+            !self.sync &&
+            child?.stdin &&
+            !child.stdin.destroyed &&
+            process.stdin?.readable &&
+            !process.stdin.readableEnded &&
+            ProcessPromise.bus.sources(self).length === 0
+          ) {
+            process.stdin.pipe(child.stdin)
+            child.stdin.on('error', noop)
+            child.once('close', () => {
+              if (child.stdin) process.stdin.unpipe(child.stdin)
+            })
+          }
         },
         stdout: (data) => {
           // If the process is piped, don't print its output.
