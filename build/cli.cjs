@@ -68,35 +68,31 @@ function transformMarkdown(buf) {
   let state = "root";
   let prevEmpty = true;
   let fenceChar = "";
-  let stripRe = /^/;
+  let stripRe = null;
   let endRe = /^$/;
   let linePrefix = "";
   let closeOut = "";
-  let closeBlank = false;
-  const isEnd = (s) => fenceChar && endRe.test(s);
+  const isEnd = (s) => fenceChar !== "" && endRe.test(s);
   for (const line of (0, import_util.bufToString)(buf).split(/\r?\n/)) {
     switch (state) {
       case "root": {
         const g = (_a2 = line.match(fenceRe)) == null ? void 0 : _a2.groups;
         if (g == null ? void 0 : g.fence) {
           fenceChar = g.fence[0];
-          stripRe = g.indent ? new RegExp(`^ {0,${g.indent.length}}`) : /^/;
+          stripRe = g.indent ? new RegExp(`^ {0,${g.indent.length}}`) : null;
           endRe = new RegExp(`^ {0,3}${fenceChar}{${g.fence.length},}[ \\t]*$`);
           if (g.js) {
             out.push("");
             linePrefix = "";
             closeOut = "";
-            closeBlank = true;
           } else if (g.bash) {
             out.push("await $`");
             linePrefix = "";
             closeOut = "`";
-            closeBlank = false;
           } else {
             out.push("");
             linePrefix = "// ";
             closeOut = "";
-            closeBlank = true;
           }
           state = "fence";
           prevEmpty = false;
@@ -122,12 +118,13 @@ function transformMarkdown(buf) {
         break;
       case "fence":
         if (isEnd(line)) {
-          if (closeOut) out.push(closeOut);
-          else if (closeBlank) out.push("");
+          out.push(closeOut);
           state = "root";
           prevEmpty = true;
+          fenceChar = "";
         } else {
-          out.push(linePrefix + line.replace(stripRe, ""));
+          const s = stripRe ? line.replace(stripRe, "") : line;
+          out.push(linePrefix + s);
           prevEmpty = false;
         }
         break;

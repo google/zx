@@ -25,13 +25,12 @@ export function transformMarkdown(buf: Buffer | string): string {
   let prevEmpty = true
 
   let fenceChar = ''
-  let stripRe = /^/
+  let stripRe: RegExp | null = null
   let endRe = /^$/
   let linePrefix = ''
   let closeOut = ''
-  let closeBlank = false
 
-  const isEnd = (s: string) => fenceChar && endRe.test(s)
+  const isEnd = (s: string) => fenceChar !== '' && endRe.test(s)
 
   for (const line of bufToString(buf).split(/\r?\n/)) {
     switch (state) {
@@ -39,24 +38,21 @@ export function transformMarkdown(buf: Buffer | string): string {
         const g = line.match(fenceRe)?.groups
         if (g?.fence) {
           fenceChar = g.fence[0]
-          stripRe = g.indent ? new RegExp(`^ {0,${g.indent.length}}`) : /^/
+          stripRe = g.indent ? new RegExp(`^ {0,${g.indent.length}}`) : null
           endRe = new RegExp(`^ {0,3}${fenceChar}{${g.fence.length},}[ \\t]*$`)
 
           if (g.js) {
             out.push('')
             linePrefix = ''
             closeOut = ''
-            closeBlank = true
           } else if (g.bash) {
             out.push('await $`')
             linePrefix = ''
             closeOut = '`'
-            closeBlank = false
           } else {
             out.push('')
             linePrefix = '// '
             closeOut = ''
-            closeBlank = true
           }
 
           state = 'fence'
@@ -87,12 +83,13 @@ export function transformMarkdown(buf: Buffer | string): string {
 
       case 'fence':
         if (isEnd(line)) {
-          if (closeOut) out.push(closeOut)
-          else if (closeBlank) out.push('')
+          out.push(closeOut)
           state = 'root'
           prevEmpty = true
+          fenceChar = ''
         } else {
-          out.push(linePrefix + line.replace(stripRe, ''))
+          const s = stripRe ? line.replace(stripRe, '') : line
+          out.push(linePrefix + s)
           prevEmpty = false
         }
         break
