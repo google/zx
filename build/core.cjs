@@ -532,8 +532,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     this._stage = "running";
     const self = this;
     const $2 = self._snapshot;
-    const id = self.id;
-    const cwd = $2.cwd || $2[CWD];
+    const { id, cwd } = self;
     if (!import_node_fs.default.existsSync(cwd)) {
       this.finalize(
         ProcessOutput.fromError(
@@ -688,6 +687,9 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
   get pid() {
     var _a;
     return (_a = this.child) == null ? void 0 : _a.pid;
+  }
+  get cwd() {
+    return this._snapshot.cwd || this._snapshot[CWD];
   }
   get cmd() {
     return this._snapshot.cmd;

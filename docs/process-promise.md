@@ -58,7 +58,7 @@ Returns a promise which resolves to the exit code of the process.
 
 ```js
 if (await $`[[ -d path ]]`.exitCode == 0) {
-...
+// ...
 }
 ```
 
@@ -81,6 +81,16 @@ await $`touch foo bar baz; find ./ -type f -print0`
 // If the output is a valid JSON, parse it in place:
 await $`echo '{"foo": "bar"}'`
   .json()             // {foo: 'bar'}
+```
+
+## Process metadata getters
+
+```js
+const p = $`sleep 1; echo foo`
+p.pid       // process id
+p.cwd       // process working directory
+p.cmd       // command: "sleep 1"
+p.fullCmd   // full command with prefix and postfix: "set -euo pipefail;sleep 1"
 ```
 
 ## `[Symbol.asyncIterator]`
