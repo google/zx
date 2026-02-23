@@ -16,74 +16,85 @@ import { type Buffer } from 'node:buffer'
 import { bufToString } from './util.ts'
 
 export function transformMarkdown(buf: Buffer | string): string {
-  const output = []
+  const out: string[] = []
   const tabRe = /^(  +|\t)/
-  const codeBlockRe =
-    /^(?<fence>(`{3,20}|~{3,20}))(?:(?<js>(js|javascript|ts|typescript))|(?<bash>(sh|shell|bash))|.*)$/
+  const fenceRe =
+    /^(?<indent> {0,3})(?<fence>(`{3,20}|~{3,20}))(?:(?<js>js|javascript|ts|typescript)|(?<bash>sh|shell|bash)|.*)$/
+
   let state = 'root'
-  let codeBlockEnd = ''
-  let prevLineIsEmpty = true
+  let prevEmpty = true
+
+  let fenceChar = ''
+  let stripRe: RegExp | null = null
+  let endRe = /^$/
+  let linePrefix = ''
+  let closeOut = ''
+
+  const isEnd = (s: string) => fenceChar !== '' && endRe.test(s)
+
   for (const line of bufToString(buf).split(/\r?\n/)) {
     switch (state) {
-      case 'root':
-        if (tabRe.test(line) && prevLineIsEmpty) {
-          output.push(line)
+      case 'root': {
+        const g = line.match(fenceRe)?.groups
+        if (g?.fence) {
+          fenceChar = g.fence[0]
+          stripRe = g.indent ? new RegExp(`^ {0,${g.indent.length}}`) : null
+          endRe = new RegExp(`^ {0,3}${fenceChar}{${g.fence.length},}[ \\t]*$`)
+
+          if (g.js) {
+            out.push('')
+            linePrefix = ''
+            closeOut = ''
+          } else if (g.bash) {
+            out.push('await $`')
+            linePrefix = ''
+            closeOut = '`'
+          } else {
+            out.push('')
+            linePrefix = '// '
+            closeOut = ''
+          }
+
+          state = 'fence'
+          prevEmpty = false
+          break
+        }
+
+        if (prevEmpty && tabRe.test(line)) {
+          out.push(line)
           state = 'tab'
           continue
         }
-        const { fence, js, bash } = line.match(codeBlockRe)?.groups || {}
-        if (!fence) {
-          prevLineIsEmpty = line === ''
-          output.push('// ' + line)
-          continue
-        }
-        codeBlockEnd = fence
-        if (js) {
-          state = 'js'
-          output.push('')
-        } else if (bash) {
-          state = 'bash'
-          output.push('await $`')
-        } else {
-          state = 'other'
-          output.push('')
-        }
-        break
+
+        prevEmpty = line === ''
+        out.push('// ' + line)
+        continue
+      }
+
       case 'tab':
-        if (line === '') {
-          output.push('')
-        } else if (tabRe.test(line)) {
-          output.push(line)
-        } else {
-          output.push('// ' + line)
+        if (line === '') out.push('')
+        else if (tabRe.test(line)) out.push(line)
+        else {
+          out.push('// ' + line)
           state = 'root'
         }
+        prevEmpty = line === ''
         break
-      case 'js':
-        if (line === codeBlockEnd) {
-          output.push('')
+
+      case 'fence':
+        if (isEnd(line)) {
+          out.push(closeOut)
           state = 'root'
+          prevEmpty = true
+          fenceChar = ''
         } else {
-          output.push(line)
-        }
-        break
-      case 'bash':
-        if (line === codeBlockEnd) {
-          output.push('`')
-          state = 'root'
-        } else {
-          output.push(line)
-        }
-        break
-      case 'other':
-        if (line === codeBlockEnd) {
-          output.push('')
-          state = 'root'
-        } else {
-          output.push('// ' + line)
+          const s = stripRe ? line.replace(stripRe, '') : line
+          out.push(linePrefix + s)
+          prevEmpty = false
         }
         break
     }
   }
-  return output.join('\n')
+
+  return out.join('\n')
 }
