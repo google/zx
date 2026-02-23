@@ -83,10 +83,12 @@ await $`echo '{"foo": "bar"}'`
   .json()             // {foo: 'bar'}
 ```
 
-## Process metadata getters
+## `pid, cwd, cmd, fullCmd`
+
+Process metadata getters.
 
 ```js
-const p = $`sleep 1; echo foo`
+const p = $`sleep 1`
 p.pid       // process id
 p.cwd       // process working directory
 p.cmd       // command: "sleep 1"
