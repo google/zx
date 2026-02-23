@@ -16,7 +16,7 @@ import { describe, test } from 'node:test'
 import assert from 'node:assert'
 import { transformMarkdown } from '../src/md.ts'
 
-describe('transformMarkdown', () => {
+describe('transformMarkdown()', () => {
   describe('root handling', () => {
     test('comments out plain lines (including empty line)', () => {
       assert.equal(transformMarkdown('\n'), '// \n// ')
