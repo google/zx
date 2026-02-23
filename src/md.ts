@@ -17,7 +17,7 @@ import { bufToString } from './util.ts'
 
 export function transformMarkdown(buf: Buffer | string): string {
   const output = []
-  const tabRe = /^(  +|\t)/
+  const tabRe = /^(    +|\t)/
   const codeBlockRe =
     /^(?<fence>(`{3,20}|~{3,20}))(?:(?<js>(js|javascript|ts|typescript))|(?<bash>(sh|shell|bash))|.*)$/
   let state = 'root'
