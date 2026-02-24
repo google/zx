@@ -32,7 +32,7 @@ export function transformMarkdown(buf: Buffer | string): string {
 
   const isEnd = (s: string) => fenceChar !== '' && endRe.test(s)
 
-  for (const line of bufToString(buf).split(/\r?\n/)) {
+  for (const line of bufToString(buf).split(/\r\n|[\n\r\u2028\u2029]/)) {
     switch (state) {
       case 'root': {
         const g = line.match(fenceRe)?.groups
