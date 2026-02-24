@@ -290,15 +290,14 @@ export class ProcessPromise extends Promise<ProcessOutput> {
     if ($.pieces.some((p) => p == null))
       throw new Fail(`Malformed command at ${$.from}`)
 
-    const cmd = buildCmd(
+    $.cmd = buildCmd(
       $.quote!,
       $.pieces as TemplateStringsArray,
       $.args
-    )
-    if ($.sync && (cmd as Promise<string>).then)
-      throw new Fail('sync mode does not allow async command resolution')
+    ) as string
 
-    $.cmd = cmd as string
+    if ($.sync && !isString($.cmd))
+      throw new Fail('sync mode does not allow async command resolution')
   }
   run(): this {
     ProcessPromise.bus.runBack(this)
