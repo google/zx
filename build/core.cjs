@@ -565,10 +565,11 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       ee: $2.ee,
       run(cb, ctx) {
         return __async(this, null, function* () {
-          if ((0, import_util.isString)(self.cmd)) return cb();
           try {
-            $2.cmd = yield self.cmd;
-            ctx.cmd = self.fullCmd;
+            if (!(0, import_util.isString)(self.cmd)) {
+              $2.cmd = yield self.cmd;
+              ctx.cmd = self.fullCmd;
+            }
             cb();
           } catch (error) {
             self.finalize(ProcessOutput.fromError(error));
