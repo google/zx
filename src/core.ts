@@ -296,7 +296,7 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       $.args
     ) as string
 
-    if ($.sync && !isString($.cmd))
+    if ($[SYNC] && !isString($.cmd))
       throw new Fail('sync mode does not allow async command resolution')
   }
   run(): this {

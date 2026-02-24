@@ -524,7 +524,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       $2.pieces,
       $2.args
     );
-    if ($2.sync && !(0, import_util.isString)($2.cmd))
+    if ($2[SYNC] && !(0, import_util.isString)($2.cmd))
       throw new Fail("sync mode does not allow async command resolution");
   }
   run() {
