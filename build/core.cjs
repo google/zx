@@ -519,11 +519,14 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       throw new Fail(`No quote function is defined: ${Fail.DOCS_URL}/quotes`);
     if ($2.pieces.some((p) => p == null))
       throw new Fail(`Malformed command at ${$2.from}`);
-    $2.cmd = (0, import_vendor_core2.buildCmd)(
+    const cmd = (0, import_vendor_core2.buildCmd)(
       $2.quote,
       $2.pieces,
       $2.args
     );
+    if ($2.sync && cmd.then)
+      throw new Fail("sync mode does not allow async command resolution");
+    $2.cmd = cmd;
   }
   run() {
     var _a, _b;
@@ -562,16 +565,18 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       detached: $2.detached,
       ee: $2.ee,
       run(cb, ctx) {
-        var _a2, _b2;
-        ((_b2 = (_a2 = self.cmd).then) == null ? void 0 : _b2.call(
-          _a2,
-          (cmd) => {
-            $2.cmd = cmd;
-            ctx.cmd = self.fullCmd;
-            cb();
-          },
-          (error) => self.finalize(ProcessOutput.fromError(error))
-        )) || cb();
+        return __async(this, null, function* () {
+          var _a2, _b2;
+          ((_b2 = (_a2 = self.cmd).then) == null ? void 0 : _b2.call(
+            _a2,
+            (cmd) => {
+              $2.cmd = cmd;
+              ctx.cmd = self.fullCmd;
+              cb();
+            },
+            (error) => self.finalize(ProcessOutput.fromError(error))
+          )) || cb();
+        });
       },
       on: {
         start: () => {
