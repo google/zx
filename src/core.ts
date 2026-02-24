@@ -342,14 +342,14 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       detached: $.detached,
       ee:       $.ee,
       async run(cb, ctx){
-        (self.cmd as unknown as Promise<string>).then?.(
-          cmd => {
-            $.cmd = cmd
-            ctx.cmd = self.fullCmd
-            cb()
-          },
-          error => self.finalize(ProcessOutput.fromError(error))
-        ) || cb()
+        if (isString(self.cmd)) return cb()
+        try {
+          $.cmd = await self.cmd
+          ctx.cmd = self.fullCmd
+          cb()
+        } catch (error) {
+          self.finalize(ProcessOutput.fromError(error as Error))
+        }
       },
       on: {
         start: () => {

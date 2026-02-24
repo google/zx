@@ -566,16 +566,14 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       ee: $2.ee,
       run(cb, ctx) {
         return __async(this, null, function* () {
-          var _a2, _b2;
-          ((_b2 = (_a2 = self.cmd).then) == null ? void 0 : _b2.call(
-            _a2,
-            (cmd) => {
-              $2.cmd = cmd;
-              ctx.cmd = self.fullCmd;
-              cb();
-            },
-            (error) => self.finalize(ProcessOutput.fromError(error))
-          )) || cb();
+          if ((0, import_util.isString)(self.cmd)) return cb();
+          try {
+            $2.cmd = yield self.cmd;
+            ctx.cmd = self.fullCmd;
+            cb();
+          } catch (error) {
+            self.finalize(ProcessOutput.fromError(error));
+          }
         });
       },
       on: {
