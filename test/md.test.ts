@@ -117,10 +117,9 @@ echo "4"
     })
   })
 
-  test('transformMarkdown() handles all ECMAScript line terminators', () => {
+  test('handles all ECMAScript line terminators', () => {
     const input = 'a\r\nb\nc\rd\u2028e\u2029f'
-    const expected =
-      '// a\n' + '// b\n' + '// c\n' + '// d\n' + '// e\n' + '// f'
+    const expected = '// a\n// b\n// c\n// d\n// e\n// f'
     assert.equal(transformMarkdown(input), expected)
   })
 })

@@ -162,9 +162,6 @@
         "minimatch": "10.2.2"
       }
     },
-    "@typescript-eslint/typescript-estree": {
-      "minimatch": "10.2.2"
-    },
     "tsx": {
       "esbuild": "$esbuild"
     },
