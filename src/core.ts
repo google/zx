@@ -191,12 +191,12 @@ export interface Shell<
 // The zx
 export type $ = Shell & Options
 
-export const $: $ = sync$<$>(
+export const $: $ = sync$(
   function (pieces: TemplateStringsArray | Partial<Options>, ...args: any[]) {
     const opts = getStore()
 
     if (!Array.isArray(pieces))
-      return sync$<$>(
+      return sync$(
         function (this: any, ...args: any) {
           return within(() => Object.assign($, opts, pieces).apply(this, args))
         } as $,
@@ -217,11 +217,7 @@ export const $: $ = sync$<$>(
   () => $({ sync: true })
 )
 
-function sync$<T extends Function>(
-  fn: T,
-  readOpts: () => Options,
-  makeSync: () => $
-): T {
+function sync$(fn: $, readOpts: () => Options, makeSync: () => $): $ {
   return new Proxy(fn, {
     get(t, key) {
       if (key === 'sync') return makeSync()
@@ -234,7 +230,7 @@ function sync$<T extends Function>(
         value
       )
     },
-  }) as unknown as T
+  })
 }
 
 type ProcessStage = 'initial' | 'halted' | 'running' | 'fulfilled' | 'rejected'
