@@ -452,11 +452,11 @@ var getSnapshot = (opts, from, pieces, args) => __spreadProps(__spreadValues({},
 function within(callback) {
   return storage.run(__spreadValues({}, getStore()), callback);
 }
-var $ = withSync(
+var $ = sync$(
   function(pieces, ...args) {
     const opts = getStore();
     if (!Array.isArray(pieces))
-      return withSync(
+      return sync$(
         function(...args2) {
           return within(() => Object.assign($, opts, pieces).apply(this, args2));
         },
@@ -472,15 +472,15 @@ var $ = withSync(
   () => getStore(),
   () => $({ sync: true })
 );
-function withSync(fn, getOpts, makeSync) {
+function sync$(fn, readOpts, makeSync) {
   return new Proxy(fn, {
     get(t, key) {
       if (key === "sync") return makeSync();
-      return Reflect.get(key in Function.prototype ? t : getOpts(), key);
+      return Reflect.get(key in Function.prototype ? t : readOpts(), key);
     },
     set(t, key, value) {
       return Reflect.set(
-        key in Function.prototype ? t : getOpts(),
+        key in Function.prototype ? t : readOpts(),
         key === "sync" ? SYNC : key,
         value
       );
