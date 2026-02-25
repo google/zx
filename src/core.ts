@@ -295,6 +295,9 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       $.pieces as TemplateStringsArray,
       $.args
     ) as string
+
+    if ($[SYNC] && !isString($.cmd))
+      throw new Fail('sync mode does not allow async command resolution')
   }
   run(): this {
     ProcessPromise.bus.runBack(this)
@@ -303,8 +306,16 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
     const self = this
     const $ = self._snapshot
-    const id = self.id
-    const cwd = $.cwd || $[CWD]
+    const { id, cwd } = self
+
+    if (!fs.existsSync(cwd)) {
+      this.finalize(
+        ProcessOutput.fromError(
+          new Error(`The working directory '${cwd}' does not exist.`)
+        )
+      )
+      return this
+    }
 
     if ($.preferLocal) {
       const dirs =
@@ -329,15 +340,16 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       stdio:    $.stdio,
       detached: $.detached,
       ee:       $.ee,
-      run(cb, ctx){
-        (self.cmd as unknown as Promise<string>).then?.(
-          cmd => {
-            $.cmd = cmd
+      async run(cb, ctx){
+        try {
+          if (!isString(self.cmd)) {
+            $.cmd = await self.cmd
             ctx.cmd = self.fullCmd
-            cb()
-          },
-          error => self.finalize(ProcessOutput.fromError(error))
-        ) || cb()
+          }
+          cb()
+        } catch (error) {
+          self.finalize(ProcessOutput.fromError(error as Error))
+        }
       },
       on: {
         start: () => {
@@ -488,6 +500,10 @@ export class ProcessPromise extends Promise<ProcessOutput> {
 
   get pid(): number | undefined {
     return this.child?.pid
+  }
+
+  get cwd(): string {
+    return this._snapshot.cwd || this._snapshot[CWD]
   }
 
   get cmd(): string {

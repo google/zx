@@ -18,6 +18,7 @@ const import_meta_url =
 var cli_exports = {};
 __export(cli_exports, {
   argv: () => argv,
+  autorun: () => autorun,
   injectGlobalRequire: () => injectGlobalRequire,
   isMain: () => isMain,
   main: () => main,
@@ -61,75 +62,75 @@ var import_util2 = require("./util.cjs");
 var import_util = require("./util.cjs");
 function transformMarkdown(buf) {
   var _a2;
-  const output = [];
+  const out = [];
   const tabRe = /^(  +|\t)/;
-  const codeBlockRe = new RegExp("^(?<fence>(`{3,20}|~{3,20}))(?:(?<js>(js|javascript|ts|typescript))|(?<bash>(sh|shell|bash))|.*)$");
+  const fenceRe = new RegExp("^(?<indent> {0,3})(?<fence>(`{3,20}|~{3,20}))(?:(?<js>js|javascript|ts|typescript)|(?<bash>sh|shell|bash)|.*)$");
   let state = "root";
-  let codeBlockEnd = "";
-  let prevLineIsEmpty = true;
-  for (const line of (0, import_util.bufToString)(buf).split(/\r?\n/)) {
+  let prevEmpty = true;
+  let fenceChar = "";
+  let stripRe = null;
+  let endRe = /^$/;
+  let linePrefix = "";
+  let closeOut = "";
+  const isEnd = (s) => fenceChar !== "" && endRe.test(s);
+  for (const line of (0, import_util.bufToString)(buf).split(/\r\n|[\n\r\u2028\u2029]/)) {
     switch (state) {
-      case "root":
-        if (tabRe.test(line) && prevLineIsEmpty) {
-          output.push(line);
+      case "root": {
+        const g = (_a2 = line.match(fenceRe)) == null ? void 0 : _a2.groups;
+        if (g == null ? void 0 : g.fence) {
+          fenceChar = g.fence[0];
+          stripRe = g.indent ? new RegExp(`^ {0,${g.indent.length}}`) : null;
+          endRe = new RegExp(`^ {0,3}${fenceChar}{${g.fence.length},}[ \\t]*$`);
+          if (g.js) {
+            out.push("");
+            linePrefix = "";
+            closeOut = "";
+          } else if (g.bash) {
+            out.push("await $`");
+            linePrefix = "";
+            closeOut = "`";
+          } else {
+            out.push("");
+            linePrefix = "// ";
+            closeOut = "";
+          }
+          state = "fence";
+          prevEmpty = false;
+          break;
+        }
+        if (prevEmpty && tabRe.test(line)) {
+          out.push(line);
           state = "tab";
           continue;
         }
-        const { fence, js, bash } = ((_a2 = line.match(codeBlockRe)) == null ? void 0 : _a2.groups) || {};
-        if (!fence) {
-          prevLineIsEmpty = line === "";
-          output.push("// " + line);
-          continue;
-        }
-        codeBlockEnd = fence;
-        if (js) {
-          state = "js";
-          output.push("");
-        } else if (bash) {
-          state = "bash";
-          output.push("await $`");
-        } else {
-          state = "other";
-          output.push("");
-        }
-        break;
+        prevEmpty = line === "";
+        out.push("// " + line);
+        continue;
+      }
       case "tab":
-        if (line === "") {
-          output.push("");
-        } else if (tabRe.test(line)) {
-          output.push(line);
-        } else {
-          output.push("// " + line);
+        if (line === "") out.push("");
+        else if (tabRe.test(line)) out.push(line);
+        else {
+          out.push("// " + line);
           state = "root";
         }
+        prevEmpty = line === "";
         break;
-      case "js":
-        if (line === codeBlockEnd) {
-          output.push("");
+      case "fence":
+        if (isEnd(line)) {
+          out.push(closeOut);
           state = "root";
+          prevEmpty = true;
+          fenceChar = "";
         } else {
-          output.push(line);
-        }
-        break;
-      case "bash":
-        if (line === codeBlockEnd) {
-          output.push("`");
-          state = "root";
-        } else {
-          output.push(line);
-        }
-        break;
-      case "other":
-        if (line === codeBlockEnd) {
-          output.push("");
-          state = "root";
-        } else {
-          output.push("// " + line);
+          const s = stripRe ? line.replace(stripRe, "") : line;
+          out.push(linePrefix + s);
+          prevEmpty = false;
         }
         break;
     }
   }
-  return output.join("\n");
+  return out.join("\n");
 }
 
 // src/cli.ts
@@ -147,14 +148,18 @@ var argv = (0, import_index.parseArgv)(import_node_process2.default.argv.slice(2
   parseBoolean: true,
   camelCase: true
 });
-isMain() && main().catch((err) => {
-  if (err instanceof import_index.ProcessOutput) {
-    console.error("Error:", err.message);
-  } else {
-    console.error(err);
-  }
-  import_node_process2.default.exitCode = 1;
-});
+autorun(import_meta);
+function autorun(meta) {
+  if (meta && isMain(meta))
+    main().catch((err) => {
+      if (err instanceof import_index.ProcessOutput) {
+        console.error("Error:", err.message);
+      } else {
+        console.error(err);
+      }
+      import_node_process2.default.exitCode = 1;
+    });
+}
 function printUsage() {
   console.log(`
  ${import_index.chalk.bold("zx " + import_index.VERSION)}
@@ -320,7 +325,8 @@ function readScriptFromHttp(remote) {
     const res = yield (0, import_index.fetch)(remote);
     if (!res.ok) {
       console.error(`Error: Can't get ${remote}`);
-      import_node_process2.default.exit(1);
+      import_node_process2.default.exitCode = 1;
+      throw new import_index.Fail(`Failed to fetch remote script: ${remote} (${res.status})`);
     }
     return res.text();
   });
@@ -331,13 +337,16 @@ function injectGlobalRequire(origin) {
   const require2 = (0, import_vendor.createRequire)(origin);
   Object.assign(globalThis, { __filename, __dirname, require: require2 });
 }
-function isMain(metaurl = import_meta_url, scriptpath = import_node_process2.default.argv[1]) {
-  if (metaurl.startsWith("file:")) {
-    const modulePath = import_node_url.default.fileURLToPath(metaurl).replace(/\.\w+$/, "");
-    const mainPath = import_index.fs.realpathSync(scriptpath).replace(/\.\w+$/, "");
-    return mainPath === modulePath;
+function isMain(meta = import_meta_url, scriptpath = import_node_process2.default.argv[1]) {
+  if (typeof meta === "string") {
+    if (meta.startsWith("file:")) {
+      const modulePath = import_node_url.default.fileURLToPath(meta).replace(/\.\w+$/, "");
+      const mainPath = import_index.fs.realpathSync(scriptpath).replace(/\.\w+$/, "");
+      return mainPath === modulePath;
+    }
+    return false;
   }
-  return false;
+  return !!meta.main;
 }
 function normalizeExt(ext) {
   return ext ? import_index.path.parse(`foo.${ext}`).ext : ext;
@@ -353,6 +362,7 @@ function getFilepath(cwd = ".", name = "zx", _ext) {
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   argv,
+  autorun,
   injectGlobalRequire,
   isMain,
   main,

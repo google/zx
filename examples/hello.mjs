@@ -1,3 +1,5 @@
+#!/usr/bin/env zx
+
 // Copyright 2026 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,16 +14,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export const versions: Record<string, string> = {
-  zx: '8.9.0',
-  chalk: '5.6.2',
-  depseek: '0.4.3',
-  dotenv: '0.2.3',
-  fetch: '1.6.7',
-  fs: '11.3.3',
-  glob: '16.1.1',
-  minimist: '1.2.8',
-  ps: '1.0.0',
-  which: '6.0.1',
-  yaml: '2.8.2',
-}
+await $({ verbose: true })`echo "Hello!"`

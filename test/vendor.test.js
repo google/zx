@@ -72,8 +72,8 @@ Keeps formatting as‑is.
 
   test('fetch() works', async () => {
     assert.match(
-      await fetch('https://example.com').then((res) => res.text()),
-      /Example Domain/
+      await fetch('https://github.com').then((res) => res.text()),
+      /GitHub/
     )
   })
 

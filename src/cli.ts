@@ -54,15 +54,20 @@ export const argv: minimist.ParsedArgs = parseArgv(process.argv.slice(2), {
   camelCase: true,
 })
 
-isMain() &&
-  main().catch((err) => {
-    if (err instanceof ProcessOutput) {
-      console.error('Error:', err.message)
-    } else {
-      console.error(err)
-    }
-    process.exitCode = 1
-  })
+autorun(import.meta)
+
+export function autorun(meta: ImportMeta): void {
+  if (meta && isMain(meta))
+    main().catch((err) => {
+      if (err instanceof ProcessOutput) {
+        console.error('Error:', err.message)
+      } else {
+        console.error(err)
+      }
+
+      process.exitCode = 1
+    })
+}
 
 export function printUsage() {
   // language=txt
@@ -247,7 +252,8 @@ async function readScriptFromHttp(remote: string): Promise<string> {
   const res = await fetch(remote)
   if (!res.ok) {
     console.error(`Error: Can't get ${remote}`)
-    process.exit(1)
+    process.exitCode = 1
+    throw new Fail(`Failed to fetch remote script: ${remote} (${res.status})`)
   }
   return res.text()
 }
@@ -260,16 +266,20 @@ export function injectGlobalRequire(origin: string): void {
 }
 
 export function isMain(
-  metaurl: string = import.meta.url,
+  meta: ImportMeta['url'] | ImportMeta = import.meta.url,
   scriptpath: string = process.argv[1]
 ): boolean {
-  if (metaurl.startsWith('file:')) {
-    const modulePath = url.fileURLToPath(metaurl).replace(/\.\w+$/, '')
-    const mainPath = fs.realpathSync(scriptpath).replace(/\.\w+$/, '')
-    return mainPath === modulePath
+  if (typeof meta === 'string') {
+    if (meta.startsWith('file:')) {
+      const modulePath = url.fileURLToPath(meta).replace(/\.\w+$/, '')
+      const mainPath = fs.realpathSync(scriptpath).replace(/\.\w+$/, '')
+      return mainPath === modulePath
+    }
+
+    return false
   }
 
-  return false
+  return !!meta.main
 }
 
 export function normalizeExt(ext?: string): string | undefined {

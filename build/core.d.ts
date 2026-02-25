@@ -120,6 +120,7 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     halt(): this;
     get id(): string;
     get pid(): number | undefined;
+    get cwd(): string;
     get cmd(): string;
     get fullCmd(): string;
     get child(): ChildProcess | undefined;

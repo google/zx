@@ -148,6 +148,14 @@ describe('core', () => {
       await Promise.allSettled([a3])
     })
 
+    test('rejects thenable args in sync mode', () => {
+      const a = new Promise((res) => setTimeout(res, 10, 'foo'))
+      assert.throws(
+        () => $.sync`echo ${a}`,
+        /sync mode does not allow async command resolution/
+      )
+    })
+
     test.skip('handles multiline literals', async () => {
       assert.equal(
         (
@@ -256,15 +264,19 @@ describe('core', () => {
       assert.match(err[inspect.custom](), /Command not found/)
     })
 
-    test('error event is handled', async () => {
+    test('provides clear error when cwd does not exist', async () => {
       await within(async () => {
-        $.cwd = 'wtf'
+        const fakePath = '/path/that/does/not/exist'
+        $.cwd = fakePath
         try {
-          await $`pwd`
+          await $`echo hello`
           assert.unreachable('should have thrown')
         } catch (err) {
           assert.ok(err instanceof ProcessOutput)
-          assert.match(err.message, /No such file or directory/)
+          assert.match(
+            err.message,
+            /The working directory '\/path\/that\/does\/not\/exist' does not exist/
+          )
         }
       })
     })
@@ -509,6 +521,7 @@ describe('core', () => {
       const p = $`echo foo`
       assert.ok(typeof p.pid === 'number')
       assert.ok(typeof p.id === 'string')
+      assert.ok(typeof p.cwd === 'string')
       assert.ok(typeof p.cmd === 'string')
       assert.ok(typeof p.fullCmd === 'string')
       assert.ok(typeof p.stage === 'string')
@@ -848,20 +861,22 @@ describe('core', () => {
           }
 
           const p = (
-            await fetch('https://example.com').then(responseToReadable)
+            await fetch('https://github.com').then(responseToReadable)
           ).pipe($`cat`)
           const o = await p
 
-          assert.match(o.stdout, /Example Domain/)
+          assert.match(o.stdout, /GitHub/)
         })
 
         test('fetch (pipe) > $', async () => {
-          const p1 = fetch('https://example.com').pipe($`cat`)
-          const p2 = fetch('https://example.com').pipe`cat`
+          const zxPkgJsonUrl =
+            'https://raw.githubusercontent.com/google/zx/refs/heads/main/package.json'
+          const p1 = fetch(zxPkgJsonUrl).pipe($`cat`)
+          const p2 = fetch(zxPkgJsonUrl).pipe`cat`
           const o1 = await p1
           const o2 = await p2
 
-          assert.match(o1.stdout, /Example Domain/)
+          assert.match(o1.stdout, /"name": "zx"/)
           assert.equal(o1.stdout, o2.stdout)
         })
 

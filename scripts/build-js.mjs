@@ -122,6 +122,15 @@ plugins.push(
       },
       {
         on: 'end',
+        if: !hybrid,
+        pattern: /cli\.js$/,
+        transform(contents) {
+          return `${contents}autorun(import.meta)
+`
+        },
+      },
+      {
+        on: 'end',
         pattern: entryPointsToRegexp(entryPoints),
         transform(contents) {
           const extras = [
