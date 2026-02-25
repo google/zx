@@ -200,7 +200,6 @@ export const $: $ = sync$(
         function (this: any, ...args: any) {
           return within(() => Object.assign($, opts, pieces).apply(this, args))
         } as $,
-        () => getStore(),
         () => $({ ...pieces, sync: true })
       )
 
@@ -213,19 +212,18 @@ export const $: $ = sync$(
 
     return pp.sync ? pp.output : pp
   } as $,
-  () => getStore(),
   () => $({ sync: true })
 )
 
-function sync$(fn: $, readOpts: () => Options, makeSync: () => $): $ {
+function sync$(fn: $, makeSync: () => $): $ {
   return new Proxy(fn, {
     get(t, key) {
       if (key === 'sync') return makeSync()
-      return Reflect.get(key in Function.prototype ? t : readOpts(), key)
+      return Reflect.get(key in Function.prototype ? t : getStore(), key)
     },
     set(t, key, value) {
       return Reflect.set(
-        key in Function.prototype ? t : readOpts(),
+        key in Function.prototype ? t : getStore(),
         key === 'sync' ? SYNC : key,
         value
       )
