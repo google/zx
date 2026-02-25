@@ -319,6 +319,12 @@ describe('core', () => {
 
         const $3 = $({ sync: true })({ nothrow: true })
         assert.equal($3`exit 3`.exitCode, 3)
+
+        const $4 = $({
+          verbose: false,
+          env: { NODE_ENV: 'production' },
+        })
+        console.log('$$.sync ', $4.sync, $4)
       })
 
       test('handles `nothrow` option', async () => {
