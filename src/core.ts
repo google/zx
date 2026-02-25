@@ -191,24 +191,36 @@ export interface Shell<
 // The zx
 export type $ = Shell & Options
 
-export const $: $ = new Proxy<$>(
-  // prettier-ignore
+export const $: $ = sync$(
   function (pieces: TemplateStringsArray | Partial<Options>, ...args: any[]) {
     const opts = getStore()
-    if (!Array.isArray(pieces)) {
-      return function (this: any, ...args: any) {
-        return within(() => Object.assign($, opts, pieces).apply(this, args))
-      }
-    }
-    const from = Fail.getCallerLocation()
-    const cb: PromiseCallback = () => (cb[SHOT] = getSnapshot(opts, from, pieces as TemplateStringsArray, args))
-    const pp = new ProcessPromise(cb)
 
+    if (!Array.isArray(pieces))
+      return sync$(
+        function (this: any, ...args: any) {
+          return within(() => Object.assign($, opts, pieces).apply(this, args))
+        } as $,
+        () => $({ ...pieces, sync: true })
+      )
+
+    const from = Fail.getCallerLocation()
+    const cb: PromiseCallback = () =>
+      (cb[SHOT] = getSnapshot(opts, from, pieces as TemplateStringsArray, args))
+
+    const pp = new ProcessPromise(cb)
     if (!pp.isHalted()) pp.run()
 
     return pp.sync ? pp.output : pp
   } as $,
-  {
+  () => $({ sync: true })
+)
+
+function sync$(fn: $, makeSync: () => $): $ {
+  return new Proxy(fn, {
+    get(t, key) {
+      if (key === 'sync') return makeSync()
+      return Reflect.get(key in Function.prototype ? t : getStore(), key)
+    },
     set(t, key, value) {
       return Reflect.set(
         key in Function.prototype ? t : getStore(),
@@ -216,13 +228,8 @@ export const $: $ = new Proxy<$>(
         value
       )
     },
-    get(t, key) {
-      return key === 'sync'
-        ? $({ sync: true })
-        : Reflect.get(key in Function.prototype ? t : getStore(), key)
-    },
-  }
-)
+  })
+}
 
 type ProcessStage = 'initial' | 'halted' | 'running' | 'fulfilled' | 'rejected'
 
@@ -295,6 +302,9 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       $.pieces as TemplateStringsArray,
       $.args
     ) as string
+
+    if ($[SYNC] && !isString($.cmd))
+      throw new Fail('sync mode does not allow async command resolution')
   }
   run(): this {
     ProcessPromise.bus.runBack(this)
@@ -337,15 +347,16 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       stdio:    $.stdio,
       detached: $.detached,
       ee:       $.ee,
-      run(cb, ctx){
-        (self.cmd as unknown as Promise<string>).then?.(
-          cmd => {
-            $.cmd = cmd
+      async run(cb, ctx){
+        try {
+          if (!isString(self.cmd)) {
+            $.cmd = await self.cmd
             ctx.cmd = self.fullCmd
-            cb()
-          },
-          error => self.finalize(ProcessOutput.fromError(error))
-        ) || cb()
+          }
+          cb()
+        } catch (error) {
+          self.finalize(ProcessOutput.fromError(error as Error))
+        }
       },
       on: {
         start: () => {

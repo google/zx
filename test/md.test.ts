@@ -116,4 +116,10 @@ echo "4"
       assert.equal((result.match(/^`$/gm) ?? []).length, 3)
     })
   })
+
+  test('handles all ECMAScript line terminators', () => {
+    const input = 'a\r\nb\nc\rd\u2028e\u2029f'
+    const expected = '// a\n// b\n// c\n// d\n// e\n// f'
+    assert.equal(transformMarkdown(input), expected)
+  })
 })

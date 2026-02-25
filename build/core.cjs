@@ -452,34 +452,39 @@ var getSnapshot = (opts, from, pieces, args) => __spreadProps(__spreadValues({},
 function within(callback) {
   return storage.run(__spreadValues({}, getStore()), callback);
 }
-var $ = new Proxy(
-  // prettier-ignore
+var $ = sync$(
   function(pieces, ...args) {
     const opts = getStore();
-    if (!Array.isArray(pieces)) {
-      return function(...args2) {
-        return within(() => Object.assign($, opts, pieces).apply(this, args2));
-      };
-    }
+    if (!Array.isArray(pieces))
+      return sync$(
+        function(...args2) {
+          return within(() => Object.assign($, opts, pieces).apply(this, args2));
+        },
+        () => $(__spreadProps(__spreadValues({}, pieces), { sync: true }))
+      );
     const from = Fail.getCallerLocation();
     const cb = () => cb[SHOT] = getSnapshot(opts, from, pieces, args);
     const pp = new ProcessPromise(cb);
     if (!pp.isHalted()) pp.run();
     return pp.sync ? pp.output : pp;
   },
-  {
+  () => $({ sync: true })
+);
+function sync$(fn, makeSync) {
+  return new Proxy(fn, {
+    get(t, key) {
+      if (key === "sync") return makeSync();
+      return Reflect.get(key in Function.prototype ? t : getStore(), key);
+    },
     set(t, key, value) {
       return Reflect.set(
         key in Function.prototype ? t : getStore(),
         key === "sync" ? SYNC : key,
         value
       );
-    },
-    get(t, key) {
-      return key === "sync" ? $({ sync: true }) : Reflect.get(key in Function.prototype ? t : getStore(), key);
     }
-  }
-);
+  });
+}
 var _ProcessPromise = class _ProcessPromise extends Promise {
   constructor(executor) {
     let resolve;
@@ -524,6 +529,8 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       $2.pieces,
       $2.args
     );
+    if ($2[SYNC] && !(0, import_util.isString)($2.cmd))
+      throw new Fail("sync mode does not allow async command resolution");
   }
   run() {
     var _a, _b;
@@ -562,16 +569,17 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       detached: $2.detached,
       ee: $2.ee,
       run(cb, ctx) {
-        var _a2, _b2;
-        ((_b2 = (_a2 = self.cmd).then) == null ? void 0 : _b2.call(
-          _a2,
-          (cmd) => {
-            $2.cmd = cmd;
-            ctx.cmd = self.fullCmd;
+        return __async(this, null, function* () {
+          try {
+            if (!(0, import_util.isString)(self.cmd)) {
+              $2.cmd = yield self.cmd;
+              ctx.cmd = self.fullCmd;
+            }
             cb();
-          },
-          (error) => self.finalize(ProcessOutput.fromError(error))
-        )) || cb();
+          } catch (error) {
+            self.finalize(ProcessOutput.fromError(error));
+          }
+        });
       },
       on: {
         start: () => {

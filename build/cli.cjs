@@ -73,7 +73,7 @@ function transformMarkdown(buf) {
   let linePrefix = "";
   let closeOut = "";
   const isEnd = (s) => fenceChar !== "" && endRe.test(s);
-  for (const line of (0, import_util.bufToString)(buf).split(/\r?\n/)) {
+  for (const line of (0, import_util.bufToString)(buf).split(/\r\n|[\n\r\u2028\u2029]/)) {
     switch (state) {
       case "root": {
         const g = (_a2 = line.match(fenceRe)) == null ? void 0 : _a2.groups;

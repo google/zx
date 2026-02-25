@@ -148,6 +148,14 @@ describe('core', () => {
       await Promise.allSettled([a3])
     })
 
+    test('rejects thenable args in sync mode', () => {
+      const a = new Promise((res) => setTimeout(res, 10, 'foo'))
+      assert.throws(
+        () => $.sync`echo ${a}`,
+        /sync mode does not allow async command resolution/
+      )
+    })
+
     test.skip('handles multiline literals', async () => {
       assert.equal(
         (
@@ -311,6 +319,9 @@ describe('core', () => {
 
         const $3 = $({ sync: true })({ nothrow: true })
         assert.equal($3`exit 3`.exitCode, 3)
+
+        assert.equal($1.sync`exit 4`.exitCode, 4)
+        assert.equal($.sync({ nothrow: true })`exit 5`.exitCode, 5)
       })
 
       test('handles `nothrow` option', async () => {

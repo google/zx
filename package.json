@@ -157,14 +157,6 @@
     "globby": {
       "fast-glob": "3.3.3"
     },
-    "c8": {
-      "test-exclude": {
-        "minimatch": "10.2.2"
-      }
-    },
-    "@typescript-eslint/typescript-estree": {
-      "minimatch": "10.2.2"
-    },
     "tsx": {
       "esbuild": "$esbuild"
     },
