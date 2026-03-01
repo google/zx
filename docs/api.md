@@ -217,6 +217,8 @@ await $`pwd` // => /home/path
 $.foo // still 'bar'
 ```
 
+> ⚠️ Do not use `cd()` inside `within()`. The `cd()` function changes `process.cwd()` globally and does not revert after `within()` ends. Use `$.cwd` instead for scoped directory changes.
+
 ```js
 await $`node --version` // => v20.2.0
 
