@@ -25,6 +25,16 @@ requires additional hassle before using. No compromise, take the best of both. T
 useful cross-platform wrappers around `child_process`, escapes arguments and
 gives sensible defaults.
 
+<hr>
+<p>
+  <a href="https://crow.watch"><img align="left" src="https://crow.watch/static/logo-rounded.png" alt="Crow Watch" width="140" height="140"></a>
+  <h3>Crow Watch</h3>
+  A computing-focused community.
+</p>
+<p>Join at <strong><a href="https://crow.watch/join/zx">crow.watch/join/zx</a></strong></p>
+<p>Share great links, cool code, and new tools.</p>
+<hr>
+
 ## Install
 
 ```bash
