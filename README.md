@@ -51,18 +51,10 @@ See also [**zx@lite**](https://google.github.io/zx/lite).
 
 ## See also
 
-- [srf](https://github.com/antonmedv/srf) — a tiny, dependency-free static file server for Node.js
-- [fx](https://fx.wtf) — a JSON cli tool and terminal JSON viewer 
+- [crow.watch](https://crow.watch) — a computing-focused community, link aggregation and discussion, [join](http://crow.watch/join/zx).
 
 ## License
 
 [Apache-2.0](LICENSE)
 
 Disclaimer: _This is not an officially supported Google product._
-
-<p align="center">
-  <a href="https://crow.watch/join/zx">
-    <img src="https://github.com/user-attachments/assets/37c84073-6533-4746-951d-d879f90a7fd2" alt="Join Crow Watch" width="900" hight="600">  
-  </a>
-</p>
-
