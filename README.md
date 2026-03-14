@@ -51,7 +51,7 @@ See also [**zx@lite**](https://google.github.io/zx/lite).
 
 ## See also
 
-- [crow.watch](https://crow.watch) — a computing-focused community, link aggregation and discussion, [join](http://crow.watch/join/zx).
+- 🔥 [crow.watch](https://crow.watch) — a computing-focused community, link aggregation and discussion, [join](http://crow.watch/join/zx).
 
 ## License
 
