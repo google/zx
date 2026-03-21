@@ -7816,10 +7816,19 @@ var require_symlink = __commonJS({
         } catch (e) {
         }
         if (stats && stats.isSymbolicLink()) {
-          const [srcStat, dstStat] = yield Promise.all([
-            fs6.stat(srcpath),
-            fs6.stat(dstpath)
-          ]);
+          let srcStat;
+          if (path5.isAbsolute(srcpath)) {
+            srcStat = yield fs6.stat(srcpath);
+          } else {
+            const dstdir = path5.dirname(dstpath);
+            const relativeToDst = path5.join(dstdir, srcpath);
+            try {
+              srcStat = yield fs6.stat(relativeToDst);
+            } catch (e) {
+              srcStat = yield fs6.stat(srcpath);
+            }
+          }
+          const dstStat = yield fs6.stat(dstpath);
           if (areIdentical(srcStat, dstStat)) return;
         }
         const relative = yield symlinkPaths(srcpath, dstpath);
@@ -7839,7 +7848,18 @@ var require_symlink = __commonJS({
       } catch (e) {
       }
       if (stats && stats.isSymbolicLink()) {
-        const srcStat = fs6.statSync(srcpath);
+        let srcStat;
+        if (path5.isAbsolute(srcpath)) {
+          srcStat = fs6.statSync(srcpath);
+        } else {
+          const dstdir = path5.dirname(dstpath);
+          const relativeToDst = path5.join(dstdir, srcpath);
+          try {
+            srcStat = fs6.statSync(relativeToDst);
+          } catch (e) {
+            srcStat = fs6.statSync(srcpath);
+          }
+        }
         const dstStat = fs6.statSync(dstpath);
         if (areIdentical(srcStat, dstStat)) return;
       }
@@ -14673,6 +14693,7 @@ function createStringifyContext(doc, options) {
     nullStr: "null",
     simpleKeys: false,
     singleQuote: null,
+    trailingComma: false,
     trueStr: "true",
     verifyAliasOrder: true
   }, doc.schema.toStringOptions, options);
@@ -15131,12 +15152,19 @@ function stringifyFlowCollection({ items }, ctx, { flowChars, itemIndent }) {
     if (comment)
       reqNewline = true;
     let str = stringify(item, itemCtx, () => comment = null);
-    if (i < items.length - 1)
+    reqNewline || (reqNewline = lines.length > linesAtValue || str.includes("\n"));
+    if (i < items.length - 1) {
       str += ",";
+    } else if (ctx.options.trailingComma) {
+      if (ctx.options.lineWidth > 0) {
+        reqNewline || (reqNewline = lines.reduce((sum, line) => sum + line.length + 2, 2) + (str.length + 2) > ctx.options.lineWidth);
+      }
+      if (reqNewline) {
+        str += ",";
+      }
+    }
     if (comment)
       str += lineComment(str, itemIndent, commentString(comment));
-    if (!reqNewline && (lines.length > linesAtValue || str.includes("\n")))
-      reqNewline = true;
     lines.push(str);
     linesAtValue = lines.length;
   }
@@ -17766,17 +17794,22 @@ function composeNode(ctx, token, props, onError) {
     case "block-map":
     case "block-seq":
     case "flow-collection":
-      node = composeCollection(CN, ctx, token, props, onError);
-      if (anchor)
-        node.anchor = anchor.source.substring(1);
+      try {
+        node = composeCollection(CN, ctx, token, props, onError);
+        if (anchor)
+          node.anchor = anchor.source.substring(1);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        onError(token, "RESOURCE_EXHAUSTION", message);
+      }
       break;
     default: {
       const message = token.type === "error" ? token.message : `Unsupported token (type: ${token.type})`;
       onError(token, "UNEXPECTED_TOKEN", message);
-      node = composeEmptyNode(ctx, token.offset, void 0, null, props, onError);
       isSrcToken = false;
     }
   }
+  node != null ? node : node = composeEmptyNode(ctx, token.offset, void 0, null, props, onError);
   if (anchor && node.anchor === "")
     onError(anchor, "BAD_ALIAS", "Anchor cannot be an empty string");
   if (atKey && ctx.options.stringKeys && (!isScalar(node) || typeof node.value !== "string" || node.tag && node.tag !== "tag:yaml.org,2002:str")) {
