@@ -63,6 +63,7 @@ const argv = minimist(process.argv.slice(2), {
 delete argv._
 
 const list = JSON.stringify(argv, null, 2)
+  .replaceAll("'", "\\'")
   .replaceAll('  "', '  ')
   .replaceAll('": ', ': ')
   .replaceAll('"', "'")
