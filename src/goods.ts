@@ -46,10 +46,27 @@ import {
 
 export { versions } from './versions.ts'
 
+function assertSafePath(inputPath: string): void {
+  if (path.isAbsolute(inputPath) || path.win32.isAbsolute(inputPath)) {
+    throw new Fail(`Absolute paths are not allowed: ${inputPath}`)
+  }
+  const normalizedPath = path.normalize(inputPath)
+  const winNormalizedPath = path.win32.normalize(inputPath)
+
+  if (
+    normalizedPath.startsWith('..' + path.sep) ||
+    normalizedPath === '..' ||
+    winNormalizedPath.startsWith('..\\')
+  ) {
+    throw new Fail(`Path traversal is not allowed: ${inputPath}`)
+  }
+}
+
 export function tempdir(
   prefix: string = `zx-${randomId()}`,
   mode?: Mode
 ): string {
+  assertSafePath(prefix)
   const dirpath = path.join(os.tmpdir(), prefix)
   fs.mkdirSync(dirpath, { recursive: true, mode })
 
@@ -61,6 +78,7 @@ export function tempfile(
   data?: string | Buffer,
   mode?: Mode
 ): string {
+  if (name) assertSafePath(name)
   const filepath = name
     ? path.join(tempdir(), name)
     : path.join(os.tmpdir(), `zx-${randomId()}`)

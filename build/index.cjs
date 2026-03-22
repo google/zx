@@ -69,12 +69,24 @@ var versions = {
 };
 
 // src/goods.ts
+function assertSafePath(inputPath) {
+  if (import_core.path.isAbsolute(inputPath) || import_core.path.win32.isAbsolute(inputPath)) {
+    throw new import_core.Fail(`Absolute paths are not allowed: ${inputPath}`);
+  }
+  const normalizedPath = import_core.path.normalize(inputPath);
+  const winNormalizedPath = import_core.path.win32.normalize(inputPath);
+  if (normalizedPath.startsWith(".." + import_core.path.sep) || normalizedPath === ".." || winNormalizedPath.startsWith("..\\")) {
+    throw new import_core.Fail(`Path traversal is not allowed: ${inputPath}`);
+  }
+}
 function tempdir(prefix = `zx-${(0, import_util.randomId)()}`, mode) {
+  assertSafePath(prefix);
   const dirpath = import_core.path.join(import_core.os.tmpdir(), prefix);
   import_vendor.fs.mkdirSync(dirpath, { recursive: true, mode });
   return dirpath;
 }
 function tempfile(name, data, mode) {
+  if (name) assertSafePath(name);
   const filepath = name ? import_core.path.join(tempdir(), name) : import_core.path.join(import_core.os.tmpdir(), `zx-${(0, import_util.randomId)()}`);
   if (data === void 0) import_vendor.fs.closeSync(import_vendor.fs.openSync(filepath, "w", mode));
   else import_vendor.fs.writeFileSync(filepath, data, { mode });

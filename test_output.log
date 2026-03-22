@@ -1,0 +1,2237 @@
+
+> zx@8.9.0 test:unit
+> node --experimental-transform-types ./test/all.test.js
+
+(node:10510) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+TAP version 13
+# Subtest: cli
+    # Subtest: promise resolved
+    ok 1 - promise resolved
+      ---
+      duration_ms: 21.224601
+      type: 'test'
+      ...
+    # Subtest: prints version
+    ok 2 - prints version
+      ---
+      duration_ms: 161.817118
+      type: 'test'
+      ...
+    # Subtest: prints help
+    ok 3 - prints help
+      ---
+      duration_ms: 186.101156
+      type: 'test'
+      ...
+_Fail [Error]: No script provided
+    at /app/build/cli.cjs:296:15
+    at Generator.next (<anonymous>)
+    at fulfilled (/app/build/esblib.cjs:43:24)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    # Subtest: zx prints usage if no param passed
+    ok 4 - zx prints usage if no param passed
+      ---
+      duration_ms: 184.063476
+      type: 'test'
+      ...
+    # Subtest: starts repl with --repl
+    ok 5 - starts repl with --repl
+      ---
+      duration_ms: 206.830785
+      type: 'test'
+      ...
+    # Subtest: starts repl with verbosity off
+    ok 6 - starts repl with verbosity off
+      ---
+      duration_ms: 189.706436
+      type: 'test'
+      ...
+    # Subtest: supports `--quiet` flag
+    ok 7 - supports `--quiet` flag
+      ---
+      duration_ms: 221.099355
+      type: 'test'
+      ...
+$ echo /usr/bin/bash
+/usr/bin/bash
+    # Subtest: supports `--shell` flag
+    ok 8 - supports `--shell` flag
+      ---
+      duration_ms: 184.371416
+      type: 'test'
+      ...
+$ echo $'set -e;'
+set -e;
+    # Subtest: supports `--prefix` flag
+    ok 9 - supports `--prefix` flag
+      ---
+      duration_ms: 192.937291
+      type: 'test'
+      ...
+$ echo $'; exit 0'
+; exit 0
+    # Subtest: supports `--postfix` flag
+    ok 10 - supports `--postfix` flag
+      ---
+      duration_ms: 191.121471
+      type: 'test'
+      ...
+$ echo /app/temp
+/app/temp
+    # Subtest: supports `--cwd` option
+    ok 11 - supports `--cwd` option
+      ---
+      duration_ms: 200.426524
+      type: 'test'
+      ...
+    # Subtest: supports `--env` option
+    ok 12 - supports `--env` option
+      ---
+      duration_ms: 195.086383
+      type: 'test'
+      ...
+    # Subtest: supports `--env` and `--cwd` options with file
+    ok 13 - supports `--env` and `--cwd` options with file
+      ---
+      duration_ms: 190.685225
+      type: 'test'
+      ...
+/usr/bin/bash: line 1: FOO: unbound variable
+Error: /usr/bin/bash: line 1: FOO: unbound variable
+
+    at file:///app/zx.mjs:2:27
+    exit code: 1
+    # Subtest: supports handling errors with the `--env` option
+    ok 14 - supports handling errors with the `--env` option
+      ---
+      duration_ms: 174.174569
+      type: 'test'
+      ...
+    # Subtest: `--prefer-local`
+        # Subtest: true
+        ok 1 - true
+          ---
+          duration_ms: 164.816703
+          type: 'test'
+          ...
+        # Subtest: external dir
+        ok 2 - external dir
+          ---
+          duration_ms: 176.35857
+          type: 'test'
+          ...
+        # Subtest: external alias
+        ok 3 - external alias
+          ---
+          duration_ms: 169.943348
+          type: 'test'
+          ...
+        # Subtest: throws if exists
+        ok 4 - throws if exists
+          ---
+          duration_ms: 7.490274
+          type: 'test'
+          ...
+        # Subtest: throws if not dir
+        ok 5 - throws if not dir
+          ---
+          duration_ms: 5.535622
+          type: 'test'
+          ...
+        1..5
+    ok 15 - `--prefer-local`
+      ---
+      duration_ms: 524.841629
+      type: 'suite'
+      ...
+_Fail [Error]: Can't link node_modules: /tmp/zx-9gzc3iuc7a/node_modules already exists
+    at linkNodeModules (/app/build/cli.cjs:268:11)
+    at /app/build/cli.cjs:244:18
+    at Generator.next (<anonymous>)
+    at fulfilled (/app/build/esblib.cjs:43:24)
+_Fail [Error]: Can't link node_modules: /tmp/zx-haffv4v68t/node_modules doesn't exist or is not a directory
+    at linkNodeModules (/app/build/cli.cjs:264:11)
+    at /app/build/cli.cjs:244:18
+    at Generator.next (<anonymous>)
+    at fulfilled (/app/build/esblib.cjs:43:24)
+$ fetch http://127.0.0.1:35119/script.mjs
+$ echo 'test'
+test
+    # Subtest: scripts from https 200
+    ok 16 - scripts from https 200
+      ---
+      duration_ms: 220.619002
+      type: 'test'
+      ...
+Error: Can't get http://127.0.0.1:41697
+_Fail [Error]: Failed to fetch remote script: http://127.0.0.1:41697 (500)
+    at /app/build/cli.cjs:329:13
+    at Generator.next (<anonymous>)
+    at fulfilled (/app/build/esblib.cjs:43:24)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    # Subtest: scripts from https 500
+    ok 17 - scripts from https 500
+      ---
+      duration_ms: 8293.258378
+      type: 'test'
+      ...
+$ fetch http://127.0.0.1:44805/script.md
+    # Subtest: scripts (md) from https
+    ok 18 - scripts (md) from https
+      ---
+      duration_ms: 194.750932
+      type: 'test'
+      ...
+    # Subtest: scripts with no extension
+    ok 19 - scripts with no extension
+      ---
+      duration_ms: 184.970723
+      type: 'test'
+      ...
+    # Subtest: scripts with non standard extension
+    not ok 20 - scripts with non standard extension
+      ---
+      duration_ms: 185.007856
+      type: 'test'
+      location: '/app/test/cli.test.js:312:3'
+      failureType: 'testCodeFailure'
+      error: 'false == true'
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: true
+      actual: false
+      operator: '=='
+      stack: |-
+        TestContext.<anonymous> (file:///app/test/cli.test.js:315:12)
+        process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+      ...
+    # Subtest: scripts from stdin with explicit extension
+    ok 21 - scripts from stdin with explicit extension
+      ---
+      duration_ms: 226.6971
+      type: 'test'
+      ...
+    # Subtest: require() is working from stdin
+    ok 22 - require() is working from stdin
+      ---
+      duration_ms: 177.129019
+      type: 'test'
+      ...
+    # Subtest: require() is working in ESM
+    ok 23 - require() is working in ESM
+      ---
+      duration_ms: 171.605881
+      type: 'test'
+      ...
+    # Subtest: __filename & __dirname are defined
+    ok 24 - __filename & __dirname are defined
+      ---
+      duration_ms: 168.871147
+      type: 'test'
+      ...
+    # Subtest: markdown scripts are working
+    ok 25 - markdown scripts are working
+      ---
+      duration_ms: 215.319637
+      type: 'test'
+      ...
+    # Subtest: markdown scripts are working for CRLF
+    ok 26 - markdown scripts are working for CRLF
+      ---
+      duration_ms: 167.299349
+      type: 'test'
+      ...
+    # Subtest: markdown scripts from stdin with --ext .md
+    ok 27 - markdown scripts from stdin with --ext .md
+      ---
+      duration_ms: 172.560432
+      type: 'test'
+      ...
+/usr/bin/bash: line 1: wtf: command not found
+Error: /usr/bin/bash: line 1: wtf: command not found
+
+    at file:///app/zx.mjs:1:8
+    exit code: 127 (Command not found)
+42
+    # Subtest: exceptions are caught
+    ok 28 - exceptions are caught
+      ---
+      duration_ms: 358.297782
+      type: 'test'
+      ...
+    # Subtest: eval works
+    ok 29 - eval works
+      ---
+      duration_ms: 344.471793
+      type: 'test'
+      ...
+    # Subtest: eval works with stdin
+    ok 30 - eval works with stdin
+      ---
+      duration_ms: 170.023605
+      type: 'test'
+      ...
+    # Subtest: executes a script from $PATH
+    ok 31 - executes a script from $PATH
+      ---
+      duration_ms: 190.828732
+      type: 'test'
+      ...
+    # Subtest: argv works with zx and node
+    ok 32 - argv works with zx and node
+      ---
+      duration_ms: 565.969371
+      type: 'test'
+      ...
+    # Subtest: exit code can be set
+    ok 33 - exit code can be set
+      ---
+      duration_ms: 159.412259
+      type: 'test'
+      ...
+    # Subtest: internals
+        # Subtest: isMain() checks process entry point
+        ok 1 - isMain() checks process entry point
+          ---
+          duration_ms: 0.760337
+          type: 'test'
+          ...
+        # Subtest: isMain() function is running from the wrong path
+        ok 2 - isMain() function is running from the wrong path
+          ---
+          duration_ms: 0.12946
+          type: 'test'
+          ...
+        # Subtest: normalizeExt()
+        ok 3 - normalizeExt()
+          ---
+          duration_ms: 0.204141
+          type: 'test'
+          ...
+        1..3
+    ok 34 - internals
+      ---
+      duration_ms: 1.374412
+      type: 'suite'
+      ...
+    1..34
+not ok 1 - cli
+  ---
+  duration_ms: 15198.625916
+  type: 'suite'
+  location: '/app/test/cli.test.js:29:1'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: core
+    # Subtest: resolveDefaults()
+        # Subtest: overrides known (allowed) opts
+        ok 1 - overrides known (allowed) opts
+          ---
+          duration_ms: 0.239284
+          type: 'test'
+          ...
+        # Subtest: ignores unknown
+        ok 2 - ignores unknown
+          ---
+          duration_ms: 0.263806
+          type: 'test'
+          ...
+        1..2
+    ok 1 - resolveDefaults()
+      ---
+      duration_ms: 0.617844
+      type: 'suite'
+      ...
+    # Subtest: $
+        # Subtest: is a regular function
+        ok 1 - is a regular function
+          ---
+          duration_ms: 9.403159
+          type: 'test'
+          ...
+Error
+        # Subtest: only stdout is used during command substitution
+        ok 2 - only stdout is used during command substitution
+          ---
+          duration_ms: 15.62817
+          type: 'test'
+          ...
+        # Subtest: env vars works
+        ok 3 - env vars works
+          ---
+          duration_ms: 6.309332
+          type: 'test'
+          ...
+        # Subtest: env vars are safe to pass
+        ok 4 - env vars are safe to pass
+          ---
+          duration_ms: 5.727557
+          type: 'test'
+          ...
+        # Subtest: arguments are quoted
+        ok 5 - arguments are quoted
+          ---
+          duration_ms: 5.638853
+          type: 'test'
+          ...
+        # Subtest: broken quoting
+        ok 6 - broken quoting
+          ---
+          duration_ms: 5.513259
+          type: 'test'
+          ...
+        # Subtest: undefined and empty string correctly quoted
+        ok 7 - undefined and empty string correctly quoted
+          ---
+          duration_ms: 10.977312
+          type: 'test'
+          ...
+        # Subtest: accepts thenable arguments
+        ok 8 - accepts thenable arguments
+          ---
+          duration_ms: 29.928098
+          type: 'test'
+          ...
+        # Subtest: rejects thenable args in sync mode
+        ok 9 - rejects thenable args in sync mode
+          ---
+          duration_ms: 1.592174
+          type: 'test'
+          ...
+        # Subtest: handles multiline literals
+        ok 10 - handles multiline literals # SKIP
+          ---
+          duration_ms: 0.111775
+          type: 'test'
+          ...
+        # Subtest: can create a dir with a space in the name
+        ok 11 - can create a dir with a space in the name
+          ---
+          duration_ms: 8.589826
+          type: 'test'
+          ...
+cat: /dev/not_found: No such file or directory
+        # Subtest: pipefail is on
+        ok 12 - pipefail is on
+          ---
+          duration_ms: 9.501811
+          type: 'test'
+          ...
+        # Subtest: toString() is called on arguments
+        ok 13 - toString() is called on arguments
+          ---
+          duration_ms: 6.168783
+          type: 'test'
+          ...
+        # Subtest: can use array as an argument
+        ok 14 - can use array as an argument
+          ---
+          duration_ms: 11.561878
+          type: 'test'
+          ...
+        # Subtest: requires $.shell to be specified
+        ok 15 - requires $.shell to be specified
+          ---
+          duration_ms: 0.769727
+          type: 'test'
+          ...
+        # Subtest: malformed cmd error
+        ok 16 - malformed cmd error
+          ---
+          duration_ms: 1.284351
+          type: 'test'
+          ...
+        # Subtest: snapshots works
+        ok 17 - snapshots works
+          ---
+          duration_ms: 6.325646
+          type: 'test'
+          ...
+/usr/bin/bash: line 1: wtf: command not found
+        # Subtest: $ thrown as error
+        ok 18 - $ thrown as error
+          ---
+          duration_ms: 6.480647
+          type: 'test'
+          ...
+        # Subtest: provides clear error when cwd does not exist
+        ok 19 - provides clear error when cwd does not exist
+          ---
+          duration_ms: 0.962875
+          type: 'test'
+          ...
+        # Subtest: await $`cmd`.exitCode does not throw
+        ok 20 - await $`cmd`.exitCode does not throw
+          ---
+          duration_ms: 14.222714
+          type: 'test'
+          ...
+        # Subtest: `$.sync()` provides synchronous API
+        ok 21 - `$.sync()` provides synchronous API
+          ---
+          duration_ms: 19.022669
+          type: 'test'
+          ...
+        # Subtest: $({opts}) API
+            # Subtest: $ proxy uses `defaults` store
+            ok 1 - $ proxy uses `defaults` store
+              ---
+              duration_ms: 0.618969
+              type: 'test'
+              ...
+            # Subtest: provides presets
+            ok 2 - provides presets
+              ---
+              duration_ms: 31.875003
+              type: 'test'
+              ...
+            # Subtest: handles `nothrow` option
+            ok 3 - handles `nothrow` option
+              ---
+              duration_ms: 7.304123
+              type: 'test'
+              ...
+            # Subtest: handles `input` option
+            ok 4 - handles `input` option
+              ---
+              duration_ms: 24.234845
+              type: 'test'
+              ...
+            # Subtest: handles `timeout` and `timeoutSignal`
+            ok 5 - handles `timeout` and `timeoutSignal`
+              ---
+              duration_ms: 44.371451
+              type: 'test'
+              ...
+            # Subtest: `env` option
+            ok 6 - `env` option
+              ---
+              duration_ms: 7.216164
+              type: 'test'
+              ...
+            # Subtest: `preferLocal` preserves env
+            ok 7 - `preferLocal` preserves env
+              ---
+              duration_ms: 17.801034
+              type: 'test'
+              ...
+            # Subtest: supports custom intermediate store
+            ok 8 - supports custom intermediate store
+              ---
+              duration_ms: 6.132353
+              type: 'test'
+              ...
+            1..8
+        ok 22 - $({opts}) API
+          ---
+          duration_ms: 140.274741
+          type: 'suite'
+          ...
+        # Subtest: accepts `stdio`
+            # Subtest: ignore
+            ok 1 - ignore
+              ---
+              duration_ms: 6.252327
+              type: 'test'
+              ...
+LICENSE
+README.md
+build
+dcr
+docs
+escape-poc.ts
+examples
+jsr.json
+lefthook.yml
+man
+node_modules
+package-lite.json
+package-lock.json
+package-main.json
+package.json
+poc.ts
+scripts
+server_output.log
+src
+temp
+test
+test-assert.js
+test-d
+test_output.log
+tsconfig.json
+vulnerable-server.mjs
+zizmor.yml
+LICENSE
+README.md
+build
+dcr
+docs
+escape-poc.ts
+examples
+jsr.json
+lefthook.yml
+man
+node_modules
+package-lite.json
+package-lock.json
+package-main.json
+package.json
+poc.ts
+scripts
+server_output.log
+src
+temp
+test
+test-assert.js
+test-d
+test_output.log
+tsconfig.json
+vulnerable-server.mjs
+zizmor.yml
+            # Subtest: inherit
+            ok 2 - inherit
+              ---
+              duration_ms: 16.026736
+              type: 'test'
+              ...
+            # Subtest: mixed
+            ok 3 - mixed
+              ---
+              duration_ms: 6.254884
+              type: 'test'
+              ...
+            # Subtest: via stdio() method
+            ok 4 - via stdio() method
+              ---
+              duration_ms: 11.81239
+              type: 'test'
+              ...
+            # Subtest: file stream as stdout
+            ok 5 - file stream as stdout
+              ---
+              duration_ms: 8.454482
+              type: 'test'
+              ...
+            1..5
+        ok 23 - accepts `stdio`
+          ---
+          duration_ms: 49.312508
+          type: 'suite'
+          ...
+        # Subtest: uses custom `log` if specified
+        ok 24 - uses custom `log` if specified
+          ---
+          duration_ms: 7.468447
+          type: 'test'
+          ...
+        1..24
+    ok 2 - $
+      ---
+      duration_ms: 374.769509
+      type: 'suite'
+      ...
+    # Subtest: ProcessPromise
+        # Subtest: getters
+        ok 1 - getters
+          ---
+          duration_ms: 5.704232
+          type: 'test'
+          ...
+        # Subtest: id is unique
+        ok 2 - id is unique
+          ---
+          duration_ms: 8.980161
+          type: 'test'
+          ...
+        # Subtest: state machine transitions
+            # Subtest: running > fulfilled
+            ok 1 - running > fulfilled
+              ---
+              duration_ms: 7.56364
+              type: 'test'
+              ...
+/usr/bin/bash: line 1: foo: command not found
+            # Subtest: running > rejected
+            ok 2 - running > rejected
+              ---
+              duration_ms: 7.364668
+              type: 'test'
+              ...
+            # Subtest: halted > running > fulfilled
+            ok 3 - halted > running > fulfilled
+              ---
+              duration_ms: 6.368924
+              type: 'test'
+              ...
+            # Subtest: all transitions
+            ok 4 - all transitions
+              ---
+              duration_ms: 6.705199
+              type: 'test'
+              ...
+            1..4
+        ok 3 - state machine transitions
+          ---
+          duration_ms: 28.442181
+          type: 'suite'
+          ...
+        # Subtest: inherits native Promise
+        ok 4 - inherits native Promise
+          ---
+          duration_ms: 3.526251
+          type: 'test'
+          ...
+        # Subtest: asserts self instantiation
+        ok 5 - asserts self instantiation
+          ---
+          duration_ms: 0.418481
+          type: 'test'
+          ...
+        # Subtest: resolves with ProcessOutput
+        ok 6 - resolves with ProcessOutput
+          ---
+          duration_ms: 5.875498
+          type: 'test'
+          ...
+        # Subtest: cmd() returns cmd to exec
+        ok 7 - cmd() returns cmd to exec
+          ---
+          duration_ms: 6.723445
+          type: 'test'
+          ...
+        # Subtest: stdin works
+        ok 8 - stdin works
+          ---
+          duration_ms: 6.309476
+          type: 'test'
+          ...
+        # Subtest: pipe()
+            # Subtest: accepts Writable
+            ok 1 - accepts Writable
+              ---
+              duration_ms: 8.803229
+              type: 'test'
+              ...
+            # Subtest: throws if Writable ended
+            ok 2 - throws if Writable ended
+              ---
+              duration_ms: 6.290784
+              type: 'test'
+              ...
+            # Subtest: accepts WriteStream
+            ok 3 - accepts WriteStream
+              ---
+              duration_ms: 16.32555
+              type: 'test'
+              ...
+            # Subtest: accepts file
+            ok 4 - accepts file
+              ---
+              duration_ms: 14.945254
+              type: 'test'
+              ...
+            # Subtest: accepts ProcessPromise
+            ok 5 - accepts ProcessPromise
+              ---
+              duration_ms: 11.271854
+              type: 'test'
+              ...
+            # Subtest: throws if dest ProcessPromise is settled
+            ok 6 - throws if dest ProcessPromise is settled
+              ---
+              duration_ms: 12.922531
+              type: 'test'
+              ...
+            # Subtest: detects inappropriate ProcessPromise
+            ok 7 - detects inappropriate ProcessPromise
+              ---
+              duration_ms: 11.419492
+              type: 'test'
+              ...
+            # Subtest: accepts $ template literal
+            ok 8 - accepts $ template literal
+              ---
+              duration_ms: 11.642507
+              type: 'test'
+              ...
+pipe-to-stdout
+            # Subtest: accepts stdout
+            ok 9 - accepts stdout
+              ---
+              duration_ms: 6.562396
+              type: 'test'
+              ...
+            # Subtest: supports chaining
+                # Subtest: $ > $
+                ok 1 - $ > $
+                  ---
+                  duration_ms: 33.613175
+                  type: 'test'
+                  ...
+                # Subtest: $ > $ halted
+                ok 2 - $ > $ halted
+                  ---
+                  duration_ms: 16.165874
+                  type: 'test'
+                  ...
+                # Subtest: $ halted > $ halted
+                ok 3 - $ halted > $ halted
+                  ---
+                  duration_ms: 17.517391
+                  type: 'test'
+                  ...
+                # Subtest: $ halted > $ literal
+                ok 4 - $ halted > $ literal
+                  ---
+                  duration_ms: 15.505435
+                  type: 'test'
+                  ...
+                # Subtest: several $ halted > $ halted
+                ok 5 - several $ halted > $ halted
+                  ---
+                  duration_ms: 414.58444
+                  type: 'test'
+                  ...
+                # Subtest: $ > stream
+                ok 6 - $ > stream
+                  ---
+                  duration_ms: 8.768714
+                  type: 'test'
+                  ...
+                # Subtest: $ > stdout
+                ok 7 - $ > stdout
+                  ---
+                  duration_ms: 4.072706
+                  type: 'test'
+                  ...
+1
+                # Subtest: $ halted > stream
+                ok 8 - $ halted > stream
+                  ---
+                  duration_ms: 7.788024
+                  type: 'test'
+                  ...
+                # Subtest: stream > $
+                ok 9 - stream > $
+                  ---
+                  duration_ms: 8.748577
+                  type: 'test'
+                  ...
+                # Subtest: fetch (stream) > $
+                ok 10 - fetch (stream) > $
+                  ---
+                  duration_ms: 218.740145
+                  type: 'test'
+                  ...
+                # Subtest: fetch (pipe) > $
+                ok 11 - fetch (pipe) > $
+                  ---
+                  duration_ms: 84.74171
+                  type: 'test'
+                  ...
+                # Subtest: $ > stream > $
+                ok 12 - $ > stream > $
+                  ---
+                  duration_ms: 11.493602
+                  type: 'test'
+                  ...
+                1..12
+            ok 10 - supports chaining
+              ---
+              duration_ms: 842.827116
+              type: 'suite'
+              ...
+            # Subtest: supports delayed piping
+            ok 11 - supports delayed piping
+              ---
+              duration_ms: 2016.504775
+              type: 'test'
+              ...
+            # Subtest: fulfilled piping
+            ok 12 - fulfilled piping
+              ---
+              duration_ms: 118.388858
+              type: 'test'
+              ...
+            # Subtest: rejected piping
+            ok 13 - rejected piping
+              ---
+              duration_ms: 13.820001
+              type: 'test'
+              ...
+            # Subtest: propagates rejection
+            ok 14 - propagates rejection
+              ---
+              duration_ms: 213.030443
+              type: 'test'
+              ...
+foo
+            # Subtest: pipes particular stream: stdout, stderr, stdall
+            ok 15 - pipes particular stream: stdout, stderr, stdall
+              ---
+              duration_ms: 36.810281
+              type: 'test'
+              ...
+            1..15
+        ok 9 - pipe()
+          ---
+          duration_ms: 3342.861985
+          type: 'suite'
+          ...
+        # Subtest: unpipe()
+            # Subtest: disables piping
+            ok 1 - disables piping
+              ---
+              duration_ms: 519.856076
+              type: 'test'
+              ...
+            1..1
+        ok 10 - unpipe()
+          ---
+          duration_ms: 520.042758
+          type: 'suite'
+          ...
+        # Subtest: abort()
+            # Subtest: just works
+            ok 1 - just works
+              ---
+              duration_ms: 107.746331
+              type: 'test'
+              ...
+            # Subtest: accepts optional AbortController
+            ok 2 - accepts optional AbortController
+              ---
+              duration_ms: 107.606343
+              type: 'test'
+              ...
+            # Subtest: accepts AbortController `signal` separately
+            ok 3 - accepts AbortController `signal` separately
+              ---
+              duration_ms: 105.90584
+              type: 'test'
+              ...
+            # Subtest: handles halt option
+                # Subtest: just works
+                ok 1 - just works
+                  ---
+                  duration_ms: 10.465803
+                  type: 'test'
+                  ...
+                # Subtest: sync process ignores halt option
+                ok 2 - sync process ignores halt option
+                  ---
+                  duration_ms: 6.778067
+                  type: 'test'
+                  ...
+                1..2
+            ok 4 - handles halt option
+              ---
+              duration_ms: 17.468601
+              type: 'suite'
+              ...
+            # Subtest: exposes `signal` property
+            ok 5 - exposes `signal` property
+              ---
+              duration_ms: 6.355091
+              type: 'test'
+              ...
+            # Subtest: throws if the signal was previously aborted
+            ok 6 - throws if the signal was previously aborted
+              ---
+              duration_ms: 4.791981
+              type: 'test'
+              ...
+            # Subtest: throws if the signal is controlled by another process
+            ok 7 - throws if the signal is controlled by another process
+              ---
+              duration_ms: 4.787754
+              type: 'test'
+              ...
+            # Subtest: throws if too late
+            ok 8 - throws if too late
+              ---
+              duration_ms: 6.146103
+              type: 'test'
+              ...
+            # Subtest: abort signal is transmittable through pipe
+            ok 9 - abort signal is transmittable through pipe
+              ---
+              duration_ms: 57.991213
+              type: 'test'
+              ...
+            1..9
+        ok 11 - abort()
+          ---
+          duration_ms: 419.680025
+          type: 'suite'
+          ...
+        # Subtest: kill()
+            # Subtest: just works
+            ok 1 - just works
+              ---
+              duration_ms: 126.404028
+              type: 'test'
+              ...
+            # Subtest: applies custom signal if passed
+            ok 2 - applies custom signal if passed
+              ---
+              duration_ms: 126.056782
+              type: 'test'
+              ...
+            # Subtest: applies `$.killSignal` if defined
+            ok 3 - applies `$.killSignal` if defined
+              ---
+              duration_ms: 128.390585
+              type: 'test'
+              ...
+            # Subtest: throws if too late
+            ok 4 - throws if too late
+              ---
+              duration_ms: 6.572255
+              type: 'test'
+              ...
+            # Subtest: throws if too early
+            ok 5 - throws if too early
+              ---
+              duration_ms: 0.656169
+              type: 'test'
+              ...
+            # Subtest: throws if pid is empty
+            ok 6 - throws if pid is empty
+              ---
+              duration_ms: 0.77018
+              type: 'test'
+              ...
+            1..6
+        ok 12 - kill()
+          ---
+          duration_ms: 389.343955
+          type: 'suite'
+          ...
+        # Subtest: [Symbol.asyncIterator]
+            # Subtest: should iterate over lines from stdout
+            ok 1 - should iterate over lines from stdout
+              ---
+              duration_ms: 7.006296
+              type: 'test'
+              ...
+            # Subtest: should handle partial lines correctly
+            ok 2 - should handle partial lines correctly
+              ---
+              duration_ms: 147.023686
+              type: 'test'
+              ...
+            # Subtest: should handle empty stdout
+            ok 3 - should handle empty stdout
+              ---
+              duration_ms: 7.852215
+              type: 'test'
+              ...
+            # Subtest: should handle single line without trailing newline
+            ok 4 - should handle single line without trailing newline
+              ---
+              duration_ms: 6.20403
+              type: 'test'
+              ...
+            # Subtest: should yield all buffered and new chunks when iterated after a delay
+            ok 5 - should yield all buffered and new chunks when iterated after a delay
+              ---
+              duration_ms: 518.743211
+              type: 'test'
+              ...
+            # Subtest: handles ignored stdio
+            ok 6 - handles ignored stdio
+              ---
+              duration_ms: 212.953349
+              type: 'test'
+              ...
+            # Subtest: handles non-iterable stdio
+            ok 7 - handles non-iterable stdio
+              ---
+              duration_ms: 213.911038
+              type: 'test'
+              ...
+            # Subtest: should process all output before handling a non-zero exit code
+            ok 8 - should process all output before handling a non-zero exit code
+              ---
+              duration_ms: 316.906427
+              type: 'test'
+              ...
+grep: test: Is a directory
+            # Subtest: handles .nothrow() correctly
+            ok 9 - handles .nothrow() correctly
+              ---
+              duration_ms: 9.976863
+              type: 'test'
+              ...
+            # Subtest: handles a custom delimiter
+            ok 10 - handles a custom delimiter
+              ---
+              duration_ms: 12.299914
+              type: 'test'
+              ...
+            1..10
+        ok 13 - [Symbol.asyncIterator]
+          ---
+          duration_ms: 1453.873523
+          type: 'suite'
+          ...
+        # Subtest: quiet() mode is working
+        ok 14 - quiet() mode is working
+          ---
+          duration_ms: 11.428901
+          type: 'test'
+          ...
+        # Subtest: verbose() mode is working
+        ok 15 - verbose() mode is working
+          ---
+          duration_ms: 3.593374
+          type: 'test'
+          ...
+        # Subtest: nothrow() does not throw
+        ok 16 - nothrow() does not throw
+          ---
+          duration_ms: 17.41532
+          type: 'test'
+          ...
+        # Subtest: timeout()
+            # Subtest: expiration works
+            ok 1 - expiration works
+              ---
+              duration_ms: 1236.892437
+              type: 'test'
+              ...
+            # Subtest: accepts a signal opt
+            ok 2 - accepts a signal opt
+              ---
+              duration_ms: 37.610879
+              type: 'test'
+              ...
+            1..2
+        ok 17 - timeout()
+          ---
+          duration_ms: 1274.882694
+          type: 'suite'
+          ...
+        # Subtest: json()
+        ok 18 - json()
+          ---
+          duration_ms: 6.806531
+          type: 'test'
+          ...
+        # Subtest: text()
+        ok 19 - text()
+          ---
+          duration_ms: 6.750362
+          type: 'test'
+          ...
+        # Subtest: lines()
+        ok 20 - lines()
+          ---
+          duration_ms: 22.372391
+          type: 'test'
+          ...
+        # Subtest: buffer()
+        ok 21 - buffer()
+          ---
+          duration_ms: 5.864149
+          type: 'test'
+          ...
+        # Subtest: blob()
+        ok 22 - blob()
+          ---
+          duration_ms: 5.749082
+          type: 'test'
+          ...
+        1..22
+    ok 3 - ProcessPromise
+      ---
+      duration_ms: 7548.26734
+      type: 'suite'
+      ...
+    # Subtest: ProcessOutput
+        # Subtest: getters
+        ok 1 - getters
+          ---
+          duration_ms: 0.752758
+          type: 'test'
+          ...
+        # Subtest: [Symbol.toPrimitive]
+        ok 2 - [Symbol.toPrimitive]
+          ---
+          duration_ms: 0.296585
+          type: 'test'
+          ...
+        # Subtest: toString()
+        ok 3 - toString()
+          ---
+          duration_ms: 0.169993
+          type: 'test'
+          ...
+        # Subtest: valueOf()
+        ok 4 - valueOf()
+          ---
+          duration_ms: 0.135594
+          type: 'test'
+          ...
+        # Subtest: json()
+        ok 5 - json()
+          ---
+          duration_ms: 0.152707
+          type: 'test'
+          ...
+        # Subtest: text()
+        ok 6 - text()
+          ---
+          duration_ms: 0.498617
+          type: 'test'
+          ...
+        # Subtest: lines()
+        ok 7 - lines()
+          ---
+          duration_ms: 0.287394
+          type: 'test'
+          ...
+        # Subtest: buffer()
+        ok 8 - buffer()
+          ---
+          duration_ms: 0.164387
+          type: 'test'
+          ...
+        # Subtest: blob()
+        ok 9 - blob()
+          ---
+          duration_ms: 0.442943
+          type: 'test'
+          ...
+        # Subtest: [Symbol.Iterator]
+        ok 10 - [Symbol.Iterator]
+          ---
+          duration_ms: 0.253574
+          type: 'test'
+          ...
+        # Subtest: static
+            # Subtest: getExitMessage()
+            ok 1 - getExitMessage()
+              ---
+              duration_ms: 0.141504
+              type: 'test'
+              ...
+            # Subtest: getErrorMessage()
+            ok 2 - getErrorMessage()
+              ---
+              duration_ms: 0.13105
+              type: 'test'
+              ...
+            1..2
+        ok 11 - static
+          ---
+          duration_ms: 0.376538
+          type: 'suite'
+          ...
+        1..11
+    ok 4 - ProcessOutput
+      ---
+      duration_ms: 3.986941
+      type: 'suite'
+      ...
+    # Subtest: cd()
+        # Subtest: works with relative paths
+        ok 1 - works with relative paths
+          ---
+          duration_ms: 15.225572
+          type: 'test'
+          ...
+        # Subtest: does not affect parallel contexts ($.cwdSyncHook enabled)
+        ok 2 - does not affect parallel contexts ($.cwdSyncHook enabled)
+          ---
+          duration_ms: 9.048382
+          type: 'test'
+          ...
+        # Subtest: fails on entering not existing dir
+        ok 3 - fails on entering not existing dir
+          ---
+          duration_ms: 0.383768
+          type: 'test'
+          ...
+        # Subtest: accepts ProcessOutput in addition to string
+        ok 4 - accepts ProcessOutput in addition to string
+          ---
+          duration_ms: 8.437519
+          type: 'test'
+          ...
+        1..4
+    ok 5 - cd()
+      ---
+      duration_ms: 33.46969
+      type: 'suite'
+      ...
+    # Subtest: kill()
+        # Subtest: throws if pid is invalid
+        ok 1 - throws if pid is invalid
+          ---
+          duration_ms: 0.942395
+          type: 'test'
+          ...
+        1..1
+    ok 6 - kill()
+      ---
+      duration_ms: 1.046007
+      type: 'suite'
+      ...
+    # Subtest: within()
+        # Subtest: just works
+        ok 1 - just works
+          ---
+          duration_ms: 10.916483
+          type: 'test'
+          ...
+        # Subtest: keeps the cwd ref for internal $ calls
+        ok 2 - keeps the cwd ref for internal $ calls
+          ---
+          duration_ms: 1022.484083
+          type: 'test'
+          ...
+        # Subtest: isolates nested context and returns cb result
+        ok 3 - isolates nested context and returns cb result
+          ---
+          duration_ms: 0.693121
+          type: 'test'
+          ...
+        1..3
+    ok 7 - within()
+      ---
+      duration_ms: 1034.356106
+      type: 'suite'
+      ...
+    # Subtest: shell presets
+        # Subtest: usePwsh()
+        ok 1 - usePwsh()
+          ---
+          duration_ms: 0.267826
+          type: 'test'
+          ...
+        # Subtest: usePowerShell()
+        ok 2 - usePowerShell()
+          ---
+          duration_ms: 0.247529
+          type: 'test'
+          ...
+        # Subtest: useBash()
+        ok 3 - useBash()
+          ---
+          duration_ms: 0.167903
+          type: 'test'
+          ...
+        1..3
+    ok 8 - shell presets
+      ---
+      duration_ms: 2.264369
+      type: 'suite'
+      ...
+    1..8
+ok 2 - core
+  ---
+  duration_ms: 8999.394349
+  type: 'suite'
+  ...
+  ⠋ npm i cpy@9.0.1 lodash-es@4.17.21  ⠙ npm i cpy@9.0.1 lodash-es@4.17.21  ⠹ npm i cpy@9.0.1 lodash-es@4.17.21  ⠸ npm i cpy@9.0.1 lodash-es@4.17.21  ⠼ npm i cpy@9.0.1 lodash-es@4.17.21  ⠴ npm i cpy@9.0.1 lodash-es@4.17.21  ⠦ npm i cpy@9.0.1 lodash-es@4.17.21  ⠧ npm i cpy@9.0.1 lodash-es@4.17.21  ⠇ npm i cpy@9.0.1 lodash-es@4.17.21  ⠏ npm i cpy@9.0.1 lodash-es@4.17.21  ⠋ npm i cpy@9.0.1 lodash-es@4.17.21# Subtest: deps
+    # Subtest: installDeps()
+        # Subtest: loader works via JS API
+        ok 1 - loader works via JS API
+          ---
+          duration_ms: 1182.792957
+          type: 'test'
+          ...
+  ⠋ npm i @jsr/std__internal@1.0.5  ⠙ npm i @jsr/std__internal@1.0.5  ⠹ npm i @jsr/std__internal@1.0.5  ⠸ npm i @jsr/std__internal@1.0.5  ⠼ npm i @jsr/std__internal@1.0.5  ⠴ npm i @jsr/std__internal@1.0.5  ⠦ npm i @jsr/std__internal@1.0.5        # Subtest: loader works via JS API with custom npm registry URL
+        ok 2 - loader works via JS API with custom npm registry URL
+          ---
+          duration_ms: 760.782125
+          type: 'test'
+          ...
+  ⠋ npm i lodash@4.17.15  ⠙ npm i lodash@4.17.15  ⠹ npm i lodash@4.17.15  ⠸ npm i lodash@4.17.15  ⠼ npm i lodash@4.17.15  ⠴ npm i lodash@4.17.15  ⠦ npm i lodash@4.17.15  ⠧ npm i lodash@4.17.15
+        # Subtest: loader works via CLI
+        ok 3 - loader works via CLI
+          ---
+          duration_ms: 1104.28818
+          type: 'test'
+          ...
+  ⠋ npm i @jsr/std__internal@latest  ⠙ npm i @jsr/std__internal@latest  ⠹ npm i @jsr/std__internal@latest  ⠸ npm i @jsr/std__internal@latest  ⠼ npm i @jsr/std__internal@latest  ⠴ npm i @jsr/std__internal@latest  ⠦ npm i @jsr/std__internal@latest
+  ⠋ npm i @jsr/std__internal@latest  ⠙ npm i @jsr/std__internal@latest  ⠹ npm i @jsr/std__internal@latest  ⠸ npm i @jsr/std__internal@latest  ⠼ npm i @jsr/std__internal@latest  ⠴ npm i @jsr/std__internal@latest  ⠦ npm i @jsr/std__internal@latest
+        # Subtest: loader works via CLI with custom npm registry URL
+        ok 4 - loader works via CLI with custom npm registry URL
+          ---
+          duration_ms: 1835.852761
+          type: 'test'
+          ...
+        # Subtest: throws on invalid installer type
+        ok 5 - throws on invalid installer type
+          ---
+          duration_ms: 0.685376
+          type: 'test'
+          ...
+        # Subtest: does nothing on empty deps
+        ok 6 - does nothing on empty deps
+          ---
+          duration_ms: 0.446926
+          type: 'test'
+          ...
+        1..6
+    ok 1 - installDeps()
+      ---
+      duration_ms: 4885.647363
+      type: 'suite'
+      ...
+    # Subtest: parseDeps()
+        # Subtest: import or require
+        ok 1 - import or require
+          ---
+          duration_ms: 2.557345
+          type: 'test'
+          ...
+        # Subtest: import with org and filename
+        ok 2 - import with org and filename
+          ---
+          duration_ms: 0.172218
+          type: 'test'
+          ...
+        # Subtest: import with version
+        ok 3 - import with version
+          ---
+          duration_ms: 0.419067
+          type: 'test'
+          ...
+        # Subtest: multiline
+        ok 4 - multiline
+          ---
+          duration_ms: 0.441335
+          type: 'test'
+          ...
+        1..4
+    ok 2 - parseDeps()
+      ---
+      duration_ms: 3.878445
+      type: 'suite'
+      ...
+    1..2
+ok 3 - deps
+  ---
+  duration_ms: 4889.673051
+  type: 'suite'
+  ...
+# Subtest: error
+    # Subtest: getExitCodeInfo()
+    ok 1 - getExitCodeInfo()
+      ---
+      duration_ms: 0.197427
+      type: 'test'
+      ...
+    # Subtest: getErrnoMessage()
+    ok 2 - getErrnoMessage()
+      ---
+      duration_ms: 0.189493
+      type: 'test'
+      ...
+    # Subtest: getCallerLocation()
+    ok 3 - getCallerLocation()
+      ---
+      duration_ms: 0.678027
+      type: 'test'
+      ...
+    # Subtest: getCallerLocationFromString()
+        # Subtest: empty
+        ok 1 - empty
+          ---
+          duration_ms: 0.217372
+          type: 'test'
+          ...
+        # Subtest: no-match
+        ok 2 - no-match
+          ---
+          duration_ms: 0.120431
+          type: 'test'
+          ...
+        # Subtest: getCallerLocationFromString-v8
+        ok 3 - getCallerLocationFromString-v8
+          ---
+          duration_ms: 0.193472
+          type: 'test'
+          ...
+        # Subtest: getCallerLocationFromString-JSC
+        ok 4 - getCallerLocationFromString-JSC
+          ---
+          duration_ms: 0.157424
+          type: 'test'
+          ...
+        1..4
+    ok 4 - getCallerLocationFromString()
+      ---
+      duration_ms: 0.855041
+      type: 'suite'
+      ...
+    # Subtest: getExitMessage()
+    ok 5 - getExitMessage()
+      ---
+      duration_ms: 0.184954
+      type: 'test'
+      ...
+    # Subtest: getErrorMessage()
+    ok 6 - getErrorMessage()
+      ---
+      duration_ms: 0.231786
+      type: 'test'
+      ...
+    # Subtest: findErrors()
+    ok 7 - findErrors()
+      ---
+      duration_ms: 0.503655
+      type: 'test'
+      ...
+    1..7
+ok 4 - error
+  ---
+  duration_ms: 3.093005
+  type: 'suite'
+  ...
+# Subtest: core
+    # Subtest: exports
+    ok 1 - exports
+      ---
+      duration_ms: 0.630142
+      type: 'test'
+      ...
+    1..1
+ok 5 - core
+  ---
+  duration_ms: 0.710269
+  type: 'suite'
+  ...
+# Subtest: cli
+    # Subtest: exports
+    ok 1 - exports
+      ---
+      duration_ms: 0.190489
+      type: 'test'
+      ...
+    1..1
+ok 6 - cli
+  ---
+  duration_ms: 0.269632
+  type: 'suite'
+  ...
+# Subtest: index
+    # Subtest: exports
+    ok 1 - exports
+      ---
+      duration_ms: 2.775799
+      type: 'test'
+      ...
+    1..1
+ok 7 - index
+  ---
+  duration_ms: 2.85036
+  type: 'suite'
+  ...
+# Subtest: global
+    # Subtest: global cd()
+    ok 1 - global cd()
+      ---
+      duration_ms: 22.596217
+      type: 'test'
+      ...
+    # Subtest: injects zx index to global
+    ok 2 - injects zx index to global
+      ---
+      duration_ms: 0.342198
+      type: 'test'
+      ...
+    1..2
+ok 8 - global
+  ---
+  duration_ms: 23.383683
+  type: 'suite'
+  ...
+# Subtest: goods
+    # Subtest: question()
+        # Subtest: works
+        ok 1 - works
+          ---
+          duration_ms: 11.861152
+          type: 'test'
+          ...
+        # Subtest: integration
+        ok 2 - integration
+          ---
+          duration_ms: 189.704714
+          type: 'test'
+          ...
+        1..2
+    ok 1 - question()
+      ---
+      duration_ms: 201.85286
+      type: 'suite'
+      ...
+    # Subtest: echo() works
+    ok 2 - echo() works
+      ---
+      duration_ms: 20.113146
+      type: 'test'
+      ...
+    # Subtest: sleep() works
+    ok 3 - sleep() works
+      ---
+      duration_ms: 101.183318
+      type: 'test'
+      ...
+    # Subtest: retry()
+        # Subtest: works
+        ok 1 - works
+          ---
+          duration_ms: 0.866646
+          type: 'test'
+          ...
+        # Subtest: works with custom delay and limit
+        ok 2 - works with custom delay and limit
+          ---
+          duration_ms: 7.134125
+          type: 'test'
+          ...
+        # Subtest: throws undefined on count misconfiguration
+        ok 3 - throws undefined on count misconfiguration
+          ---
+          duration_ms: 0.333254
+          type: 'test'
+          ...
+        # Subtest: throws err on empty callback
+        ok 4 - throws err on empty callback
+          ---
+          duration_ms: 0.397695
+          type: 'test'
+          ...
+        # Subtest: supports expBackoff
+        ok 5 - supports expBackoff
+          ---
+          duration_ms: 0.314405
+          type: 'test'
+          ...
+        # Subtest: integration
+        ok 6 - integration
+          ---
+          duration_ms: 469.926473
+          type: 'test'
+          ...
+        # Subtest: integration with expBackoff
+        ok 7 - integration with expBackoff
+          ---
+          duration_ms: 202.20254
+          type: 'test'
+          ...
+        1..7
+    ok 4 - retry()
+      ---
+      duration_ms: 681.819213
+      type: 'suite'
+      ...
+    # Subtest: expBackoff()
+    ok 5 - expBackoff()
+      ---
+      duration_ms: 0.300117
+      type: 'test'
+      ...
+    # Subtest: spinner()
+        # Subtest: works
+        ok 1 - works
+          ---
+          duration_ms: 101.457796
+          type: 'test'
+          ...
+  ⠋
+        # Subtest: integration
+            # Subtest: works
+            ok 1 - works
+              ---
+              duration_ms: 288.594426
+              type: 'test'
+              ...
+  ⠋ processing
+            # Subtest: with title
+            ok 2 - with title
+              ---
+              duration_ms: 266.593366
+              type: 'test'
+              ...
+            # Subtest: disabled in CI
+            ok 3 - disabled in CI
+              ---
+              duration_ms: 267.263854
+              type: 'test'
+              ...
+/usr/bin/bash: line 1: wtf-cmd: command not found
+Error: /usr/bin/bash: line 1: wtf-cmd: command not found
+
+    at file:///app/zx.mjs:2:40
+    exit code: 127 (Command not found)
+            # Subtest: stops on throw
+            ok 4 - stops on throw
+              ---
+              duration_ms: 177.916569
+              type: 'test'
+              ...
+            1..4
+        ok 2 - integration
+          ---
+          duration_ms: 1000.860245
+          type: 'suite'
+          ...
+        1..2
+    ok 6 - spinner()
+      ---
+      duration_ms: 1102.620727
+      type: 'suite'
+      ...
+    # Subtest: args
+        # Subtest: parseArgv() works
+        ok 1 - parseArgv() works
+          ---
+          duration_ms: 2.28719
+          type: 'test'
+          ...
+        # Subtest: updateArgv() works
+        ok 2 - updateArgv() works
+          ---
+          duration_ms: 0.349105
+          type: 'test'
+          ...
+        1..2
+    ok 7 - args
+      ---
+      duration_ms: 2.813719
+      type: 'suite'
+      ...
+    # Subtest: stdin()
+    ok 8 - stdin()
+      ---
+      duration_ms: 8.483311
+      type: 'test'
+      ...
+    # Subtest: fetch()
+    ok 9 - fetch()
+      ---
+      duration_ms: 249.519852
+      type: 'test'
+      ...
+    # Subtest: dotenv
+        # Subtest: parse()
+        ok 1 - parse()
+          ---
+          duration_ms: 0.881732
+          type: 'test'
+          ...
+        # Subtest: load()
+            # Subtest: loads env from files
+            ok 1 - loads env from files
+              ---
+              duration_ms: 0.467265
+              type: 'test'
+              ...
+            # Subtest: throws error on ENOENT
+            ok 2 - throws error on ENOENT
+              ---
+              duration_ms: 0.218056
+              type: 'test'
+              ...
+            1..2
+        ok 2 - load()
+          ---
+          duration_ms: 2.973806
+          type: 'suite'
+          ...
+        # Subtest: loadSafe()
+            # Subtest: loads env from files
+            ok 1 - loads env from files
+              ---
+              duration_ms: 0.398529
+              type: 'test'
+              ...
+            1..1
+        ok 3 - loadSafe()
+          ---
+          duration_ms: 1.480387
+          type: 'suite'
+          ...
+        # Subtest: config()
+            # Subtest: updates process.env
+            ok 1 - updates process.env
+              ---
+              duration_ms: 0.646351
+              type: 'test'
+              ...
+            1..1
+        ok 4 - config()
+          ---
+          duration_ms: 0.734436
+          type: 'suite'
+          ...
+        1..4
+    ok 10 - dotenv
+      ---
+      duration_ms: 6.361178
+      type: 'suite'
+      ...
+    # Subtest: temp*
+        # Subtest: tempdir() creates temporary folders
+        ok 1 - tempdir() creates temporary folders
+          ---
+          duration_ms: 0.668814
+          type: 'test'
+          ...
+        # Subtest: tempfile() creates temporary files
+        ok 2 - tempfile() creates temporary files
+          ---
+          duration_ms: 0.971958
+          type: 'test'
+          ...
+        1..2
+    ok 11 - temp*
+      ---
+      duration_ms: 1.812078
+      type: 'suite'
+      ...
+    # Subtest: versions
+        # Subtest: exports deps versions
+        ok 1 - exports deps versions
+          ---
+          duration_ms: 0.154458
+          type: 'test'
+          ...
+        1..1
+    ok 12 - versions
+      ---
+      duration_ms: 0.227378
+      type: 'suite'
+      ...
+    1..12
+ok 9 - goods
+  ---
+  duration_ms: 2378.025075
+  type: 'suite'
+  ...
+# Subtest: index
+    # Subtest: has proper exports
+    ok 1 - has proper exports
+      ---
+      duration_ms: 0.297452
+      type: 'test'
+      ...
+    # Subtest: bus is locked
+    ok 2 - bus is locked
+      ---
+      duration_ms: 0.248283
+      type: 'test'
+      ...
+    1..2
+ok 10 - index
+  ---
+  duration_ms: 0.692324
+  type: 'suite'
+  ...
+# Subtest: log
+    # Subtest: log()
+        # Subtest: empty log
+        ok 1 - empty log
+          ---
+          duration_ms: 0.354389
+          type: 'test'
+          ...
+        # Subtest: cmd
+        not ok 2 - cmd
+          ---
+          duration_ms: 0.82517
+          type: 'test'
+          location: '/app/test/log.test.ts:48:5'
+          failureType: 'testCodeFailure'
+          error: "'$ echo hi\\n' == '$ \\x1B[92mecho\\x1B[39m hi\\n'"
+          code: 'ERR_ASSERTION'
+          name: 'AssertionError'
+          expected: |-
+            $ [92mecho[39m hi
+
+          actual: |-
+            $ echo hi
+
+          operator: '=='
+          stack: |-
+            TestContext.<anonymous> (/app/test/log.test.ts:56:14)
+            Test.runInAsyncScope (node:async_hooks:214:14)
+            Test.run (node:internal/test_runner/test:1047:25)
+            async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+          ...
+        # Subtest: stdout
+        ok 3 - stdout
+          ---
+          duration_ms: 0.217306
+          type: 'test'
+          ...
+        # Subtest: cd
+        not ok 4 - cd
+          ---
+          duration_ms: 0.420561
+          type: 'test'
+          location: '/app/test/log.test.ts:69:5'
+          failureType: 'testCodeFailure'
+          error: "'$ cd /tmp\\n' == '$ \\x1B[92mcd\\x1B[39m /tmp\\n'"
+          code: 'ERR_ASSERTION'
+          name: 'AssertionError'
+          expected: |-
+            $ [92mcd[39m /tmp
+
+          actual: |-
+            $ cd /tmp
+
+          operator: '=='
+          stack: |-
+            TestContext.<anonymous> (/app/test/log.test.ts:75:14)
+            Test.runInAsyncScope (node:async_hooks:214:14)
+            Test.run (node:internal/test_runner/test:1047:25)
+            async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+          ...
+        # Subtest: fetch
+        not ok 5 - fetch
+          ---
+          duration_ms: 0.52435
+          type: 'test'
+          location: '/app/test/log.test.ts:78:5'
+          failureType: 'testCodeFailure'
+          error: `"$ fetch https://github.com { method: 'GET' }\\n" == "$ \\x1B[92mfetch\\x1B[39m https://github.com { method: 'GET' }\\n"`
+          code: 'ERR_ASSERTION'
+          name: 'AssertionError'
+          expected: |-
+            $ [92mfetch[39m https://github.com { method: 'GET' }
+
+          actual: |-
+            $ fetch https://github.com { method: 'GET' }
+
+          operator: '=='
+          stack: |-
+            TestContext.<anonymous> (/app/test/log.test.ts:85:14)
+            Test.runInAsyncScope (node:async_hooks:214:14)
+            Test.run (node:internal/test_runner/test:1047:25)
+            async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+          ...
+        # Subtest: custom
+        ok 6 - custom
+          ---
+          duration_ms: 0.269782
+          type: 'test'
+          ...
+        # Subtest: retry
+        not ok 7 - retry
+          ---
+          duration_ms: 0.43825
+          type: 'test'
+          location: '/app/test/log.test.ts:100:5'
+          failureType: 'testCodeFailure'
+          error: "' FAIL  Attempt: 1/3; next in 1000ms\\n' == '\\x1B[41m\\x1B[37m FAIL \\x1B[39m\\x1B[49m Attempt: 1/3; next in 1000ms\\n'"
+          code: 'ERR_ASSERTION'
+          name: 'AssertionError'
+          expected: |-
+            [41m[37m FAIL [39m[49m Attempt: 1/3; next in 1000ms
+
+          actual: |-
+             FAIL  Attempt: 1/3; next in 1000ms
+
+          operator: '=='
+          stack: |-
+            TestContext.<anonymous> (/app/test/log.test.ts:110:14)
+            Test.runInAsyncScope (node:async_hooks:214:14)
+            Test.run (node:internal/test_runner/test:1047:25)
+            async Suite.processPendingSubtests (node:internal/test_runner/test:744:7)
+          ...
+        # Subtest: end
+        ok 8 - end
+          ---
+          duration_ms: 0.18759
+          type: 'test'
+          ...
+        # Subtest: kill
+        ok 9 - kill
+          ---
+          duration_ms: 0.215551
+          type: 'test'
+          ...
+        # Subtest: formatters
+        ok 10 - formatters
+          ---
+          duration_ms: 0.208933
+          type: 'test'
+          ...
+        1..10
+    not ok 1 - log()
+      ---
+      duration_ms: 4.320275
+      type: 'suite'
+      location: '/app/test/log.test.ts:20:3'
+      failureType: 'subtestsFailed'
+      error: '4 subtests failed'
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        async Promise.all (index 0)
+      ...
+    # Subtest: formatCwd()
+    not ok 2 - formatCwd()
+      ---
+      duration_ms: 0.551997
+      type: 'test'
+      location: '/app/test/log.test.ts:154:3'
+      failureType: 'testCodeFailure'
+      error: "echo $'hi'"
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: |-
+        $ [92mecho[39m [93m$[39m[93m'hi'[39m
+
+      actual: |-
+        $ echo $'hi'
+
+      operator: '=='
+      stack: |-
+        <anonymous> (/app/test/log.test.ts:212:14)
+        Array.forEach (<anonymous>)
+        TestContext.<anonymous> (/app/test/log.test.ts:211:11)
+        Test.runInAsyncScope (node:async_hooks:214:14)
+        Test.run (node:internal/test_runner/test:1047:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:744:18)
+        Suite.postRun (node:internal/test_runner/test:1173:19)
+        Suite.run (node:internal/test_runner/test:1457:10)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1442:7)
+      ...
+    1..2
+not ok 11 - log
+  ---
+  duration_ms: 5.060648
+  type: 'suite'
+  location: '/app/test/log.test.ts:19:1'
+  failureType: 'subtestsFailed'
+  error: '2 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: transformMarkdown()
+    # Subtest: root handling
+        # Subtest: comments out plain lines (including empty line)
+        ok 1 - comments out plain lines (including empty line)
+          ---
+          duration_ms: 0.736748
+          type: 'test'
+          ...
+        # Subtest: preserves tab-indented blocks after a blank line (legacy behavior)
+        ok 2 - preserves tab-indented blocks after a blank line (legacy behavior)
+          ---
+          duration_ms: 0.235463
+          type: 'test'
+          ...
+        # Subtest: does not treat a mid-paragraph fence as a fenced block (legacy behavior)
+        ok 3 - does not treat a mid-paragraph fence as a fenced block (legacy behavior)
+          ---
+          duration_ms: 0.226353
+          type: 'test'
+          ...
+        1..3
+    ok 1 - root handling
+      ---
+      duration_ms: 1.340815
+      type: 'suite'
+      ...
+    # Subtest: fenced code blocks
+        # Subtest: converts js/ts to raw code, bash to await $`...` and comments unknown fences
+        ok 1 - converts js/ts to raw code, bash to await $`...` and comments unknown fences
+          ---
+          duration_ms: 0.433599
+          type: 'test'
+          ...
+        # Subtest: accepts fences indented up to 3 spaces (CommonMark) and converts them
+        ok 2 - accepts fences indented up to 3 spaces (CommonMark) and converts them
+          ---
+          duration_ms: 0.370016
+          type: 'test'
+          ...
+        1..2
+    ok 2 - fenced code blocks
+      ---
+      duration_ms: 0.909774
+      type: 'suite'
+      ...
+    # Subtest: handles all ECMAScript line terminators
+    ok 3 - handles all ECMAScript line terminators
+      ---
+      duration_ms: 0.15629
+      type: 'test'
+      ...
+    1..3
+ok 12 - transformMarkdown()
+  ---
+  duration_ms: 2.575318
+  type: 'suite'
+  ...
+# Subtest: util
+    # Subtest: randomId()
+    ok 1 - randomId()
+      ---
+      duration_ms: 0.960034
+      type: 'test'
+      ...
+    # Subtest: noop()
+    ok 2 - noop()
+      ---
+      duration_ms: 0.106514
+      type: 'test'
+      ...
+    # Subtest: once()
+    ok 3 - once()
+      ---
+      duration_ms: 0.178156
+      type: 'test'
+      ...
+    # Subtest: isString()
+    ok 4 - isString()
+      ---
+      duration_ms: 0.143291
+      type: 'test'
+      ...
+    # Subtest: isStringLiteral()
+    ok 5 - isStringLiteral()
+      ---
+      duration_ms: 0.134313
+      type: 'test'
+      ...
+    # Subtest: quote()
+    ok 6 - quote()
+      ---
+      duration_ms: 0.12152
+      type: 'test'
+      ...
+    # Subtest: quotePowerShell()
+    ok 7 - quotePowerShell()
+      ---
+      duration_ms: 0.196531
+      type: 'test'
+      ...
+    # Subtest: duration parsing works
+    ok 8 - duration parsing works
+      ---
+      duration_ms: 0.414852
+      type: 'test'
+      ...
+    # Subtest: preferLocalBin()
+    ok 9 - preferLocalBin()
+      ---
+      duration_ms: 0.18256
+      type: 'test'
+      ...
+    # Subtest: toCamelCase()
+    ok 10 - toCamelCase()
+      ---
+      duration_ms: 0.115833
+      type: 'test'
+      ...
+    # Subtest: parseBool()
+    ok 11 - parseBool()
+      ---
+      duration_ms: 0.082658
+      type: 'test'
+      ...
+    # Subtest: getLast()
+    ok 12 - getLast()
+      ---
+      duration_ms: 0.098772
+      type: 'test'
+      ...
+    1..12
+ok 13 - util
+  ---
+  duration_ms: 3.165408
+  type: 'suite'
+  ...
+# Subtest: vendor API
+    # Subtest: YAML
+        # Subtest: parse()
+        ok 1 - parse()
+          ---
+          duration_ms: 7.541274
+          type: 'test'
+          ...
+        # Subtest: stringify()
+        ok 2 - stringify()
+          ---
+          duration_ms: 3.618007
+          type: 'test'
+          ...
+        1..2
+    ok 1 - YAML
+      ---
+      duration_ms: 11.283223
+      type: 'suite'
+      ...
+    # Subtest: MAML
+        # Subtest: parse()/stringify()
+        ok 1 - parse()/stringify()
+          ---
+          duration_ms: 1.469257
+          type: 'test'
+          ...
+        1..1
+    ok 2 - MAML
+      ---
+      duration_ms: 1.623043
+      type: 'suite'
+      ...
+    # Subtest: globby() works
+    ok 3 - globby() works
+      ---
+      duration_ms: 38.462998
+      type: 'test'
+      ...
+    # Subtest: fetch() works
+    ok 4 - fetch() works
+      ---
+      duration_ms: 61.019688
+      type: 'test'
+      ...
+    # Subtest: which() available
+    ok 5 - which() available
+      ---
+      duration_ms: 3.118683
+      type: 'test'
+      ...
+    # Subtest: minimist available
+    ok 6 - minimist available
+      ---
+      duration_ms: 0.219016
+      type: 'test'
+      ...
+    # Subtest: minimist works
+    ok 7 - minimist works
+      ---
+      duration_ms: 0.833498
+      type: 'test'
+      ...
+    1..7
+ok 14 - vendor API
+  ---
+  duration_ms: 117.050418
+  type: 'suite'
+  ...
+1..14
+# tests 267
+# suites 55
+# pass 260
+# fail 6
+# cancelled 0
+# skipped 1
+# todo 0
+# duration_ms 31739.731872
