@@ -207,5 +207,8 @@
     "compilerOptions": {
       "rootDir": "."
     }
+  },
+  "dependencies": {
+    "express": "^5.2.1"
   }
 }
