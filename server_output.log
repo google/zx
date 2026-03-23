@@ -1,0 +1,3 @@
+Vulnerable server listening on port 3000
+Received request to create report with filename: ../../../../tmp/zx-external-poc.txt
+tempfile returned path: /tmp/zx-external-poc.txt
