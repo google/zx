@@ -1079,10 +1079,16 @@ export async function kill(
   )
     return
 
-  for (const p of await ps.tree({ pid, recursive: true })) {
-    try {
-      process.kill(+p.pid, signal)
-    } catch (e) {}
+  try {
+    for (const p of await ps.tree({ pid, recursive: true })) {
+      try {
+        process.kill(+p.pid, signal)
+      } catch (e) {}
+    }
+  } catch (e) {
+    // ps.tree() can fail on non-standard ps implementations (e.g. BusyBox on
+    // Alpine Linux) that produce output the parser cannot handle. Fall through
+    // to the direct process.kill() below so the parent process is still killed.
   }
   try {
     process.kill(-pid, signal)
