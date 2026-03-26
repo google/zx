@@ -1085,10 +1085,9 @@ export async function kill(
         process.kill(+p.pid, signal)
       } catch (e) {}
     }
-  } catch (e) {
-    // ps.tree() can fail on non-standard ps implementations (e.g. BusyBox on
-    // Alpine Linux) that produce output the parser cannot handle. Fall through
-    // to the direct process.kill() below so the parent process is still killed.
+  } catch {
+    // getBorders() in @webpod/ingrid crashes on empty ps output (e.g. BusyBox).
+    // Fall through to kill the main process directly below.
   }
   try {
     process.kill(-pid, signal)
