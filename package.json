@@ -139,7 +139,7 @@
     "jsr": "0.14.3",
     "lefthook": "2.1.1",
     "madge": "8.0.0",
-    "maml.js": "^0.0.3",
+    "maml": "^1.0.0",
     "minimist": "1.2.8",
     "node-fetch-native": "1.6.7",
     "prettier": "3.8.1",

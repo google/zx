@@ -26,7 +26,7 @@ import {
   type Options as GlobbyOptions,
 } from 'globby'
 import * as _yaml from 'yaml'
-import * as _maml from 'maml.js'
+import * as _maml from 'maml'
 import * as _fs from 'fs-extra'
 import _createRequire from 'create-require'
 import { fetch as _nodeFetch, AbortController } from 'node-fetch-native'

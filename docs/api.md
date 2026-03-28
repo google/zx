@@ -407,18 +407,25 @@ console.log(YAML.parse('foo: bar').foo)
 
 ## `MAML`
 
-The [maml.js](https://www.npmjs.com/package/maml.js) package.
+The [maml](https://www.npmjs.com/package/maml) package.
 
 ```js
 const maml = `{
-  example: "MAML"
-  # Comments are supported
+  project: "MAML"
+  tags: [ "minimal", "readable" ]
+
+  # With support for comments
+  spec: {
+    version: 1
+    author: "Anton Medvedev"
+  }
+
   notes: """
-This is a multiline string.
+This is a raw multiline string.
 Keeps formatting as‑is.
 """
 }`
-console.log(MAML.parse(maml).example) // MAML 
+console.log(MAML.parse(maml).project) // MAML 
 ```
 
 ## `dotenv`
