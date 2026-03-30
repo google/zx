@@ -46,17 +46,51 @@ import {
 
 export { versions } from './versions.ts'
 
+// Security helpers
+
+/**
+ * Returns the canonical OS temp directory path, always with a trailing
+ * separator so that prefix-collision attacks (e.g. /tmp-evil) are blocked.
+ *
+ * @internal
+ */
+function getTmpBase(): string {
+  const base = os.tmpdir()
+  // Normalize the base itself so we work with a consistent canonical form.
+  return path.resolve(base)
+}
+
+/**
+ * Asserts that `candidate` (a fully-resolved absolute path) is confined
+ * inside `base` (a fully-resolved absolute path).
+ *
+ * Throws `Fail` if the path escapes. The trailing-separator check prevents
+ * prefix-collision: /tmp is a valid base, but /tmp-evil must NOT pass a
+ * `startsWith("/tmp")` guard — so we compare against "/tmp/".
+ *
+ * @internal
+ */
+function assertConfined(candidate: string, base: string, label: string): void {
+  // Allow the base itself (e.g. tempdir() called with prefix="") as well as
+  // any path strictly inside it.
+  if (candidate !== base && !candidate.startsWith(base + path.sep)) {
+    throw new Fail(
+      `Illegal ${label}: resolves outside of ${base} (got ${candidate})`
+    )
+  }
+}
+
+// Public API
+
 export function tempdir(
   prefix: string = `zx-${randomId()}`,
   mode?: Mode
 ): string {
-  const base = os.tmpdir()
+  const base = getTmpBase()
   const dirpath = path.resolve(base, prefix)
 
-  // Security: enforce confinement to the OS temp directory
-  if (!dirpath.startsWith(base + path.sep) && dirpath !== base) {
-    throw new Fail(`Illegal tempdir prefix '${prefix}': resolves outside of ${base}`)
-  }
+  // Security: enforce confinement to the OS temp directory.
+  assertConfined(dirpath, base, `tempdir prefix '${prefix}'`)
 
   fs.mkdirSync(dirpath, { recursive: true, mode })
 
@@ -69,13 +103,13 @@ export function tempfile(
   mode?: Mode
 ): string {
   if (name) {
-    // Security: resolve candidate path and enforce confinement to the temp directory
+    // Security: resolve candidate path and enforce confinement to the temp
+    // directory.  We call tempdir() so the base directory is guaranteed to
+    // exist and is itself already validated.
     const base = tempdir()
     const filepath = path.resolve(base, name)
 
-    if (!filepath.startsWith(base + path.sep) && filepath !== base) {
-      throw new Fail(`Illegal tempfile name '${name}': resolves outside of ${base}`)
-    }
+    assertConfined(filepath, base, `tempfile name '${name}'`)
 
     if (data === undefined) fs.closeSync(fs.openSync(filepath, 'w', mode))
     else fs.writeFileSync(filepath, data, { mode })
@@ -83,6 +117,7 @@ export function tempfile(
     return filepath
   }
 
+  // No name supplied — generate a safe random path directly under tmpdir.
   const filepath = path.join(os.tmpdir(), `zx-${randomId()}`)
   if (data === undefined) fs.closeSync(fs.openSync(filepath, 'w', mode))
   else fs.writeFileSync(filepath, data, { mode })
@@ -91,6 +126,8 @@ export function tempfile(
 }
 
 export { tempdir as tmpdir, tempfile as tmpfile }
+
+// argv / parseArgv
 
 type ArgvOpts = minimist.Opts & { camelCase?: boolean; parseBoolean?: boolean }
 
@@ -116,6 +153,8 @@ export function updateArgv(args?: string[], opts?: ArgvOpts) {
 }
 
 export const argv: minimist.ParsedArgs = parseArgv()
+
+// sleep / fetch / echo / question / stdin
 
 export function sleep(duration: Duration): Promise<void> {
   return new Promise((resolve) => {
@@ -221,6 +260,7 @@ export async function stdin(stream: Readable = process.stdin): Promise<string> {
   return buf
 }
 
+// retry / expBackoff / spinner
 export async function retry<T>(count: number, callback: () => T): Promise<T>
 export async function retry<T>(
   count: number,
