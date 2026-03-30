@@ -1022,13 +1022,40 @@ function setShell(n: string, ps = true) {
   $.quote = ps ? quotePowerShell : quote
 }
 
-try {
+{
+  // Preserve any shell/prefix/postfix overrides the caller may have set
+  // before we attempt shell detection (set -euo pipefail etc.).
   const { shell, prefix, postfix } = $
-  useBash()
-  if (isString(shell)) $.shell = shell
-  if (isString(prefix)) $.prefix = prefix
+  try {
+    useBash()
+  } catch {
+    // bash not found — on Windows we must NOT fall through to cmd.exe: its
+    // parser does not honour bash-style $'…' quoting, so every interpolated
+    // argument is a potential command-injection vector.
+    if (process.platform === 'win32') {
+      const winShell = which.sync('pwsh', { nothrow: true })
+        ?? which.sync('powershell.exe', { nothrow: true })
+      if (!winShell) {
+        throw new Fail(
+          `No safe shell found: 'bash', 'pwsh', and 'powershell.exe' are all absent from PATH. ` +
+          `Running under cmd.exe is unsafe because bash-style quoting does not apply there.`
+        )
+      }
+      // pwsh / powershell.exe — use the PowerShell quoting convention and
+      // the standard ; exit $LastExitCode postfix.
+      $.shell  = winShell
+      $.prefix = ''
+      $.postfix = '; exit $LastExitCode'
+      $.quote  = quotePowerShell
+    }
+    // On non-Windows platforms the original behaviour (shell:true via
+    // execvp) is acceptable; no action needed.
+  }
+  // Re-apply explicit caller overrides now that defaults are set.
+  if (isString(shell))   $.shell   = shell
+  if (isString(prefix))  $.prefix  = prefix
   if (isString(postfix)) $.postfix = postfix
-} catch (err) {}
+}
 
 let cwdSyncHook: AsyncHook
 
