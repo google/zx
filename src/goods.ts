@@ -50,7 +50,14 @@ export function tempdir(
   prefix: string = `zx-${randomId()}`,
   mode?: Mode
 ): string {
-  const dirpath = path.join(os.tmpdir(), prefix)
+  const base = os.tmpdir()
+  const dirpath = path.resolve(base, prefix)
+
+  // Security: enforce confinement to the OS temp directory
+  if (!dirpath.startsWith(base + path.sep) && dirpath !== base) {
+    throw new Fail(`Illegal tempdir prefix '${prefix}': resolves outside of ${base}`)
+  }
+
   fs.mkdirSync(dirpath, { recursive: true, mode })
 
   return dirpath
@@ -61,10 +68,22 @@ export function tempfile(
   data?: string | Buffer,
   mode?: Mode
 ): string {
-  const filepath = name
-    ? path.join(tempdir(), name)
-    : path.join(os.tmpdir(), `zx-${randomId()}`)
+  if (name) {
+    // Security: resolve candidate path and enforce confinement to the temp directory
+    const base = tempdir()
+    const filepath = path.resolve(base, name)
 
+    if (!filepath.startsWith(base + path.sep) && filepath !== base) {
+      throw new Fail(`Illegal tempfile name '${name}': resolves outside of ${base}`)
+    }
+
+    if (data === undefined) fs.closeSync(fs.openSync(filepath, 'w', mode))
+    else fs.writeFileSync(filepath, data, { mode })
+
+    return filepath
+  }
+
+  const filepath = path.join(os.tmpdir(), `zx-${randomId()}`)
   if (data === undefined) fs.closeSync(fs.openSync(filepath, 'w', mode))
   else fs.writeFileSync(filepath, data, { mode })
 
