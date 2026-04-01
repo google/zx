@@ -177,6 +177,10 @@ steps:
       ZX_VERBOSE: true
       ZX_SHELL: '/bin/bash'
 ```
+> [!WARNING]
+> **Security Note:** Environment variables like `ZX_PREFIX`, `ZX_POSTFIX`, and `ZX_SHELL` are injected globally into *every* command executed via the `$` template tag without sanitization. If you are using `zx` in shared environments or CI/CD pipelines, be aware that untrusted parties who can set environment variables can implicitly execute arbitrary shell commands.
+
+
 
 ## `__filename & __dirname`
 
