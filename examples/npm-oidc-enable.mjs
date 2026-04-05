@@ -33,7 +33,7 @@ const config = [
 ]
 
 const dryRun = argv['dry-run']
-const $$ = $({stdio: 'inherit'})
+const $$ = $({ stdio: 'inherit' })
 
 // Check npm version
 const npmVersion = (await $`npm --version`).toString().trim()
@@ -56,7 +56,7 @@ echo`Logged in as: ${user}\n`
 // Summary
 const total = config.reduce((n, e) => n + e.packages.length, 0)
 echo`${total} package(s) across ${config.length} repo(s)${dryRun ? ' (dry run)' : ''}:\n`
-for (const {owner, repo, workflow, packages} of config) {
+for (const { owner, repo, workflow, packages } of config) {
   echo`  ${owner}/${repo} (${workflow}): ${packages.join(', ')}`
 }
 
@@ -70,9 +70,10 @@ if (!dryRun) {
 echo``
 
 // Apply
-let passed = 0, failed = 0
+let passed = 0,
+  failed = 0
 
-for (const {owner, repo, workflow, packages} of config) {
+for (const { owner, repo, workflow, packages } of config) {
   const slug = `${owner}/${repo}`
   echo`${slug} (${workflow})`
 
