@@ -1158,46 +1158,202 @@ var invoke = (c) => {
 var exec = (ctx) => invoke(normalizeCtx(ctx));
 
 // node_modules/@webpod/ps/target/esm/index.mjs
+var noop2 = () => {
+};
 var IS_WIN = import_node_process4.default.platform === "win32";
 var IS_WIN2025_PLUS = IS_WIN && Number.parseInt(import_node_os2.default.release().split(".")[2], 10) >= 26e3;
+var LOOKUP_FLOW = IS_WIN ? IS_WIN2025_PLUS ? "pwsh" : "wmic" : "ps";
 var LOOKUPS = {
   wmic: {
     cmd: "wmic process get ProcessId,ParentProcessId,CommandLine",
     args: [],
-    parse(stdout) {
-      return parse(removeWmicPrefix(stdout), { format: "win" });
-    }
+    parse: (stdout) => parse(removeWmicPrefix(stdout), { format: "win" })
   },
   ps: {
     cmd: "ps",
-    args: ["-lx"],
-    parse(stdout) {
-      return parse(stdout, { format: "unix" });
-    }
+    args: ["-eo", "pid,ppid,args"],
+    parse: (stdout) => parse(stdout, { format: "unix" })
   },
   pwsh: {
     cmd: "pwsh",
     args: ["-NoProfile", "-Command", '"Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,CommandLine | ConvertTo-Json -Compress"'],
     parse(stdout) {
-      let arr = [];
       try {
-        arr = JSON.parse(stdout);
+        const arr = JSON.parse(stdout);
+        return arr.map((p) => ({
+          ProcessId: [String(p.ProcessId)],
+          ParentProcessId: [String(p.ParentProcessId)],
+          CommandLine: p.CommandLine ? [p.CommandLine] : []
+        }));
       } catch (e) {
         return [];
       }
-      return arr.map((p) => ({
-        ProcessId: [p.ProcessId + ""],
-        ParentProcessId: [p.ParentProcessId + ""],
-        CommandLine: p.CommandLine ? [p.CommandLine] : []
-      }));
     }
   }
+};
+var lookup = (query = {}, cb = noop2) => runLookup(query, cb, false);
+var lookupSync = (query = {}, cb = noop2) => runLookup(query, cb, true);
+lookup.sync = lookupSync;
+function runLookup(query, cb, sync) {
+  const { parse: parseOutput, cmd, args: defaultArgs } = LOOKUPS[LOOKUP_FLOW];
+  const args = !IS_WIN && query.psargs ? query.psargs.split(/\s+/) : defaultArgs;
+  let result = [];
+  let error;
+  const handle = (err, { stdout }) => {
+    if (err) {
+      error = err;
+      return;
+    }
+    result = filterProcessList(normalizeOutput(parseOutput(stdout)), query);
+  };
+  if (sync) {
+    exec({ cmd, args, sync: true, callback: handle, run(c) {
+      c();
+    } });
+    cb(error != null ? error : null, error ? void 0 : result);
+    if (error) throw error;
+    return result;
+  }
+  return new Promise((resolve, reject) => {
+    exec({
+      cmd,
+      args,
+      sync: false,
+      run(c) {
+        c();
+      },
+      callback(err, ctx) {
+        handle(err, ctx);
+        if (error) {
+          cb(error);
+          reject(error);
+        } else {
+          cb(null, result);
+          resolve(result);
+        }
+      }
+    });
+  });
+}
+var tree = (_0, ..._1) => __async(null, [_0, ..._1], function* (opts, cb = noop2) {
+  try {
+    const list = pickFromTree(yield lookup(), opts);
+    cb(null, list);
+    return list;
+  } catch (err) {
+    cb(err);
+    throw err;
+  }
+});
+var treeSync = (opts, cb = noop2) => {
+  try {
+    const list = pickFromTree(lookupSync(), opts);
+    cb(null, list);
+    return list;
+  } catch (err) {
+    cb(err);
+    throw err;
+  }
+};
+tree.sync = treeSync;
+var pickFromTree = (all, opts) => {
+  if (opts === void 0) return all;
+  const { pid, recursive = false } = typeof opts === "object" ? opts : { pid: opts };
+  return pickTree(all, pid, recursive);
+};
+var pickTree = (list, pid, recursive = false) => {
+  const children = list.filter((p) => p.ppid === String(pid));
+  return recursive ? children.flatMap((p) => [p, ...pickTree(list, p.pid, true)]) : children;
+};
+var kill = (pid, opts, next) => {
+  if (typeof opts === "function") return kill(pid, void 0, opts);
+  if (typeof opts === "string" || typeof opts === "number") return kill(pid, { signal: opts }, next);
+  const { timeout = 30, signal = "SIGTERM", interval = 200 } = opts || {};
+  const sPid = String(pid);
+  return new Promise((resolve, reject) => {
+    let done = false;
+    const entry = { pid: sPid, registered: 0, interval, settle: noop2 };
+    const settle = (err) => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      killPending.delete(entry);
+      if (err) reject(err);
+      else resolve(pid);
+      next == null ? void 0 : next(err != null ? err : null, pid);
+    };
+    entry.settle = settle;
+    const timer = setTimeout(() => settle(new Error("Kill process timeout")), timeout * 1e3);
+    try {
+      import_node_process4.default.kill(+pid, signal);
+    } catch (e) {
+      settle(e);
+      return;
+    }
+    entry.registered = Date.now();
+    killPending.add(entry);
+    scheduleKillTick();
+  });
+};
+var killPending = /* @__PURE__ */ new Set();
+var killTickTimer = null;
+var killTickRunning = false;
+var scheduleKillTick = (lastStart = 0) => {
+  if (killTickTimer || killTickRunning || killPending.size === 0) return;
+  let minInterval = Infinity;
+  for (const k of killPending) if (k.interval < minInterval) minInterval = k.interval;
+  const delay = lastStart === 0 ? 0 : Math.max(0, lastStart + minInterval - Date.now());
+  killTickTimer = setTimeout(runKillTick, delay);
+};
+var runKillTick = () => {
+  killTickTimer = null;
+  if (killPending.size === 0) return;
+  killTickRunning = true;
+  const startedAt = Date.now();
+  lookup().then((list) => {
+    const alive = new Set(list.map((p) => p.pid));
+    for (const k of killPending) {
+      if (k.registered >= startedAt) continue;
+      if (!alive.has(k.pid)) k.settle();
+    }
+    killTickRunning = false;
+    scheduleKillTick(startedAt);
+  }, (err) => {
+    for (const k of killPending) k.settle(err);
+    killTickRunning = false;
+  });
+};
+var normalizeOutput = (data) => data.flatMap((d) => {
+  var _a, _b;
+  const pid = (_a = d.PID || d.ProcessId) == null ? void 0 : _a[0];
+  const ppid = (_b = d.PPID || d.ParentProcessId) == null ? void 0 : _b[0];
+  const rawCmd = d.CMD || d.CommandLine || d.COMMAND || d.ARGS || [];
+  const parts = rawCmd.length === 1 ? rawCmd[0].split(/\s+/) : rawCmd;
+  if (!pid || parts.length === 0) return [];
+  const binIdx = parts.findIndex((_v, i) => isBin(parts.slice(0, i).join(" ")));
+  const command = (binIdx === -1 ? parts : parts.slice(0, binIdx)).join(" ");
+  const args = binIdx === -1 ? [] : parts.slice(binIdx);
+  return [{ pid, ppid, command, arguments: args }];
+});
+var filterProcessList = (processList, query = {}) => {
+  const pidList = (query.pid === void 0 ? [] : [query.pid].flat(1)).map(String);
+  const commandRe = query.command ? new RegExp(query.command, "i") : null;
+  const argumentsRe = query.arguments ? new RegExp(query.arguments, "i") : null;
+  const ppid = query.ppid === void 0 ? null : String(query.ppid);
+  return processList.filter(
+    (p) => (pidList.length === 0 || pidList.includes(p.pid)) && (!commandRe || commandRe.test(p.command)) && (!argumentsRe || argumentsRe.test(p.arguments.join(" "))) && (!ppid || ppid === p.ppid)
+  );
+};
+var removeWmicPrefix = (stdout) => {
+  const s = stdout.indexOf(LOOKUPS.wmic.cmd + import_node_os2.default.EOL);
+  const e = stdout.includes(">") ? stdout.trimEnd().lastIndexOf(import_node_os2.default.EOL) : stdout.length;
+  return (s > 0 ? stdout.slice(s + LOOKUPS.wmic.cmd.length, e) : stdout.slice(0, e)).trimStart();
 };
 var isBin = (f) => {
   if (f === "") return false;
   if (!f.includes("/") && !f.includes("\\")) return true;
   if (f.length > 3 && f[0] === '"')
-    return f[f.length - 1] === '"' ? isBin(f.slice(1, -1)) : false;
+    return f.at(-1) === '"' ? isBin(f.slice(1, -1)) : false;
   try {
     if (!import_node_fs.default.existsSync(f)) return false;
     const stat = import_node_fs.default.lstatSync(f);
@@ -1206,190 +1362,6 @@ var isBin = (f) => {
     return false;
   }
 };
-var lookup = (query = {}, cb = noop2) => _lookup({ query, cb, sync: false });
-var lookupSync = (query = {}, cb = noop2) => _lookup({ query, cb, sync: true });
-lookup.sync = lookupSync;
-var _lookup = ({
-  query = {},
-  cb = noop2,
-  sync = false
-}) => {
-  const pFactory = sync ? makePseudoDeferred.bind(null, []) : makeDeferred;
-  const { promise, resolve, reject } = pFactory();
-  const result = [];
-  const lookupFlow = IS_WIN ? IS_WIN2025_PLUS ? "pwsh" : "wmic" : "ps";
-  const {
-    parse: parse2,
-    cmd,
-    args
-  } = LOOKUPS[lookupFlow];
-  const callback = (err, { stdout }) => {
-    if (err) {
-      reject(err);
-      cb(err);
-      return;
-    }
-    result.push(...filterProcessList(normalizeOutput(parse2(stdout)), query));
-    resolve(result);
-    cb(null, result);
-  };
-  exec({
-    cmd,
-    args,
-    callback,
-    sync,
-    run(cb2) {
-      cb2();
-    }
-  });
-  return Object.assign(promise, result);
-};
-var filterProcessList = (processList, query = {}) => {
-  const pidList = (query.pid === void 0 ? [] : [query.pid].flat(1)).map((v) => v + "");
-  const filters = [
-    (p) => query.command ? new RegExp(query.command, "i").test(p.command) : true,
-    (p) => query.arguments ? new RegExp(query.arguments, "i").test(p.arguments.join(" ")) : true,
-    (p) => query.ppid ? query.ppid + "" === p.ppid : true
-  ];
-  return processList.filter(
-    (p) => (pidList.length === 0 || pidList.includes(p.pid)) && filters.every((f) => f(p))
-  );
-};
-var removeWmicPrefix = (stdout) => {
-  const s = stdout.indexOf(LOOKUPS.wmic.cmd + import_node_os2.default.EOL);
-  const e = stdout.includes(">") ? stdout.trimEnd().lastIndexOf(import_node_os2.default.EOL) : stdout.length;
-  return (s > 0 ? stdout.slice(s + LOOKUPS.wmic.cmd.length, e) : stdout.slice(0, e)).trimStart();
-};
-var pickTree = (list, pid, recursive = false) => {
-  const children = list.filter((p) => p.ppid === pid + "");
-  return [
-    ...children,
-    ...children.flatMap((p) => recursive ? pickTree(list, p.pid, true) : [])
-  ];
-};
-var _tree = ({
-  cb = noop2,
-  opts,
-  sync = false
-}) => {
-  if (typeof opts === "string" || typeof opts === "number") {
-    return _tree({ opts: { pid: opts }, cb, sync });
-  }
-  const onError = (err) => cb(err);
-  const onData = (all) => {
-    if (opts === void 0) return all;
-    const { pid, recursive = false } = opts;
-    const list = pickTree(all, pid, recursive);
-    cb(null, list);
-    return list;
-  };
-  try {
-    const all = _lookup({ sync });
-    return sync ? onData(all) : all.then(onData, (err) => {
-      onError(err);
-      throw err;
-    });
-  } catch (err) {
-    onError(err);
-    return Promise.reject(err);
-  }
-};
-var tree = (opts, cb) => __async(null, null, function* () {
-  return _tree({ opts, cb });
-});
-var treeSync = (opts, cb) => _tree({ opts, cb, sync: true });
-tree.sync = treeSync;
-var kill = (pid, opts, next) => {
-  if (typeof opts == "function") {
-    return kill(pid, void 0, opts);
-  }
-  if (typeof opts == "string" || typeof opts == "number") {
-    return kill(pid, { signal: opts }, next);
-  }
-  const { promise, resolve, reject } = makeDeferred();
-  const {
-    timeout = 30,
-    signal = "SIGTERM"
-  } = opts || {};
-  try {
-    import_node_process4.default.kill(+pid, signal);
-  } catch (e) {
-    reject(e);
-    next == null ? void 0 : next(e);
-    return promise;
-  }
-  let checkConfident = 0;
-  let checkTimeoutTimer;
-  let checkIsTimeout = false;
-  const checkKilled = (finishCallback) => lookup({ pid }, (err, list = []) => {
-    if (checkIsTimeout) return;
-    if (err) {
-      clearTimeout(checkTimeoutTimer);
-      reject(err);
-      finishCallback == null ? void 0 : finishCallback(err, pid);
-    } else if (list.length > 0) {
-      checkConfident = checkConfident - 1 || 0;
-      checkKilled(finishCallback);
-    } else {
-      checkConfident++;
-      if (checkConfident === 5) {
-        clearTimeout(checkTimeoutTimer);
-        resolve(pid);
-        finishCallback == null ? void 0 : finishCallback(null, pid);
-      } else {
-        checkKilled(finishCallback);
-      }
-    }
-  });
-  if (next) {
-    checkKilled(next);
-    checkTimeoutTimer = setTimeout(() => {
-      checkIsTimeout = true;
-      next(new Error("Kill process timeout"));
-    }, timeout * 1e3);
-  } else {
-    resolve(pid);
-  }
-  return promise;
-};
-var normalizeOutput = (data) => data.reduce((m, d) => {
-  var _a, _b;
-  const pid = (_a = d.PID || d.ProcessId) == null ? void 0 : _a[0];
-  const ppid = (_b = d.PPID || d.ParentProcessId) == null ? void 0 : _b[0];
-  const _cmd = d.CMD || d.CommandLine || d.COMMAND || [];
-  const cmd = _cmd.length === 1 ? _cmd[0].split(/\s+/) : _cmd;
-  if (pid && cmd.length > 0) {
-    const c = cmd.findIndex((_v, i) => isBin(cmd.slice(0, i).join(" ")));
-    const command = (c === -1 ? cmd : cmd.slice(0, c)).join(" ");
-    const args = c === -1 ? [] : cmd.slice(c);
-    m.push({
-      pid,
-      ppid,
-      command,
-      arguments: args
-    });
-  }
-  return m;
-}, []);
-var makeDeferred = () => {
-  let resolve;
-  let reject;
-  const promise = new Promise((res, rej) => {
-    resolve = res;
-    reject = rej;
-  });
-  return { resolve, reject, promise };
-};
-var makePseudoDeferred = (r = {}) => ({
-  promise: r,
-  resolve: identity,
-  reject(e) {
-    throw e;
-  }
-});
-var noop2 = () => {
-};
-var identity = (v) => v;
 var index_default = { kill, lookup, lookupSync, tree, treeSync };
 
 // src/vendor-core.ts

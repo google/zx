@@ -21,7 +21,7 @@ export const versions: Record<string, string> = {
   fs: '11.3.4',
   glob: '16.1.1',
   minimist: '1.2.8',
-  ps: '1.0.0',
+  ps: '1.2.1',
   which: '6.0.1',
   yaml: '2.8.3',
 }
