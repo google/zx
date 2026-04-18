@@ -212,7 +212,6 @@ declare namespace which {
 		nothrow?: boolean | undefined;
 	}
 }
-type TPsLookupCallback = (err: any, processList?: TPsLookupEntry[]) => void;
 type TPsLookupEntry = {
 	pid: string;
 	ppid?: string;
@@ -224,16 +223,20 @@ type TPsLookupQuery = {
 	command?: string;
 	arguments?: string;
 	ppid?: number | string;
+	psargs?: string;
 };
+type TPsLookupCallback = (err: any, processList?: TPsLookupEntry[]) => void;
 type TPsKillOptions = {
 	timeout?: number;
 	signal?: string | number | NodeJS.Signals;
+	/** Polling interval in ms between exit checks (default 200). */
+	interval?: number;
 };
-type TPsNext = (err?: any, data?: any) => void;
 type TPsTreeOpts = {
 	pid: string | number;
 	recursive?: boolean;
 };
+type TPsNext = (err?: any, data?: any) => void;
 declare const _default: {
 	kill: (pid: string | number, opts?: TPsNext | TPsKillOptions | TPsKillOptions["signal"], next?: TPsNext) => Promise<void>;
 	lookup: {
@@ -242,10 +245,10 @@ declare const _default: {
 	};
 	lookupSync: (query?: TPsLookupQuery, cb?: TPsLookupCallback) => TPsLookupEntry[];
 	tree: {
-		(opts?: string | number | TPsTreeOpts | undefined, cb?: TPsLookupCallback): Promise<TPsLookupEntry[]>;
-		sync: (opts?: string | number | TPsTreeOpts | undefined, cb?: TPsLookupCallback) => TPsLookupEntry[];
+		(opts?: string | number | TPsTreeOpts, cb?: TPsLookupCallback): Promise<TPsLookupEntry[]>;
+		sync: (opts?: string | number | TPsTreeOpts, cb?: TPsLookupCallback) => TPsLookupEntry[];
 	};
-	treeSync: (opts?: string | number | TPsTreeOpts | undefined, cb?: TPsLookupCallback) => TPsLookupEntry[];
+	treeSync: (opts?: string | number | TPsTreeOpts, cb?: TPsLookupCallback) => TPsLookupEntry[];
 };
 export declare const isStringLiteral: (pieces: any, ...rest: any[]) => pieces is TemplateStringsArray;
 type TQuote = (input: string) => string;
