@@ -60,9 +60,9 @@ fill-range@7.1.1
   jonschlinkert/fill-range
   MIT
 
-fs-extra@11.3.3
+fs-extra@11.3.4
   JP Richardson <jprichardson@gmail.com>
-  https://github.com/jprichardson/node-fs-extra
+  git+https://github.com/jprichardson/node-fs-extra.git
   MIT
 
 glob-parent@5.1.2
@@ -120,7 +120,7 @@ node-fetch-native@1.6.7
   unjs/node-fetch-native
   MIT
 
-picomatch@2.3.1
+picomatch@2.3.2
   Jon Schlinkert (https://github.com/jonschlinkert)
   micromatch/picomatch
   MIT
@@ -145,7 +145,7 @@ which@6.0.1
   git+https://github.com/npm/node-which.git
   ISC
 
-yaml@2.8.2
+yaml@2.8.3
   Eemeli Aro <eemeli@gmail.com>
   github:eemeli/yaml
   ISC
