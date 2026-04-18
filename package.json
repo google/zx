@@ -81,6 +81,7 @@
     "build:lite": "node scripts/build-pkgjson-lite.mjs",
     "build:pkgjson": "node scripts/build-pkgjson-main.mjs",
     "build:manifest": "npm run build:pkgjson && npm run build:lite && npm run build:jsr",
+    "build:size-limit": "node scripts/build-size-limit.mjs",
     "postbuild": "node scripts/build-clean.mjs && npm run build:manifest",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
