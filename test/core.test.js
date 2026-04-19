@@ -1363,6 +1363,71 @@ describe('core', () => {
       assert.equal(p.isVerbose(), false)
     })
 
+    test('quiet() suppresses cmd log entry (#931)', async () => {
+      const logs = []
+      const origLog = $.log
+      $.log = (entry) => {
+        logs.push(entry)
+        origLog(entry)
+      }
+      $.verbose = true
+      $.quiet = false
+
+      await $`echo "hello"`.quiet()
+      const cmdEntry = logs.find((l) => l.kind === 'cmd')
+      $.log = origLog
+      assert.equal(cmdEntry.verbose, false)
+    })
+
+    test('verbose(false) suppresses cmd log entry (#931)', async () => {
+      const logs = []
+      const origLog = $.log
+      $.log = (entry) => {
+        logs.push(entry)
+        origLog(entry)
+      }
+      $.verbose = true
+      $.quiet = false
+
+      await $`echo "hello"`.verbose(false)
+      const cmdEntry = logs.find((l) => l.kind === 'cmd')
+      $.log = origLog
+      assert.equal(cmdEntry.verbose, false)
+    })
+
+    test('quiet(false) enables cmd log when $.quiet=true (#931)', async () => {
+      const logs = []
+      const origLog = $.log
+      $.log = (entry) => {
+        logs.push(entry)
+        origLog(entry)
+      }
+      $.verbose = true
+      $.quiet = true
+
+      await $`echo "hello"`.quiet(false)
+      const cmdEntry = logs.find((l) => l.kind === 'cmd')
+      $.log = origLog
+      $.quiet = false
+      assert.equal(cmdEntry.verbose, true)
+    })
+
+    test('verbose(true) enables cmd log when $.verbose=false (#931)', async () => {
+      const logs = []
+      const origLog = $.log
+      $.log = (entry) => {
+        logs.push(entry)
+        origLog(entry)
+      }
+      $.verbose = false
+      $.quiet = false
+
+      await $`echo "hello"`.verbose(true)
+      const cmdEntry = logs.find((l) => l.kind === 'cmd')
+      $.log = origLog
+      assert.equal(cmdEntry.verbose, true)
+    })
+
     test('nothrow() does not throw', async () => {
       {
         const { exitCode } = await $`exit 42`.nothrow()

@@ -360,7 +360,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       },
       on: {
         start: () => {
-          $.log({ kind: 'cmd', cmd: $.cmd, cwd, verbose: self.isVerbose(), id })
+          const cmdOpts = { kind: 'cmd' as const, cmd: $.cmd, cwd, id }
+          queueMicrotask(() => $.log({ ...cmdOpts, verbose: self.isVerbose() }))
           self.timeout($.timeout, $.timeoutSignal)
         },
         stdout: (data) => {
