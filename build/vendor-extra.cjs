@@ -1,5 +1,6 @@
 "use strict";
 const {
+  __pow,
   __spreadValues,
   __spreadProps,
   __esm,
@@ -20248,307 +20249,219 @@ function stringify3(value, replacer, options) {
 // node_modules/yaml/browser/index.js
 var browser_default = dist_exports;
 
-// node_modules/maml.js/build/index.js
+// node_modules/maml/build/index.js
 var build_exports = {};
 __export(build_exports, {
   parse: () => parse2,
   stringify: () => stringify4
 });
-
-// node_modules/maml.js/build/parse.js
 function parse2(source) {
-  if (typeof source !== "string")
-    throw TypeError("Source must be a string");
+  if (typeof source != "string") throw TypeError("Source must be a string");
   let pos = 0, lineNumber = 1, ch, done = false;
   next();
-  const value = parseValue();
-  skipWhitespace();
-  if (!done) {
+  let value = parseValue();
+  if (skipWhitespace(), !done)
     throw new SyntaxError(errorSnippet());
-  }
-  expectValue(value);
-  return value;
+  return expectValue(value), value;
   function next() {
-    if (pos < source.length) {
-      ch = source[pos];
-      pos++;
-    } else {
-      ch = "";
-      done = true;
-    }
-    if (ch === "\n") {
-      lineNumber++;
-    }
+    pos < source.length ? (ch = source[pos], pos++) : (ch = "", done = true), ch === `
+` && lineNumber++;
   }
-  function lookahead2() {
-    return source.substring(pos, pos + 2);
+  function lookahead(n4) {
+    return source.substring(pos, pos + n4);
   }
   function parseValue() {
     var _a2, _b2, _c, _d, _e, _f, _g;
-    skipWhitespace();
-    return (_g = (_f = (_e = (_d = (_c = (_b2 = (_a2 = parseMultilineString()) != null ? _a2 : parseString()) != null ? _b2 : parseNumber()) != null ? _c : parseObject()) != null ? _d : parseArray()) != null ? _e : parseKeyword("true", true)) != null ? _f : parseKeyword("false", false)) != null ? _g : parseKeyword("null", null);
+    return skipWhitespace(), (_g = (_f = (_e = (_d = (_c = (_b2 = (_a2 = parseRawString()) != null ? _a2 : parseString()) != null ? _b2 : parseNumber()) != null ? _c : parseObject()) != null ? _d : parseArray()) != null ? _e : parseKeyword("true", true)) != null ? _f : parseKeyword("false", false)) != null ? _g : parseKeyword("null", null);
   }
   function parseString() {
-    if (ch !== '"')
-      return;
-    let str = "";
-    let escaped = false;
-    while (true) {
-      next();
-      if (escaped) {
+    if (ch !== '"') return;
+    let str = "", escaped = false;
+    for (; ; )
+      if (next(), escaped) {
         if (ch === "u") {
-          next();
-          if (ch !== "{") {
-            throw new SyntaxError(errorSnippet(errorMap.u + " " + JSON.stringify(ch) + ' (expected "{")'));
-          }
+          if (next(), ch !== "{")
+            throw new SyntaxError(
+              errorSnippet(
+                errorMap.u + " " + JSON.stringify(ch) + ' (expected "{")'
+              )
+            );
           let hex = "";
-          while (true) {
-            next();
-            if (ch === "}")
-              break;
-            if (!isHexDigit(ch)) {
-              throw new SyntaxError(errorSnippet(errorMap.u + " " + JSON.stringify(ch)));
-            }
-            hex += ch;
-            if (hex.length > 6) {
-              throw new SyntaxError(errorSnippet(errorMap.u + " (too many hex digits)"));
-            }
+          for (; next(), ch !== "}"; ) {
+            if (!isHexDigit(ch))
+              throw new SyntaxError(
+                errorSnippet(errorMap.u + " " + JSON.stringify(ch))
+              );
+            if (hex += ch, hex.length > 6)
+              throw new SyntaxError(
+                errorSnippet(errorMap.u + " (too many hex digits)")
+              );
           }
-          if (hex.length === 0) {
+          if (hex.length === 0)
             throw new SyntaxError(errorSnippet(errorMap.u));
-          }
-          const codePoint = parseInt(hex, 16);
-          if (codePoint > 1114111) {
+          let codePoint = parseInt(hex, 16);
+          if (codePoint > 1114111 || codePoint >= 55296 && codePoint <= 57343)
             throw new SyntaxError(errorSnippet(errorMap.u + " (out of range)"));
-          }
           str += String.fromCodePoint(codePoint);
         } else {
-          const escapedChar = escapeMap[ch];
-          if (!escapedChar) {
-            throw new SyntaxError(errorSnippet(errorMap.u + " " + JSON.stringify(ch)));
-          }
+          let escapedChar = escapeMap[ch];
+          if (!escapedChar)
+            throw new SyntaxError(
+              errorSnippet(errorMap.u + " " + JSON.stringify(ch))
+            );
           str += escapedChar;
         }
         escaped = false;
-      } else if (ch === "\\") {
+      } else if (ch === "\\")
         escaped = true;
-      } else if (ch === '"') {
-        break;
-      } else if (ch === "\n") {
-        throw new SyntaxError(errorSnippet(`Use """ for multiline strings or escape newlines with "\\n"`));
-      } else if (ch < "") {
-        throw new SyntaxError(errorSnippet(`Unescaped control character ${JSON.stringify(ch)}`));
-      } else {
+      else {
+        if (ch === '"')
+          break;
+        if (ch === `
+`)
+          throw new SyntaxError(errorSnippet());
+        if (ch < " " && ch !== "	" || ch === "\x7F")
+          throw new SyntaxError(errorSnippet());
         str += ch;
       }
-    }
-    next();
-    return str;
+    return next(), str;
   }
-  function parseMultilineString() {
-    if (ch !== '"' || lookahead2() !== '""')
-      return;
-    next();
-    next();
-    next();
+  function parseRawString() {
+    if (ch !== '"' || lookahead(2) !== '""') return;
+    next(), next(), next();
     let hasLeadingNewline = false;
-    if (ch === "\n") {
-      hasLeadingNewline = true;
-      next();
-    }
+    ch === "\r" && lookahead(1) === `
+` && next(), ch === `
+` && (hasLeadingNewline = true, next());
     let str = "";
-    while (!done) {
-      if (ch === '"' && lookahead2() === '""') {
-        next();
-        next();
-        next();
-        if (str === "" && !hasLeadingNewline) {
-          throw new SyntaxError(errorSnippet("Multiline strings cannot be empty"));
-        }
+    for (; !done; ) {
+      if (ch === '"' && lookahead(2) === '""') {
+        if (next(), next(), next(), str === "" && !hasLeadingNewline)
+          throw new SyntaxError(errorSnippet("Raw strings cannot be empty"));
         return str;
       }
-      str += ch;
-      next();
+      str += ch, next();
     }
     throw new SyntaxError(errorSnippet());
   }
   function parseNumber() {
-    if (!isDigit(ch) && ch !== "-")
-      return;
-    let numStr = "";
-    let float3 = false;
-    if (ch === "-") {
-      numStr += ch;
-      next();
-      if (!isDigit(ch)) {
-        throw new SyntaxError(errorSnippet());
-      }
-    }
-    if (ch === "0") {
-      numStr += ch;
-      next();
-    } else {
-      while (isDigit(ch)) {
-        numStr += ch;
-        next();
-      }
-    }
+    if (!isDigit(ch) && ch !== "-") return;
+    let numStr = "", float3 = false;
+    if (ch === "-" && (numStr += ch, next(), !isDigit(ch)))
+      throw new SyntaxError(errorSnippet());
+    if (ch === "0")
+      numStr += ch, next();
+    else
+      for (; isDigit(ch); )
+        numStr += ch, next();
     if (ch === ".") {
-      float3 = true;
-      numStr += ch;
-      next();
-      if (!isDigit(ch)) {
+      if (float3 = true, numStr += ch, next(), !isDigit(ch))
         throw new SyntaxError(errorSnippet());
-      }
-      while (isDigit(ch)) {
-        numStr += ch;
-        next();
-      }
+      for (; isDigit(ch); )
+        numStr += ch, next();
     }
     if (ch === "e" || ch === "E") {
-      float3 = true;
-      numStr += ch;
-      next();
-      if (ch === "+" || ch === "-") {
-        numStr += ch;
-        next();
-      }
-      if (!isDigit(ch)) {
+      if (float3 = true, numStr += ch, next(), (ch === "+" || ch === "-") && (numStr += ch, next()), !isDigit(ch))
         throw new SyntaxError(errorSnippet());
-      }
-      while (isDigit(ch)) {
-        numStr += ch;
-        next();
-      }
+      for (; isDigit(ch); )
+        numStr += ch, next();
     }
     return float3 ? parseFloat(numStr) : toSafeNumber(numStr);
   }
   function parseObject() {
-    if (ch !== "{")
-      return;
-    next();
-    skipWhitespace();
-    const obj = {};
-    if (ch === "}") {
-      next();
-      return obj;
-    }
-    while (true) {
-      const keyPos = pos;
-      let key;
-      if (ch === '"') {
-        key = parseString();
-      } else {
-        key = parseKey();
-      }
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        pos = keyPos;
-        throw new SyntaxError(errorSnippet(`Duplicate key ${JSON.stringify(key)}`));
-      }
-      skipWhitespace();
-      if (ch !== ":") {
+    if (ch !== "{") return;
+    next(), skipWhitespace();
+    let obj = {};
+    if (ch === "}")
+      return next(), obj;
+    for (; ; ) {
+      let keyPos = pos, key;
+      if (ch === '"' ? key = parseString() : key = parseKey(), Object.prototype.hasOwnProperty.call(obj, key))
+        throw pos = keyPos, new SyntaxError(
+          errorSnippet(`Duplicate key ${JSON.stringify(key)}`)
+        );
+      if (skipWhitespace(), ch !== ":")
         throw new SyntaxError(errorSnippet());
-      }
       next();
-      const value2 = parseValue();
-      expectValue(value2);
-      obj[key] = value2;
-      const newlineAfterValue = skipWhitespace();
-      if (ch === "}") {
-        next();
-        return obj;
-      } else if (ch === ",") {
-        next();
-        skipWhitespace();
-        if (ch === "}") {
-          next();
-          return obj;
-        }
-      } else if (newlineAfterValue) {
-        continue;
+      let value2 = parseValue();
+      expectValue(value2), obj[key] = value2;
+      let newlineAfterValue = skipWhitespace();
+      if (ch === "}")
+        return next(), obj;
+      if (ch === ",") {
+        if (next(), skipWhitespace(), ch === "}")
+          return next(), obj;
       } else {
-        throw new SyntaxError(errorSnippet("Expected comma or newline between key-value pairs"));
+        if (newlineAfterValue)
+          continue;
+        throw new SyntaxError(
+          errorSnippet("Expected comma or newline between key-value pairs")
+        );
       }
     }
   }
   function parseKey() {
     let identifier = "";
-    while (isKeyChar(ch)) {
-      identifier += ch;
-      next();
-    }
-    if (identifier === "") {
+    for (; isKeyChar(ch); )
+      identifier += ch, next();
+    if (identifier === "")
       throw new SyntaxError(errorSnippet());
-    }
     return identifier;
   }
   function parseArray() {
-    if (ch !== "[")
-      return;
-    next();
-    skipWhitespace();
-    const array = [];
-    if (ch === "]") {
-      next();
-      return array;
-    }
-    while (true) {
-      const value2 = parseValue();
-      expectValue(value2);
-      array.push(value2);
-      const newLineAfterValue = skipWhitespace();
-      if (ch === "]") {
-        next();
-        return array;
-      } else if (ch === ",") {
-        next();
-        skipWhitespace();
-        if (ch === "]") {
-          next();
-          return array;
-        }
-      } else if (newLineAfterValue) {
-        continue;
+    if (ch !== "[") return;
+    next(), skipWhitespace();
+    let array = [];
+    if (ch === "]")
+      return next(), array;
+    for (; ; ) {
+      let value2 = parseValue();
+      expectValue(value2), array.push(value2);
+      let newLineAfterValue = skipWhitespace();
+      if (ch === "]")
+        return next(), array;
+      if (ch === ",") {
+        if (next(), skipWhitespace(), ch === "]")
+          return next(), array;
       } else {
-        throw new SyntaxError(errorSnippet("Expected comma or newline between values"));
+        if (newLineAfterValue)
+          continue;
+        throw new SyntaxError(
+          errorSnippet("Expected comma or newline between values")
+        );
       }
     }
   }
   function parseKeyword(name, value2) {
-    if (ch !== name[0])
-      return;
-    for (let i = 1; i < name.length; i++) {
-      next();
-      if (ch !== name[i]) {
-        throw new SyntaxError(errorSnippet());
-      }
+    if (ch === name[0]) {
+      for (let i = 1; i < name.length; i++)
+        if (next(), ch !== name[i])
+          throw new SyntaxError(errorSnippet());
+      if (next(), isWhitespace(ch) || ch === "," || ch === "}" || ch === "]" || ch === void 0)
+        return value2;
+      throw new SyntaxError(errorSnippet());
     }
-    next();
-    if (isWhitespace(ch) || ch === "," || ch === "}" || ch === "]" || ch === void 0) {
-      return value2;
-    }
-    throw new SyntaxError(errorSnippet());
   }
   function skipWhitespace() {
     let hasNewline = false;
-    while (isWhitespace(ch)) {
-      hasNewline || (hasNewline = ch === "\n");
-      next();
-    }
-    const hasNewlineAfterComment = skipComment();
+    for (; isWhitespace(ch); )
+      hasNewline || (hasNewline = ch === `
+`), next();
+    let hasNewlineAfterComment = skipComment();
     return hasNewline || hasNewlineAfterComment;
   }
   function skipComment() {
     if (ch === "#") {
-      while (!done && ch !== "\n") {
+      for (; !done && ch !== `
+`; )
         next();
-      }
       return skipWhitespace();
     }
     return false;
   }
   function isWhitespace(ch2) {
-    return ch2 === " " || ch2 === "\n" || ch2 === "	" || ch2 === "\r";
+    return ch2 === " " || ch2 === `
+` || ch2 === "	" || ch2 === "\r";
   }
   function isHexDigit(ch2) {
     return ch2 >= "0" && ch2 <= "9" || ch2 >= "A" && ch2 <= "F";
@@ -20560,31 +20473,29 @@ function parse2(source) {
     return ch2 >= "A" && ch2 <= "Z" || ch2 >= "a" && ch2 <= "z" || ch2 >= "0" && ch2 <= "9" || ch2 === "_" || ch2 === "-";
   }
   function toSafeNumber(str) {
-    if (str == "-0")
-      return -0;
-    const num = Number(str);
-    return num >= Number.MIN_SAFE_INTEGER && num <= Number.MAX_SAFE_INTEGER ? num : BigInt(str);
+    if (str == "-0") return -0;
+    let num = Number(str);
+    if (num >= Number.MIN_SAFE_INTEGER && num <= Number.MAX_SAFE_INTEGER)
+      return num;
+    let big = BigInt(str), I64_MIN = -__pow(/* @__PURE__ */ BigInt("2"), /* @__PURE__ */ BigInt("63")), I64_MAX = __pow(/* @__PURE__ */ BigInt("2"), /* @__PURE__ */ BigInt("63")) - /* @__PURE__ */ BigInt("1");
+    if (big < I64_MIN || big > I64_MAX)
+      throw new SyntaxError(
+        `Integer ${str} is outside the 64-bit signed integer range on line ${lineNumber}.`
+      );
+    return big;
   }
   function expectValue(value2) {
-    if (value2 === void 0) {
+    if (value2 === void 0)
       throw new SyntaxError(errorSnippet());
-    }
   }
   function errorSnippet(message = `Unexpected character ${JSON.stringify(ch)}`) {
-    if (!ch)
-      message = "Unexpected end of input";
-    const lines = source.substring(pos - 40, pos).split("\n");
-    let lastLine = lines.at(-1) || "";
-    let postfix = source.substring(pos, pos + 40).split("\n", 1).at(0) || "";
-    if (lastLine === "") {
-      lastLine = lines.at(-2) || "";
-      lastLine += " ";
-      lineNumber--;
-      postfix = "";
-    }
-    const snippet = `    ${lastLine}${postfix}
-`;
-    const pointer = `    ${".".repeat(Math.max(0, lastLine.length - 1))}^
+    ch || (message = "Unexpected end of input");
+    let lines = source.substring(pos - 40, pos).split(`
+`), lastLine = lines.at(-1) || "", postfix = source.substring(pos, pos + 40).split(`
+`, 1).at(0) || "";
+    lastLine === "" && (lastLine = lines.at(-2) || "", lastLine += " ", lineNumber--, postfix = "");
+    let snippet = `    ${lastLine}${postfix}
+`, pointer = `    ${".".repeat(Math.max(0, lastLine.length - 1))}^
 `;
     return `${message} on line ${lineNumber}.
 
@@ -20594,67 +20505,86 @@ ${snippet}${pointer}`;
 var escapeMap = {
   '"': '"',
   "\\": "\\",
-  n: "\n",
+  n: `
+`,
   r: "\r",
   t: "	"
 };
 var errorMap = {
   u: "Invalid escape sequence"
 };
-
-// node_modules/maml.js/build/stringify.js
 function stringify4(value) {
   return doStringify(value, 0);
 }
 function doStringify(value, level) {
-  const kind = value === null ? "null" : Array.isArray(value) ? "array" : typeof value;
+  let kind = value === null ? "null" : Array.isArray(value) ? "array" : typeof value;
   switch (kind) {
     case "string":
-      return JSON.stringify(value);
+      return quoteString(value);
     case "boolean":
-    case "bigint":
-    case "number":
       return `${value}`;
+    case "bigint": {
+      let I64_MIN = -__pow(/* @__PURE__ */ BigInt("2"), /* @__PURE__ */ BigInt("63")), I64_MAX = __pow(/* @__PURE__ */ BigInt("2"), /* @__PURE__ */ BigInt("63")) - /* @__PURE__ */ BigInt("1");
+      if (value < I64_MIN || value > I64_MAX)
+        throw new Error(
+          `Integer ${value} is outside the 64-bit signed integer range`
+        );
+      return `${value}`;
+    }
+    case "number": {
+      if (!Number.isFinite(value))
+        throw new Error(`Cannot encode ${value} as a MAML value`);
+      let str = `${value}`;
+      if (!str.includes(".") && !str.includes("e") && !Number.isSafeInteger(value))
+        throw new Error(
+          `Integer ${value} cannot be represented losslessly as a number, use BigInt instead`
+        );
+      return str;
+    }
     case "null":
     case "undefined":
       return "null";
     case "array": {
-      const len = value.length;
-      if (len === 0)
-        return "[]";
-      const childIndent = getIndent(level + 1);
-      const parentIndent = getIndent(level);
-      let out = "[\n";
-      for (let i = 0; i < len; i++) {
-        if (i > 0)
-          out += "\n";
-        out += childIndent + doStringify(value[i], level + 1);
-      }
-      return out + "\n" + parentIndent + "]";
+      let len = value.length;
+      if (len === 0) return "[]";
+      let childIndent = getIndent(level + 1), parentIndent = getIndent(level), out = `[
+`;
+      for (let i = 0; i < len; i++)
+        i > 0 && (out += `
+`), out += childIndent + doStringify(value[i], level + 1);
+      return out + `
+` + parentIndent + "]";
     }
     case "object": {
-      const keys = Object.keys(value);
-      const len = keys.length;
-      if (len === 0)
-        return "{}";
-      const childIndent = getIndent(level + 1);
-      const parentIndent = getIndent(level);
-      let out = "{\n";
+      let keys = Object.keys(value), len = keys.length;
+      if (len === 0) return "{}";
+      let childIndent = getIndent(level + 1), parentIndent = getIndent(level), out = `{
+`;
       for (let i = 0; i < len; i++) {
-        if (i > 0)
-          out += "\n";
-        const key = keys[i];
+        i > 0 && (out += `
+`);
+        let key = keys[i];
         out += childIndent + doKeyStringify(key) + ": " + doStringify(value[key], level + 1);
       }
-      return out + "\n" + parentIndent + "}";
+      return out + `
+` + parentIndent + "}";
     }
     default:
       throw new Error(`Unsupported value type: ${kind}`);
   }
 }
+function quoteString(s) {
+  let out = '"';
+  for (let c2 of s) {
+    let code = c2.codePointAt(0);
+    c2 === '"' ? out += '\\"' : c2 === "\\" ? out += "\\\\" : c2 === `
+` ? out += "\\n" : c2 === "\r" ? out += "\\r" : c2 === "	" ? out += "\\t" : code < 32 || code === 127 ? out += `\\u{${code.toString(16).toUpperCase()}}` : out += c2;
+  }
+  return out + '"';
+}
 var KEY_RE = /^[A-Za-z0-9_-]+$/;
 function doKeyStringify(key) {
-  return KEY_RE.test(key) ? key : JSON.stringify(key);
+  return KEY_RE.test(key) ? key : quoteString(key);
 }
 function getIndent(level) {
   return " ".repeat(2 * level);
