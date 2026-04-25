@@ -111,8 +111,12 @@ const responseToReadable = (response: Response, rs: Readable) => {
     return rs
   }
   rs._read = async () => {
-    const result = await reader.read()
-    rs.push(result.done ? null : Buffer.from(result.value))
+    try {
+      const result = await reader.read()
+      rs.push(result.done ? null : Buffer.from(result.value))
+    } catch (err) {
+      rs.destroy(err as Error)
+    }
   }
   return rs
 }
@@ -139,7 +143,7 @@ export function fetch(
           })(dest as TemplateStringsArray, ...args)
         : dest
       p.then(
-        (r) => responseToReadable(r, rs).pipe(_dest.run?.()),
+        (r) => responseToReadable(r, rs).pipe(_dest.run ? _dest.run() : _dest),
         (err) => _dest.abort?.(err)
       )
       return _dest
