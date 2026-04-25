@@ -174,6 +174,8 @@ describe('log', () => {
         `foo-extra --baz = b-a-z --bar = 'b-a-r' -q -u x`,
         "$ \x1B[92mfoo-extra\x1B[39m --baz \x1B[31m=\x1B[39m b-a-z --bar \x1B[31m=\x1B[39m \x1B[93m'b-a-r'\x1B[39m -q -u x\n",
       ],
+      [`npm-run-all test:unit`, '$ \x1B[92mnpm-run-all\x1B[39m test:unit\n'],
+      [`git+ssh://host/path`, '$ \x1B[92mgit+ssh://host/path\x1B[39m\n'],
       [
         `while true; do "$" done`,
         '$ \x1B[96mwhile\x1B[39m true\x1B[31m;\x1B[39m\x1B[96m do\x1B[39m \x1B[93m"$"\x1B[39m\x1B[96m done\x1B[39m\n',
@@ -189,7 +191,7 @@ describe('log', () => {
       ],
       [
         'echo 1+2 | bc',
-        '$ \x1B[92mecho\x1B[39m 1\x1B[31m+\x1B[39m2 \x1B[31m|\x1B[39m\x1B[92m bc\x1B[39m\n',
+        '$ \x1B[92mecho\x1B[39m 1+2 \x1B[31m|\x1B[39m\x1B[92m bc\x1B[39m\n',
       ],
       [
         'echo test &>> filepath',

@@ -301,7 +301,7 @@ var log = function(entry) {
   stream.write(format(entry));
 };
 var SPACE_RE = /\s/;
-var SYNTAX = "()[]{}<>;:+|&=";
+var SYNTAX = "()[]{}<>;|&=";
 var CMD_BREAK = "|&;><";
 var RESERVED_WORDS = /* @__PURE__ */ new Set([
   "if",
