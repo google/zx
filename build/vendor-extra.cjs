@@ -1345,17 +1345,31 @@ var require_braces = __commonJS({
     var parse4 = require_parse();
     var braces = (input, options = {}) => {
       let output = [];
+      const maxLength = (options && options.maxLength) || 1e4;
+      const maxResults = (options && options.maxResults) || 1e4;
       if (Array.isArray(input)) {
         for (const pattern of input) {
+          if (typeof pattern === "string" && pattern.length > maxLength) {
+            throw new RangeError(`brace pattern length exceeds maximum allowed length of ${maxLength}`);
+          }
           const result = braces.create(pattern, options);
           if (Array.isArray(result)) {
+            if (output.length + result.length > maxResults) {
+              throw new RangeError(`brace expansion result count exceeds maximum of ${maxResults}`);
+            }
             output.push(...result);
           } else {
             output.push(result);
           }
         }
       } else {
+        if (typeof input === "string" && input.length > maxLength) {
+          throw new RangeError(`brace pattern length exceeds maximum allowed length of ${maxLength}`);
+        }
         output = [].concat(braces.create(input, options));
+        if (output.length > maxResults) {
+          throw new RangeError(`brace expansion result count exceeds maximum of ${maxResults}`);
+        }
       }
       if (options && options.expand === true && options.nodupes === true) {
         output = [...new Set(output)];
