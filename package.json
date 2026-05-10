@@ -110,12 +110,12 @@
     "test:workflow": "zizmor .github/workflows -v -p --min-severity=medium"
   },
   "devDependencies": {
-    "@commitlint/cli": "^20.5.0",
-    "@commitlint/config-conventional": "^20.5.0",
+    "@commitlint/cli": "^21.0.0",
+    "@commitlint/config-conventional": "^21.0.0",
     "@size-limit/file": "12.1.0",
     "@types/fs-extra": "11.0.4",
     "@types/minimist": "1.2.5",
-    "@types/node": "25.6.0",
+    "@types/node": "25.6.2",
     "@types/which": "3.0.4",
     "@webpod/ingrid": "1.1.1",
     "@webpod/ps": "1.2.1",
@@ -134,9 +134,9 @@
     "esbuild-plugin-resolve": "2.0.0",
     "esbuild-plugin-transform-hook": "0.2.0",
     "esbuild-plugin-utils": "0.1.0",
-    "fs-extra": "11.3.4",
+    "fs-extra": "11.3.5",
     "get-port": "7.2.0",
-    "globby": "16.1.1",
+    "globby": "16.2.0",
     "jsr": "0.14.3",
     "lefthook": "2.1.6",
     "madge": "8.0.0",
@@ -151,7 +151,7 @@
     "typescript": "5.9.3",
     "vitepress": "1.6.4",
     "which": "6.0.1",
-    "yaml": "2.8.3",
+    "yaml": "2.8.4",
     "zurk": "0.11.10"
   },
   "overrides": {
