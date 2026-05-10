@@ -90,9 +90,9 @@ var require_path = __commonJS({
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.convertPosixPathToPattern = exports2.convertWindowsPathToPattern = exports2.convertPathToPattern = exports2.escapePosixPath = exports2.escapeWindowsPath = exports2.escape = exports2.removeLeadingDotSegment = exports2.makeAbsolute = exports2.unixify = void 0;
-    var os = require("os");
+    var os2 = require("os");
     var path5 = require("path");
-    var IS_WINDOWS_PLATFORM = os.platform() === "win32";
+    var IS_WINDOWS_PLATFORM = os2.platform() === "win32";
     var LEADING_DOT_SEGMENT_CHARACTERS_COUNT = 2;
     var POSIX_UNESCAPED_GLOB_SYMBOLS_RE = /(\\?)([()*?[\]{|}]|^!|[!+@](?=\()|\\(?![!()*+?@[\]{|}]))/g;
     var WINDOWS_UNESCAPED_GLOB_SYMBOLS_RE = /(\\?)([()[\]{}]|^!|[!+@](?=\())/g;
@@ -5617,8 +5617,8 @@ var require_settings4 = __commonJS({
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.DEFAULT_FILE_SYSTEM_ADAPTER = void 0;
     var fs6 = require("fs");
-    var os = require("os");
-    var CPU_COUNT = Math.max(os.cpus().length, 1);
+    var os2 = require("os");
+    var CPU_COUNT = Math.max(os2.cpus().length, 1);
     exports2.DEFAULT_FILE_SYSTEM_ADAPTER = {
       lstat: fs6.lstat,
       lstatSync: fs6.lstatSync,
@@ -7245,25 +7245,40 @@ var require_utimes = __commonJS({
     function utimesMillis(path5, atime, mtime) {
       return __async(this, null, function* () {
         const fd = yield fs6.open(path5, "r+");
-        let closeErr = null;
+        let error = null;
         try {
           yield fs6.futimes(fd, atime, mtime);
+        } catch (futimesErr) {
+          error = futimesErr;
         } finally {
           try {
             yield fs6.close(fd);
-          } catch (e) {
-            closeErr = e;
+          } catch (closeErr) {
+            if (!error) error = closeErr;
           }
         }
-        if (closeErr) {
-          throw closeErr;
+        if (error) {
+          throw error;
         }
       });
     }
     function utimesMillisSync(path5, atime, mtime) {
       const fd = fs6.openSync(path5, "r+");
-      fs6.futimesSync(fd, atime, mtime);
-      return fs6.closeSync(fd);
+      let error = null;
+      try {
+        fs6.futimesSync(fd, atime, mtime);
+      } catch (futimesErr) {
+        error = futimesErr;
+      } finally {
+        try {
+          fs6.closeSync(fd);
+        } catch (closeErr) {
+          if (!error) error = closeErr;
+        }
+      }
+      if (error) {
+        throw error;
+      }
     }
     module2.exports = {
       utimesMillis: u(utimesMillis),
@@ -7875,12 +7890,12 @@ var require_link = __commonJS({
       return __async(this, null, function* () {
         let dstStat;
         try {
-          dstStat = yield fs6.lstat(dstpath);
+          dstStat = yield fs6.lstat(dstpath, { bigint: true });
         } catch (e) {
         }
         let srcStat;
         try {
-          srcStat = yield fs6.lstat(srcpath);
+          srcStat = yield fs6.lstat(srcpath, { bigint: true });
         } catch (err) {
           err.message = err.message.replace("lstat", "ensureLink");
           throw err;
@@ -7897,11 +7912,11 @@ var require_link = __commonJS({
     function createLinkSync(srcpath, dstpath) {
       let dstStat;
       try {
-        dstStat = fs6.lstatSync(dstpath);
+        dstStat = fs6.lstatSync(dstpath, { bigint: true });
       } catch (e) {
       }
       try {
-        const srcStat = fs6.lstatSync(srcpath);
+        const srcStat = fs6.lstatSync(srcpath, { bigint: true });
         if (dstStat && areIdentical(srcStat, dstStat)) return;
       } catch (err) {
         err.message = err.message.replace("lstat", "ensureLink");
@@ -8052,17 +8067,17 @@ var require_symlink = __commonJS({
         if (stats && stats.isSymbolicLink()) {
           let srcStat;
           if (path5.isAbsolute(srcpath)) {
-            srcStat = yield fs6.stat(srcpath);
+            srcStat = yield fs6.stat(srcpath, { bigint: true });
           } else {
             const dstdir = path5.dirname(dstpath);
             const relativeToDst = path5.join(dstdir, srcpath);
             try {
-              srcStat = yield fs6.stat(relativeToDst);
+              srcStat = yield fs6.stat(relativeToDst, { bigint: true });
             } catch (e) {
-              srcStat = yield fs6.stat(srcpath);
+              srcStat = yield fs6.stat(srcpath, { bigint: true });
             }
           }
-          const dstStat = yield fs6.stat(dstpath);
+          const dstStat = yield fs6.stat(dstpath, { bigint: true });
           if (areIdentical(srcStat, dstStat)) return;
         }
         const relative = yield symlinkPaths(srcpath, dstpath);
@@ -8084,17 +8099,17 @@ var require_symlink = __commonJS({
       if (stats && stats.isSymbolicLink()) {
         let srcStat;
         if (path5.isAbsolute(srcpath)) {
-          srcStat = fs6.statSync(srcpath);
+          srcStat = fs6.statSync(srcpath, { bigint: true });
         } else {
           const dstdir = path5.dirname(dstpath);
           const relativeToDst = path5.join(dstdir, srcpath);
           try {
-            srcStat = fs6.statSync(relativeToDst);
+            srcStat = fs6.statSync(relativeToDst, { bigint: true });
           } catch (e) {
-            srcStat = fs6.statSync(srcpath);
+            srcStat = fs6.statSync(srcpath, { bigint: true });
           }
         }
-        const dstStat = fs6.statSync(dstpath);
+        const dstStat = fs6.statSync(dstpath, { bigint: true });
         if (areIdentical(srcStat, dstStat)) return;
       }
       const relative = symlinkPathsSync(srcpath, dstpath);
@@ -10407,10 +10422,10 @@ function Ns() {
       }
       n2(ar, "defaultControllerBrandCheckException$1");
       function ns(e, t3) {
-        return Ie(e._readableStreamController) ? is(e) : os(e);
+        return Ie(e._readableStreamController) ? is(e) : os2(e);
       }
       n2(ns, "ReadableStreamTee");
-      function os(e, t3) {
+      function os2(e, t3) {
         const r2 = Qe(e);
         let s = false, u = false, c2 = false, d = false, m2, R3, y, C2, P2;
         const B2 = A((x2) => {
@@ -10450,7 +10465,7 @@ function Ns() {
         }
         return n2(Te, "startAlgorithm"), y = Et(Te, ae, nt), C2 = Et(Te, ae, Oe), I2(r2._closedPromise, (x2) => (oe(y._readableStreamController, x2), oe(C2._readableStreamController, x2), (!c2 || !d) && P2(void 0), null)), [y, C2];
       }
-      n2(os, "ReadableStreamDefaultTee");
+      n2(os2, "ReadableStreamDefaultTee");
       function is(e) {
         let t3 = Qe(e), r2 = false, s = false, u = false, c2 = false, d = false, m2, R3, y, C2, P2;
         const B2 = A((_) => {
@@ -12831,6 +12846,7 @@ var import_node_process = __toESM(require("process"), 1);
 var import_node_fs2 = __toESM(require("fs"), 1);
 var import_promises2 = __toESM(require("fs").promises, 1);
 var import_node_path3 = __toESM(require("path"), 1);
+var import_node_os = __toESM(require("os"), 1);
 var import_fast_glob2 = __toESM(require_out4(), 1);
 var import_ignore = __toESM(require_ignore(), 1);
 
@@ -13088,6 +13104,7 @@ var ignoreFilesGlobOptions = {
   dot: true
 };
 var GITIGNORE_FILES_PATTERN = "**/.gitignore";
+var MAX_INCLUDE_DEPTH = 10;
 var getReadFileMethod = (fsImplementation) => {
   var _a2, _b2;
   return (_b2 = (_a2 = bindFsMethod(fsImplementation == null ? void 0 : fsImplementation.promises, "readFile")) != null ? _a2 : bindFsMethod(import_promises2.default, "readFile")) != null ? _b2 : promisifyFsMethod(fsImplementation, "readFile");
@@ -13105,13 +13122,15 @@ var shouldSkipIgnoreFileError = (error, suppressErrors) => {
   }
   return Boolean(suppressErrors);
 };
-var createIgnoreFileReadError = (filePath, error) => {
+var createReadError = (kind, filePath, error) => {
+  const prefix = `Failed to read ${kind} at ${filePath}`;
   if (error instanceof Error) {
-    error.message = `Failed to read ignore file at ${filePath}: ${error.message}`;
-    return error;
+    return new Error(`${prefix}: ${error.message}`, { cause: error });
   }
-  return new Error(`Failed to read ignore file at ${filePath}: ${String(error)}`);
+  return new Error(`${prefix}: ${String(error)}`);
 };
+var createIgnoreFileReadError = (filePath, error) => createReadError("ignore file", filePath, error);
+var createGitConfigReadError = (filePath, error) => createReadError("git config", filePath, error);
 var processIgnoreFileCore = (filePath, readMethod, suppressErrors) => {
   try {
     const content = readMethod(filePath, "utf8");
@@ -13157,9 +13176,11 @@ var combineIgnoreFilePaths = (gitRoot, normalizedOptions, childPaths) => dedupeP
 var buildIgnoreResult = (files, normalizedOptions, gitRoot) => {
   const baseDir = gitRoot || normalizedOptions.cwd;
   const patterns = getPatternsFromIgnoreFiles(files, baseDir);
+  const matcher = createIgnoreMatcher(patterns, normalizedOptions.cwd, baseDir);
   return {
     patterns,
-    predicate: createIgnorePredicate(patterns, normalizedOptions.cwd, baseDir),
+    matcher,
+    predicate: (fileOrDirectory) => matcher(fileOrDirectory).ignored,
     usingGitRoot: Boolean(gitRoot && gitRoot !== normalizedOptions.cwd)
   };
 };
@@ -13201,21 +13222,29 @@ var toRelativePath = (fileOrDirectory, cwd) => {
   }
   return fileOrDirectory;
 };
-var createIgnorePredicate = (patterns, cwd, baseDir) => {
+var notIgnored = { ignored: false, unignored: false };
+var createIgnoreMatcher = (patterns, cwd, baseDir) => {
   const ignores = (0, import_ignore.default)().add(patterns);
   const resolvedCwd = import_node_path3.default.normalize(import_node_path3.default.resolve(cwd));
   const resolvedBaseDir = import_node_path3.default.normalize(import_node_path3.default.resolve(baseDir));
   return (fileOrDirectory) => {
     fileOrDirectory = toPath(fileOrDirectory);
+    const hasTrailingSeparator = /[/\\]$/.test(fileOrDirectory);
     const normalizedPath = import_node_path3.default.normalize(import_node_path3.default.resolve(fileOrDirectory));
     if (normalizedPath === resolvedCwd) {
-      return false;
+      return notIgnored;
     }
-    const relativePath = toRelativePath(fileOrDirectory, resolvedBaseDir);
+    let relativePath = toRelativePath(fileOrDirectory, resolvedBaseDir);
     if (relativePath === void 0) {
-      return false;
+      return notIgnored;
     }
-    return relativePath ? ignores.ignores(slash(relativePath)) : false;
+    if (!relativePath) {
+      return notIgnored;
+    }
+    if (hasTrailingSeparator && !relativePath.endsWith(import_node_path3.default.sep)) {
+      relativePath += import_node_path3.default.sep;
+    }
+    return ignores.test(slash(relativePath));
   };
 };
 var normalizeOptions = (options = {}) => {
@@ -13233,6 +13262,386 @@ var normalizeOptions = (options = {}) => {
     throwErrorOnBrokenSymbolicLink: (_d = options.throwErrorOnBrokenSymbolicLink) != null ? _d : false,
     fs: options.fs
   };
+};
+var unescapeGitQuotedValue = (value) => value.replaceAll(/\\(["\\abfnrtv])/g, (_match, escapedCharacter) => {
+  switch (escapedCharacter) {
+    case "a": {
+      return "\x07";
+    }
+    case "b": {
+      return "\b";
+    }
+    case "f": {
+      return "\f";
+    }
+    case "n": {
+      return "\n";
+    }
+    case "r": {
+      return "\r";
+    }
+    case "t": {
+      return "	";
+    }
+    case "v": {
+      return "\v";
+    }
+    default: {
+      return escapedCharacter;
+    }
+  }
+});
+var parseGitConfigValue = (value) => {
+  const trimmedValue = value.trim();
+  const quotedMatch = trimmedValue.match(/^"((?:[^"\\]|\\.)*)"\s*(?:[#;].*)?$/);
+  if (quotedMatch) {
+    return unescapeGitQuotedValue(quotedMatch[1]);
+  }
+  return trimmedValue.replace(/\s[#;].*$/, "").trim();
+};
+var resolveConfigPath = (filePath, configPath) => {
+  if (configPath.startsWith("~/")) {
+    const homeDirectory = import_node_os.default.homedir();
+    const resolved = import_node_path3.default.join(homeDirectory, configPath.slice(2));
+    if (!isPathInside(resolved, homeDirectory)) {
+      return import_node_path3.default.join(homeDirectory, ".globby-invalid-path-traversal");
+    }
+    return resolved;
+  }
+  if (import_node_path3.default.isAbsolute(configPath)) {
+    return configPath;
+  }
+  return import_node_path3.default.resolve(import_node_path3.default.dirname(filePath), configPath);
+};
+var parseGitConfigSection = (line) => {
+  if (!line.startsWith("[")) {
+    return void 0;
+  }
+  let inQuotes = false;
+  let isEscaped = false;
+  for (let index = 1; index < line.length; index++) {
+    const character = line[index];
+    if (isEscaped) {
+      isEscaped = false;
+      continue;
+    }
+    if (character === "\\") {
+      isEscaped = true;
+      continue;
+    }
+    if (character === '"') {
+      inQuotes = !inQuotes;
+      continue;
+    }
+    if (character === "]" && !inQuotes) {
+      const remainder = line.slice(index + 1).trimStart();
+      if (remainder && !remainder.startsWith("#") && !remainder.startsWith(";")) {
+        return void 0;
+      }
+      return line.slice(1, index).trim();
+    }
+  }
+  return void 0;
+};
+var parseGitConfigEntry = (line) => {
+  const match = line.match(/^([A-Za-z\d-.]+)\s*=\s*(.*)$/);
+  if (!match) {
+    return void 0;
+  }
+  return {
+    key: match[1].toLowerCase(),
+    value: parseGitConfigValue(match[2])
+  };
+};
+var parseIncludeIfCondition = (section) => {
+  if (!section) {
+    return void 0;
+  }
+  const match = section.match(/^includeif\s+"([^"]+)"$/i);
+  return match ? match[1] : void 0;
+};
+var normalizeGitConfigConditionPattern = (pattern, configFilePath) => {
+  if (pattern.startsWith("~/")) {
+    pattern = import_node_path3.default.join(import_node_os.default.homedir(), pattern.slice(2));
+  } else if (pattern.startsWith("./")) {
+    pattern = import_node_path3.default.resolve(import_node_path3.default.dirname(configFilePath), pattern.slice(2));
+  } else if (!import_node_path3.default.isAbsolute(pattern)) {
+    pattern = `**/${pattern}`;
+  }
+  if (pattern.endsWith("/")) {
+    pattern += "**";
+  }
+  return slash(pattern);
+};
+var gitConfigGlobToRegex = (pattern, flags) => {
+  let regex = "";
+  for (let index = 0; index < pattern.length; index++) {
+    const character = pattern[index];
+    const nextCharacter = pattern[index + 1];
+    const nextNextCharacter = pattern[index + 2];
+    if (character === "*" && nextCharacter === "*" && nextNextCharacter === "/") {
+      regex += "(?:.*/)?";
+      index += 2;
+      continue;
+    }
+    if (character === "*" && nextCharacter === "*") {
+      regex += ".*";
+      index += 1;
+      continue;
+    }
+    if (character === "*") {
+      regex += "[^/]*";
+      continue;
+    }
+    if (character === "?") {
+      regex += "[^/]";
+      continue;
+    }
+    if (character === "[") {
+      const closingBracketIndex = pattern.indexOf("]", index + 1);
+      if (closingBracketIndex !== -1) {
+        const bracketContent = pattern.slice(index + 1, closingBracketIndex);
+        if (bracketContent) {
+          const negatedBracketContent = bracketContent[0] === "!" ? `^${bracketContent.slice(1)}` : bracketContent;
+          regex += `[${negatedBracketContent}]`;
+          index = closingBracketIndex;
+          continue;
+        }
+      }
+    }
+    regex += /[|\\{}()[\]^$+?.]/.test(character) ? `\\${character}` : character;
+  }
+  try {
+    return new RegExp(`^${regex}$`, flags);
+  } catch (e) {
+    return /(?!)/;
+  }
+};
+var matchesIncludeIfCondition = (condition, gitDirectory, configFilePath) => {
+  if (!gitDirectory) {
+    return false;
+  }
+  const match = condition.match(/^(gitdir|gitdir\/i):(.*)$/i);
+  if (!match) {
+    return false;
+  }
+  const [, keyword, rawPattern] = match;
+  const pattern = normalizeGitConfigConditionPattern(rawPattern.trim(), configFilePath);
+  const isCaseInsensitive = keyword.toLowerCase() === "gitdir/i";
+  const regularExpression = gitConfigGlobToRegex(pattern, isCaseInsensitive ? "i" : void 0);
+  const normalizedGitDirectory = slash(import_node_path3.default.resolve(gitDirectory));
+  return regularExpression.test(normalizedGitDirectory);
+};
+var shouldIncludeConfigSection = (section, gitDirectory, configFilePath) => {
+  if ((section == null ? void 0 : section.toLowerCase()) === "include") {
+    return true;
+  }
+  const condition = parseIncludeIfCondition(section);
+  return condition ? matchesIncludeIfCondition(condition, gitDirectory, configFilePath) : false;
+};
+var createExcludesFileValue = (value, declaringFilePath) => ({
+  value,
+  declaringFilePath
+});
+var parseGitConfigForExcludesFile = (content, normalizedPath, gitDirectory) => {
+  let currentSection;
+  let excludesFile;
+  const includePaths = [];
+  for (const line of content.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#") || trimmed.startsWith(";")) {
+      continue;
+    }
+    if (trimmed.startsWith("[")) {
+      currentSection = parseGitConfigSection(trimmed);
+      continue;
+    }
+    const entry = parseGitConfigEntry(trimmed);
+    if (!entry) {
+      continue;
+    }
+    if ((currentSection == null ? void 0 : currentSection.toLowerCase()) === "core" && entry.key === "excludesfile") {
+      excludesFile = createExcludesFileValue(entry.value, normalizedPath);
+      continue;
+    }
+    if (shouldIncludeConfigSection(currentSection, gitDirectory, normalizedPath) && entry.key === "path" && entry.value) {
+      includePaths.push(resolveConfigPath(normalizedPath, entry.value));
+    }
+  }
+  return { excludesFile, includePaths };
+};
+var readGitConfigFile = (normalizedPath, readMethod, suppressErrors) => {
+  try {
+    return readMethod(normalizedPath, "utf8");
+  } catch (error) {
+    if (shouldSkipIgnoreFileError(error, suppressErrors)) {
+      return void 0;
+    }
+    throw createGitConfigReadError(normalizedPath, error);
+  }
+};
+var getExcludesFileFromGitConfigSync = (filePath, readFileSync, gitDirectory, options = {}) => {
+  const { suppressErrors, includeStack = /* @__PURE__ */ new Set(), depth = 0 } = options;
+  const normalizedPath = import_node_path3.default.resolve(filePath);
+  if (includeStack.has(normalizedPath)) {
+    return void 0;
+  }
+  if (depth >= MAX_INCLUDE_DEPTH) {
+    return void 0;
+  }
+  includeStack.add(normalizedPath);
+  const content = readGitConfigFile(normalizedPath, readFileSync, suppressErrors);
+  if (content === void 0) {
+    includeStack.delete(normalizedPath);
+    return void 0;
+  }
+  let { excludesFile, includePaths } = parseGitConfigForExcludesFile(content, normalizedPath, gitDirectory);
+  for (const includePath of includePaths) {
+    const includedExcludesFile = getExcludesFileFromGitConfigSync(includePath, readFileSync, gitDirectory, { suppressErrors, includeStack, depth: depth + 1 });
+    if (includedExcludesFile !== void 0) {
+      excludesFile = includedExcludesFile;
+    }
+  }
+  includeStack.delete(normalizedPath);
+  return excludesFile;
+};
+var getExcludesFileFromGitConfigAsync = (_0, _1, _2, ..._3) => __async(null, [_0, _1, _2, ..._3], function* (filePath, readFile, gitDirectory, options = {}) {
+  const { suppressErrors, includeStack = /* @__PURE__ */ new Set(), depth = 0 } = options;
+  const normalizedPath = import_node_path3.default.resolve(filePath);
+  if (includeStack.has(normalizedPath)) {
+    return void 0;
+  }
+  if (depth >= MAX_INCLUDE_DEPTH) {
+    return void 0;
+  }
+  includeStack.add(normalizedPath);
+  let content;
+  try {
+    content = yield readFile(normalizedPath, "utf8");
+  } catch (error) {
+    includeStack.delete(normalizedPath);
+    if (shouldSkipIgnoreFileError(error, suppressErrors)) {
+      return void 0;
+    }
+    throw createGitConfigReadError(normalizedPath, error);
+  }
+  let { excludesFile, includePaths } = parseGitConfigForExcludesFile(content, normalizedPath, gitDirectory);
+  for (const includePath of includePaths) {
+    const includedExcludesFile = yield getExcludesFileFromGitConfigAsync(includePath, readFile, gitDirectory, { suppressErrors, includeStack, depth: depth + 1 });
+    if (includedExcludesFile !== void 0) {
+      excludesFile = includedExcludesFile;
+    }
+  }
+  includeStack.delete(normalizedPath);
+  return excludesFile;
+});
+var resolveGitDirectoryFromFile = (gitFilePath, content) => {
+  const match = content.match(/^gitdir:\s*(.+?)\s*$/i);
+  if (!match) {
+    return gitFilePath;
+  }
+  return import_node_path3.default.resolve(import_node_path3.default.dirname(gitFilePath), match[1]);
+};
+var getGitDirectorySync = (gitRoot, readFileSync) => {
+  if (!gitRoot) {
+    return void 0;
+  }
+  const gitFilePath = import_node_path3.default.join(gitRoot, ".git");
+  try {
+    return resolveGitDirectoryFromFile(gitFilePath, readFileSync(gitFilePath, "utf8"));
+  } catch (e) {
+    return gitFilePath;
+  }
+};
+var getGitDirectoryAsync = (gitRoot, readFile) => __async(null, null, function* () {
+  if (!gitRoot) {
+    return void 0;
+  }
+  const gitFilePath = import_node_path3.default.join(gitRoot, ".git");
+  try {
+    return resolveGitDirectoryFromFile(gitFilePath, yield readFile(gitFilePath, "utf8"));
+  } catch (e) {
+    return gitFilePath;
+  }
+});
+var getXdgConfigHome = () => import_node_process.default.env.XDG_CONFIG_HOME || import_node_path3.default.join(import_node_os.default.homedir(), ".config");
+var getGitConfigPaths = () => {
+  if ("GIT_CONFIG_GLOBAL" in import_node_process.default.env) {
+    const value = import_node_process.default.env.GIT_CONFIG_GLOBAL;
+    return value ? [value] : [];
+  }
+  return [
+    import_node_path3.default.join(getXdgConfigHome(), "git", "config"),
+    import_node_path3.default.join(import_node_os.default.homedir(), ".gitconfig")
+  ];
+};
+var getDefaultGlobalGitignorePath = () => import_node_path3.default.join(getXdgConfigHome(), "git", "ignore");
+var resolveExcludesFilePath = (excludesFileConfig) => {
+  if ((excludesFileConfig == null ? void 0 : excludesFileConfig.value) === "") {
+    return void 0;
+  }
+  if (excludesFileConfig === void 0) {
+    return getDefaultGlobalGitignorePath();
+  }
+  return resolveConfigPath(excludesFileConfig.declaringFilePath, excludesFileConfig.value);
+};
+var readGlobalGitignoreContent = (filePath, readMethod, suppressErrors) => {
+  try {
+    const content = readMethod(filePath, "utf8");
+    return { filePath, content };
+  } catch (error) {
+    if (shouldSkipIgnoreFileError(error, suppressErrors)) {
+      return void 0;
+    }
+    throw createIgnoreFileReadError(filePath, error);
+  }
+};
+var getGlobalGitignoreFile = (options = {}) => {
+  var _a2;
+  const cwd = (_a2 = toPath(options.cwd)) != null ? _a2 : import_node_process.default.cwd();
+  const readFileSync = getReadFileSyncMethod(options.fs);
+  const gitRoot = findGitRootSync(cwd, options.fs);
+  const gitDirectory = getGitDirectorySync(gitRoot, readFileSync);
+  let excludesFileConfig;
+  for (const gitConfigPath of getGitConfigPaths()) {
+    const value = getExcludesFileFromGitConfigSync(gitConfigPath, readFileSync, gitDirectory, { suppressErrors: options.suppressErrors });
+    if (value !== void 0) {
+      excludesFileConfig = value;
+    }
+  }
+  const filePath = resolveExcludesFilePath(excludesFileConfig);
+  return filePath === void 0 ? void 0 : readGlobalGitignoreContent(filePath, readFileSync, options.suppressErrors);
+};
+var getGlobalGitignoreFileAsync = (..._0) => __async(null, [..._0], function* (options = {}) {
+  var _a2;
+  const cwd = (_a2 = toPath(options.cwd)) != null ? _a2 : import_node_process.default.cwd();
+  const readFile = getReadFileMethod(options.fs);
+  const gitRoot = yield findGitRoot(cwd, options.fs);
+  const gitDirectory = yield getGitDirectoryAsync(gitRoot, readFile);
+  const excludesFileValues = yield Promise.all(getGitConfigPaths().map((gitConfigPath) => getExcludesFileFromGitConfigAsync(
+    gitConfigPath,
+    readFile,
+    gitDirectory,
+    { suppressErrors: options.suppressErrors }
+  )));
+  const excludesFileConfig = excludesFileValues.findLast((value) => value !== void 0);
+  const filePath = resolveExcludesFilePath(excludesFileConfig);
+  if (filePath === void 0) {
+    return void 0;
+  }
+  try {
+    const content = yield readFile(filePath, "utf8");
+    return { filePath, content };
+  } catch (error) {
+    if (shouldSkipIgnoreFileError(error, options.suppressErrors)) {
+      return void 0;
+    }
+    throw createIgnoreFileReadError(filePath, error);
+  }
+});
+var buildGlobalMatcher = (globalIgnoreFile, cwd, rootDirectory = cwd) => {
+  const patterns = parseIgnoreFile(globalIgnoreFile, import_node_path3.default.dirname(globalIgnoreFile.filePath));
+  return createIgnoreMatcher(patterns, cwd, rootDirectory);
 };
 var collectIgnoreFileArtifactsAsync = (patterns, options, includeParentIgnoreFiles) => __async(null, null, function* () {
   const normalizedOptions = normalizeOptions(options);
@@ -13287,8 +13696,11 @@ var assertPatternsInput = (patterns) => {
   }
 };
 var getStatMethod = (fsImplementation) => {
-  var _a2, _b2;
-  return (_b2 = (_a2 = bindFsMethod(fsImplementation == null ? void 0 : fsImplementation.promises, "stat")) != null ? _a2 : bindFsMethod(import_node_fs3.default.promises, "stat")) != null ? _b2 : promisifyFsMethod(fsImplementation, "stat");
+  var _a2;
+  if (fsImplementation) {
+    return (_a2 = bindFsMethod(fsImplementation.promises, "stat")) != null ? _a2 : promisifyFsMethod(fsImplementation, "stat");
+  }
+  return bindFsMethod(import_node_fs3.default.promises, "stat");
 };
 var getStatSyncMethod2 = (fsImplementation) => {
   var _a2;
@@ -13399,48 +13811,173 @@ var getIgnoreFilesPatterns = (options) => {
   }
   return patterns;
 };
-var applyIgnoreFilesAndGetFilter = (options) => __async(null, null, function* () {
-  const ignoreFilesPatterns = getIgnoreFilesPatterns(options);
-  if (ignoreFilesPatterns.length === 0) {
-    return {
-      options,
-      filter: createFilterFunction(false, options.cwd)
-    };
+var isPathIgnored = (matcher, globalMatcher, path5) => {
+  const globalResult = globalMatcher ? globalMatcher(path5) : void 0;
+  const result = matcher ? matcher(path5) : void 0;
+  if (result == null ? void 0 : result.unignored) {
+    return false;
   }
-  const includeParentIgnoreFiles = options.gitignore === true;
-  const { patterns, predicate, usingGitRoot } = yield getIgnorePatternsAndPredicate(ignoreFilesPatterns, options, includeParentIgnoreFiles);
-  const patternsForFastGlob = convertPatternsForFastGlob(patterns, usingGitRoot, normalizeDirectoryPatternForFastGlob);
-  const modifiedOptions = __spreadProps(__spreadValues({}, options), {
-    ignore: [...options.ignore, ...patternsForFastGlob]
-  });
-  return {
-    options: modifiedOptions,
-    filter: createFilterFunction(predicate, options.cwd)
-  };
-});
-var applyIgnoreFilesAndGetFilterSync = (options) => {
-  const ignoreFilesPatterns = getIgnoreFilesPatterns(options);
-  if (ignoreFilesPatterns.length === 0) {
-    return {
-      options,
-      filter: createFilterFunction(false, options.cwd)
-    };
+  return Boolean((result == null ? void 0 : result.ignored) || (globalResult == null ? void 0 : globalResult.ignored));
+};
+var hasIgnoredAncestorDirectory = (matcher, globalMatcher, file) => {
+  let currentPath = file;
+  while (true) {
+    const parentDirectory = import_node_path4.default.dirname(currentPath);
+    if (parentDirectory === currentPath) {
+      return false;
+    }
+    if (isPathIgnored(matcher, globalMatcher, `${parentDirectory}${import_node_path4.default.sep}`)) {
+      return true;
+    }
+    currentPath = parentDirectory;
   }
-  const includeParentIgnoreFiles = options.gitignore === true;
-  const { patterns, predicate, usingGitRoot } = getIgnorePatternsAndPredicateSync(ignoreFilesPatterns, options, includeParentIgnoreFiles);
-  const patternsForFastGlob = convertPatternsForFastGlob(patterns, usingGitRoot, normalizeDirectoryPatternForFastGlob);
-  const modifiedOptions = __spreadProps(__spreadValues({}, options), {
-    ignore: [...options.ignore, ...patternsForFastGlob]
-  });
-  return {
-    options: modifiedOptions,
-    filter: createFilterFunction(predicate, options.cwd)
+};
+var combinePredicate = (matcher, globalMatcher) => {
+  if (!matcher && !globalMatcher) {
+    return false;
+  }
+  return (file) => {
+    const result = matcher ? matcher(file) : void 0;
+    if (result == null ? void 0 : result.unignored) {
+      const globalResult = globalMatcher ? globalMatcher(file) : void 0;
+      return (globalResult == null ? void 0 : globalResult.ignored) && hasIgnoredAncestorDirectory(matcher, globalMatcher, file);
+    }
+    return isPathIgnored(matcher, globalMatcher, file);
   };
 };
-var createFilterFunction = (isIgnored, cwd) => {
-  const seen = /* @__PURE__ */ new Set();
+var buildIgnoreFilterResult = (options, cwd, { patterns, matcher, usingGitRoot }, globalMatcher, createFilter) => {
+  const finalPredicate = combinePredicate(matcher, globalMatcher);
+  const patternsForFastGlob = convertPatternsForFastGlob(patterns, usingGitRoot, normalizeDirectoryPatternForFastGlob);
+  return {
+    options: __spreadProps(__spreadValues({}, options), {
+      ignore: [...options.ignore, ...patternsForFastGlob]
+    }),
+    filter: createFilter(finalPredicate, cwd, options.fs)
+  };
+};
+var applyIgnoreFilesAndGetFilter = (options) => __async(null, null, function* () {
+  var _a2;
+  const cwd = (_a2 = options.cwd) != null ? _a2 : import_node_process2.default.cwd();
+  const ignoreFilesPatterns = getIgnoreFilesPatterns(options);
+  const globalIgnoreFile = options.globalGitignore ? yield getGlobalGitignoreFileAsync(options) : void 0;
+  if (ignoreFilesPatterns.length === 0 && !globalIgnoreFile) {
+    return {
+      options,
+      filter: createFilterFunctionAsync(false, cwd, options.fs)
+    };
+  }
+  const includeParentIgnoreFiles = options.gitignore === true;
+  const ignoreResult = ignoreFilesPatterns.length > 0 ? yield getIgnorePatternsAndPredicate(ignoreFilesPatterns, options, includeParentIgnoreFiles) : { patterns: [], matcher: false, usingGitRoot: false };
+  const globalGitRoot = globalIgnoreFile ? yield findGitRoot(cwd, options.fs) : void 0;
+  const globalMatcher = globalIgnoreFile ? buildGlobalMatcher(globalIgnoreFile, cwd, globalGitRoot != null ? globalGitRoot : cwd) : void 0;
+  return buildIgnoreFilterResult(options, cwd, ignoreResult, globalMatcher, createFilterFunctionAsync);
+});
+var applyIgnoreFilesAndGetFilterSync = (options) => {
+  var _a2;
+  const cwd = (_a2 = options.cwd) != null ? _a2 : import_node_process2.default.cwd();
+  const ignoreFilesPatterns = getIgnoreFilesPatterns(options);
+  const globalIgnoreFile = options.globalGitignore ? getGlobalGitignoreFile(options) : void 0;
+  if (ignoreFilesPatterns.length === 0 && !globalIgnoreFile) {
+    return {
+      options,
+      filter: createFilterFunction(false, cwd, options.fs)
+    };
+  }
+  const includeParentIgnoreFiles = options.gitignore === true;
+  const ignoreResult = ignoreFilesPatterns.length > 0 ? getIgnorePatternsAndPredicateSync(ignoreFilesPatterns, options, includeParentIgnoreFiles) : { patterns: [], matcher: false, usingGitRoot: false };
+  const globalGitRoot = globalIgnoreFile ? findGitRootSync(cwd, options.fs) : void 0;
+  const globalMatcher = globalIgnoreFile ? buildGlobalMatcher(globalIgnoreFile, cwd, globalGitRoot != null ? globalGitRoot : cwd) : void 0;
+  return buildIgnoreFilterResult(options, cwd, ignoreResult, globalMatcher, createFilterFunction);
+};
+var assertGlobalGitignoreSyncSupport = (options) => {
+  if (options.globalGitignore && options.fs && !options.fs.statSync) {
+    throw new Error("The `globalGitignore` option in `globbySync()` requires `fs.statSync` when a custom `fs` is provided.");
+  }
+};
+var globalGitignoreAsyncStatErrorMessage = "The `globalGitignore` option in `globby()` and `globbyStream()` requires `fs.promises.stat` or `fs.stat` when a custom `fs` is provided.";
+var assertGlobalGitignoreAsyncSupport = (options) => {
+  var _a2;
+  if (!options.globalGitignore || !options.fs) {
+    return;
+  }
+  if (!((_a2 = options.fs.promises) == null ? void 0 : _a2.stat) && !options.fs.stat) {
+    throw new Error(globalGitignoreAsyncStatErrorMessage);
+  }
+};
+var createPathResolver = (cwd) => {
   const basePath = cwd || import_node_process2.default.cwd();
   const pathCache = /* @__PURE__ */ new Map();
+  return (pathKey) => {
+    let absolutePath = pathCache.get(pathKey);
+    if (absolutePath === void 0) {
+      if (pathCache.size > 1e4) {
+        pathCache.clear();
+      }
+      absolutePath = import_node_path4.default.isAbsolute(pathKey) ? pathKey : import_node_path4.default.resolve(basePath, pathKey);
+      pathCache.set(pathKey, absolutePath);
+    }
+    return absolutePath;
+  };
+};
+var createAsyncDirectoryCheck = (fsMethod) => {
+  const directoryCache = /* @__PURE__ */ new Map();
+  return (absolutePath) => __async(null, null, function* () {
+    let isDirectory2 = directoryCache.get(absolutePath);
+    if (isDirectory2 !== void 0) {
+      return isDirectory2;
+    }
+    try {
+      const stats = yield fsMethod == null ? void 0 : fsMethod(absolutePath);
+      isDirectory2 = Boolean(stats == null ? void 0 : stats.isDirectory());
+    } catch (e) {
+      isDirectory2 = false;
+    }
+    if (directoryCache.size > 1e4) {
+      directoryCache.clear();
+    }
+    directoryCache.set(absolutePath, isDirectory2);
+    return isDirectory2;
+  });
+};
+var createDirectoryCheck = (fsMethod) => {
+  const directoryCache = /* @__PURE__ */ new Map();
+  return (absolutePath) => {
+    var _a2;
+    let isDirectory2 = directoryCache.get(absolutePath);
+    if (isDirectory2 !== void 0) {
+      return isDirectory2;
+    }
+    try {
+      isDirectory2 = Boolean((_a2 = fsMethod == null ? void 0 : fsMethod(absolutePath)) == null ? void 0 : _a2.isDirectory());
+    } catch (e) {
+      isDirectory2 = false;
+    }
+    if (directoryCache.size > 1e4) {
+      directoryCache.clear();
+    }
+    directoryCache.set(absolutePath, isDirectory2);
+    return isDirectory2;
+  };
+};
+var createFilterFunctionAsync = (isIgnored, cwd, fsImplementation) => {
+  const resolveAbsolutePath = createPathResolver(cwd);
+  const isDirectoryEntry = createAsyncDirectoryCheck(getStatMethod(fsImplementation));
+  return (fastGlobResult) => __async(null, null, function* () {
+    var _a2;
+    if (!isIgnored) {
+      return true;
+    }
+    const absolutePath = resolveAbsolutePath(import_node_path4.default.normalize((_a2 = fastGlobResult.path) != null ? _a2 : fastGlobResult));
+    if (isIgnored(absolutePath)) {
+      return false;
+    }
+    return !((yield isDirectoryEntry(absolutePath)) && isIgnored(`${absolutePath}${import_node_path4.default.sep}`));
+  });
+};
+var createFilterFunction = (isIgnored, cwd, fsImplementation) => {
+  const seen = /* @__PURE__ */ new Set();
+  const resolveAbsolutePath = createPathResolver(cwd);
+  const isDirectoryEntry = createDirectoryCheck(getStatSyncMethod2(fsImplementation));
   return (fastGlobResult) => {
     var _a2;
     const pathKey = import_node_path4.default.normalize((_a2 = fastGlobResult.path) != null ? _a2 : fastGlobResult);
@@ -13448,15 +13985,11 @@ var createFilterFunction = (isIgnored, cwd) => {
       return false;
     }
     if (isIgnored) {
-      let absolutePath = pathCache.get(pathKey);
-      if (absolutePath === void 0) {
-        absolutePath = import_node_path4.default.isAbsolute(pathKey) ? pathKey : import_node_path4.default.resolve(basePath, pathKey);
-        pathCache.set(pathKey, absolutePath);
-        if (pathCache.size > 1e4) {
-          pathCache.clear();
-        }
-      }
+      const absolutePath = resolveAbsolutePath(pathKey);
       if (isIgnored(absolutePath)) {
+        return false;
+      }
+      if (isDirectoryEntry(absolutePath) && isIgnored(`${absolutePath}${import_node_path4.default.sep}`)) {
         return false;
       }
     }
@@ -13465,6 +13998,23 @@ var createFilterFunction = (isIgnored, cwd) => {
   };
 };
 var unionFastGlobResults = (results, filter) => results.flat().filter((fastGlobResult) => filter(fastGlobResult));
+var unionFastGlobResultsAsync = (results, filter) => __async(null, null, function* () {
+  results = results.flat();
+  const matches = yield Promise.all(results.map((fastGlobResult) => filter(fastGlobResult)));
+  const seen = /* @__PURE__ */ new Set();
+  return results.filter((fastGlobResult, index) => {
+    var _a2;
+    if (!matches[index]) {
+      return false;
+    }
+    const pathKey = import_node_path4.default.normalize((_a2 = fastGlobResult.path) != null ? _a2 : fastGlobResult);
+    if (seen.has(pathKey)) {
+      return false;
+    }
+    seen.add(pathKey);
+    return true;
+  });
+});
 var convertNegativePatterns = (patterns, options) => {
   if (patterns.length > 0 && patterns.every((pattern) => isNegativePattern(pattern))) {
     if (options.expandNegationOnlyPatterns === false) {
@@ -13562,25 +14112,52 @@ var generateTasksSync = (patterns, options) => {
   });
 };
 var globby = normalizeArguments((patterns, options) => __async(null, null, function* () {
+  assertGlobalGitignoreAsyncSupport(options);
   const { options: modifiedOptions, filter } = yield applyIgnoreFilesAndGetFilter(options);
   const tasks = yield generateTasks(patterns, modifiedOptions);
   const results = yield Promise.all(tasks.map((task) => (0, import_fast_glob3.default)(task.patterns, task.options)));
-  return unionFastGlobResults(results, filter);
+  return unionFastGlobResultsAsync(results, filter);
 }));
 var globbySync = normalizeArgumentsSync((patterns, options) => {
+  assertGlobalGitignoreSyncSupport(options);
   const { options: modifiedOptions, filter } = applyIgnoreFilesAndGetFilterSync(options);
   const tasks = generateTasksSync(patterns, modifiedOptions);
   const results = tasks.map((task) => import_fast_glob3.default.sync(task.patterns, task.options));
   return unionFastGlobResults(results, filter);
 });
 var globbyStream = normalizeArgumentsSync((patterns, options) => {
-  const { options: modifiedOptions, filter } = applyIgnoreFilesAndGetFilterSync(options);
-  const tasks = generateTasksSync(patterns, modifiedOptions);
-  const streams = tasks.map((task) => import_fast_glob3.default.stream(task.patterns, task.options));
-  if (streams.length === 0) {
-    return import_node_stream2.Readable.from([]);
-  }
-  const stream = mergeStreams(streams).filter((fastGlobResult) => filter(fastGlobResult));
+  assertGlobalGitignoreAsyncSupport(options);
+  const seen = /* @__PURE__ */ new Set();
+  const stream = import_node_stream2.Readable.from((function() {
+    return __asyncGenerator(this, null, function* () {
+      var _a2;
+      const { options: modifiedOptions, filter } = yield new __await(applyIgnoreFilesAndGetFilter(options));
+      const tasks = yield new __await(generateTasks(patterns, modifiedOptions));
+      if (tasks.length === 0) {
+        return;
+      }
+      const streams = tasks.map((task) => import_fast_glob3.default.stream(task.patterns, task.options));
+      try {
+        for (var iter = __forAwait(mergeStreams(streams)), more, temp, error; more = !(temp = yield new __await(iter.next())).done; more = false) {
+          const fastGlobResult = temp.value;
+          const pathKey = import_node_path4.default.normalize((_a2 = fastGlobResult.path) != null ? _a2 : fastGlobResult);
+          if (!seen.has(pathKey) && (yield new __await(filter(fastGlobResult)))) {
+            seen.add(pathKey);
+            yield fastGlobResult;
+          }
+        }
+      } catch (temp) {
+        error = [temp];
+      } finally {
+        try {
+          more && (temp = iter.return) && (yield new __await(temp.call(iter)));
+        } finally {
+          if (error)
+            throw error[0];
+        }
+      }
+    });
+  })());
   return stream;
 });
 var isDynamicPattern = normalizeArgumentsSync((patterns, options) => patterns.some((pattern) => import_fast_glob3.default.isDynamicPattern(pattern, options)));
@@ -14185,6 +14762,8 @@ var Alias = class extends NodeBase {
    * instance of the `source` anchor before this node.
    */
   resolve(doc, ctx) {
+    if ((ctx == null ? void 0 : ctx.maxAliasCount) === 0)
+      throw new ReferenceError("Alias resolution is disabled");
     let nodes;
     if (ctx == null ? void 0 : ctx.aliasResolveCache) {
       nodes = ctx.aliasResolveCache;
@@ -15173,18 +15752,18 @@ var merge = {
 };
 var isMergeKey = (ctx, key) => (merge.identify(key) || isScalar(key) && (!key.type || key.type === Scalar.PLAIN) && merge.identify(key.value)) && (ctx == null ? void 0 : ctx.doc.schema.tags.some((tag) => tag.tag === merge.tag && tag.default));
 function addMergeToJSMap(ctx, map2, value) {
-  value = ctx && isAlias(value) ? value.resolve(ctx.doc) : value;
-  if (isSeq(value))
-    for (const it of value.items)
+  const source = resolveAliasValue(ctx, value);
+  if (isSeq(source))
+    for (const it of source.items)
       mergeValue(ctx, map2, it);
-  else if (Array.isArray(value))
-    for (const it of value)
+  else if (Array.isArray(source))
+    for (const it of source)
       mergeValue(ctx, map2, it);
   else
-    mergeValue(ctx, map2, value);
+    mergeValue(ctx, map2, source);
 }
 function mergeValue(ctx, map2, value) {
-  const source = ctx && isAlias(value) ? value.resolve(ctx.doc) : value;
+  const source = resolveAliasValue(ctx, value);
   if (!isMap(source))
     throw new Error("Merge sources must be maps or map aliases");
   const srcMap = source.toJSON(null, ctx, Map);
@@ -15204,6 +15783,9 @@ function mergeValue(ctx, map2, value) {
     }
   }
   return map2;
+}
+function resolveAliasValue(ctx, value) {
+  return ctx && isAlias(value) ? value.resolve(ctx.doc, ctx) : value;
 }
 
 // node_modules/yaml/browser/dist/nodes/addPairToJSMap.js
@@ -15744,7 +16326,7 @@ function stringifyNumber({ format, minFractionDigits, tag, value }) {
   if (!isFinite(num))
     return isNaN(num) ? ".nan" : num < 0 ? "-.inf" : ".inf";
   let n4 = Object.is(value, -0) ? "-0" : JSON.stringify(value);
-  if (!format && minFractionDigits && (!tag || tag === "tag:yaml.org,2002:float") && /^\d/.test(n4)) {
+  if (!format && minFractionDigits && (!tag || tag === "tag:yaml.org,2002:float") && /^-?\d/.test(n4) && !n4.includes("e")) {
     let i = n4.indexOf(".");
     if (i < 0) {
       i = n4.length;
@@ -17818,7 +18400,7 @@ function doubleQuotedValue(source, onError) {
         while (next === " " || next === "	")
           next = source[++i + 1];
       } else if (next === "x" || next === "u" || next === "U") {
-        const length = { x: 2, u: 4, U: 8 }[next];
+        const length = next === "x" ? 2 : next === "u" ? 4 : 8;
         res += parseCharCode(source, i + 1, length, onError);
         i += length;
       } else {
@@ -17893,12 +18475,13 @@ function parseCharCode(source, offset, length, onError) {
   const cc = source.substr(offset, length);
   const ok = cc.length === length && /^[0-9a-fA-F]+$/.test(cc);
   const code = ok ? parseInt(cc, 16) : NaN;
-  if (isNaN(code)) {
+  try {
+    return String.fromCodePoint(code);
+  } catch (e) {
     const raw = source.substr(offset - 2, length + 2);
     onError(offset - 2, "BAD_DQ_ESCAPE", `Invalid escape sequence ${raw}`);
     return raw;
   }
-  return String.fromCodePoint(code);
 }
 
 // node_modules/yaml/browser/dist/compose/compose-scalar.js

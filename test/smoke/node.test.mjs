@@ -71,7 +71,10 @@ import 'zx/globals'
     const sync = which.sync('node')
     assert.equal(async, sync)
     assert.ok(async && async.length > 0)
-    assert.equal(which.sync('definitely-not-a-real-bin', { nothrow: true }), null)
+    assert.equal(
+      which.sync('definitely-not-a-real-bin', { nothrow: true }),
+      null
+    )
   }
 
   // abort controller

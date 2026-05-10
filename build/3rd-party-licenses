@@ -60,7 +60,7 @@ fill-range@7.1.1
   jonschlinkert/fill-range
   MIT
 
-fs-extra@11.3.4
+fs-extra@11.3.5
   JP Richardson <jprichardson@gmail.com>
   git+https://github.com/jprichardson/node-fs-extra.git
   MIT
@@ -70,7 +70,7 @@ glob-parent@5.1.2
   gulpjs/glob-parent
   ISC
 
-globby@16.1.1
+globby@16.2.0
   Sindre Sorhus <sindresorhus@gmail.com>
   sindresorhus/globby
   MIT
@@ -135,12 +135,12 @@ unicorn-magic@0.4.0
   sindresorhus/unicorn-magic
   MIT
 
-which@6.0.1
+which@7.0.0
   GitHub Inc.
   git+https://github.com/npm/node-which.git
   ISC
 
-yaml@2.8.3
+yaml@2.8.4
   Eemeli Aro <eemeli@gmail.com>
   github:eemeli/yaml
   ISC
