@@ -62,7 +62,7 @@ function parseDeps(content) {
 }
 function parsePackageName(path) {
   var _a, _b;
-  if (!path) return;
+  if (!path || path.includes(":")) return;
   const name = (_b = (_a = nameRe.exec(path)) == null ? void 0 : _a.groups) == null ? void 0 : _b.name;
   if (name && !builtins.has(name)) return name;
 }

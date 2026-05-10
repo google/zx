@@ -120,6 +120,12 @@ describe('deps', () => {
         [`require('@')`, {}],
         [`require('@/_foo')`, {}],
         [`require('@foo')`, {}],
+        // ignores protocol specifiers
+        [`import fs from 'node:fs'`, {}],
+        [`require('node:path')`, {}],
+        [`import('node:crypto')`, {}],
+        [`import { promises } from 'node:fs/promises'`, {}],
+        [`import * as assert from 'node:assert/strict'`, {}],
       ].forEach(([input, result]) => {
         assert.deepEqual(parseDeps(input), result)
       })

@@ -86,7 +86,7 @@ export function parseDeps(content: string): Record<string, string> {
 }
 
 function parsePackageName(path?: string): string | undefined {
-  if (!path) return
+  if (!path || path.includes(':')) return
 
   const name = nameRe.exec(path)?.groups?.name
   if (name && !builtins.has(name)) return name
