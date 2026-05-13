@@ -313,6 +313,22 @@ type Options$1 = {
 	*/
 	readonly cwd?: URL | string;
 } & FastGlobOptionsWithoutCwd;
+type GlobbyOptions = Options$1 & {
+	/**
+	Respect ignore patterns in the global gitignore file configured via `git config core.excludesfile`.
+
+	Values from `[include]` and `gitdir` or `gitdir/i` `[includeIf]` sections inside those user-level config files are also respected.
+
+	Patterns in the global gitignore are treated as root-level patterns, matching Git's own behavior.
+
+	This option only reads the user-level Git config (`GIT_CONFIG_GLOBAL`, `$XDG_CONFIG_HOME/git/config`, and `~/.gitconfig`). When `core.excludesfile` is unset, it falls back to Git's default user-level ignore file at `$XDG_CONFIG_HOME/git/ignore` or `~/.config/git/ignore`. Repository `.git/config` and system config are intentionally not consulted. Other `includeIf` predicates such as `onbranch:` are intentionally not supported.
+
+	When used with a custom `fs`, `globby()` and `globbyStream()` also require `fs.promises.stat` or `fs.stat`, and `globbySync()` requires `statSync`.
+
+	@default false
+	*/
+	readonly globalGitignore?: boolean;
+};
 type GitignoreOptions = {
 	/**
 	The current working directory in which to search.
@@ -361,6 +377,8 @@ type GitignoreOptions = {
 	/**
 	Custom file system implementation (useful for testing or virtual file systems).
 
+	The custom fs must also provide `readFile`/`readFileSync` methods.
+
 	@default undefined
 	*/
 	readonly fs?: FastGlob.Options["fs"];
@@ -371,24 +389,24 @@ type AsyncIterableReadable<Value> = Omit<NodeJS.ReadableStream, typeof Symbol.as
 };
 type GlobbyStream = AsyncIterableReadable<string>;
 type GlobbyEntryStream = AsyncIterableReadable<GlobEntry>;
-declare function globby(patterns: string | readonly string[], options: Options$1 & ({
+declare function globby(patterns: string | readonly string[], options: GlobbyOptions & ({
 	objectMode: true;
 } | {
 	stats: true;
 })): Promise<GlobEntry[]>;
-declare function globby(patterns: string | readonly string[], options?: Options$1): Promise<string[]>;
-declare function globbySync(patterns: string | readonly string[], options: Options$1 & ({
+declare function globby(patterns: string | readonly string[], options?: GlobbyOptions): Promise<string[]>;
+declare function globbySync(patterns: string | readonly string[], options: GlobbyOptions & ({
 	objectMode: true;
 } | {
 	stats: true;
 })): GlobEntry[];
-declare function globbySync(patterns: string | readonly string[], options?: Options$1): string[];
-declare function globbyStream(patterns: string | readonly string[], options: Options$1 & ({
+declare function globbySync(patterns: string | readonly string[], options?: GlobbyOptions): string[];
+declare function globbyStream(patterns: string | readonly string[], options: GlobbyOptions & ({
 	objectMode: true;
 } | {
 	stats: true;
 })): GlobbyEntryStream;
-declare function globbyStream(patterns: string | readonly string[], options?: Options$1): GlobbyStream;
+declare function globbyStream(patterns: string | readonly string[], options?: GlobbyOptions): GlobbyStream;
 declare function generateGlobTasks(patterns: string | readonly string[], options?: Options$1): Promise<GlobTask[]>;
 declare function generateGlobTasksSync(patterns: string | readonly string[], options?: Options$1): GlobTask[];
 declare function isDynamicPattern(patterns: string | readonly string[], options?: FastGlobOptionsWithoutCwd & {
