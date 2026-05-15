@@ -367,6 +367,31 @@ console.log(a);
     assert.equal((await $`node build/cli.js -e='echo(69)'`).stdout, '69\n')
   })
 
+  test('eval does not write through dangling symlink temp path', async (t) => {
+    const cwd = tmpdir()
+    const target = path.join(cwd, 'created-through-symlink')
+    const link = path.join(cwd, 'zx.mjs')
+
+    try {
+      fs.symlinkSync(target, link)
+    } catch {
+      await fs.remove(cwd)
+      t.skip('symlink creation is unavailable')
+      return
+    }
+
+    try {
+      const out =
+        await $`node build/cli.js --cwd=${cwd} --eval 'console.log("ok")'`
+
+      assert.equal(out.stdout, 'ok\n')
+      assert.equal(fs.existsSync(target), false)
+      assert.equal(fs.lstatSync(link).isSymbolicLink(), true)
+    } finally {
+      await fs.remove(cwd)
+    }
+  })
+
   test('eval works with stdin', async () => {
     const p = $`(printf foo; sleep 0.1; printf bar) | node build/cli.js --eval 'echo(await stdin())'`
     assert.equal((await p).stdout, 'foobar\n')

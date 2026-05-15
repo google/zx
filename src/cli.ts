@@ -294,5 +294,15 @@ function getFilepath(cwd = '.', name = 'zx', _ext?: string): string {
     name + '-' + randomId() + ext,
   ]
     .map(f => path.resolve(process.cwd(), cwd, f))
-    .find(f => !fs.existsSync(f))!
+    .find(f => !existsNoFollow(f))!
+}
+
+function existsNoFollow(p: string): boolean {
+  try {
+    fs.lstatSync(p)
+    return true
+  } catch (err: any) {
+    if (err?.code === 'ENOENT') return false
+    throw err
+  }
 }
