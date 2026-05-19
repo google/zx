@@ -22,8 +22,21 @@ describe('transformMarkdown()', () => {
       assert.equal(transformMarkdown('\n'), '// \n// ')
     })
 
-    test('preserves tab-indented blocks after a blank line (legacy behavior)', () => {
-      assert.equal(transformMarkdown('  \n    '), '  \n    ')
+    test('preserves 4+ space indented blocks after a blank line (CommonMark)', () => {
+      assert.equal(transformMarkdown('    \n    '), '    \n    ')
+    })
+
+    test('does NOT treat 2-space indented list-item continuation as code (#1388)', () => {
+      // CommonMark: indented code blocks require 4+ spaces. A 2-space-indented
+      // line after a blank line under a list item is list continuation prose,
+      // not code. Treating it as code throws SyntaxError on the next eval.
+      const input = `- on localhost
+
+  This assumes you have a local node running
+`
+      const result = transformMarkdown(input)
+      // Prose line must be commented, not left as raw code.
+      assert.ok(!/^  This assumes/m.test(result), 'expected prose line to not be left as raw code')
     })
 
     test('does not treat a mid-paragraph fence as a fenced block (legacy behavior)', () => {
