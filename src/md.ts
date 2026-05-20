@@ -17,7 +17,7 @@ import { bufToString } from './util.ts'
 
 export function transformMarkdown(buf: Buffer | string): string {
   const out: string[] = []
-  const tabRe = /^(    +|\t)/
+  const tabRe = /^( {4,}|\t)/
   const fenceRe =
     /^(?<indent> {0,3})(?<fence>(`{3,20}|~{3,20}))(?:(?<js>js|javascript|ts|typescript)|(?<bash>sh|shell|bash)|.*)$/
 
