@@ -339,6 +339,7 @@ function injectGlobalRequire(origin) {
 }
 function isMain(meta = import_meta_url, scriptpath = import_node_process2.default.argv[1]) {
   if (typeof meta === "string") {
+    if (isDenoJsrMain(meta)) return true;
     if (meta.startsWith("file:")) {
       const modulePath = import_node_url.default.fileURLToPath(meta).replace(/\.\w+$/, "");
       const mainPath = import_index.fs.realpathSync(scriptpath).replace(/\.\w+$/, "");
@@ -346,10 +347,19 @@ function isMain(meta = import_meta_url, scriptpath = import_node_process2.defaul
     }
     return false;
   }
-  return !!meta.main;
+  return !!meta.main || isDenoJsrMain(meta.url);
 }
 function normalizeExt(ext) {
   return ext ? import_index.path.parse(`foo.${ext}`).ext : ext;
+}
+function isDenoJsrMain(metaUrl) {
+  var _a2;
+  const mainModule = (_a2 = globalThis.Deno) == null ? void 0 : _a2.mainModule;
+  if (!(mainModule == null ? void 0 : mainModule.startsWith("jsr:@webpod/zx"))) return false;
+  const normalize = (s) => s.replace("/./", "/").replace(/\/\.?$/, "");
+  const main2 = normalize(mainModule);
+  const current = normalize(metaUrl);
+  return current === "jsr:@webpod/zx/cli" && (main2 === "jsr:@webpod/zx" || main2 === "jsr:@webpod/zx/cli");
 }
 function getFilepath(cwd = ".", name = "zx", _ext) {
   const ext = _ext || argv.ext || EXT;
