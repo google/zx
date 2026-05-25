@@ -240,6 +240,49 @@ syncProcessCwd()
 syncProcessCwd(false) // pass false to disable the hook
 ```
 
+Use this when code inside separate async contexts relies on `process.cwd()` or
+relative paths in Node APIs. Without the hook, `cd()` still changes the process
+directory globally, while `within()` restores only the internal `$` context:
+
+```js
+const start = process.cwd()
+
+await within(async () => {
+  cd('/tmp/project')
+  await fs.pathExists('package.json') // resolves from /tmp/project
+})
+
+await within(async () => {
+  process.cwd() // => /tmp/project
+  await $`pwd` // => start
+})
+```
+
+With the hook enabled, each async callback gets `process.cwd()` restored from
+the `$` context before it runs:
+
+```js
+syncProcessCwd()
+
+try {
+  await within(async () => {
+    cd('/tmp/project')
+    await fs.pathExists('package.json') // resolves from /tmp/project
+  })
+
+  await within(async () => {
+    process.cwd() // => start
+    await $`pwd` // => start
+  })
+} finally {
+  syncProcessCwd(false)
+}
+```
+
+If only `zx` commands need a different directory, prefer setting `$.cwd` inside
+the `within()` callback. Enable `syncProcessCwd()` when non-`zx` code also needs
+relative paths to follow that context.
+
 > This feature is disabled by default because of performance overhead.
 
 ## `retry()`
