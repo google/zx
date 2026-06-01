@@ -99,6 +99,18 @@ const flags = [
 await $`git log ${flags}`
 ```
 
+For a long command, use the shell's line-continuation syntax. Keep the
+backslash as the final character on each continued line; trailing spaces after
+the backslash make the shell treat the next line as a separate command.
+
+```js
+const preview = 'cat {2}'
+
+await $`fzf \
+  --preview=${preview} \
+  --with-nth=1`
+```
+
 In async mode, zx awaits any `thenable` in literal before executing the command.
 ```js
 const a1 = $`echo foo`
