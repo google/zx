@@ -138,7 +138,7 @@ In the early stages of the project, we [had some difficulties](https://dev.to/an
 Corresponding tasks are defined in the `package.json.scripts`:
 ```json
 {
-  "prebuild":     "rm -rf build",
+  "prebuild":     "node -e \"require('node:fs').rmSync('build', { recursive: true, force: true })\"",
   "build":        "npm run build:js && npm run build:dts && npm run build:tests",
   "build:js":     "node scripts/build-js.mjs --format=cjs --hybrid --entry=src/*.ts:!src/error.ts:!src/repl.ts:!src/md.ts:!src/log.ts:!src/globals-jsr.ts:!src/goods.ts && npm run build:vendor",
   "build:vendor": "node scripts/build-js.mjs --format=cjs --entry=src/vendor-*.ts --bundle=all --external='./internals.ts'",
@@ -188,7 +188,7 @@ Static analyzers are responsible for code quality.
 ```json
 {
   "fmt:check": "prettier --check .",
-  "test:circular": "madge --circular src/*"
+  "test:circular": "madge --circular --extensions ts src"
 }
 ```
 

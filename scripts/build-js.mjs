@@ -16,6 +16,7 @@
 
 import path from 'node:path'
 import fs from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import esbuild from 'esbuild'
 import { injectCode, injectFile } from 'esbuild-plugin-utils'
 import { nodeExternalsPlugin } from 'esbuild-node-externals'
@@ -27,7 +28,7 @@ import esbuildResolvePlugin from 'esbuild-plugin-resolve'
 import minimist from 'minimist'
 import glob from 'fast-glob'
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname)
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const argv = minimist(process.argv.slice(2), {
   default: {
