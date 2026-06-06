@@ -14,7 +14,7 @@ $.quiet = true   // to completely turn off logging
 // import {ssh} from 'zx' ↓
 import {ssh} from 'webpod'
 
-const remote = ssh('user@host')
+const remote = ssh({remoteUser: 'user', hostname: 'host'})
 await remote`echo foo`
 ```
 
