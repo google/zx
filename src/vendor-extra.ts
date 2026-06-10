@@ -28,7 +28,7 @@ import {
 import * as _yaml from 'yaml'
 import * as _maml from 'maml'
 import * as _fs from 'fs-extra'
-import _createRequire from 'create-require'
+import { createRequire as _createRequire } from 'node:module'
 import { fetch as _nodeFetch, AbortController } from 'node-fetch-native'
 import { depseekSync as _depseek } from 'depseek'
 import { default as _minimist } from 'minimist'

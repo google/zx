@@ -35,11 +35,6 @@ chalk@5.6.2
   chalk/chalk
   MIT
 
-create-require@1.1.1
-  Maël Nison <nison.mael@gmail.com>, Paul Soporan <paul.soporan@gmail.com>, Pooya Parsa <pyapar@gmail.com>
-  nuxt-contrib/create-require
-  MIT
-
 envapi@0.2.3
   Anton Golub <antongolub@antongolub.com>
   git+https://github.com/webpod/envapi.git

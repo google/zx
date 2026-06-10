@@ -8475,47 +8475,6 @@ var require_lib = __commonJS({
   }
 });
 
-// node_modules/create-require/create-require.js
-var require_create_require = __commonJS({
-  "node_modules/create-require/create-require.js"(exports2, module2) {
-    "use strict";
-    var nativeModule = require("module");
-    var path5 = require("path");
-    var fs6 = require("fs");
-    function createRequire2(filename) {
-      if (!filename) {
-        filename = process.cwd();
-      }
-      if (isDir(filename)) {
-        filename = path5.join(filename, "index.js");
-      }
-      if (nativeModule.createRequire) {
-        return nativeModule.createRequire(filename);
-      }
-      if (nativeModule.createRequireFromPath) {
-        return nativeModule.createRequireFromPath(filename);
-      }
-      return _createRequire2(filename);
-    }
-    function _createRequire2(filename) {
-      const mod = new nativeModule.Module(filename, null);
-      mod.filename = filename;
-      mod.paths = nativeModule.Module._nodeModulePaths(path5.dirname(filename));
-      mod._compile("module.exports = require;", filename);
-      return mod.exports;
-    }
-    function isDir(path6) {
-      try {
-        const stat = fs6.lstatSync(path6);
-        return stat.isDirectory();
-      } catch (e) {
-        return false;
-      }
-    }
-    module2.exports = createRequire2;
-  }
-});
-
 // node_modules/node-fetch-native/dist/shared/node-fetch-native.DfbY2q-x.mjs
 function f(e) {
   return e && e.__esModule && Object.prototype.hasOwnProperty.call(e, "default") ? e.default : e;
@@ -21175,7 +21134,7 @@ function getIndent(level) {
 
 // src/vendor-extra.ts
 var _fs = __toESM(require_lib(), 1);
-var import_create_require = __toESM(require_create_require(), 1);
+var import_node_module = require("module");
 
 // node_modules/node-fetch-native/dist/index.mjs
 init_node();
@@ -21353,7 +21312,7 @@ var import_internals = require("./internals.cjs");
 var { wrap } = import_internals.bus;
 var globalVar = "Deno" in globalThis ? globalThis : global;
 globalVar.AbortController = globalVar.AbortController || T;
-var createRequire = import_create_require.default;
+var createRequire = import_node_module.createRequire;
 var globbyModule = {
   convertPathToPattern,
   globby,
