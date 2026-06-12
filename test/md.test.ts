@@ -22,16 +22,28 @@ describe('transformMarkdown()', () => {
       assert.equal(transformMarkdown('\n'), '// \n// ')
     })
 
-    test('preserves tab-indented blocks after a blank line (legacy behavior)', () => {
-      assert.equal(transformMarkdown('  \n    '), '  \n    ')
+    test('comments out tab-indented blocks after a blank line', () => {
+      assert.equal(transformMarkdown('  \n    '), '//   \n//     ')
     })
 
-    test('does not treat a mid-paragraph fence as a fenced block (legacy behavior)', () => {
+    test('does not throw SyntaxError for indented prose text (issue #1388)', () => {
+      const input = '\n    This assumes the environment is configured.'
+      const output = transformMarkdown(input)
+      const lines = output.split('\n')
+      const proseLine = lines.find((l) => l.includes('This assumes'))
+      assert.ok(proseLine, 'line with prose should exist in output')
+      assert.ok(
+        proseLine!.startsWith('//'),
+        'indented prose should be commented out, not executed as JS'
+      )
+    })
+
+    test('does not treat a tab-indented fence marker as a fenced block', () => {
       assert.equal(
         transformMarkdown(`
 \t~~~js
 console.log('js')`),
-        `// \n\t~~~js\n// console.log('js')`
+        `// \n// \t~~~js\n// console.log('js')`
       )
     })
   })
