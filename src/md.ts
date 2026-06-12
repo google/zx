@@ -61,7 +61,7 @@ export function transformMarkdown(buf: Buffer | string): string {
         }
 
         if (prevEmpty && tabRe.test(line)) {
-          out.push(line)
+          out.push('// ' + line)
           state = 'tab'
           continue
         }
@@ -73,7 +73,7 @@ export function transformMarkdown(buf: Buffer | string): string {
 
       case 'tab':
         if (line === '') out.push('')
-        else if (tabRe.test(line)) out.push(line)
+        else if (tabRe.test(line)) out.push('// ' + line)
         else {
           out.push('// ' + line)
           state = 'root'
