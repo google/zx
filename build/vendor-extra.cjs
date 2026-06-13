@@ -21020,7 +21020,7 @@ function parse2(source) {
       for (let i = 1; i < name.length; i++)
         if (next(), ch !== name[i])
           throw new SyntaxError(errorSnippet());
-      if (next(), isWhitespace(ch) || ch === "," || ch === "}" || ch === "]" || ch === void 0)
+      if (next(), isWhitespace(ch) || ch === "," || ch === "}" || ch === "]" || done)
         return value2;
       throw new SyntaxError(errorSnippet());
     }
