@@ -126,7 +126,7 @@
     "depseek": "0.4.6",
     "dts-bundle-generator": "9.5.1",
     "envapi": "0.2.3",
-    "esbuild": "0.28.0",
+    "esbuild": "0.28.1",
     "esbuild-node-externals": "1.22.0",
     "esbuild-plugin-entry-chunks": "0.1.21",
     "esbuild-plugin-extract-helpers": "0.0.10",
