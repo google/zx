@@ -214,7 +214,7 @@ jobs:
     name: smoke-node${{ matrix.node-version }}
     strategy:
       matrix:
-        node-version: [12, 14, 16, 18, 20, 22, 24, 25-nightly]
+        node-version: [12, 14, 16, 18, 20, 22, 24, 26, 27-nightly]
     steps:
       - uses: actions/checkout@v6
         with:
@@ -294,4 +294,5 @@ jobs:
       - name: tsx
         run: npm run test:smoke:tsx
       - name: ts-node
+        if: matrix.ts != 'rc' # ts7 dropped default "./" export point
         run: npm run test:smoke:ts-node
