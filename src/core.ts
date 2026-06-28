@@ -778,22 +778,16 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   // Promise API
   override then<R = ProcessOutput, E = ProcessOutput>(
     onfulfilled?:
-      | ((value: ProcessOutput) => PromiseLike<R> | R)
-      | undefined
-      | null,
+      ((value: ProcessOutput) => PromiseLike<R> | R) | undefined | null,
     onrejected?:
-      | ((reason: ProcessOutput) => PromiseLike<E> | E)
-      | undefined
-      | null
+      ((reason: ProcessOutput) => PromiseLike<E> | E) | undefined | null
   ): Promise<R | E> {
     return super.then(onfulfilled, onrejected)
   }
 
   override catch<T = ProcessOutput>(
     onrejected?:
-      | ((reason: ProcessOutput) => PromiseLike<T> | T)
-      | undefined
-      | null
+      ((reason: ProcessOutput) => PromiseLike<T> | T) | undefined | null
   ): Promise<ProcessOutput | T> {
     return super.catch(onrejected)
   }

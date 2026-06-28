@@ -140,7 +140,7 @@ which@7.0.0
   git+https://github.com/npm/node-which.git
   ISC
 
-yaml@2.8.4
+yaml@2.9.0
   Eemeli Aro <eemeli@gmail.com>
   github:eemeli/yaml
   ISC
