@@ -294,4 +294,5 @@ jobs:
       - name: tsx
         run: npm run test:smoke:tsx
       - name: ts-node
+        if: matrix.ts != 'rc' # ts7 dropped default "./" export point
         run: npm run test:smoke:ts-node
