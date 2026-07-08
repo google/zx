@@ -112,7 +112,19 @@ export async function main(): Promise<void> {
   if (argv.cwd) $.cwd = argv.cwd
   if (argv.env) {
     const envfile = path.resolve($.cwd ?? process.cwd(), argv.env)
+    // Security: snapshot the ZX_* keys that existed BEFORE loading the env
+    // file so that attacker-controlled entries (e.g. ZX_PREFIX, ZX_POSTFIX,
+    // ZX_SHELL) cannot pollute the execution control-plane.
+    const zxKeysBefore = new Set(
+      Object.keys(process.env).filter((k) => k.startsWith('ZX_'))
+    )
     dotenv.config(envfile)
+    // Purge any ZX_* key that was not present before the env-file was loaded.
+    for (const k of Object.keys(process.env)) {
+      if (k.startsWith('ZX_') && !zxKeysBefore.has(k)) {
+        delete process.env[k]
+      }
+    }
     resolveDefaults()
   }
   if (argv.verbose) $.verbose = true
