@@ -99,11 +99,7 @@ export function quotePowerShell(arg: string): string {
 }
 
 export type Duration =
-  | number
-  | `${number}`
-  | `${number}m`
-  | `${number}s`
-  | `${number}ms`
+  number | `${number}` | `${number}m` | `${number}s` | `${number}ms`
 
 export function parseDuration(d: Duration) {
   if (typeof d === 'number') {
