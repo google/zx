@@ -938,7 +938,14 @@ export class ProcessOutput extends Error {
   }
 
   buffer(): Buffer {
-    return Buffer.from(this.stdall)
+    // Reconstruct from the raw store chunks. `this.stdall` is a UTF-8 decoded
+    // string, so building a Buffer from it corrupts any non-UTF-8 output
+    // (each invalid byte becomes U+FFFD). The original chunks are lossless.
+    return Buffer.concat(
+      [...this._dto.store.stdall].map((chunk) =>
+        isString(chunk) ? Buffer.from(chunk) : chunk
+      )
+    )
   }
 
   blob(type = 'text/plain'): Blob {
