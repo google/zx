@@ -517,6 +517,52 @@ describe('core', () => {
         id,
       })
     })
+
+    it('applies chained configurators to the `cmd` entry', async () => {
+      // https://github.com/google/zx/issues/931
+      const entries = []
+      const log = (entry) => entries.push([entry.kind, entry.verbose])
+      const capture = async (p) => {
+        entries.length = 0
+        await p
+        return entries.slice()
+      }
+
+      assert.deepEqual(
+        await capture($({ log, verbose: true })`echo foo`.quiet()),
+        [
+          ['cmd', false],
+          ['stdout', false],
+          ['end', false],
+        ]
+      )
+      assert.deepEqual(
+        await capture($({ log, verbose: true })`echo foo`.verbose(false)),
+        [
+          ['cmd', false],
+          ['stdout', false],
+          ['end', false],
+        ]
+      )
+      assert.deepEqual(
+        await capture(
+          $({ log, verbose: true, quiet: true })`echo foo`.quiet(false)
+        ),
+        [
+          ['cmd', true],
+          ['stdout', true],
+          ['end', true],
+        ]
+      )
+    })
+
+    it('keeps the `cmd` entry ahead of the output in sync mode', () => {
+      const entries = []
+      const log = (entry) => entries.push(entry.kind)
+      $.sync({ log, verbose: true })`echo foo`
+
+      assert.deepEqual(entries, ['cmd', 'stdout', 'end'])
+    })
   })
 
   describe('ProcessPromise', () => {
