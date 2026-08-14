@@ -22,8 +22,38 @@ describe('transformMarkdown()', () => {
       assert.equal(transformMarkdown('\n'), '// \n// ')
     })
 
-    test('preserves tab-indented blocks after a blank line (legacy behavior)', () => {
-      assert.equal(transformMarkdown('  \n    '), '  \n    ')
+    test('preserves four-space and tab-indented blocks after a blank line', () => {
+      assert.equal(
+        transformMarkdown('\n    code\n\tmore'),
+        '// \n    code\n\tmore'
+      )
+    })
+
+    test('comments two-space indented list continuation prose', () => {
+      const result = transformMarkdown(`
+- on localhost
+
+  This assumes you have a local node running.
+
+  \`\`\`bash
+  pnpm run contracts:deploy localhost
+  \`\`\`
+`)
+
+      assert.equal(
+        result,
+        [
+          '// ',
+          '// - on localhost',
+          '// ',
+          '//   This assumes you have a local node running.',
+          '// ',
+          'await $`',
+          'pnpm run contracts:deploy localhost',
+          '`',
+          '// ',
+        ].join('\n')
+      )
     })
 
     test('does not treat a mid-paragraph fence as a fenced block (legacy behavior)', () => {
