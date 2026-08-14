@@ -122,4 +122,42 @@ echo "4"
     const expected = '// a\n// b\n// c\n// d\n// e\n// f'
     assert.equal(transformMarkdown(input), expected)
   })
+
+  describe('security: bash fence injection prevention', () => {
+    test('escapes ${...} interpolation in bash fences to prevent JS injection', () => {
+      const result = transformMarkdown(
+        '```bash\necho ${require("child_process").execSync("id")}\n```'
+      )
+      assert.ok(
+        result.includes('\\${require'),
+        'interpolation not escaped in bash fence output'
+      )
+    })
+
+    test('escapes backticks in bash fences to prevent template literal breakout', () => {
+      const result = transformMarkdown('```bash\necho `uname -s`\n```')
+      assert.ok(
+        result.includes('\\`uname'),
+        'backtick not escaped in bash fence output'
+      )
+    })
+
+    test('does not escape ${...} in js fences (intended interpolation)', () => {
+      const result = transformMarkdown(
+        '```js\nconsole.log(`${process.env.HOME}`)\n```'
+      )
+      assert.ok(
+        result.includes('${process.env.HOME}'),
+        'JS interpolation was incorrectly escaped in js fence'
+      )
+    })
+
+    test('bash fence $VAR and $(cmd) pass through unmodified', () => {
+      const result = transformMarkdown(
+        '```bash\necho $HOME\necho $(whoami)\n```'
+      )
+      assert.ok(result.includes('echo $HOME'), '$VAR incorrectly modified')
+      assert.ok(result.includes('echo $(whoami)'), '$() incorrectly modified')
+    })
+  })
 })

@@ -88,7 +88,13 @@ export function transformMarkdown(buf: Buffer | string): string {
           prevEmpty = true
           fenceChar = ''
         } else {
-          const s = stripRe ? line.replace(stripRe, '') : line
+          let s = stripRe ? line.replace(stripRe, '') : line
+          if (closeOut === '`') {
+            s = s
+              .replace(/\\/g, '\\\\')
+              .replace(/`/g, '\\`')
+              .replace(/\${/g, '\\${')
+          }
           out.push(linePrefix + s)
           prevEmpty = false
         }
