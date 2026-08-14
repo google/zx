@@ -1,6 +1,6 @@
 # Contribution Guide
 
-zx is a fully [open-source project](https://github.com/google/zx), which is developing by the community for the community. 
+zx is a fully [open-source project](https://github.com/google/zx), which is developed by the community for the community. 
 We welcome contributions of any kind, including but not limited to:
 * Bug reports
 * Feature requests
@@ -41,7 +41,7 @@ Before proposing changes, look for similar ones in the project's [issues](https:
 
 * Make your changes.
   * If you are adding a new feature, please include additional tests. The coverage threshold is 98%.
-  * Create a [conventional-commits](https://www.conventionalcommits.org/en/v1.0.0/) compliant messages.
+  * Create [conventional-commits](https://www.conventionalcommits.org/en/v1.0.0/) compliant messages.
 * Ensure that everything is working:
   * `npm run fmt` to format your code.
   * `npm run test:coverage` to run the tests.
