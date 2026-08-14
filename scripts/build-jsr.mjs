@@ -33,7 +33,6 @@ const prodDeps = new Set([
   '@webpod/ingrid',
   '@webpod/ps',
   'chalk',
-  'create-require',
   'depseek',
   'envapi',
   'fs-extra',
