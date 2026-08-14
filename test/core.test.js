@@ -19,7 +19,7 @@ import { basename } from 'node:path'
 import { WriteStream } from 'node:fs'
 import { Readable, Transform, Writable } from 'node:stream'
 import { Socket } from 'node:net'
-import { ChildProcess } from 'node:child_process'
+import { ChildProcess, spawn as cpSpawn } from 'node:child_process'
 import {
   $,
   ProcessPromise,
@@ -651,6 +651,32 @@ describe('core', () => {
       const p = $`read; printf $REPLY`
       p.stdin.write('bar\n')
       assert.equal((await p).stdout, 'bar')
+    })
+
+    test('forwards process.stdin to child when no input is provided', async () => {
+      const buildPath = process.cwd() + '/build/core.js'
+      const script = tempfile(
+        'stdin-forward-test.mjs',
+        `import {$} from '${buildPath}'\n` +
+          'const r = await $`cat`\n' +
+          'process.stdout.write(r.stdout)\n'
+      )
+
+      const child = cpSpawn(process.execPath, [script], {
+        stdio: ['pipe', 'pipe', 'pipe'],
+      })
+      child.stdin.write('hello from stdin\n')
+      child.stdin.end()
+
+      const chunks = []
+      child.stdout.on('data', (d) => chunks.push(d))
+
+      const code = await new Promise((resolve) => child.on('close', resolve))
+      const stdout = Buffer.concat(chunks).toString()
+
+      assert.equal(code, 0)
+      assert.equal(stdout.trim(), 'hello from stdin')
+      await fs.rm(script)
     })
 
     describe('pipe()', () => {
