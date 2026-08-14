@@ -69,7 +69,7 @@
   "scripts": {
     "fmt": "prettier --write .",
     "fmt:check": "prettier --check .",
-    "prebuild": "rm -rf build",
+    "prebuild": "node -e \"require('node:fs').rmSync('build', { recursive: true, force: true })\"",
     "build": "npm run build:versions && npm run build:js && npm run build:dts && npm run build:tests",
     "build:js": "node scripts/build-js.mjs --format=cjs --hybrid --entry='src/{cli,core,deps,globals,index,internals,util,vendor*}.ts' && npm run build:vendor",
     "build:vendor": "node scripts/build-js.mjs --format=cjs --entry=src/vendor-*.ts --bundle=all --external='./internals.ts'",
@@ -93,7 +93,7 @@
     "test:dcr": "node ./test/it/build-dcr.test.js",
     "test:unit": "node --experimental-transform-types ./test/all.test.js",
     "test:coverage": "c8 -c .nycrc --check-coverage npm run test:unit",
-    "test:circular": "madge --circular src/*",
+    "test:circular": "madge --circular --extensions ts src",
     "test:types": "tsd",
     "test:license": "node ./test/extra.test.js",
     "test:audit": "node scripts/npm-audit.js",

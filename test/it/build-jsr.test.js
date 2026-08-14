@@ -14,8 +14,9 @@
 
 import { tempdir, $, path, fs } from '../../build/index.js'
 import { describe, before, after, it } from 'node:test'
+import { fileURLToPath } from 'node:url'
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname)
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(__dirname, '../../')
 
 describe('jsr artifact', () => {
