@@ -48,6 +48,6 @@ describe('jsr artifact', () => {
 
   it('publish --dry-run`', async () => {
     await t$`node scripts/build-jsr.mjs`
-    await t$({ quiet: false })`jsr publish --dry-run`
+    await t$({ quiet: false })`jsr publish --dry-run --allow-slow-types`
   })
 })

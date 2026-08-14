@@ -14,5 +14,7 @@
     "types": ["node", "fs-extra"]
   },
   "include": ["./src/**/*"],
-  "exclude": ["./src/globals.ts"]
+  "exclude": ["./src/globals.ts", "./src/globals-jsr.ts"]
 }
+// globals-jsr.ts is excluded to prevent "Duplicate identifier" errors with globals.ts during the main build.
+// It is used specifically for the JSR distribution.
