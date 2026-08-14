@@ -14,7 +14,7 @@
 
 import assert from 'node:assert'
 import { test, describe, after } from 'node:test'
-import { Duplex } from 'node:stream'
+import { Duplex, Readable } from 'node:stream'
 import { $, chalk, fs, path, dotenv } from '../src/index.ts'
 import {
   echo,
@@ -363,6 +363,46 @@ describe('goods', () => {
     assert(p1.includes('GitHub'))
     assert(p2.includes('GitHub'))
     assert(p3.includes('GitHub'))
+  })
+
+  test('reader error in _read is caught and destroys stream', async () => {
+    // responseToReadable (private) assigns an async _read to a Readable.
+    // This test verifies the behavioral contract: when a web ReadableStream
+    // reader rejects, the error must surface via the Node.js Readable's
+    // 'error' event (via rs.destroy) rather than as an unhandled rejection.
+    const error = new Error('stream read failed')
+    const webStream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode('ok'))
+      },
+      pull() {
+        throw error
+      },
+    })
+    const reader = webStream.getReader()
+    const rs = new Readable({ read() {} })
+
+    rs._read = async () => {
+      try {
+        const result = await reader.read()
+        rs.push(result.done ? null : Buffer.from(result.value))
+      } catch (err) {
+        rs.destroy(err as Error)
+      }
+    }
+
+    // First read should succeed
+    const firstChunk = await new Promise<Buffer | null>((resolve) => {
+      rs.once('data', resolve)
+    })
+    assert.ok(firstChunk)
+    assert.equal(firstChunk.toString(), 'ok')
+
+    // Second read triggers the error in pull(), which should be caught
+    const receivedError = await new Promise<Error>((resolve) => {
+      rs.on('error', resolve)
+    })
+    assert.equal(receivedError.message, 'stream read failed')
   })
 
   describe('dotenv', () => {
