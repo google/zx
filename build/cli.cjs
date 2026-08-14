@@ -356,7 +356,16 @@ function getFilepath(cwd = ".", name = "zx", _ext) {
   return [
     name + ext,
     name + "-" + (0, import_util2.randomId)() + ext
-  ].map((f) => import_index.path.resolve(import_node_process2.default.cwd(), cwd, f)).find((f) => !import_index.fs.existsSync(f));
+  ].map((f) => import_index.path.resolve(import_node_process2.default.cwd(), cwd, f)).find((f) => !existsNoFollow(f));
+}
+function existsNoFollow(p) {
+  try {
+    import_index.fs.lstatSync(p);
+    return true;
+  } catch (err) {
+    if (err?.code === "ENOENT") return false;
+    throw err;
+  }
 }
 /* c8 ignore next 100 */
 // Annotate the CommonJS export names for ESM import in node:
