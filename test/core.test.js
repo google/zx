@@ -1495,6 +1495,17 @@ describe('core', () => {
       assert.equal(o.toString(), 'foo\n')
     })
 
+    test('json() parses stdout, not the combined stdout+stderr', async () => {
+      const o = new ProcessOutput(
+        0,
+        null,
+        '{"ok":true}',
+        'progress...',
+        'progress...{"ok":true}'
+      )
+      assert.deepEqual(o.json(), { ok: true })
+    })
+
     test('valueOf()', async () => {
       const o = new ProcessOutput(null, null, '', '', 'foo\n')
       assert.equal(o.valueOf(), 'foo')
@@ -1502,7 +1513,13 @@ describe('core', () => {
     })
 
     test('json()', async () => {
-      const o = new ProcessOutput(null, null, '', '', '{"key":"value"}')
+      const o = new ProcessOutput(
+        null,
+        null,
+        '{"key":"value"}',
+        '',
+        '{"key":"value"}'
+      )
       assert.deepEqual(o.json(), { key: 'value' })
     })
 
