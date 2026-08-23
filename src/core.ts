@@ -84,9 +84,6 @@ const ENV_OPTS: Set<string> = new Set([
   'timeout',
   'timeoutSignal',
   'killSignal',
-  'prefix',
-  'postfix',
-  'shell',
 ])
 
 // prettier-ignore

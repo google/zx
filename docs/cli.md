@@ -163,10 +163,10 @@ Print the current `zx` version.
 Print help notes.
 
 ## Environment variables
-All the previously mentioned options can be set via the corresponding `ZX_`-prefixed environment variables.
+Most options can be set via the corresponding `ZX_`-prefixed environment variables. For security reasons, `shell`, `prefix`, and `postfix` cannot be set via environment variables.
 
 ```bash
-ZX_VERBOSE=true ZX_SHELL='/bin/bash' zx script.mjs
+ZX_VERBOSE=true zx script.mjs
 ```
     
 ```yaml
@@ -175,7 +175,6 @@ steps:
     run: zx script.mjs
     env:
       ZX_VERBOSE: true
-      ZX_SHELL: '/bin/bash'
 ```
 
 ## `__filename & __dirname`

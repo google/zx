@@ -35,7 +35,7 @@ There're many shell implementations. zx brings a few setup helpers:
 * [`usePowerShell`](./api#usepowershell) — PowerShell
 * [`usePwsh`](./api#usepwsh) — pwsh (PowerShell v7+)
 
-You can also set the shell directly via [JS API](./setup#bash), [CLI flags](./cli#shell) or [envars](./cli#environment-variables):
+You can also set the shell directly via [JS API](./setup#bash) or [CLI flags](./cli#shell):
 
 ```js
 $.shell = '/bin/zsh'
@@ -43,10 +43,6 @@ $.shell = '/bin/zsh'
 
 ```bash
 zx --shell /bin/zsh script.js
-```
-
-```bash
-ZX_SHELL=/bin/zsh zx script.js
 ```
 
 ## zx = bash + js
