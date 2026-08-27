@@ -1526,6 +1526,15 @@ describe('core', () => {
       assert.equal(o.buffer().compare(Buffer.from('foo\n', 'utf-8')), 0)
     })
 
+    test('buffer() preserves non-utf8 bytes', async () => {
+      const bytes = Buffer.from([0xff, 0xfe, 0x81, 0x82]) // invalid utf-8
+      const o = new ProcessOutput({
+        store: { stdall: [bytes], stdout: [bytes], stderr: [] },
+      })
+      assert.equal(o.buffer().toString('hex'), 'fffe8182')
+      assert.equal(o.text('hex'), 'fffe8182')
+    })
+
     test('blob()', async () => {
       const o = new ProcessOutput(null, null, '', '', 'foo\n')
       assert.equal(await o.blob().text(), 'foo\n')
