@@ -70,11 +70,15 @@ describe('util', () => {
   test('quote()', () => {
     assert.ok(quote('string') === 'string')
     assert.ok(quote('') === `$''`)
-    assert.ok(quote(`'\f\n\r\t\v\0`) === `$'\\'\\f\\n\\r\\t\\v\\0'`)
+    assert.ok(quote(`'\f\n\r\t\v\0`) === `$'\\'\\f\\n\\r\\t\\v\\000'`)
 
     const allowed =
       'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_/.-+@:=,%'
     assert.equal(quote(allowed), allowed)
+  })
+
+  test('quote() escapes null byte unambiguously', () => {
+    assert.equal(quote('\0' + '123'), `$'\\000123'`)
   })
 
   test('quotePowerShell()', () => {

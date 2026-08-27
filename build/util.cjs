@@ -64,7 +64,7 @@ function preferLocalBin(env, ...dirs) {
 function quote(arg) {
   if (arg === "") return `$''`;
   if (/^[\w/.\-+@:=,%]+$/.test(arg)) return arg;
-  return `$'` + arg.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/\f/g, "\\f").replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/\t/g, "\\t").replace(/\v/g, "\\v").replace(/\0/g, "\\0") + `'`;
+  return `$'` + arg.replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/\f/g, "\\f").replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/\t/g, "\\t").replace(/\v/g, "\\v").replace(/\0/g, "\\000") + `'`;
 }
 function quotePowerShell(arg) {
   if (arg === "") return `''`;
