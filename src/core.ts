@@ -360,7 +360,11 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       },
       on: {
         start: () => {
-          $.log({ kind: 'cmd', cmd: $.cmd, cwd, verbose: self.isVerbose(), id })
+          // A process starts eagerly, so chained configurators (`quiet()`, `verbose()`)
+          // are applied after this hook. Defer the entry to pick them up.
+          // Sync mode gets no such chance and needs the cmd logged before its output.
+          const log = () => $.log({ kind: 'cmd', cmd: $.cmd, cwd, verbose: self.isVerbose(), id })
+          self.sync ? log() : queueMicrotask(log)
           self.timeout($.timeout, $.timeoutSignal)
         },
         stdout: (data) => {

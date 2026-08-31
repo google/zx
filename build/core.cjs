@@ -583,7 +583,8 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
       },
       on: {
         start: () => {
-          $2.log({ kind: "cmd", cmd: $2.cmd, cwd, verbose: self.isVerbose(), id });
+          const log2 = () => $2.log({ kind: "cmd", cmd: $2.cmd, cwd, verbose: self.isVerbose(), id });
+          self.sync ? log2() : queueMicrotask(log2);
           self.timeout($2.timeout, $2.timeoutSignal);
         },
         stdout: (data) => {
