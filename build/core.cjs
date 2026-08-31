@@ -1029,7 +1029,7 @@ var _ProcessOutput = class _ProcessOutput extends Error {
     return !this._dto.error && this.exitCode === 0;
   }
   json() {
-    return JSON.parse(this.stdall);
+    return JSON.parse(this.stdout);
   }
   buffer() {
     return import_node_buffer.Buffer.from(this.stdall);
