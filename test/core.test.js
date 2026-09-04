@@ -1413,6 +1413,24 @@ describe('core', () => {
 
     test('json()', async () => {
       assert.deepEqual(await $`echo '{"key":"value"}'`.json(), { key: 'value' })
+
+      // Issue #1505: json() parses stdout even when stderr has progress output
+      const withStderrNoise = $({
+        quiet: true,
+      })`node -e "console.error('progress...'); console.log(JSON.stringify({ok:true}))"`
+      assert.deepEqual(await withStderrNoise.json(), { ok: true })
+      assert.deepEqual(await withStderrNoise.json('stdout'), { ok: true })
+      assert.deepEqual(await withStderrNoise.json({ source: 'stdout' }), {
+        ok: true,
+      })
+
+      const withStderrJson = $({
+        quiet: true,
+      })`node -e "console.error(JSON.stringify({from:'stderr'}))"`
+      assert.deepEqual(await withStderrJson.json('stderr'), { from: 'stderr' })
+      assert.deepEqual(await withStderrJson.json({ source: 'stderr' }), {
+        from: 'stderr',
+      })
     })
 
     test('text()', async () => {
@@ -1502,8 +1520,33 @@ describe('core', () => {
     })
 
     test('json()', async () => {
-      const o = new ProcessOutput(null, null, '', '', '{"key":"value"}')
-      assert.deepEqual(o.json(), { key: 'value' })
+      // Backward compatibility fallback to stdall when stdout is empty
+      const o1 = new ProcessOutput(null, null, '', '', '{"key":"value"}')
+      assert.deepEqual(o1.json(), { key: 'value' })
+
+      // Prefers stdout when stdout has content and stderr has progress/noise
+      const o2 = new ProcessOutput(
+        null,
+        null,
+        '{"from":"stdout"}',
+        'progress...\n',
+        'progress...\n{"from":"stdout"}'
+      )
+      assert.deepEqual(o2.json(), { from: 'stdout' })
+      assert.deepEqual(o2.json('stdout'), { from: 'stdout' })
+      assert.deepEqual(o2.json({ source: 'stdout' }), { from: 'stdout' })
+      assert.throws(() => o2.json('stdall'), SyntaxError)
+
+      // Can explicitly parse stderr
+      const o3 = new ProcessOutput(
+        null,
+        null,
+        'not-json',
+        '{"from":"stderr"}',
+        'not-json\n{"from":"stderr"}'
+      )
+      assert.deepEqual(o3.json('stderr'), { from: 'stderr' })
+      assert.deepEqual(o3.json({ source: 'stderr' }), { from: 'stderr' })
     })
 
     test('text()', async () => {

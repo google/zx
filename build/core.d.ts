@@ -18,6 +18,10 @@ export { Fail } from './error.js';
 export { log, type LogEntry } from './log.js';
 export { chalk, which, ps } from './vendor-core.js';
 export { type Duration, quote, quotePowerShell } from './util.js';
+export type JsonSource = 'stdout' | 'stderr' | 'stdall';
+export type JsonOptions = JsonSource | {
+    source?: JsonSource;
+};
 declare const CWD: unique symbol;
 declare const SYNC: unique symbol;
 declare const SHOT: unique symbol;
@@ -135,7 +139,7 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     get sync(): boolean;
     get [Symbol.toStringTag](): string;
     [Symbol.toPrimitive](): string;
-    json<T = any>(): Promise<T>;
+    json<T = any>(source?: JsonOptions): Promise<T>;
     text(encoding?: Encoding): Promise<string>;
     lines(delimiter?: Options['delimiter']): Promise<string[]>;
     buffer(): Promise<Buffer>;
@@ -188,7 +192,7 @@ export declare class ProcessOutput extends Error {
     get duration(): number;
     get [Symbol.toStringTag](): string;
     get ok(): boolean;
-    json<T = any>(): T;
+    json<T = any>(source?: JsonOptions): T;
     buffer(): Buffer;
     blob(type?: string): Blob;
     text(encoding?: Encoding): string;
