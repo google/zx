@@ -934,7 +934,7 @@ export class ProcessOutput extends Error {
   }
 
   json<T = any>(): T {
-    return JSON.parse(this.stdall)
+    return JSON.parse(this.stdout)
   }
 
   buffer(): Buffer {

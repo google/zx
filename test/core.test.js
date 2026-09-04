@@ -1413,6 +1413,10 @@ describe('core', () => {
 
     test('json()', async () => {
       assert.deepEqual(await $`echo '{"key":"value"}'`.json(), { key: 'value' })
+      assert.deepEqual(
+        await $`echo '{"key":"value"}'; echo 'log progress' >&2`.json(),
+        { key: 'value' }
+      )
     })
 
     test('text()', async () => {
@@ -1502,7 +1506,13 @@ describe('core', () => {
     })
 
     test('json()', async () => {
-      const o = new ProcessOutput(null, null, '', '', '{"key":"value"}')
+      const o = new ProcessOutput(
+        null,
+        null,
+        '{"key":"value"}',
+        'non-json log',
+        '{"key":"value"}\nnon-json log'
+      )
       assert.deepEqual(o.json(), { key: 'value' })
     })
 
