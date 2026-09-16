@@ -22,8 +22,50 @@ describe('transformMarkdown()', () => {
       assert.equal(transformMarkdown('\n'), '// \n// ')
     })
 
-    test('preserves tab-indented blocks after a blank line (legacy behavior)', () => {
-      assert.equal(transformMarkdown('  \n    '), '  \n    ')
+    test('preserves 4-space indented blocks after a blank line as code (CommonMark)', () => {
+      assert.equal(transformMarkdown('\n    '), '// \n    ')
+    })
+
+    test('does not treat 2-space indented list continuation as a code block (issue 1388)', () => {
+      const input = [
+        '### deploy your contract',
+        '',
+        '- on localhost',
+        '',
+        '  This assumes you have a local node running which can do by executing `pnpm contracts:local_node`',
+        '',
+        '  ```bash',
+        '  pnpm run contracts:deploy localhost',
+        '  ```',
+        '',
+        '- on a network of your choice',
+        '',
+        '  Just make sure you have your .env.local setup, see [.env](.env) or if you use hardhat secret store, configure it.',
+        '',
+        '  ```bash',
+        '  pnpm run contracts:deploy <network>',
+        '  ```',
+      ].join('\n')
+      const expected = [
+        '// ### deploy your contract',
+        '// ',
+        '// - on localhost',
+        '// ',
+        '//   This assumes you have a local node running which can do by executing `pnpm contracts:local_node`',
+        '// ',
+        'await $`',
+        'pnpm run contracts:deploy localhost',
+        '`',
+        '// ',
+        '// - on a network of your choice',
+        '// ',
+        '//   Just make sure you have your .env.local setup, see [.env](.env) or if you use hardhat secret store, configure it.',
+        '// ',
+        'await $`',
+        'pnpm run contracts:deploy <network>',
+        '`',
+      ].join('\n')
+      assert.equal(transformMarkdown(input), expected)
     })
 
     test('does not treat a mid-paragraph fence as a fenced block (legacy behavior)', () => {
