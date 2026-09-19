@@ -445,6 +445,23 @@ console.log(a);
       assert.equal(isMain('///root/zx/test/cli.test.js'), false)
     })
 
+    test('isMain() accepts Deno JSR cli entrypoints', () => {
+      const deno = globalThis.Deno
+      globalThis.Deno = { mainModule: 'jsr:@webpod/zx' }
+      try {
+        assert.equal(isMain('jsr:@webpod/zx/cli'), true)
+        assert.equal(isMain('jsr:@webpod/zx/./cli'), true)
+
+        globalThis.Deno.mainModule = 'jsr:@webpod/zx/.'
+        assert.equal(isMain('jsr:@webpod/zx/cli'), true)
+
+        globalThis.Deno.mainModule = 'jsr:@webpod/zx/core'
+        assert.equal(isMain('jsr:@webpod/zx/cli'), false)
+      } finally {
+        globalThis.Deno = deno
+      }
+    })
+
     test('normalizeExt()', () => {
       assert.equal(normalizeExt('.ts'), '.ts')
       assert.equal(normalizeExt('ts'), '.ts')

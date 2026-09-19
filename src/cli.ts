@@ -270,6 +270,8 @@ export function isMain(
   scriptpath: string = process.argv[1]
 ): boolean {
   if (typeof meta === 'string') {
+    if (isDenoJsrMain(meta)) return true
+
     if (meta.startsWith('file:')) {
       const modulePath = url.fileURLToPath(meta).replace(/\.\w+$/, '')
       const mainPath = fs.realpathSync(scriptpath).replace(/\.\w+$/, '')
@@ -279,11 +281,26 @@ export function isMain(
     return false
   }
 
-  return !!meta.main
+  return !!meta.main || isDenoJsrMain(meta.url)
 }
 
 export function normalizeExt(ext?: string): string | undefined {
   return ext ? path.parse(`foo.${ext}`).ext : ext
+}
+
+function isDenoJsrMain(metaUrl: string): boolean {
+  const mainModule = (globalThis as { Deno?: { mainModule?: string } }).Deno
+    ?.mainModule
+  if (!mainModule?.startsWith('jsr:@webpod/zx')) return false
+
+  const normalize = (s: string) => s.replace('/./', '/').replace(/\/\.?$/, '')
+  const main = normalize(mainModule)
+  const current = normalize(metaUrl)
+
+  return (
+    current === 'jsr:@webpod/zx/cli' &&
+    (main === 'jsr:@webpod/zx' || main === 'jsr:@webpod/zx/cli')
+  )
 }
 
 // prettier-ignore
