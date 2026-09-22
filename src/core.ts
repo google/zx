@@ -1018,7 +1018,19 @@ function setShell(n: string, ps = true) {
 
 try {
   const { shell, prefix, postfix } = $
-  useBash()
+  try {
+    useBash()
+  } catch (err) {
+    if (process.platform === 'win32') {
+      try {
+        usePwsh()
+      } catch {
+        usePowerShell()
+      }
+    } else {
+      throw err
+    }
+  }
   if (isString(shell)) $.shell = shell
   if (isString(prefix)) $.prefix = prefix
   if (isString(postfix)) $.postfix = postfix

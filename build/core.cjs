@@ -1096,7 +1096,19 @@ function setShell(n, ps3 = true) {
 }
 try {
   const { shell, prefix, postfix } = $;
-  useBash();
+  try {
+    useBash();
+  } catch (err) {
+    if (process.platform === "win32") {
+      try {
+        usePwsh();
+      } catch {
+        usePowerShell();
+      }
+    } else {
+      throw err;
+    }
+  }
   if ((0, import_util.isString)(shell)) $.shell = shell;
   if ((0, import_util.isString)(prefix)) $.prefix = prefix;
   if ((0, import_util.isString)(postfix)) $.postfix = postfix;

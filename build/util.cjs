@@ -68,7 +68,7 @@ function quote(arg) {
 }
 function quotePowerShell(arg) {
   if (arg === "") return `''`;
-  if (/^[\w/.\-@:=,+%]+$/.test(arg)) return arg;
+  if (/^[\w/.\-:=+%]+$/.test(arg)) return arg;
   return `'` + arg.replace(/'/g, "''") + `'`;
 }
 function parseDuration(d) {

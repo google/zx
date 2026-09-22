@@ -81,6 +81,9 @@ describe('util', () => {
     assert.equal(quotePowerShell('string'), 'string')
     assert.equal(quotePowerShell(`'`), `''''`)
     assert.equal(quotePowerShell(''), `''`)
+    assert.equal(quotePowerShell('@test'), `'@test'`)
+    assert.equal(quotePowerShell('@org/package'), `'@org/package'`)
+    assert.equal(quotePowerShell('foo,bar'), `'foo,bar'`)
 
     const allowed =
       'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_/.-+@:=,%'
