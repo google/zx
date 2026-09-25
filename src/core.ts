@@ -65,6 +65,7 @@ export { Fail } from './error.ts'
 export { log, type LogEntry } from './log.ts'
 export { chalk, which, ps } from './vendor-core.ts'
 export { type Duration, quote, quotePowerShell } from './util.ts'
+export type JsonSource = 'stdout' | 'stderr' | 'stdall'
 
 const CWD = Symbol('processCwd')
 const SYNC = Symbol('syncExec')
@@ -574,8 +575,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   // Output formatters
-  json<T = any>(): Promise<T> {
-    return this.then((o) => o.json<T>())
+  json<T = any>(from: JsonSource = 'stdout'): Promise<T> {
+    return this.then((o) => o.json<T>(from))
   }
 
   text(encoding?: Encoding): Promise<string> {
@@ -933,8 +934,8 @@ export class ProcessOutput extends Error {
     return !this._dto.error && this.exitCode === 0
   }
 
-  json<T = any>(): T {
-    return JSON.parse(this.stdout)
+  json<T = any>(from: JsonSource = 'stdout'): T {
+    return JSON.parse(this[from])
   }
 
   buffer(): Buffer {
