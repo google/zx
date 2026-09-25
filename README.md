@@ -45,13 +45,13 @@ See also [**zx@lite**](https://google.github.io/zx/lite).
     * Bun >= 1.0.0
     * Deno 1.x, 2.x
     * GraalVM Node.js
-* Some kind of [bash or PowerShell](https://google.github.io/zx/shell)
+* [Bash or PowerShell](https://google.github.io/zx/shell)
 * [Both CJS or ESM](https://google.github.io/zx/setup#hybrid) modules in [JS or TS](https://google.github.io/zx/typescript)
 
 
 ## See also
 
-- 🔥 [crow.watch](https://crow.watch) — a computing-focused community, link aggregation and discussion, [join](http://crow.watch/join/zx).
+- [MAML](https://maml.dev) — JSON for config, with comments, multiline strings, unquoted keys, and optional commas.
 
 ## License
 
