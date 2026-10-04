@@ -50,7 +50,24 @@ export function tempdir(
   prefix: string = `zx-${randomId()}`,
   mode?: Mode
 ): string {
-  const dirpath = path.join(os.tmpdir(), prefix)
+  if (
+    typeof prefix !== 'string' ||
+    !prefix.trim() ||
+    prefix.includes('\0') ||
+    prefix.split(/[/\\]/).some((part) => part === '..')
+  ) {
+    throw new Fail(
+      `Path traversal is not allowed in tempdir prefix: "${prefix}"`
+    )
+  }
+  const base = path.resolve(os.tmpdir())
+  const dirpath = path.resolve(base, prefix)
+  const rel = path.relative(base, dirpath)
+  if (!rel || rel.startsWith('..') || path.isAbsolute(rel)) {
+    throw new Fail(
+      `Path traversal is not allowed in tempdir prefix: "${prefix}"`
+    )
+  }
   fs.mkdirSync(dirpath, { recursive: true, mode })
 
   return dirpath
@@ -61,9 +78,33 @@ export function tempfile(
   data?: string | Buffer,
   mode?: Mode
 ): string {
-  const filepath = name
-    ? path.join(tempdir(), name)
-    : path.join(os.tmpdir(), `zx-${randomId()}`)
+  let filepath: string
+  if (name !== undefined) {
+    if (
+      typeof name !== 'string' ||
+      !name ||
+      name === '.' ||
+      name === '..' ||
+      name.includes('\0') ||
+      name.includes('/') ||
+      name.includes('\\') ||
+      name.split(/[/\\]/).some((part) => part === '..')
+    ) {
+      throw new Fail(
+        `Path traversal is not allowed in tempfile name: "${name}"`
+      )
+    }
+    const dir = tempdir()
+    filepath = path.join(dir, name)
+    const rel = path.relative(dir, filepath)
+    if (!rel || rel.startsWith('..') || path.isAbsolute(rel)) {
+      throw new Fail(
+        `Path traversal is not allowed in tempfile name: "${name}"`
+      )
+    }
+  } else {
+    filepath = path.join(os.tmpdir(), `zx-${randomId()}`)
+  }
 
   if (data === undefined) fs.closeSync(fs.openSync(filepath, 'w', mode))
   else fs.writeFileSync(filepath, data, { mode })

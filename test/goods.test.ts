@@ -35,9 +35,9 @@ import {
   versions,
 } from '../src/goods.ts'
 import { Writable } from 'node:stream'
-import process from 'node:process'
+import { fileURLToPath } from 'node:url'
 
-const __dirname = new URL('.', import.meta.url).pathname
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
 const root = path.resolve(__dirname, '..')
 
 describe('goods', () => {
@@ -463,6 +463,49 @@ ENV5=v5 # comment
       const tf = tempfile('bar.txt', 'bar')
       assert.match(tf, /\/zx-.+\/bar\.txt$/)
       assert.equal(fs.readFileSync(tf, 'utf-8'), 'bar')
+    })
+
+    test('tempfile() rejects path traversal and invalid filenames', () => {
+      const invalidNames = [
+        '../../zx-pwn-test.txt',
+        '..\\..\\zx-pwn-test.txt',
+        '/etc/passwd',
+        'C:\\Windows\\System32',
+        '..',
+        '.',
+        '',
+        'sub/file.txt',
+        'sub\\file.txt',
+        'foo\0bar',
+      ]
+      for (const name of invalidNames) {
+        assert.throws(
+          () => tempfile(name),
+          /Path traversal is not allowed in tempfile name/,
+          `Expected tempfile("${name}") to throw`
+        )
+      }
+    })
+
+    test('tempdir() rejects path traversal and invalid prefixes', () => {
+      const invalidPrefixes = [
+        '../../escape',
+        '..\\..\\escape',
+        '/etc/passwd',
+        '..',
+        '.',
+        '',
+        '   ',
+        'foo/../../escape',
+        'foo\0bar',
+      ]
+      for (const prefix of invalidPrefixes) {
+        assert.throws(
+          () => tempdir(prefix),
+          /Path traversal is not allowed in tempdir prefix|Invalid tempdir prefix/,
+          `Expected tempdir("${prefix}") to throw`
+        )
+      }
     })
   })
 

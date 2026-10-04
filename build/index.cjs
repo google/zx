@@ -70,12 +70,33 @@ var versions = {
 
 // src/goods.ts
 function tempdir(prefix = `zx-${(0, import_util.randomId)()}`, mode) {
-  const dirpath = import_core.path.join(import_core.os.tmpdir(), prefix);
+  if (typeof prefix !== "string" || !prefix.trim() || prefix.includes("\0") || prefix.split(/[/\\]/).some((part) => part === "..")) {
+    throw new import_core.Fail(`Path traversal is not allowed in tempdir prefix: "${prefix}"`);
+  }
+  const base = import_core.path.resolve(import_core.os.tmpdir());
+  const dirpath = import_core.path.resolve(base, prefix);
+  const rel = import_core.path.relative(base, dirpath);
+  if (!rel || rel.startsWith("..") || import_core.path.isAbsolute(rel)) {
+    throw new import_core.Fail(`Path traversal is not allowed in tempdir prefix: "${prefix}"`);
+  }
   import_vendor.fs.mkdirSync(dirpath, { recursive: true, mode });
   return dirpath;
 }
 function tempfile(name, data, mode) {
-  const filepath = name ? import_core.path.join(tempdir(), name) : import_core.path.join(import_core.os.tmpdir(), `zx-${(0, import_util.randomId)()}`);
+  let filepath;
+  if (name !== void 0) {
+    if (typeof name !== "string" || !name || name === "." || name === ".." || name.includes("\0") || name.includes("/") || name.includes("\\") || name.split(/[/\\]/).some((part) => part === "..")) {
+      throw new import_core.Fail(`Path traversal is not allowed in tempfile name: "${name}"`);
+    }
+    const dir = tempdir();
+    filepath = import_core.path.join(dir, name);
+    const rel = import_core.path.relative(dir, filepath);
+    if (!rel || rel.startsWith("..") || import_core.path.isAbsolute(rel)) {
+      throw new import_core.Fail(`Path traversal is not allowed in tempfile name: "${name}"`);
+    }
+  } else {
+    filepath = import_core.path.join(import_core.os.tmpdir(), `zx-${(0, import_util.randomId)()}`);
+  }
   if (data === void 0) import_vendor.fs.closeSync(import_vendor.fs.openSync(filepath, "w", mode));
   else import_vendor.fs.writeFileSync(filepath, data, { mode });
   return filepath;
