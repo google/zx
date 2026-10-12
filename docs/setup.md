@@ -59,6 +59,8 @@ brew install zx
 
 :::
 
+To let Nix provide zx when running a script, see the [Nix guide](./nix).
+
 ### Channels
 
 zx is distributed in several versions, each with its own set of features.
