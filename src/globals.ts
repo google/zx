@@ -39,6 +39,7 @@ declare global {
   var os: typeof _.os
   var parseArgv: typeof _.parseArgv
   var path: typeof _.path
+  var pool: typeof _.pool
   var ps: typeof _.ps
   var question: typeof _.question
   var quiet: typeof _.quiet

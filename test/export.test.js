@@ -460,6 +460,7 @@ describe('index', () => {
     assert.equal(typeof index.path.sep, 'string', 'index.path.sep')
     assert.equal(typeof index.path.toNamespacedPath, 'function', 'index.path.toNamespacedPath')
     assert.equal(typeof index.path.win32, 'object', 'index.path.win32')
+    assert.equal(typeof index.pool, 'function', 'index.pool')
     assert.equal(typeof index.ps, 'object', 'index.ps')
     assert.equal(typeof index.ps.kill, 'function', 'index.ps.kill')
     assert.equal(typeof index.ps.lookup, 'function', 'index.ps.lookup')

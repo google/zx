@@ -242,6 +242,35 @@ syncProcessCwd(false) // pass false to disable the hook
 
 > This feature is disabled by default because of performance overhead.
 
+## `pool()`
+
+Runs task functions with a concurrency limit. Whenever a task finishes, the next
+task starts without waiting for the other running tasks. Results are returned in
+input order.
+
+```js
+const files = await glob('images/*.png')
+const results = await pool(4, files.map(file => () => $`optipng ${file}`))
+```
+
+Pass functions that start the work when called. Commands and promises created
+before calling `pool()` have already started and cannot be limited by the pool.
+Tasks may return ordinary values, promises, or `ProcessPromise` instances.
+
+The concurrency must be a positive safe integer. The task list can be any
+synchronous iterable, including a generator; tasks are read only when a worker
+is available. An empty iterable returns an empty array.
+
+If a task throws or rejects, the pool stops starting new tasks, waits for the
+running tasks to settle, and rejects with the first observed error. Running
+commands are not killed. If the iterator has not finished, its `return()` method
+is called for cleanup; a cleanup error does not replace the task error.
+
+```js
+// Handle errors per task to let the pool continue through every file.
+const results = await pool(4, files.map(file => () => $`optipng ${file}`.nothrow()))
+```
+
 ## `retry()`
 
 Retries a callback for a few times. Will return the first
