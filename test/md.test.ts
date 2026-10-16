@@ -23,7 +23,25 @@ describe('transformMarkdown()', () => {
     })
 
     test('preserves tab-indented blocks after a blank line (legacy behavior)', () => {
-      assert.equal(transformMarkdown('  \n    '), '  \n    ')
+      assert.equal(
+        transformMarkdown('\n\tconsole.log("hello")'),
+        '// \n\tconsole.log("hello")'
+      )
+    })
+
+    test('preserves 4-space indented blocks after a blank line', () => {
+      assert.equal(
+        transformMarkdown('\n    console.log("hello")'),
+        '// \n    console.log("hello")'
+      )
+    })
+
+    test('does not treat indented list/paragraph text with <4 spaces as code blocks (#1388)', () => {
+      const input =
+        '- item 1\n- item 2\n\n  This template assumes you have pnpm installed.'
+      const expected =
+        '// - item 1\n// - item 2\n// \n//   This template assumes you have pnpm installed.'
+      assert.equal(transformMarkdown(input), expected)
     })
 
     test('does not treat a mid-paragraph fence as a fenced block (legacy behavior)', () => {
