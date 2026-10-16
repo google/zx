@@ -202,6 +202,53 @@ export async function stdin(stream: Readable = process.stdin): Promise<string> {
   return buf
 }
 
+export async function pool<T>(
+  concurrency: number,
+  tasks: Iterable<() => T | PromiseLike<T>>
+): Promise<Awaited<T>[]> {
+  if (!Number.isSafeInteger(concurrency) || concurrency < 1)
+    throw new Fail('Pool concurrency must be a positive safe integer.')
+
+  const iterator = tasks[Symbol.iterator]()
+  const results: Awaited<T>[] = []
+  let index = 0
+  let done = false
+  let failed = false
+  let failure: unknown
+
+  const work = async () => {
+    while (!failed && !done) {
+      try {
+        const task = iterator.next()
+        if (task.done) {
+          done = true
+          return
+        }
+        const i = index++
+        results[i] = await task.value()
+      } catch (err) {
+        if (!failed) {
+          failed = true
+          failure = err
+        }
+      }
+    }
+  }
+
+  const workers: Promise<void>[] = []
+  for (let i = 0; i < concurrency && !done && !failed; i++) workers.push(work())
+  await Promise.all(workers)
+
+  if (failed) {
+    try {
+      if (!done) iterator.return?.()
+    } finally {
+      throw failure
+    }
+  }
+  return results
+}
+
 export async function retry<T>(count: number, callback: () => T): Promise<T>
 export async function retry<T>(
   count: number,

@@ -12,8 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { expectType } from 'tsd'
-import { $, echo, sleep, spinner, retry, expBackoff } from 'zx'
+import { expectType, expectError } from 'tsd'
+import {
+  $,
+  echo,
+  sleep,
+  spinner,
+  retry,
+  expBackoff,
+  pool,
+  ProcessOutput,
+} from 'zx'
 
 echo`Date is ${await $`date`}`
 echo('Hello, world!')
@@ -25,3 +34,11 @@ expectType<'foo'>(await spinner(() => 'foo' as 'foo'))
 expectType<'bar'>(await spinner('title', () => 'bar' as 'bar'))
 expectType<'foo'>(await retry(0, () => 'foo' as 'foo'))
 expectType<Generator<number, void, unknown>>(expBackoff())
+
+expectType<number[]>(await pool(2, [() => 1, async () => 2]))
+expectType<'foo'[]>(await pool(2, [() => 'foo' as const]))
+expectType<ProcessOutput[]>(await pool(2, [() => $`echo foo`]))
+expectType<void[]>(await pool(2, [() => {}]))
+expectType<number[]>(await pool(2, new Set([() => Promise.resolve(1)])))
+expectError(pool(2, [Promise.resolve(1)]))
+expectError(pool('2', [() => 1]))

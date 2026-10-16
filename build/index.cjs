@@ -27,6 +27,7 @@ __export(index_exports, {
   minimist: () => import_vendor2.minimist,
   nothrow: () => nothrow,
   parseArgv: () => parseArgv,
+  pool: () => pool,
   question: () => question,
   quiet: () => quiet,
   retry: () => retry,
@@ -189,6 +190,48 @@ function stdin() {
     return buf;
   });
 }
+function pool(concurrency, tasks) {
+  return __async(this, null, function* () {
+    var _a;
+    if (!Number.isSafeInteger(concurrency) || concurrency < 1)
+      throw new import_core.Fail("Pool concurrency must be a positive safe integer.");
+    const iterator = tasks[Symbol.iterator]();
+    const results = [];
+    let index = 0;
+    let done = false;
+    let failed = false;
+    let failure;
+    const work = () => __async(null, null, function* () {
+      while (!failed && !done) {
+        try {
+          const task = iterator.next();
+          if (task.done) {
+            done = true;
+            return;
+          }
+          const i = index++;
+          results[i] = yield task.value();
+        } catch (err) {
+          if (!failed) {
+            failed = true;
+            failure = err;
+          }
+        }
+      }
+    });
+    const workers = [];
+    for (let i = 0; i < concurrency && !done && !failed; i++) workers.push(work());
+    yield Promise.all(workers);
+    if (failed) {
+      try {
+        if (!done) (_a = iterator.return) == null ? void 0 : _a.call(iterator);
+      } finally {
+        throw failure;
+      }
+    }
+    return results;
+  });
+}
 function retry(count, d, cb) {
   return __async(this, null, function* () {
     if (typeof d === "function") return retry(count, 0, d);
@@ -279,6 +322,7 @@ function quiet(promise) {
   minimist,
   nothrow,
   parseArgv,
+  pool,
   question,
   quiet,
   retry,
