@@ -36,6 +36,13 @@ describe('transformMarkdown()', () => {
       )
     })
 
+    test('preserves blocks indented with spaces and a tab (equivalent to 4 spaces)', () => {
+      assert.equal(
+        transformMarkdown('\n  \tconsole.log("hello")'),
+        '// \n  \tconsole.log("hello")'
+      )
+    })
+
     test('does not treat indented list/paragraph text with <4 spaces as code blocks (#1388)', () => {
       const input =
         '- item 1\n- item 2\n\n  This template assumes you have pnpm installed.'
