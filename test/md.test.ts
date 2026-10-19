@@ -122,4 +122,40 @@ echo "4"
     const expected = '// a\n// b\n// c\n// d\n// e\n// f'
     assert.equal(transformMarkdown(input), expected)
   })
+
+  describe('bash fence template escaping', () => {
+    test('escapes ${...} interpolation in bash fences', () => {
+      const result = transformMarkdown('```bash\necho ${USER}\n```')
+      assert.ok(
+        result.includes('\\${USER}'),
+        'interpolation was not escaped in bash fence'
+      )
+    })
+
+    test('escapes backticks in bash fences', () => {
+      const result = transformMarkdown('```bash\necho `date`\n```')
+      assert.ok(
+        result.includes('\\`date\\`'),
+        'backticks were not escaped in bash fence'
+      )
+    })
+
+    test('does not escape ${...} in js fences', () => {
+      const result = transformMarkdown(
+        '```js\nconsole.log(`${process.env.HOME}`)\n```'
+      )
+      assert.ok(
+        result.includes('${process.env.HOME}'),
+        'JS interpolation was incorrectly escaped in js fence'
+      )
+    })
+
+    test('bash fence $VAR and $(cmd) pass through unmodified', () => {
+      const result = transformMarkdown(
+        '```bash\necho $HOME\necho $(whoami)\n```'
+      )
+      assert.ok(result.includes('echo $HOME'), '$VAR incorrectly modified')
+      assert.ok(result.includes('echo $(whoami)'), '$() incorrectly modified')
+    })
+  })
 })
