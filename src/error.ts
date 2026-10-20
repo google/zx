@@ -223,11 +223,19 @@ export class Fail extends Error {
       .split(/^\s*(at\s)?/m)
       .filter((s) => s?.includes(':'))
     const i = lines.findIndex((l) => l.includes('Proxy.set'))
-    const offset = i < 0 ? i : i + 2
+    // A CJS stack has no `file://` marker and puts the caller behind zx's own
+    // frames, so skip those plus node internals and keep the first frame left.
+    const own = lines[1]?.match(/\(([^()]+):\d+:\d+\)/)?.[1]
+    const caller =
+      i >= 0
+        ? lines[i + 2]
+        : lines
+            .slice(1)
+            .find((l) => !/node:/.test(l) && !(own && l.includes(own)))
 
     return (
       lines.find((l) => l.includes('file://')) ||
-      lines[offset] ||
+      caller ||
       stackString
     ).trim()
   }
