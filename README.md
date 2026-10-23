@@ -51,7 +51,7 @@ See also [**zx@lite**](https://google.github.io/zx/lite).
 
 ## See also
 
-- [MAML](https://maml.dev) — JSON for config, with comments, multiline strings, unquoted keys, and optional commas.
+- [Ant](https://github.com/ant-src/ant) - A small language with TypeScript-like syntax, and goroutine-style concurrency.
 
 ## License
 
