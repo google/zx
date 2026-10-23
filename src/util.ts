@@ -95,7 +95,8 @@ export function quotePowerShell(arg: string): string {
   if (arg === '') return `''`
   if (/^[\w/.\-@:=,+%]+$/.test(arg)) return arg
 
-  return `'` + arg.replace(/'/g, "''") + `'`
+  // PowerShell treats U+2018, U+2019, U+201A and U+201B as single quotes too.
+  return `'` + arg.replace(/(['\u2018\u2019\u201A\u201B])/g, '$1$1') + `'`
 }
 
 export type Duration =
