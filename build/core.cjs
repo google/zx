@@ -236,10 +236,12 @@ ${details}`;
     return EXIT_CODES[exitCode];
   }
   static getCallerLocationFromString(stackString = "unknown") {
+    var _a, _b;
     const lines = stackString.split(/^\s*(at\s)?/m).filter((s) => s == null ? void 0 : s.includes(":"));
     const i = lines.findIndex((l) => l.includes("Proxy.set"));
-    const offset = i < 0 ? i : i + 2;
-    return (lines.find((l) => l.includes("file://")) || lines[offset] || stackString).trim();
+    const own = (_b = (_a = lines[1]) == null ? void 0 : _a.match(/\(([^()]+):\d+:\d+\)/)) == null ? void 0 : _b[1];
+    const caller = i >= 0 ? lines[i + 2] : lines.slice(1).find((l) => !/node:/.test(l) && !(own && l.includes(own)));
+    return (lines.find((l) => l.includes("file://")) || caller || stackString).trim();
   }
   static getCallerLocation(err = new Error("zx error")) {
     return _Fail.getCallerLocationFromString(err.stack);

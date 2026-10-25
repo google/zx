@@ -27,6 +27,13 @@ require('zx/globals')
     assert.match(p.message, /exit code: 3/)
   }
 
+  // resolves the CJS caller instead of dumping the whole stack
+  {
+    const p = await $({ nothrow: true })`exit 3`
+    assert.match(p.message, /at .*node\.test\.cjs:\d+:\d+\n {4}exit code: 3/)
+    assert.ok(!p.message.includes('core.cjs'), 'no zx frames in the message')
+  }
+
   // which() resolves a known binary
   {
     const async = await which('node')
