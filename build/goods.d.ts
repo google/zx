@@ -29,6 +29,7 @@ export declare function question(query?: string, { choices, input, output, }?: {
     output?: NodeJS.WriteStream;
 }): Promise<string>;
 export declare function stdin(stream?: Readable): Promise<string>;
+export declare function pool<T>(concurrency: number, tasks: Iterable<() => T | PromiseLike<T>>): Promise<Awaited<T>[]>;
 export declare function retry<T>(count: number, callback: () => T): Promise<T>;
 export declare function retry<T>(count: number, duration: Duration | Generator<number>, callback: () => T): Promise<T>;
 export declare function expBackoff(max?: Duration, delay?: Duration): Generator<number, void, unknown>;

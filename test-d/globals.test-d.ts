@@ -27,5 +27,6 @@ expectType<ProcessOutput>(o)
 
 expectType<string>(quote('foo'))
 expectType<string>(quotePowerShell('foo'))
+expectType<number[]>(await pool(2, [() => 1]))
 
 expectType<ParsedArgs>(minimist(['--foo', 'bar']))
