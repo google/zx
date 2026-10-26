@@ -285,3 +285,48 @@ export async function spinner<T>(
     }
   })
 }
+
+export type PoolOptions = {
+  concurrency: number
+}
+
+export async function pool<T, R>(
+  items: T[],
+  callback: (item: T) => R | Promise<R>,
+  opts?: PoolOptions
+): Promise<Awaited<R>[]>
+export async function pool<T, R>(
+  items: T[],
+  callback: (item: T) => R | Promise<R>,
+  concurrency?: number
+): Promise<Awaited<R>[]>
+export async function pool<T, R>(
+  items: T[],
+  callback: (item: T) => R | Promise<R>,
+  optsOrConcurrency: PoolOptions | number = { concurrency: 4 }
+): Promise<Awaited<R>[]> {
+  const concurrency =
+    typeof optsOrConcurrency === 'number'
+      ? optsOrConcurrency
+      : optsOrConcurrency.concurrency
+  if (concurrency < 1)
+    throw new Fail('Pool concurrency must be at least 1')
+
+  const results: Awaited<R>[] = new Array(items.length)
+  let idx = 0
+
+  async function worker() {
+    while (idx < items.length) {
+      const i = idx++
+      results[i] = await callback(items[i])
+    }
+  }
+
+  const workers = Array.from(
+    { length: Math.min(concurrency, items.length) },
+    () => worker()
+  )
+  await Promise.all(workers)
+
+  return results
+}
