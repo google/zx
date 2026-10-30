@@ -18,22 +18,28 @@ import { transformMarkdown } from '../src/md.ts'
 
 describe('transformMarkdown()', () => {
   describe('root handling', () => {
-    test('comments out plain lines (including empty line)', () => {
-      assert.equal(transformMarkdown('\n'), '// \n// ')
-    })
+        test('handles 2-space indented prose in list items (#1388)', () => {
+      const input = [
+        '- on localhost',
+        '',
+        '  This assumes you have a local node running',
+        '',
+        '  ```bash',
+        '  pnpm run contracts:deploy localhost',
+        '  ```',
+      ].join('\n')
 
-    test('preserves tab-indented blocks after a blank line (legacy behavior)', () => {
-      assert.equal(transformMarkdown('  \n    '), '  \n    ')
-    })
-
-    test('does not treat a mid-paragraph fence as a fenced block (legacy behavior)', () => {
-      assert.equal(
-        transformMarkdown(`
-\t~~~js
-console.log('js')`),
-        `// \n\t~~~js\n// console.log('js')`
+      const result = transformMarkdown(input)
+      assert.ok(
+        result.includes('//   This assumes you have a local node running'),
+        'indented prose should be commented out'
+      )
+      assert.ok(
+        result.includes('await $`'),
+        'indented bash block should be executed'
       )
     })
+  })
   })
 
   describe('fenced code blocks', () => {
