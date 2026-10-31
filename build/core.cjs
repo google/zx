@@ -750,8 +750,8 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     return this.toString();
   }
   // Output formatters
-  json() {
-    return this.then((o) => o.json());
+  json(options, reviver) {
+    return this.then((o) => o.json(options, reviver));
   }
   text(encoding) {
     return this.then((o) => o.text(encoding));
@@ -1028,8 +1028,19 @@ var _ProcessOutput = class _ProcessOutput extends Error {
   get ok() {
     return !this._dto.error && this.exitCode === 0;
   }
-  json() {
-    return JSON.parse(this.stdall);
+  json(options, reviver) {
+    let source;
+    let r = reviver;
+    if (typeof options === "string") {
+      source = options;
+    } else if (typeof options === "object" && options !== null) {
+      source = options.source;
+      r = r != null ? r : options.reviver;
+    } else if (typeof options === "function") {
+      r = options;
+    }
+    const raw = source ? this[source] : this.stdout.trim() ? this.stdout : this.stdall;
+    return JSON.parse(raw, r);
   }
   buffer() {
     return import_node_buffer.Buffer.from(this.stdall);
