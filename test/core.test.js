@@ -1413,6 +1413,15 @@ describe('core', () => {
 
     test('json()', async () => {
       assert.deepEqual(await $`echo '{"key":"value"}'`.json(), { key: 'value' })
+
+      // #1505: parses stdout by default when CLI emits progress logs to stderr
+      const p = $({
+        quiet: true,
+      })`node -e 'console.error("progress..."); console.log(JSON.stringify({ok:true}))'`
+      assert.deepEqual(await p.json(), { ok: true })
+      assert.deepEqual(await p.json('stdout'), { ok: true })
+      assert.deepEqual(await p.json({ source: 'stdout' }), { ok: true })
+      await assert.rejects(async () => await p.json('stdall'), /SyntaxError/)
     })
 
     test('text()', async () => {
@@ -1504,6 +1513,34 @@ describe('core', () => {
     test('json()', async () => {
       const o = new ProcessOutput(null, null, '', '', '{"key":"value"}')
       assert.deepEqual(o.json(), { key: 'value' })
+
+      // #1505: parses stdout by default and supports source option
+      const o1 = new ProcessOutput(
+        0,
+        null,
+        '{"ok":true}',
+        'progress log\n',
+        'progress log\n{"ok":true}'
+      )
+      assert.deepEqual(o1.json(), { ok: true })
+      assert.deepEqual(o1.json('stdout'), { ok: true })
+      assert.deepEqual(o1.json({ source: 'stdout' }), { ok: true })
+      assert.throws(() => o1.json('stdall'), /SyntaxError/)
+
+      const o2 = new ProcessOutput(
+        0,
+        null,
+        'plain text',
+        '{"err":404}',
+        'plain text\n{"err":404}'
+      )
+      assert.deepEqual(o2.json('stderr'), { err: 404 })
+
+      // reviver function support
+      assert.deepEqual(
+        o1.json('stdout', (k, v) => (k === 'ok' ? 'done' : v)),
+        { ok: 'done' }
+      )
     })
 
     test('text()', async () => {

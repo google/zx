@@ -131,6 +131,12 @@ type Snapshot = Options & {
   ac:             AbortController
 }
 
+export type ProcessOutputJsonSource = 'stdout' | 'stderr' | 'stdall'
+export type ProcessOutputJsonOptions = {
+  source?: ProcessOutputJsonSource
+  reviver?: (this: any, key: string, value: any) => any
+}
+
 // prettier-ignore
 export const defaults: Options = resolveDefaults({
   [CWD]:          process.cwd(),
@@ -574,8 +580,14 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   // Output formatters
-  json<T = any>(): Promise<T> {
-    return this.then((o) => o.json<T>())
+  json<T = any>(
+    options?:
+      | ProcessOutputJsonSource
+      | ProcessOutputJsonOptions
+      | ((this: any, key: string, value: any) => any),
+    reviver?: (this: any, key: string, value: any) => any
+  ): Promise<T> {
+    return this.then((o) => o.json<T>(options, reviver))
   }
 
   text(encoding?: Encoding): Promise<string> {
@@ -933,8 +945,32 @@ export class ProcessOutput extends Error {
     return !this._dto.error && this.exitCode === 0
   }
 
-  json<T = any>(): T {
-    return JSON.parse(this.stdall)
+  json<T = any>(
+    options?:
+      | ProcessOutputJsonSource
+      | ProcessOutputJsonOptions
+      | ((this: any, key: string, value: any) => any),
+    reviver?: (this: any, key: string, value: any) => any
+  ): T {
+    let source: ProcessOutputJsonSource | undefined
+    let r = reviver
+
+    if (typeof options === 'string') {
+      source = options
+    } else if (typeof options === 'object' && options !== null) {
+      source = options.source
+      r = r ?? options.reviver
+    } else if (typeof options === 'function') {
+      r = options
+    }
+
+    const raw = source
+      ? this[source]
+      : this.stdout.trim()
+        ? this.stdout
+        : this.stdall
+
+    return JSON.parse(raw, r)
   }
 
   buffer(): Buffer {
