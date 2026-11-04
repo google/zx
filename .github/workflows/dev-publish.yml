@@ -13,10 +13,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 26
           cache: 'npm'
@@ -24,7 +24,7 @@ jobs:
       - run: npm test
         env:
           FORCE_COLOR: 3
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: build-${{ github.run_id }}
           path: |
@@ -43,7 +43,7 @@ jobs:
       dev: ${{ steps.ref.outputs.ZX_VERSION }}-dev.${{ steps.ref.outputs.SHA_SHORT }}
       lite-dev: ${{ steps.ref.outputs.ZX_VERSION }}-lite-dev.${{ steps.ref.outputs.SHA_SHORT }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - id: ref
@@ -69,10 +69,10 @@ jobs:
       ZX_DEV_VERSION: ${{ needs.version.outputs.dev }}
       ZX_LITE_DEV_VERSION: ${{ needs.version.outputs.lite-dev }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 26
           cache: 'npm'
@@ -81,7 +81,7 @@ jobs:
           echo "//${{ env.GOOGLE_NPM_REGISTRY }}/:_authToken=$GOOGLE_NPM_TOKEN" >> .npmrc
           echo "//${{ env.GH_NPM_REGISTRY }}/:_authToken=$GH_NPM_TOKEN" >> .npmrc
 
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: build-${{ github.run_id }}
 
@@ -111,14 +111,14 @@ jobs:
     env:
       ZX_DEV_VERSION: ${{ needs.version.outputs.dev }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 26
           cache: 'npm'
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: build-${{ github.run_id }}
       - name: pushing to jsr.io
@@ -144,17 +144,17 @@ jobs:
       ZX_DEV_VERSION: ${{ needs.version.outputs.dev }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: build-${{ github.run_id }}
 
       # Uses the `docker/login-action` action to log in to the Container registry using the account and password that will publish the packages. Once published, the packages are scoped to the account defined here.
       - name: Log in to the Container registry
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -162,7 +162,7 @@ jobs:
       # This step uses [docker/metadata-action](https://github.com/docker/metadata-action#about) to extract tags and labels that will be applied to the specified image. The `id` "meta" allows the output of this step to be referenced in a subsequent step. The `images` value provides the base name for the tags and labels.
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
@@ -173,7 +173,7 @@ jobs:
       # It uses the `tags` and `labels` parameters to tag and label the image with the output from the "meta" step.
       - name: Build and push Docker image
         id: push
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 #v6.18.0
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: ./
           file: ./dcr/Dockerfile
@@ -183,7 +183,7 @@ jobs:
 
       # This step generates an artifact attestation for the image, which is an unforgeable statement about where and how it was built. It increases supply chain security for people who consume the image. For more information, see [Using artifact attestations to establish provenance for builds](/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds).
       - name: Generate artifact attestation
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
           subject-digest: ${{ steps.push.outputs.digest }}
