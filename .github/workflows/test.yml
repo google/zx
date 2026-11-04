@@ -23,10 +23,10 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Use Node.js 24
+      - name: Use Node.js 26
         uses: actions/setup-node@v6
         with:
-          node-version: 24
+          node-version: 26
           cache: 'npm'
 
       - run: npm ci
@@ -53,10 +53,10 @@ jobs:
           persist-credentials: false
           fetch-depth: ${{ github.event_name == 'pull_request' && '15' || '1' }} # to ensure we have enough history for commitlint
 
-      - name: Use Node.js 24
+      - name: Use Node.js 26
         uses: actions/setup-node@v6
         with:
-          node-version: 24
+          node-version: 26
           cache: 'npm'
 
       - uses: actions/download-artifact@v7
@@ -104,10 +104,10 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Use Node.js 24
+      - name: Use Node.js 26
         uses: actions/setup-node@v6
         with:
-          node-version: 24
+          node-version: 26
           cache: 'npm'
 
       - uses: actions/download-artifact@v7
@@ -267,15 +267,15 @@ jobs:
     name: smoke-ts${{ matrix.ts }}
     strategy:
       matrix:
-        ts: [4, 5, 6, rc, next]
+        ts: [4, 5, 6, 7, rc, next]
     steps:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - name: Use Node.js 24
+      - name: Use Node.js 26
         uses: actions/setup-node@v6
         with:
-          node-version: 24
+          node-version: 26
           cache: 'npm'
 
       - name: Install deps
@@ -294,5 +294,5 @@ jobs:
       - name: tsx
         run: npm run test:smoke:tsx
       - name: ts-node
-        if: matrix.ts != 'rc' # ts7 dropped default "./" export point
+        if: matrix.ts < 7 # ts7 dropped default "./" export point
         run: npm run test:smoke:ts-node

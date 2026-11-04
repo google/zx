@@ -20,8 +20,8 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v6
         with:
-          node-version: 24
-          cache: 'npm'
+          node-version: 26
+          package-manager-cache: false
       - name: Compare release tag with package.json
         if: github.event_name == 'release'
         run: |
@@ -83,8 +83,8 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v6
         with:
-          node-version: 24
-          cache: 'npm'
+          node-version: 26
+          package-manager-cache: false
       - name: Configure npmrc
         run: |
           echo "//${{ env.GOOGLE_NPM_REGISTRY }}/:_authToken=$GOOGLE_NPM_TOKEN" >> .npmrc
@@ -120,8 +120,8 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v6
         with:
-          node-version: 24
-          cache: 'npm'
+          node-version: 26
+          package-manager-cache: false
       - uses: actions/download-artifact@v7
         with:
           name: build-${{ github.run_id }}
