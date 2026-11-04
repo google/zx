@@ -19,42 +19,11 @@ import { spawnSync } from 'node:child_process'
 // Acknowledged advisories (GHSA ids) that should not fail the audit.
 // Each entry needs a reason so future readers can re-evaluate.
 const ALLOWED = [
-  {
-    id: 'GHSA-4w7w-66w2-5vf9',
-    reason:
-      'vite path traversal via `.map`. Reachable only through vitepress (devDep, docs build). No upstream fix available yet.',
-  },
-  {
-    id: 'GHSA-v6wh-96g9-6wx3',
-    reason:
-      'launch-editor: NTLMv2 hash disclosure via UNC path handling on Windows. No upstream fix available yet.',
-  },
-  {
-    id: 'GHSA-fx2h-pf6j-xcff',
-    reason:
-      '`server.fs.deny` bypass on Windows alternate paths. No upstream fix available yet.',
-  },
-  {
-    id: 'GHSA-3g3m-2fjr-6pw4',
-  },
-  {
-    id: 'GHSA-9jrq-w75r-8gcw',
-  },
-  {
-    id: 'GHSA-587h-7wmj-h5pm',
-  },
-  {
-    id: 'GHSA-rq7h-c2jc-7f22',
-  },
-  {
-    id: 'GHSA-g3hv-75wg-m249',
-  },
-  {
-    id: 'GHSA-698v-4r3x-3vcv',
-  },
-  {
-    id: 'GHSA-r825-w8mm-5pxw',
-  },
+  // {
+  //   id: 'GHSA-4w7w-66w2-5vf9',
+  //   reason:
+  //     'vite path traversal via `.map`. Reachable only through vitepress (devDep, docs build). No upstream fix available yet.',
+  // },
 ]
 
 const allowed = new Map(ALLOWED.map((a) => [a.id, a]))
