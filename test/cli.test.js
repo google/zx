@@ -283,7 +283,10 @@ console.log(a);
   test('scripts from https 500', async () => {
     const port = await getPort()
     const server = await fakeServer([`HTTP/1.1 500\n\n500\n`]).listen(port)
-    const out = await $`node build/cli.js http://127.0.0.1:${port}`.nothrow()
+    const out = await $({
+      timeout: '5s',
+      nothrow: true,
+    })`node build/cli.js http://127.0.0.1:${port}`
     assert.match(out.stderr, /Error: Can't get/)
     assert.match(out.stderr, /Failed to fetch remote script/)
     assert.equal(out.exitCode, 1)

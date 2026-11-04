@@ -3153,7 +3153,7 @@ var require_micromatch = __commonJS({
       const index = v2.indexOf("{");
       return index > -1 && v2.indexOf("}", index) > -1;
     };
-    var micromatch = (list, patterns, options) => {
+    var micromatch2 = (list, patterns, options) => {
       patterns = [].concat(patterns);
       list = [].concat(list);
       let omit = /* @__PURE__ */ new Set();
@@ -3194,11 +3194,11 @@ var require_micromatch = __commonJS({
       }
       return matches;
     };
-    micromatch.match = micromatch;
-    micromatch.matcher = (pattern, options) => picomatch(pattern, options);
-    micromatch.isMatch = (str, patterns, options) => picomatch(patterns, options)(str);
-    micromatch.any = micromatch.isMatch;
-    micromatch.not = (list, patterns, options = {}) => {
+    micromatch2.match = micromatch2;
+    micromatch2.matcher = (pattern, options) => picomatch(pattern, options);
+    micromatch2.isMatch = (str, patterns, options) => picomatch(patterns, options)(str);
+    micromatch2.any = micromatch2.isMatch;
+    micromatch2.not = (list, patterns, options = {}) => {
       patterns = [].concat(patterns).map(String);
       let result = /* @__PURE__ */ new Set();
       let items = [];
@@ -3206,7 +3206,7 @@ var require_micromatch = __commonJS({
         if (options.onResult) options.onResult(state);
         items.push(state.output);
       };
-      let matches = new Set(micromatch(list, patterns, __spreadProps(__spreadValues({}, options), { onResult })));
+      let matches = new Set(micromatch2(list, patterns, __spreadProps(__spreadValues({}, options), { onResult })));
       for (let item of items) {
         if (!matches.has(item)) {
           result.add(item);
@@ -3214,12 +3214,12 @@ var require_micromatch = __commonJS({
       }
       return [...result];
     };
-    micromatch.contains = (str, pattern, options) => {
+    micromatch2.contains = (str, pattern, options) => {
       if (typeof str !== "string") {
         throw new TypeError(`Expected a string: "${util.inspect(str)}"`);
       }
       if (Array.isArray(pattern)) {
-        return pattern.some((p2) => micromatch.contains(str, p2, options));
+        return pattern.some((p2) => micromatch2.contains(str, p2, options));
       }
       if (typeof pattern === "string") {
         if (isEmptyString(str) || isEmptyString(pattern)) {
@@ -3229,18 +3229,18 @@ var require_micromatch = __commonJS({
           return true;
         }
       }
-      return micromatch.isMatch(str, pattern, __spreadProps(__spreadValues({}, options), { contains: true }));
+      return micromatch2.isMatch(str, pattern, __spreadProps(__spreadValues({}, options), { contains: true }));
     };
-    micromatch.matchKeys = (obj, patterns, options) => {
+    micromatch2.matchKeys = (obj, patterns, options) => {
       if (!utils.isObject(obj)) {
         throw new TypeError("Expected the first argument to be an object");
       }
-      let keys = micromatch(Object.keys(obj), patterns, options);
+      let keys = micromatch2(Object.keys(obj), patterns, options);
       let res = {};
       for (let key of keys) res[key] = obj[key];
       return res;
     };
-    micromatch.some = (list, patterns, options) => {
+    micromatch2.some = (list, patterns, options) => {
       let items = [].concat(list);
       for (let pattern of [].concat(patterns)) {
         let isMatch = picomatch(String(pattern), options);
@@ -3250,7 +3250,7 @@ var require_micromatch = __commonJS({
       }
       return false;
     };
-    micromatch.every = (list, patterns, options) => {
+    micromatch2.every = (list, patterns, options) => {
       let items = [].concat(list);
       for (let pattern of [].concat(patterns)) {
         let isMatch = picomatch(String(pattern), options);
@@ -3260,13 +3260,13 @@ var require_micromatch = __commonJS({
       }
       return true;
     };
-    micromatch.all = (str, patterns, options) => {
+    micromatch2.all = (str, patterns, options) => {
       if (typeof str !== "string") {
         throw new TypeError(`Expected a string: "${util.inspect(str)}"`);
       }
       return [].concat(patterns).every((p2) => picomatch(p2, options)(str));
     };
-    micromatch.capture = (glob2, input, options) => {
+    micromatch2.capture = (glob2, input, options) => {
       let posix = utils.isWindows(options);
       let regex = picomatch.makeRe(String(glob2), __spreadProps(__spreadValues({}, options), { capture: true }));
       let match = regex.exec(posix ? utils.toPosixSlashes(input) : input);
@@ -3274,9 +3274,9 @@ var require_micromatch = __commonJS({
         return match.slice(1).map((v2) => v2 === void 0 ? "" : v2);
       }
     };
-    micromatch.makeRe = (...args) => picomatch.makeRe(...args);
-    micromatch.scan = (...args) => picomatch.scan(...args);
-    micromatch.parse = (patterns, options) => {
+    micromatch2.makeRe = (...args) => picomatch.makeRe(...args);
+    micromatch2.scan = (...args) => picomatch.scan(...args);
+    micromatch2.parse = (patterns, options) => {
       let res = [];
       for (let pattern of [].concat(patterns || [])) {
         for (let str of braces(String(pattern), options)) {
@@ -3285,19 +3285,19 @@ var require_micromatch = __commonJS({
       }
       return res;
     };
-    micromatch.braces = (pattern, options) => {
+    micromatch2.braces = (pattern, options) => {
       if (typeof pattern !== "string") throw new TypeError("Expected a string");
       if (options && options.nobrace === true || !hasBraces(pattern)) {
         return [pattern];
       }
       return braces(pattern, options);
     };
-    micromatch.braceExpand = (pattern, options) => {
+    micromatch2.braceExpand = (pattern, options) => {
       if (typeof pattern !== "string") throw new TypeError("Expected a string");
-      return micromatch.braces(pattern, __spreadProps(__spreadValues({}, options), { expand: true }));
+      return micromatch2.braces(pattern, __spreadProps(__spreadValues({}, options), { expand: true }));
     };
-    micromatch.hasBraces = hasBraces;
-    module2.exports = micromatch;
+    micromatch2.hasBraces = hasBraces;
+    module2.exports = micromatch2;
   }
 });
 
@@ -3309,7 +3309,7 @@ var require_pattern = __commonJS({
     exports2.isAbsolute = exports2.partitionAbsoluteAndRelative = exports2.removeDuplicateSlashes = exports2.matchAny = exports2.convertPatternsToRe = exports2.makeRe = exports2.getPatternParts = exports2.expandBraceExpansion = exports2.expandPatternsWithBraceExpansion = exports2.isAffectDepthOfReadingPattern = exports2.endsWithSlashGlobStar = exports2.hasGlobStar = exports2.getBaseDirectory = exports2.isPatternRelatedToParentDirectory = exports2.getPatternsOutsideCurrentDirectory = exports2.getPatternsInsideCurrentDirectory = exports2.getPositivePatterns = exports2.getNegativePatterns = exports2.isPositivePattern = exports2.isNegativePattern = exports2.convertToNegativePattern = exports2.convertToPositivePattern = exports2.isDynamicPattern = exports2.isStaticPattern = void 0;
     var path5 = require("path");
     var globParent = require_glob_parent();
-    var micromatch = require_micromatch();
+    var micromatch2 = require_micromatch();
     var GLOBSTAR = "**";
     var ESCAPE_SYMBOL = "\\";
     var COMMON_GLOB_SYMBOLS_RE = /[*?]|^!/;
@@ -3413,13 +3413,13 @@ var require_pattern = __commonJS({
     }
     exports2.expandPatternsWithBraceExpansion = expandPatternsWithBraceExpansion;
     function expandBraceExpansion(pattern) {
-      const patterns = micromatch.braces(pattern, { expand: true, nodupes: true, keepEscaping: true });
+      const patterns = micromatch2.braces(pattern, { expand: true, nodupes: true, keepEscaping: true });
       patterns.sort((a, b) => a.length - b.length);
       return patterns.filter((pattern2) => pattern2 !== "");
     }
     exports2.expandBraceExpansion = expandBraceExpansion;
     function getPatternParts(pattern, options) {
-      let { parts } = micromatch.scan(pattern, Object.assign(Object.assign({}, options), { parts: true }));
+      let { parts } = micromatch2.scan(pattern, Object.assign(Object.assign({}, options), { parts: true }));
       if (parts.length === 0) {
         parts = [pattern];
       }
@@ -3431,7 +3431,7 @@ var require_pattern = __commonJS({
     }
     exports2.getPatternParts = getPatternParts;
     function makeRe(pattern, options) {
-      return micromatch.makeRe(pattern, options);
+      return micromatch2.makeRe(pattern, options);
     }
     exports2.makeRe = makeRe;
     function convertPatternsToRe(patterns, options) {
@@ -6211,7 +6211,7 @@ var require_ignore = __commonJS({
       }
     };
     var factory = (options) => new Ignore(options);
-    var isPathValid = (path5) => checkPath(path5 && checkPath.convert(path5), path5, RETURN_FALSE);
+    var isPathValid2 = (path5) => checkPath(path5 && checkPath.convert(path5), path5, RETURN_FALSE);
     var setupWindows = () => {
       const makePosix = (str) => /^\\\\\?\\/.test(str) || /["<>|\u0000-\u001F]+/u.test(str) ? str : str.replace(/\\/g, "/");
       checkPath.convert = makePosix;
@@ -6226,7 +6226,7 @@ var require_ignore = __commonJS({
     }
     module2.exports = factory;
     factory.default = factory;
-    module2.exports.isPathValid = isPathValid;
+    module2.exports.isPathValid = isPathValid2;
     define(module2.exports, /* @__PURE__ */ Symbol.for("setupWindows"), setupWindows);
   }
 });
@@ -7323,7 +7323,7 @@ var require_stat = __commonJS({
           if (areIdentical(srcStat, destStat)) {
             const srcBaseName = path5.basename(src);
             const destBaseName = path5.basename(dest);
-            if (funcName === "move" && srcBaseName !== destBaseName && srcBaseName.toLowerCase() === destBaseName.toLowerCase()) {
+            if (funcName === "move" && srcBaseName !== destBaseName && isCosmeticRename(srcBaseName, destBaseName)) {
               return { srcStat, destStat, isChangingCase: true };
             }
             throw new Error("Source and destination must not be the same.");
@@ -7347,7 +7347,7 @@ var require_stat = __commonJS({
         if (areIdentical(srcStat, destStat)) {
           const srcBaseName = path5.basename(src);
           const destBaseName = path5.basename(dest);
-          if (funcName === "move" && srcBaseName !== destBaseName && srcBaseName.toLowerCase() === destBaseName.toLowerCase()) {
+          if (funcName === "move" && srcBaseName !== destBaseName && isCosmeticRename(srcBaseName, destBaseName)) {
             return { srcStat, destStat, isChangingCase: true };
           }
           throw new Error("Source and destination must not be the same.");
@@ -7364,6 +7364,9 @@ var require_stat = __commonJS({
       }
       return { srcStat, destStat };
     }
+    function isCosmeticRename(srcBaseName, destBaseName) {
+      return srcBaseName.toLowerCase().normalize("NFC") === destBaseName.toLowerCase().normalize("NFC");
+    }
     function checkParentPaths(src, srcStat, dest, funcName) {
       return __async(this, null, function* () {
         const srcParent = path5.resolve(path5.dirname(src));
@@ -7373,7 +7376,7 @@ var require_stat = __commonJS({
         try {
           destStat = yield fs6.stat(destParent, { bigint: true });
         } catch (err) {
-          if (err.code === "ENOENT") return;
+          if (err.code === "ENOENT") return checkParentPaths(src, srcStat, destParent, funcName);
           throw err;
         }
         if (areIdentical(srcStat, destStat)) {
@@ -7390,7 +7393,7 @@ var require_stat = __commonJS({
       try {
         destStat = fs6.statSync(destParent, { bigint: true });
       } catch (err) {
-        if (err.code === "ENOENT") return;
+        if (err.code === "ENOENT") return checkParentPathsSync(src, srcStat, destParent, funcName);
         throw err;
       }
       if (areIdentical(srcStat, destStat)) {
@@ -7788,7 +7791,8 @@ var require_empty = __commonJS({
         let items;
         try {
           items = yield fs6.readdir(dir);
-        } catch (e) {
+        } catch (err) {
+          if (err.code !== "ENOENT") throw err;
           return mkdir.mkdirs(dir);
         }
         return Promise.all(items.map((item) => remove.remove(path5.join(dir, item))));
@@ -7798,7 +7802,8 @@ var require_empty = __commonJS({
       let items;
       try {
         items = fs6.readdirSync(dir);
-      } catch (e) {
+      } catch (err) {
+        if (err.code !== "ENOENT") throw err;
         return mkdir.mkdirsSync(dir);
       }
       items.forEach((item) => {
@@ -8077,8 +8082,13 @@ var require_symlink = __commonJS({
               srcStat = yield fs6.stat(srcpath, { bigint: true });
             }
           }
-          const dstStat = yield fs6.stat(dstpath, { bigint: true });
-          if (areIdentical(srcStat, dstStat)) return;
+          let dstStat;
+          try {
+            dstStat = yield fs6.stat(dstpath, { bigint: true });
+          } catch (err) {
+            if (err.code !== "ENOENT") throw err;
+          }
+          if (dstStat && areIdentical(srcStat, dstStat)) return;
         }
         const relative = yield symlinkPaths(srcpath, dstpath);
         srcpath = relative.toDst;
@@ -8109,8 +8119,13 @@ var require_symlink = __commonJS({
             srcStat = fs6.statSync(srcpath, { bigint: true });
           }
         }
-        const dstStat = fs6.statSync(dstpath, { bigint: true });
-        if (areIdentical(srcStat, dstStat)) return;
+        let dstStat;
+        try {
+          dstStat = fs6.statSync(dstpath, { bigint: true });
+        } catch (err) {
+          if (err.code !== "ENOENT") throw err;
+        }
+        if (dstStat && areIdentical(srcStat, dstStat)) return;
       }
       const relative = symlinkPathsSync(srcpath, dstpath);
       srcpath = relative.toDst;
@@ -12848,7 +12863,7 @@ var import_promises2 = __toESM(require("fs").promises, 1);
 var import_node_path3 = __toESM(require("path"), 1);
 var import_node_os = __toESM(require("os"), 1);
 var import_fast_glob2 = __toESM(require_out4(), 1);
-var import_ignore = __toESM(require_ignore(), 1);
+var import_ignore2 = __toESM(require_ignore(), 1);
 
 // node_modules/is-path-inside/index.js
 var import_node_path = __toESM(require("path"), 1);
@@ -12873,6 +12888,8 @@ var import_node_fs = __toESM(require("fs"), 1);
 var import_node_path2 = __toESM(require("path"), 1);
 var import_node_util2 = require("util");
 var import_fast_glob = __toESM(require_out4(), 1);
+var import_ignore = __toESM(require_ignore(), 1);
+var import_micromatch = __toESM(require_micromatch(), 1);
 var isNegativePattern = (pattern) => pattern[0] === "!";
 var normalizeAbsolutePatternToRelative = (pattern) => {
   if (!pattern.startsWith("/")) {
@@ -13076,21 +13093,145 @@ var getParentGitignorePaths = (gitRoot, cwd) => {
   const chain = buildPathChain(import_node_path2.default.resolve(cwd), import_node_path2.default.resolve(gitRoot));
   return [...chain].reverse().map((directory) => import_node_path2.default.join(directory, ".gitignore"));
 };
-var convertPatternsForFastGlob = (patterns, usingGitRoot, normalizeDirectoryPatternForFastGlob2) => {
-  if (usingGitRoot) {
+var GITIGNORE_WILDCARDS = new RegExp("(?<!\\\\)[*?[]", "u");
+var hasGitignoreWildcards = (value) => GITIGNORE_WILDCARDS.test(value);
+var MICROMATCH_ONLY_SYNTAX = /[(){}|\\]/u;
+var unescapeGitignorePattern = (value) => value.replaceAll(/\\(.)/gu, "$1");
+var normalizeGitignorePatternForIgnore = (value) => value.replaceAll(/\\(.)/gu, (match, character) => "*[]\\".includes(character) ? match : character);
+var toLiteralPattern = (value) => import_fast_glob.default.escapePath(unescapeGitignorePattern(value));
+var finalSegment = (value) => value.replace(/\/+$/u, "").split("/").pop();
+var toStandaloneRule = (value) => value.replace(/^([#!])/u, String.raw`\$1`);
+var isInsideCwd = (relativePath) => relativePath !== "" && !relativePath.startsWith("..") && !import_node_path2.default.isAbsolute(relativePath);
+var anchorToCwd = (directory, body, cwd) => {
+  const relativePath = slash(import_node_path2.default.relative(cwd, import_node_path2.default.join(directory, body)));
+  return isInsideCwd(relativePath) ? relativePath : void 0;
+};
+var createNameComparer = () => {
+  const nameMatchers = /* @__PURE__ */ new Map();
+  const matchesName = (pattern, name) => {
+    const namePath = unescapeGitignorePattern(name);
+    if (!(0, import_ignore.isPathValid)(namePath)) {
+      return true;
+    }
+    const normalizedPattern = normalizeGitignorePatternForIgnore(pattern);
+    let nameMatcher = nameMatchers.get(normalizedPattern);
+    if (!nameMatcher) {
+      nameMatcher = (0, import_ignore.default)().add([toStandaloneRule(normalizedPattern)]);
+      nameMatchers.set(normalizedPattern, nameMatcher);
+    }
+    return nameMatcher.ignores(namePath);
+  };
+  return (pattern, name) => {
+    if (hasGitignoreWildcards(pattern) && hasGitignoreWildcards(name)) {
+      return true;
+    }
+    return hasGitignoreWildcards(name) ? matchesName(name, pattern) : matchesName(pattern, name);
+  };
+};
+var getNegationFinalSegments = (rules) => rules.filter((rule) => isNegativePattern(rule.pattern)).map((rule) => finalSegment(rule.pattern.slice(1))).filter(Boolean);
+var negationsCouldRescue = (rules, names) => {
+  if (names.length === 0) {
+    return false;
+  }
+  const couldNameTheSamePath = createNameComparer();
+  return getNegationFinalSegments(rules).some((negation) => names.some((name) => couldNameTheSamePath(name, negation)));
+};
+var expandBraceGroups = (pattern) => {
+  if (!pattern.includes("{")) {
+    return [pattern];
+  }
+  const expandedPatterns = import_fast_glob.default.generateTasks(pattern).flatMap((task) => task.patterns);
+  return expandedPatterns.length > 0 ? expandedPatterns : [pattern];
+};
+var convertIgnorePatternsForIgnoreFileSearch = (ignorePatterns, searchPatterns) => {
+  if (ignorePatterns.length === 0) {
+    return ignorePatterns;
+  }
+  const couldNameTheSamePath = createNameComparer();
+  const expandedSearchPatterns = searchPatterns.flatMap((pattern) => expandBraceGroups(pattern));
+  if (expandedSearchPatterns.some((pattern) => MICROMATCH_ONLY_SYNTAX.test(pattern.slice(0, pattern.lastIndexOf("/") + 1)))) {
     return [];
   }
-  const result = [];
-  let hasNegations = false;
-  for (const pattern of patterns) {
-    if (isNegativePattern(pattern)) {
-      hasNegations = true;
-      break;
+  const ignoreFileNames = expandedSearchPatterns.map((pattern) => finalSegment(pattern)).filter(Boolean);
+  const couldNameAnIgnoreFile = (pattern) => {
+    const name = finalSegment(pattern.replace(/\/\*\*$/u, ""));
+    if (!name || MICROMATCH_ONLY_SYNTAX.test(name)) {
+      return true;
     }
-    result.push(normalizeDirectoryPatternForFastGlob2(pattern));
-  }
-  return hasNegations ? [] : result;
+    return ignoreFileNames.some((ignoreFileName) => MICROMATCH_ONLY_SYNTAX.test(ignoreFileName) ? hasGitignoreWildcards(name) || import_micromatch.default.isMatch(unescapeGitignorePattern(name), ignoreFileName, { dot: true, nocase: true }) : couldNameTheSamePath(name, ignoreFileName));
+  };
+  return ignorePatterns.filter((pattern) => !expandBraceGroups(pattern).some((expanded) => couldNameAnIgnoreFile(expanded)));
 };
+var getRulePrune = ({ pattern, directory }, { cwd, matcher, hasNegations, canSkipAtAnyDepth, canMatchIgnoreFile, gitignoreOnlySearch }) => {
+  if (isNegativePattern(pattern)) {
+    return void 0;
+  }
+  const isDirectoryPattern = pattern.endsWith("/");
+  const clean = pattern.replace(/\/+$/u, "");
+  if (!clean) {
+    return void 0;
+  }
+  const body = clean.startsWith("**/") && !clean.slice(3).includes("/") ? clean.slice(3) : clean;
+  if (canMatchIgnoreFile(finalSegment(body))) {
+    return void 0;
+  }
+  const isGlob = hasGitignoreWildcards(body);
+  if (isGlob && MICROMATCH_ONLY_SYNTAX.test(body)) {
+    return void 0;
+  }
+  const toFastGlob = (value) => normalizeDirectoryPatternForFastGlob(`/${value}${isDirectoryPattern ? "/" : ""}`).replace(/^\//u, "");
+  if (!body.includes("/") && canSkipAtAnyDepth(body)) {
+    const relativeDirectory = slash(import_node_path2.default.relative(cwd, directory));
+    const prefix = isInsideCwd(relativeDirectory) ? `${import_fast_glob.default.escapePath(relativeDirectory)}/` : "";
+    return { pattern: toFastGlob(`${prefix}**/${isGlob ? body : toLiteralPattern(body)}`), guardName: body };
+  }
+  const anchoredBody = body.replace(/^\//u, "");
+  const target = anchorToCwd(directory, isGlob ? anchoredBody : unescapeGitignorePattern(anchoredBody), cwd);
+  if (target === void 0) {
+    return void 0;
+  }
+  const guardName = finalSegment(anchoredBody);
+  if (isGlob) {
+    return hasNegations ? void 0 : { pattern: toFastGlob(target), guardName };
+  }
+  if (!matcher(import_node_path2.default.resolve(cwd, target) + import_node_path2.default.sep).ignored) {
+    return void 0;
+  }
+  const needsGuard = !gitignoreOnlySearch || target.includes("/");
+  return {
+    pattern: toFastGlob(import_fast_glob.default.escapePath(target)),
+    guardName: needsGuard ? guardName : void 0
+  };
+};
+var buildPrunePatternsAndGuards = (rules, matcher, cwd, { gitignoreOnlySearch = false, searchesForGitignoreFiles = false } = {}) => {
+  if (!matcher || !cwd || !rules || rules.length === 0) {
+    return { patterns: [], guardNames: [] };
+  }
+  const negationNames = getNegationFinalSegments(rules);
+  const couldNameTheSamePath = createNameComparer();
+  const context = {
+    cwd,
+    matcher,
+    hasNegations: negationNames.length > 0,
+    canSkipAtAnyDepth: (pattern) => !negationNames.some((name) => couldNameTheSamePath(pattern, name)),
+    canMatchIgnoreFile: (pattern) => searchesForGitignoreFiles && couldNameTheSamePath(pattern, ".gitignore"),
+    gitignoreOnlySearch
+  };
+  const patterns = [];
+  const guardNames = [];
+  for (const rule of rules) {
+    const prune = getRulePrune(rule, context);
+    if (!prune) {
+      continue;
+    }
+    patterns.push(prune.pattern);
+    if (prune.guardName !== void 0) {
+      guardNames.push(prune.guardName);
+    }
+  }
+  return { patterns, guardNames };
+};
+var convertPatternsForFastGlob = (rules, matcher, cwd) => buildPrunePatternsAndGuards(rules, matcher, cwd).patterns;
 
 // node_modules/globby/ignore.js
 var defaultIgnoredDirectories = [
@@ -13168,17 +13309,33 @@ var dedupePaths = (paths) => {
   });
 };
 var globIgnoreFiles = (globFunction, patterns, normalizedOptions) => globFunction(patterns, __spreadValues(__spreadValues({}, normalizedOptions), ignoreFilesGlobOptions));
-var getParentIgnorePaths = (gitRoot, normalizedOptions) => gitRoot ? getParentGitignorePaths(gitRoot, normalizedOptions.cwd) : [];
-var combineIgnoreFilePaths = (gitRoot, normalizedOptions, childPaths) => dedupePaths([
-  ...getParentIgnorePaths(gitRoot, normalizedOptions),
-  ...childPaths
-]);
+var normalizeIgnoreFileLine = (line) => {
+  line = line.replace(/^\uFEFF/u, "");
+  let whitespaceStart = line.length;
+  while (whitespaceStart > 0 && /\s/u.test(line[whitespaceStart - 1])) {
+    whitespaceStart--;
+  }
+  if (whitespaceStart === line.length) {
+    return line;
+  }
+  let backslashCount = 0;
+  for (let index = whitespaceStart - 1; index >= 0 && line[index] === "\\"; index--) {
+    backslashCount++;
+  }
+  return backslashCount % 2 === 1 ? line.slice(0, whitespaceStart) + " " : line.slice(0, whitespaceStart);
+};
+var readIgnoreFileLines = (content) => content.split(/\r?\n/).map((line) => normalizeIgnoreFileLine(line)).filter((line) => line && !line.startsWith("#"));
+var getIgnoreRules = (files) => files.flatMap((file) => {
+  const directory = import_node_path3.default.dirname(file.filePath);
+  return readIgnoreFileLines(file.content).map((pattern) => ({ pattern, directory }));
+});
 var buildIgnoreResult = (files, normalizedOptions, gitRoot) => {
   const baseDir = gitRoot || normalizedOptions.cwd;
   const patterns = getPatternsFromIgnoreFiles(files, baseDir);
   const matcher = createIgnoreMatcher(patterns, normalizedOptions.cwd, baseDir);
   return {
     patterns,
+    rules: getIgnoreRules(files),
     matcher,
     predicate: (fileOrDirectory) => matcher(fileOrDirectory).ignored,
     usingGitRoot: Boolean(gitRoot && gitRoot !== normalizedOptions.cwd)
@@ -13204,7 +13361,7 @@ var applyBaseToPattern = (pattern, base) => {
 };
 var parseIgnoreFile = (file, cwd) => {
   const base = slash(import_node_path3.default.relative(cwd, import_node_path3.default.dirname(file.filePath)));
-  return file.content.split(/\r?\n/).filter((line) => line && !line.startsWith("#")).map((pattern) => applyBaseToPattern(pattern, base));
+  return readIgnoreFileLines(file.content).map((pattern) => applyBaseToPattern(pattern, base));
 };
 var toRelativePath = (fileOrDirectory, cwd) => {
   if (import_node_path3.default.isAbsolute(fileOrDirectory)) {
@@ -13224,7 +13381,7 @@ var toRelativePath = (fileOrDirectory, cwd) => {
 };
 var notIgnored = { ignored: false, unignored: false };
 var createIgnoreMatcher = (patterns, cwd, baseDir) => {
-  const ignores = (0, import_ignore.default)().add(patterns);
+  const ignores = (0, import_ignore2.default)().add(patterns);
   const resolvedCwd = import_node_path3.default.normalize(import_node_path3.default.resolve(cwd));
   const resolvedBaseDir = import_node_path3.default.normalize(import_node_path3.default.resolve(baseDir));
   return (fileOrDirectory) => {
@@ -13643,23 +13800,102 @@ var buildGlobalMatcher = (globalIgnoreFile, cwd, rootDirectory = cwd) => {
   const patterns = parseIgnoreFile(globalIgnoreFile, import_node_path3.default.dirname(globalIgnoreFile.filePath));
   return createIgnoreMatcher(patterns, cwd, rootDirectory);
 };
+var getKnownIgnoreFilePaths = (patterns, normalizedOptions, gitRoot) => {
+  const searchPatterns = [patterns].flat();
+  const isGitignoreSearch = searchPatterns.includes(GITIGNORE_FILES_PATTERN);
+  if (!isGitignoreSearch) {
+    return [];
+  }
+  return gitRoot ? getParentGitignorePaths(gitRoot, normalizedOptions.cwd) : [import_node_path3.default.join(normalizedOptions.cwd, ".gitignore")];
+};
+var getKnownIgnoreFileSearchOptions = (patterns, normalizedOptions) => __spreadProps(__spreadValues({}, normalizedOptions), {
+  ignore: [
+    ...normalizedOptions.ignore,
+    // Keep negative search patterns active when the known candidates are matched independently.
+    ...[patterns].flat().filter((pattern) => isNegativePattern(pattern)).map((pattern) => pattern.slice(1))
+  ]
+});
+var getKnownIgnoreFilePattern = (filePath, cwd) => {
+  const pattern = isPathInside(filePath, cwd) ? import_node_path3.default.relative(cwd, filePath) : filePath;
+  return import_fast_glob2.default.convertPathToPattern(pattern);
+};
+var getMatchingKnownIgnoreFilePaths = (knownPaths, matchingPaths) => {
+  const matchingPathSet = new Set(matchingPaths.map((filePath) => import_node_path3.default.resolve(filePath)));
+  return knownPaths.filter((filePath) => matchingPathSet.has(import_node_path3.default.resolve(filePath)));
+};
+var globKnownIgnoreFilePaths = (globFunction, knownPaths, patterns, normalizedOptions) => {
+  if (knownPaths.length === 0) {
+    return [];
+  }
+  return globIgnoreFiles(
+    globFunction,
+    knownPaths.map((filePath) => getKnownIgnoreFilePattern(filePath, normalizedOptions.cwd)),
+    getKnownIgnoreFileSearchOptions(patterns, normalizedOptions)
+  );
+};
+var filterKnownIgnoreFilePathsAsync = (knownPaths, patterns, normalizedOptions) => __async(null, null, function* () {
+  const matchingPaths = yield globKnownIgnoreFilePaths(import_fast_glob2.default, knownPaths, patterns, normalizedOptions);
+  return getMatchingKnownIgnoreFilePaths(knownPaths, matchingPaths);
+});
+var filterKnownIgnoreFilePathsSync = (knownPaths, patterns, normalizedOptions) => {
+  const matchingPaths = globKnownIgnoreFilePaths(import_fast_glob2.default.sync, knownPaths, patterns, normalizedOptions);
+  return getMatchingKnownIgnoreFilePaths(knownPaths, matchingPaths);
+};
+var getIgnoreFileSearchPrune = (searchPatterns, files, normalizedOptions, gitRoot) => {
+  if (files.length === 0) {
+    return { patterns: [], guardNames: [] };
+  }
+  const { cwd } = normalizedOptions;
+  const baseDir = gitRoot || cwd;
+  const ignorePatterns = getPatternsFromIgnoreFiles(files, baseDir);
+  const matcher = createIgnoreMatcher(ignorePatterns, cwd, baseDir);
+  const searchPatternsArray = [searchPatterns].flat();
+  const gitignoreOnlySearch = searchPatternsArray.every((pattern) => pattern === GITIGNORE_FILES_PATTERN);
+  const searchesForGitignoreFiles = searchPatternsArray.includes(GITIGNORE_FILES_PATTERN);
+  return buildPrunePatternsAndGuards(getIgnoreRules(files), matcher, cwd, { gitignoreOnlySearch, searchesForGitignoreFiles });
+};
+var withPrunedSearch = (normalizedOptions, prunePatterns) => prunePatterns.length === 0 ? normalizedOptions : __spreadProps(__spreadValues({}, normalizedOptions), { ignore: [...normalizedOptions.ignore, ...prunePatterns] });
+var getUnreadPaths = (childPaths, knownPaths) => {
+  const alreadyRead = new Set(knownPaths.map((filePath) => import_node_path3.default.resolve(filePath)));
+  return dedupePaths(childPaths).filter((filePath) => !alreadyRead.has(import_node_path3.default.resolve(filePath)));
+};
 var collectIgnoreFileArtifactsAsync = (patterns, options, includeParentIgnoreFiles) => __async(null, null, function* () {
   const normalizedOptions = normalizeOptions(options);
-  const childPaths = yield globIgnoreFiles(import_fast_glob2.default, patterns, normalizedOptions);
-  const gitRoot = includeParentIgnoreFiles ? yield findGitRoot(normalizedOptions.cwd, normalizedOptions.fs) : void 0;
-  const allPaths = combineIgnoreFilePaths(gitRoot, normalizedOptions, childPaths);
   const readFileMethod = getReadFileMethod(normalizedOptions.fs);
-  const files = yield readIgnoreFilesSafely(allPaths, readFileMethod, normalizedOptions.suppressErrors);
-  return { files, normalizedOptions, gitRoot };
+  const gitRoot = includeParentIgnoreFiles ? yield findGitRoot(normalizedOptions.cwd, normalizedOptions.fs) : void 0;
+  const knownPaths = yield filterKnownIgnoreFilePathsAsync(
+    getKnownIgnoreFilePaths(patterns, normalizedOptions, gitRoot),
+    patterns,
+    normalizedOptions
+  );
+  const knownFiles = yield readIgnoreFilesSafely(knownPaths, readFileMethod, normalizedOptions.suppressErrors);
+  const { patterns: prunePatterns, guardNames } = getIgnoreFileSearchPrune(patterns, knownFiles, normalizedOptions, gitRoot);
+  const childPaths = yield globIgnoreFiles(import_fast_glob2.default, patterns, withPrunedSearch(normalizedOptions, prunePatterns));
+  let childFiles = yield readIgnoreFilesSafely(getUnreadPaths(childPaths, knownPaths), readFileMethod, normalizedOptions.suppressErrors);
+  if (negationsCouldRescue(getIgnoreRules(childFiles), guardNames)) {
+    const allPaths = yield globIgnoreFiles(import_fast_glob2.default, patterns, normalizedOptions);
+    childFiles = yield readIgnoreFilesSafely(getUnreadPaths(allPaths, knownPaths), readFileMethod, normalizedOptions.suppressErrors);
+  }
+  return { files: [...knownFiles, ...childFiles], normalizedOptions, gitRoot };
 });
 var collectIgnoreFileArtifactsSync = (patterns, options, includeParentIgnoreFiles) => {
   const normalizedOptions = normalizeOptions(options);
-  const childPaths = globIgnoreFiles(import_fast_glob2.default.sync, patterns, normalizedOptions);
-  const gitRoot = includeParentIgnoreFiles ? findGitRootSync(normalizedOptions.cwd, normalizedOptions.fs) : void 0;
-  const allPaths = combineIgnoreFilePaths(gitRoot, normalizedOptions, childPaths);
   const readFileSyncMethod = getReadFileSyncMethod(normalizedOptions.fs);
-  const files = readIgnoreFilesSafelySync(allPaths, readFileSyncMethod, normalizedOptions.suppressErrors);
-  return { files, normalizedOptions, gitRoot };
+  const gitRoot = includeParentIgnoreFiles ? findGitRootSync(normalizedOptions.cwd, normalizedOptions.fs) : void 0;
+  const knownPaths = filterKnownIgnoreFilePathsSync(
+    getKnownIgnoreFilePaths(patterns, normalizedOptions, gitRoot),
+    patterns,
+    normalizedOptions
+  );
+  const knownFiles = readIgnoreFilesSafelySync(knownPaths, readFileSyncMethod, normalizedOptions.suppressErrors);
+  const { patterns: prunePatterns, guardNames } = getIgnoreFileSearchPrune(patterns, knownFiles, normalizedOptions, gitRoot);
+  const childPaths = globIgnoreFiles(import_fast_glob2.default.sync, patterns, withPrunedSearch(normalizedOptions, prunePatterns));
+  let childFiles = readIgnoreFilesSafelySync(getUnreadPaths(childPaths, knownPaths), readFileSyncMethod, normalizedOptions.suppressErrors);
+  if (negationsCouldRescue(getIgnoreRules(childFiles), guardNames)) {
+    const allPaths = globIgnoreFiles(import_fast_glob2.default.sync, patterns, normalizedOptions);
+    childFiles = readIgnoreFilesSafelySync(getUnreadPaths(allPaths, knownPaths), readFileSyncMethod, normalizedOptions.suppressErrors);
+  }
+  return { files: [...knownFiles, ...childFiles], normalizedOptions, gitRoot };
 };
 var isIgnoredByIgnoreFiles = (patterns, options) => __async(null, null, function* () {
   const { files, normalizedOptions, gitRoot } = yield collectIgnoreFileArtifactsAsync(patterns, options, false);
@@ -13845,16 +14081,18 @@ var combinePredicate = (matcher, globalMatcher) => {
     return isPathIgnored(matcher, globalMatcher, file);
   };
 };
-var buildIgnoreFilterResult = (options, cwd, { patterns, matcher, usingGitRoot }, globalMatcher, createFilter) => {
+var buildIgnoreFilterResult = ({ options, cwd, ignoreResult: { rules, matcher }, globalMatcher, createFilter }) => {
   const finalPredicate = combinePredicate(matcher, globalMatcher);
-  const patternsForFastGlob = convertPatternsForFastGlob(patterns, usingGitRoot, normalizeDirectoryPatternForFastGlob);
+  const pruneIgnorePatterns = convertPatternsForFastGlob(rules, matcher, cwd);
   return {
-    options: __spreadProps(__spreadValues({}, options), {
-      ignore: [...options.ignore, ...patternsForFastGlob]
-    }),
+    options,
+    pruneIgnorePatterns,
     filter: createFilter(finalPredicate, cwd, options.fs)
   };
 };
+var getIgnoreFileSearchOptions = (options, searchPatterns) => __spreadProps(__spreadValues({}, options), {
+  ignore: convertIgnorePatternsForIgnoreFileSearch(options.ignore, searchPatterns)
+});
 var applyIgnoreFilesAndGetFilter = (options) => __async(null, null, function* () {
   var _a2;
   const cwd = (_a2 = options.cwd) != null ? _a2 : import_node_process2.default.cwd();
@@ -13863,14 +14101,21 @@ var applyIgnoreFilesAndGetFilter = (options) => __async(null, null, function* ()
   if (ignoreFilesPatterns.length === 0 && !globalIgnoreFile) {
     return {
       options,
+      pruneIgnorePatterns: [],
       filter: createFilterFunctionAsync(false, cwd, options.fs)
     };
   }
   const includeParentIgnoreFiles = options.gitignore === true;
-  const ignoreResult = ignoreFilesPatterns.length > 0 ? yield getIgnorePatternsAndPredicate(ignoreFilesPatterns, options, includeParentIgnoreFiles) : { patterns: [], matcher: false, usingGitRoot: false };
+  const ignoreResult = ignoreFilesPatterns.length > 0 ? yield getIgnorePatternsAndPredicate(ignoreFilesPatterns, getIgnoreFileSearchOptions(options, ignoreFilesPatterns), includeParentIgnoreFiles) : { rules: [], matcher: false };
   const globalGitRoot = globalIgnoreFile ? yield findGitRoot(cwd, options.fs) : void 0;
   const globalMatcher = globalIgnoreFile ? buildGlobalMatcher(globalIgnoreFile, cwd, globalGitRoot != null ? globalGitRoot : cwd) : void 0;
-  return buildIgnoreFilterResult(options, cwd, ignoreResult, globalMatcher, createFilterFunctionAsync);
+  return buildIgnoreFilterResult({
+    options,
+    cwd,
+    ignoreResult,
+    globalMatcher,
+    createFilter: createFilterFunctionAsync
+  });
 });
 var applyIgnoreFilesAndGetFilterSync = (options) => {
   var _a2;
@@ -13880,14 +14125,21 @@ var applyIgnoreFilesAndGetFilterSync = (options) => {
   if (ignoreFilesPatterns.length === 0 && !globalIgnoreFile) {
     return {
       options,
+      pruneIgnorePatterns: [],
       filter: createFilterFunction(false, cwd, options.fs)
     };
   }
   const includeParentIgnoreFiles = options.gitignore === true;
-  const ignoreResult = ignoreFilesPatterns.length > 0 ? getIgnorePatternsAndPredicateSync(ignoreFilesPatterns, options, includeParentIgnoreFiles) : { patterns: [], matcher: false, usingGitRoot: false };
+  const ignoreResult = ignoreFilesPatterns.length > 0 ? getIgnorePatternsAndPredicateSync(ignoreFilesPatterns, getIgnoreFileSearchOptions(options, ignoreFilesPatterns), includeParentIgnoreFiles) : { rules: [], matcher: false };
   const globalGitRoot = globalIgnoreFile ? findGitRootSync(cwd, options.fs) : void 0;
   const globalMatcher = globalIgnoreFile ? buildGlobalMatcher(globalIgnoreFile, cwd, globalGitRoot != null ? globalGitRoot : cwd) : void 0;
-  return buildIgnoreFilterResult(options, cwd, ignoreResult, globalMatcher, createFilterFunction);
+  return buildIgnoreFilterResult({
+    options,
+    cwd,
+    ignoreResult,
+    globalMatcher,
+    createFilter: createFilterFunction
+  });
 };
 var assertGlobalGitignoreSyncSupport = (options) => {
   if (options.globalGitignore && options.fs && !options.fs.statSync) {
@@ -14071,17 +14323,23 @@ var applyParentDirectoryIgnoreAdjustments = (tasks) => tasks.map((task) => ({
     ignore: adjustIgnorePatternsForParentDirectories(task.patterns, task.options.ignore)
   })
 }));
+var appendPruneIgnorePatterns = (tasks, pruneIgnorePatterns) => pruneIgnorePatterns.length === 0 ? tasks : tasks.map((task) => ({
+  patterns: task.patterns,
+  options: __spreadProps(__spreadValues({}, task.options), {
+    ignore: [...task.options.ignore, ...pruneIgnorePatterns]
+  })
+}));
 var normalizeExpandDirectoriesOption = (options, cwd) => __spreadValues(__spreadValues({}, cwd ? { cwd } : {}), Array.isArray(options) ? { files: options } : options);
-var generateTasks = (patterns, options) => __async(null, null, function* () {
+var generateTasks = (_0, _1, ..._2) => __async(null, [_0, _1, ..._2], function* (patterns, options, pruneIgnorePatterns = []) {
   const globTasks = convertNegativePatterns(patterns, options);
   const { cwd, expandDirectories, fs: fsImplementation } = options;
   if (!expandDirectories) {
-    return applyParentDirectoryIgnoreAdjustments(globTasks);
+    return appendPruneIgnorePatterns(applyParentDirectoryIgnoreAdjustments(globTasks), pruneIgnorePatterns);
   }
   const directoryToGlobOptions = __spreadProps(__spreadValues({}, normalizeExpandDirectoriesOption(expandDirectories, cwd)), {
     fs: fsImplementation
   });
-  return Promise.all(globTasks.map((task) => __async(null, null, function* () {
+  const tasks = yield Promise.all(globTasks.map((task) => __async(null, null, function* () {
     let { patterns: patterns2, options: options2 } = task;
     [
       patterns2,
@@ -14093,35 +14351,37 @@ var generateTasks = (patterns, options) => __async(null, null, function* () {
     options2.ignore = adjustIgnorePatternsForParentDirectories(patterns2, options2.ignore);
     return { patterns: patterns2, options: options2 };
   })));
+  return appendPruneIgnorePatterns(tasks, pruneIgnorePatterns);
 });
-var generateTasksSync = (patterns, options) => {
+var generateTasksSync = (patterns, options, pruneIgnorePatterns = []) => {
   const globTasks = convertNegativePatterns(patterns, options);
   const { cwd, expandDirectories, fs: fsImplementation } = options;
   if (!expandDirectories) {
-    return applyParentDirectoryIgnoreAdjustments(globTasks);
+    return appendPruneIgnorePatterns(applyParentDirectoryIgnoreAdjustments(globTasks), pruneIgnorePatterns);
   }
   const directoryToGlobSyncOptions = __spreadProps(__spreadValues({}, normalizeExpandDirectoriesOption(expandDirectories, cwd)), {
     fs: fsImplementation
   });
-  return globTasks.map((task) => {
+  const tasks = globTasks.map((task) => {
     let { patterns: patterns2, options: options2 } = task;
     patterns2 = directoryToGlobSync(patterns2, directoryToGlobSyncOptions);
     options2.ignore = directoryToGlobSync(options2.ignore, { cwd, fs: fsImplementation });
     options2.ignore = adjustIgnorePatternsForParentDirectories(patterns2, options2.ignore);
     return { patterns: patterns2, options: options2 };
   });
+  return appendPruneIgnorePatterns(tasks, pruneIgnorePatterns);
 };
 var globby = normalizeArguments((patterns, options) => __async(null, null, function* () {
   assertGlobalGitignoreAsyncSupport(options);
-  const { options: modifiedOptions, filter } = yield applyIgnoreFilesAndGetFilter(options);
-  const tasks = yield generateTasks(patterns, modifiedOptions);
+  const { options: modifiedOptions, pruneIgnorePatterns, filter } = yield applyIgnoreFilesAndGetFilter(options);
+  const tasks = yield generateTasks(patterns, modifiedOptions, pruneIgnorePatterns);
   const results = yield Promise.all(tasks.map((task) => (0, import_fast_glob3.default)(task.patterns, task.options)));
   return unionFastGlobResultsAsync(results, filter);
 }));
 var globbySync = normalizeArgumentsSync((patterns, options) => {
   assertGlobalGitignoreSyncSupport(options);
-  const { options: modifiedOptions, filter } = applyIgnoreFilesAndGetFilterSync(options);
-  const tasks = generateTasksSync(patterns, modifiedOptions);
+  const { options: modifiedOptions, pruneIgnorePatterns, filter } = applyIgnoreFilesAndGetFilterSync(options);
+  const tasks = generateTasksSync(patterns, modifiedOptions, pruneIgnorePatterns);
   const results = tasks.map((task) => import_fast_glob3.default.sync(task.patterns, task.options));
   return unionFastGlobResults(results, filter);
 });
@@ -14131,8 +14391,8 @@ var globbyStream = normalizeArgumentsSync((patterns, options) => {
   const stream = import_node_stream2.Readable.from((function() {
     return __asyncGenerator(this, null, function* () {
       var _a2;
-      const { options: modifiedOptions, filter } = yield new __await(applyIgnoreFilesAndGetFilter(options));
-      const tasks = yield new __await(generateTasks(patterns, modifiedOptions));
+      const { options: modifiedOptions, pruneIgnorePatterns, filter } = yield new __await(applyIgnoreFilesAndGetFilter(options));
+      const tasks = yield new __await(generateTasks(patterns, modifiedOptions, pruneIgnorePatterns));
       if (tasks.length === 0) {
         return;
       }
@@ -14785,36 +15045,38 @@ var Alias = class extends NodeBase {
       if (node.anchor === this.source)
         found = node;
     }
+    if (found && ctx) {
+      const { anchors, doc: doc2, maxAliasCount } = ctx;
+      let data = anchors.get(found);
+      if (!data) {
+        toJS(found, null, ctx);
+        data = anchors.get(found);
+      }
+      if ((data == null ? void 0 : data.res) === void 0) {
+        const msg = "This should not happen: Alias anchor was not resolved?";
+        throw new ReferenceError(msg);
+      }
+      if (maxAliasCount >= 0) {
+        data.count += 1;
+        if (data.aliasCount === 0)
+          data.aliasCount = getAliasCount(doc2, found, anchors);
+        if (data.count * data.aliasCount > maxAliasCount) {
+          const msg = "Excessive alias count indicates a resource exhaustion attack";
+          throw new ReferenceError(msg);
+        }
+      }
+    }
     return found;
   }
   toJSON(_arg, ctx) {
     if (!ctx)
       return { source: this.source };
-    const { anchors, doc, maxAliasCount } = ctx;
-    const source = this.resolve(doc, ctx);
+    const source = this.resolve(ctx.doc, ctx);
     if (!source) {
       const msg = `Unresolved alias (the anchor must be set before the alias): ${this.source}`;
       throw new ReferenceError(msg);
     }
-    let data = anchors.get(source);
-    if (!data) {
-      toJS(source, null, ctx);
-      data = anchors.get(source);
-    }
-    if ((data == null ? void 0 : data.res) === void 0) {
-      const msg = "This should not happen: Alias anchor was not resolved?";
-      throw new ReferenceError(msg);
-    }
-    if (maxAliasCount >= 0) {
-      data.count += 1;
-      if (data.aliasCount === 0)
-        data.aliasCount = getAliasCount(doc, source, anchors);
-      if (data.count * data.aliasCount > maxAliasCount) {
-        const msg = "Excessive alias count indicates a resource exhaustion attack";
-        throw new ReferenceError(msg);
-      }
-    }
-    return data.res;
+    return ctx.anchors.get(source).res;
   }
   toString(ctx, _onComment, _onChompKeep) {
     const src = `*${this.source}`;
@@ -18335,38 +18597,39 @@ function plainValue(source, onError) {
   }
   if (badChar)
     onError(0, "BAD_SCALAR_START", `Plain value cannot start with ${badChar}`);
-  return foldLines(source);
+  return unfoldLines(source);
 }
 function singleQuotedValue(source, onError) {
   if (source[source.length - 1] !== "'" || source.length === 1)
     onError(source.length, "MISSING_CHAR", "Missing closing 'quote");
-  return foldLines(source.slice(1, -1)).replace(/''/g, "'");
+  return unfoldLines(source.slice(1, -1)).replace(/''/g, "'");
 }
-function foldLines(source) {
+function unfoldLines(source) {
   var _a2;
-  let first, line;
-  try {
-    first = new RegExp("(.*?)(?<![ 	])[ 	]*\r?\n", "sy");
-    line = new RegExp("[ 	]*(.*?)(?:(?<![ 	])[ 	]*)?\r?\n", "sy");
-  } catch (e) {
-    first = new RegExp("(.*?)[ \\t]*\\r?\\n", "sy");
-    line = new RegExp("[ \\t]*(.*?)[ \\t]*\\r?\\n", "sy");
-  }
-  let match = first.exec(source);
+  const line = new RegExp("(.*?)\\r?\\n", "sy");
+  let match = line.exec(source);
   if (!match)
     return source;
-  let res = match[1];
+  let trimEnd, trimBoth;
+  try {
+    trimEnd = new RegExp("(?<![ 	])[ 	]+$");
+    trimBoth = new RegExp("^[ 	]+|(?<![ 	])[ 	]+$", "g");
+  } catch (e) {
+    trimEnd = /[ \t]+$/;
+    trimBoth = /^[ \t]+|[ \t]+$/g;
+  }
+  let res = match[1].replace(trimEnd, "");
   let sep = " ";
-  let pos = first.lastIndex;
-  line.lastIndex = pos;
+  let pos = line.lastIndex;
   while (match = line.exec(source)) {
-    if (match[1] === "") {
+    const lm = match[1].replace(trimBoth, "");
+    if (lm === "") {
       if (sep === "\n")
         res += sep;
       else
         sep = "\n";
     } else {
-      res += sep + match[1];
+      res += sep + lm;
       sep = " ";
     }
     pos = line.lastIndex;

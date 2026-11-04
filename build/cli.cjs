@@ -322,8 +322,10 @@ function readScriptFromStdin() {
 }
 function readScriptFromHttp(remote) {
   return __async(this, null, function* () {
+    var _a2, _b;
     const res = yield (0, import_index.fetch)(remote);
     if (!res.ok) {
+      yield (_b = (_a2 = res.body) == null ? void 0 : _a2.cancel) == null ? void 0 : _b.call(_a2);
       console.error(`Error: Can't get ${remote}`);
       import_node_process2.default.exitCode = 1;
       throw new import_index.Fail(`Failed to fetch remote script: ${remote} (${res.status})`);
