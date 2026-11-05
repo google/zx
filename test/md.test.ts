@@ -26,6 +26,28 @@ describe('transformMarkdown()', () => {
       assert.equal(transformMarkdown('  \n    '), '  \n    ')
     })
 
+    test('handles 2-space indented prose in list items (#1388)', () => {
+      const input = [
+        '- on localhost',
+        '',
+        '  This assumes you have a local node running',
+        '',
+        '  ```bash',
+        '  pnpm run contracts:deploy localhost',
+        '  ```',
+      ].join('\n')
+
+      const result = transformMarkdown(input)
+      assert.ok(
+        result.includes('//   This assumes you have a local node running'),
+        'indented prose should be commented out'
+      )
+      assert.ok(
+        result.includes('await $`'),
+        'indented bash block should be executed'
+      )
+    })
+
     test('does not treat a mid-paragraph fence as a fenced block (legacy behavior)', () => {
       assert.equal(
         transformMarkdown(`
