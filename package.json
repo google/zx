@@ -149,7 +149,7 @@
     "tsd": "0.33.0",
     "tsx": "4.23.15",
     "typescript": "5.9.3",
-    "vitepress": "1.6.4",
+    "vitepress": "2.0.0-alpha.21",
     "which": "7.0.0",
     "yaml": "2.9.1",
     "zurk": "0.11.10"
@@ -166,6 +166,13 @@
     },
     "@webpod/ps": {
       "zurk": "$zurk"
+    },
+    "test-exclude": {
+      "glob": "14.0.3",
+      "minimatch": "11.0.4"
+    },
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "11.0.4"
     }
   },
   "publishConfig": {
