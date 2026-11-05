@@ -8,6 +8,7 @@
   * Deno 1.x, 2.x
   * GraalVM Node.js
   * [Electron >= 11](#electron)
+  * [WebContainers](#webcontainers)
 * Some kind of bash or PowerShell
 
 ## Install
@@ -132,6 +133,20 @@ ELECTRON_RUN_AS_NODE=1 electron script.mjs
 | ESM, main process           | >= 28    |
 
 [`app.asar`](https://www.electronjs.org/docs/latest/tutorial/asar-archives) is a single file for the OS, so `cwd`, scripts and paths passed to commands cannot point inside it. Unpack such files and use `app.asar.unpacked` paths instead.
+
+## WebContainers
+
+[WebContainers](https://webcontainers.io) ship `jsh` instead of bash, so adjust zx at the top of your script:
+
+```js
+$.prefix = ''
+$.postfix = ' '
+$.quote = (s) => `'${s.replace(/\\/g, '\\\\').replace(/'/g, `'\\''`)}'`
+```
+
+`jsh` has no `set -e` or `pipefail`, control flow, heredocs, `$(...)` and many coreutils like `grep` or `sed`, so use JS for these.
+
+`AsyncLocalStorage` loses its context after `await` there, so [`within()`](./api#within) isolates only its synchronous part, and later changes of `$` or `cd()` leak out. Prefer `$({ cwd })`.
 
 ## Package
 
