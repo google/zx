@@ -17,6 +17,7 @@ import http from 'node:http'
 import { $, fs, path, tmpdir } from 'zx'
 
 const guest = async () => {
+  console.log(`webcontainer: ${process.versions.webcontainer}`)
   const str = `it's a\\b`
   assert.notEqual((await $`echo foo`).text(), 'foo\n')
   assert.notEqual((await $`echo ${str}`).stdout, `${str}\n`)
@@ -95,10 +96,14 @@ const host = () => {
       process.exit(code)
     })
   })
-  server.listen(0, () => {
+  server.listen(0, async () => {
     const url = `http://localhost:${server.address().port}`
     const bin = process.env.CHROME || 'google-chrome'
-    chrome = $`${bin} --headless=new --no-sandbox --user-data-dir=${tmpdir()} ${url}`
+    console.log(`browser: ${(await $`${bin} --version`).stdout.trim()}`)
+    console.log(`webcontainer api: ${API}`)
+    chrome = $({
+      quiet: true,
+    })`${bin} --headless=new --no-sandbox --user-data-dir=${tmpdir()} ${url}`
   })
 }
 
