@@ -3,10 +3,11 @@
 ## Requirements
 * Linux, macOS, or Windows
 * JavaScript Runtime:
-  * Node.js >= 12.17.0
+  * Node.js >= 12.20.0
   * Bun >= 1.0.0
   * Deno 1.x, 2.x
   * GraalVM Node.js
+  * [Electron >= 11](#electron)
 * Some kind of bash or PowerShell
 
 ## Install
@@ -114,6 +115,23 @@ usePowerShell() // Use PowerShell.exe
 usePwsh()       // Rely on pwsh binary (PowerShell v7+)
 useBash()       // Switch back to bash
 ```
+
+## Electron
+
+zx works both as a script runtime and as an app dependency.
+
+```bash
+ELECTRON_RUN_AS_NODE=1 electron script.mjs
+```
+
+| Context                     | Electron |
+|-----------------------------|----------|
+| CJS                         | >= 11    |
+| ESM, `ELECTRON_RUN_AS_NODE` | >= 12    |
+| Utility process             | >= 22    |
+| ESM, main process           | >= 28    |
+
+[`app.asar`](https://www.electronjs.org/docs/latest/tutorial/asar-archives) is a single file for the OS, so `cwd`, scripts and paths passed to commands cannot point inside it. Unpack such files and use `app.asar.unpacked` paths instead.
 
 ## Package
 

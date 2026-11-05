@@ -261,6 +261,39 @@ jobs:
           node -v
           npm run test:smoke:cjs
 
+  smoke-electron:
+    needs: build
+    runs-on: ubuntu-latest
+    name: smoke-electron${{ matrix.electron }}
+    strategy:
+      matrix:
+        include:
+          - { electron: 11, node: 14 }
+          - { electron: latest, node: 26 }
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: build
+      - run: npm i -g electron@${{ matrix.electron }}
+      - name: cjs runtime
+        run: electron test/smoke/node.test.cjs
+        env:
+          ELECTRON_RUN_AS_NODE: 1
+      - name: mjs runtime
+        if: matrix.electron == 'latest'
+        run: electron test/smoke/node.test.mjs
+        env:
+          ELECTRON_RUN_AS_NODE: 1
+      - name: main process
+        run: xvfb-run -a electron --no-sandbox test/smoke/electron.test.cjs
+        timeout-minutes: 2
+
   smoke-ts:
     runs-on: ubuntu-latest
     needs: build

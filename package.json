@@ -64,7 +64,7 @@
     "man"
   ],
   "engines": {
-    "node": ">= 12.17.0"
+    "node": ">= 12.20.0"
   },
   "scripts": {
     "fmt": "prettier --write .",
