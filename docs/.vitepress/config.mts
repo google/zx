@@ -79,6 +79,7 @@ export default defineConfig({
           items: [
             { text: 'Quotes', link: '/quotes' },
             { text: 'Shell', link: '/shell' },
+            { text: 'Nix', link: '/nix' },
             { text: 'TypeScript', link: '/typescript' },
             { text: 'Markdown Scripts', link: '/markdown' },
             { text: 'Known Issues', link: '/known-issues' },
