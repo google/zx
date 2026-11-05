@@ -103,6 +103,25 @@ jobs:
         with:
           name: build-${{ github.run_id }}
 
+      - name: Clean up stale releases from staging repo
+        run: |
+          # clean up stale releases from staging repo
+          packages=$(gcloud artifacts packages list \
+              --project="oss-exit-gate-prod" \
+              --location="us" \
+              --repository="zx--npm" \
+              --format="value(name)" 2>/dev/null)
+
+          echo "${packages}" | xargs -r -I {} sh -c '
+              package_name=$(basename "{}")
+              echo "Deleting package: $package_name..."
+              gcloud artifacts packages delete "{}" \
+                  --project="oss-exit-gate-prod" \
+                  --location="us" \
+                  --repository="zx--npm" \
+                  --quiet
+          '
+
       - name: pushing to ${{ env.GOOGLE_NPM_REGISTRY }}
         run: |
           mv -f package-main.json package.json
@@ -119,28 +138,6 @@ jobs:
         run: |
           mv -f package-lite.json package.json
           npm publish --access=public --no-git-tag-version --tag lite --registry "https://${GOOGLE_NPM_REGISTRY}/"
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f
-
-      - name: Clean up stale releases from staging repo
-        run: |
-          # clean up stale releases from staging repo
-          packages=$(gcloud artifacts packages list \
-              --project="oss-exit-gate-prod" \
-              --location="us" \
-              --repository="zx--npm" \
-              --format="value(name)" 2>/dev/null)
-
-          echo "${packages}" | xargs -r -I {} sh -c '
-              package_name=$(basename "{}")
-              echo "Deleting package: $package_name..."
-              gcloud artifacts packages delete "{}" \
-                  --project=""oss-exit-gate-prod"" \
-                  --location=""us"" \
-                  --repository="zx--npm" \
-                  --quiet
-          '
 
       - name: Trigger OSS Exit Gate release
         env:
