@@ -17,7 +17,7 @@ import { bufToString } from './util.ts'
 
 export function transformMarkdown(buf: Buffer | string): string {
   const out: string[] = []
-  const tabRe = /^(  +|\t)/
+  const tabRe = /^( {4,}|\t)/
   const fenceRe =
     /^(?<indent> {0,3})(?<fence>(`{3,20}|~{3,20}))(?:(?<js>js|javascript|ts|typescript)|(?<bash>sh|shell|bash)|.*)$/
 
@@ -71,7 +71,32 @@ export function transformMarkdown(buf: Buffer | string): string {
         continue
       }
 
-      case 'tab':
+      case 'tab': {
+        const g = line.match(fenceRe)?.groups
+        if (g?.fence) {
+          fenceChar = g.fence[0]
+          stripRe = g.indent ? new RegExp(`^ {0,${g.indent.length}}`) : null
+          endRe = new RegExp(`^ {0,3}${fenceChar}{${g.fence.length},}[ \\t]*$`)
+
+          if (g.js) {
+            out.push('')
+            linePrefix = ''
+            closeOut = ''
+          } else if (g.bash) {
+            out.push('await $`')
+            linePrefix = ''
+            closeOut = '`'
+          } else {
+            out.push('')
+            linePrefix = '// '
+            closeOut = ''
+          }
+
+          state = 'fence'
+          prevEmpty = false
+          break
+        }
+
         if (line === '') out.push('')
         else if (tabRe.test(line)) out.push(line)
         else {
@@ -80,6 +105,7 @@ export function transformMarkdown(buf: Buffer | string): string {
         }
         prevEmpty = line === ''
         break
+      }
 
       case 'fence':
         if (isEnd(line)) {
