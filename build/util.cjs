@@ -69,7 +69,7 @@ function quote(arg) {
 function quotePowerShell(arg) {
   if (arg === "") return `''`;
   if (/^[\w/.\-@:=,+%]+$/.test(arg)) return arg;
-  return `'` + arg.replace(/'/g, "''") + `'`;
+  return `'` + arg.replace(/(['\u2018\u2019\u201A\u201B])/g, '$1$1') + `'`;
 }
 function parseDuration(d) {
   if (typeof d === "number") {

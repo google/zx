@@ -81,6 +81,9 @@ describe('util', () => {
     assert.equal(quotePowerShell('string'), 'string')
     assert.equal(quotePowerShell(`'`), `''''`)
     assert.equal(quotePowerShell(''), `''`)
+    for (const q of ['\u2018', '\u2019', '\u201A', '\u201B']) {
+      assert.equal(quotePowerShell(`x${q}y`), `'x${q}${q}y'`)
+    }
 
     const allowed =
       'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_/.-+@:=,%'
