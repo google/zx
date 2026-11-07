@@ -163,7 +163,7 @@ First, we inspect not how the code was written, but how it actually works. Tests
 A basic set of implementation correctness checks is provided by unit tests. We also evaluate coverage to ensure that areas of code are not missed. 
 ```json
 {
-  "test:unit": "node --experimental-transform-types ./test/all.test.js",
+  "test:unit": "node ./test/all.test.js",
   "test:coverage": "c8 -c .nycrc --check-coverage npm run test:unit"
 }
 ```
