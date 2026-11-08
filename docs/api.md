@@ -242,6 +242,32 @@ syncProcessCwd(false) // pass false to disable the hook
 
 > This feature is disabled by default because of performance overhead.
 
+### Understanding Async Contexts vs Global Working Directory
+
+By default, `zx` isolates working directories across async contexts using `AsyncLocalStorage`:
+
+- **Inside `within()`:** Modifying `$.cwd` changes the current working directory **only** within that async context. It does not mutate the global `process.cwd()`, and sibling async contexts remain unaffected.
+- **Calling `cd()`:** Invokes `process.chdir()` under the hood, altering `process.cwd()` **globally** across the entire Node.js runtime.
+
+```js
+import {within, cd, syncProcessCwd} from 'zx'
+
+// 1. Without syncProcessCwd (default):
+await within(async () => {
+  $.cwd = '/tmp'
+  await $`pwd` // => /tmp (isolated to this async scope)
+})
+await $`pwd`   // => original directory (reverts automatically)
+
+// 2. With syncProcessCwd enabled:
+syncProcessCwd()
+await within(async () => {
+  cd('/tmp')
+  console.log(process.cwd()) // => /tmp
+})
+console.log(process.cwd())   // => /tmp (synchronized across process)
+```
+
 ## `retry()`
 
 Retries a callback for a few times. Will return the first
