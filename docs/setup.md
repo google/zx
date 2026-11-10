@@ -81,7 +81,7 @@ Please check the download sources carefully. Official links:
 * [GH repo](https://github.com/google/zx)
 * [GH docker](https://github.com/google/zx/pkgs/container/zx)
 * [JSR](https://jsr.io/@webpod/zx)
-* [Homebrew](https://github.com/Homebrew/homebrew-core/blob/master/Formula/z/zx.rb)
+* [Homebrew](https://github.com/Homebrew/homebrew-core/blob/main/Formula/z/zx.rb)
 
 ### Github
 To fetch zx directly from the GitHub:
@@ -106,7 +106,7 @@ docker run -t -i -v ./:/script ghcr.io/google/zx:8.5.0 script/t.js
 
 ## Bash
 
-zx mostly relies on bash, so make sure it's available in your environment. If you're on Windows, consider using [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install) or [Git Bash](https://git-scm.com/downloads).
+zx mostly relies on bash, so make sure it's available in your environment. If you're on Windows, consider using [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install) or [Git Bash](https://git-scm.com/downloads/).
 By default, zx looks for bash binary, but you can switch to PowerShell by invoking `usePowerShell()` or `usePwsh()`.
 
 ```js

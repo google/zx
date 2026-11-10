@@ -35,7 +35,7 @@ Before proposing changes, look for similar ones in the project's [issues](https:
     * Install manually `Node.js >= 22`.
     * Delegate the routine to any version manager, that [supports .node_version config](https://stackoverflow.com/questions/27425852/what-uses-respects-the-node-version-file)
     * Use [Volta](https://volta.sh/), the target version will be set automatically from the `package.json`
-  * Bash is essential for running zx scripts. Linux and macOS users usually have it installed by default. Consider using [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install) or [Git Bash](https://git-scm.com/downloads) if you are on Windows.
+  * Bash is essential for running zx scripts. Linux and macOS users usually have it installed by default. Consider using [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install) or [Git Bash](https://git-scm.com/downloads/) if you are on Windows.
 * Fork [the repository](https://github.com/google/zx).
 * Create a new branch.
 
