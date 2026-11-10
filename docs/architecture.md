@@ -10,10 +10,10 @@ This section helps to better understand the `zx` concepts and logic, and will be
 | [./src/cli.ts](https://github.com/google/zx/blob/main/src/cli.ts)       | CLI interface and scripts pre-processors.                           |
 | [./src/deps.ts](https://github.com/google/zx/blob/main/src/deps.ts)     | Dependency analyzing and installation.                              |
 | [./src/vendor.ts](https://github.com/google/zx/blob/main/src/vendor.ts) | Third-party libraries.                                              |
-| [./src/utils.ts](https://github.com/google/zx/blob/main/src/utils.ts)   | Generic helpers.                                                    |
+| [./src/util.ts](https://github.com/google/zx/blob/main/src/util.ts)     | Generic helpers.                                                    |
 | [./src/md.ts](https://github.com/google/zx/blob/main/src/md.ts)         | Markdown scripts extractor.                                         |
 | [./src/error.ts](https://github.com/google/zx/blob/main/src/error.ts)   | Error handling and formatting.                                      |
-| [./src/global.ts](https://github.com/google/zx/blob/main/src/global.ts) | Global injectors.                                                   |
+| [./src/globals.ts](https://github.com/google/zx/blob/main/src/globals.ts) | Global injectors.                                                   |
 
 
 ## Core design
@@ -133,7 +133,7 @@ In the early stages of the project, we [had some difficulties](https://dev.to/an
 | [`./scripts/build-dts.mjs`](https://github.com/google/zx/blob/main/scripts/build-dts.mjs)    | Extracts and merges 3rd-party types, generates `dts` files.            |
 | [`./scripts/build-js.mjs`](https://github.com/google/zx/blob/main/scripts/build-js.mjs)      | Produces [hybrid bundles](./setup#hybrid) for each package entry point |
 | [`./scripts/build-jsr.mjs`](https://github.com/google/zx/blob/main/scripts/build-jsr.mjs)    | Builds extra assets for [JSR](https://jsr.io/@webpod/zx) publishing    |
-| [`./scripts/build-tests.mjs`](https://github.com/google/zx/blob/main/scripts/build-test.mjs) | Generates autotests to verify exports consistency                      |
+| [`./scripts/build-tests.mjs`](https://github.com/google/zx/blob/main/scripts/build-tests.mjs) | Generates autotests to verify exports consistency                      |
 
 Corresponding tasks are defined in the `package.json.scripts`:
 ```json
