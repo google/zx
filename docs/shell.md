@@ -1,6 +1,6 @@
 # Shell
 
-[Bash](https://en.wikipedia.org/wiki/Bash_(Unix_shell)) is a fundamental part of the Unix ecosystem, and it is widely used for scripting and automation tasks. It provides a powerful set of built-in utils, operators, process controllers.
+[Bash](https://en.wikipedia.org/wiki/Bash_(Unix_shell%29) is a fundamental part of the Unix ecosystem, and it is widely used for scripting and automation tasks. It provides a powerful set of built-in utils, operators, process controllers.
 Bash gives an efficient way to fine-tune the behavior: cmd aliases, context presets, custom functions, env injections, and more.
 
 zx is not trying to replace bash, but to enhance it with JavaScript's capabilities:
