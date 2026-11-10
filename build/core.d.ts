@@ -59,6 +59,11 @@ type Snapshot = Options & {
     ee: EventEmitter;
     ac: AbortController;
 };
+export type ProcessOutputJsonSource = 'stdout' | 'stderr' | 'stdall';
+export type ProcessOutputJsonOptions = {
+    source?: ProcessOutputJsonSource;
+    reviver?: (this: any, key: string, value: any) => any;
+};
 export declare const defaults: Options;
 export declare function within<R>(callback: () => R): R;
 export interface Shell<S = false, R = S extends true ? ProcessOutput : ProcessPromise> {
@@ -135,7 +140,7 @@ export declare class ProcessPromise extends Promise<ProcessOutput> {
     get sync(): boolean;
     get [Symbol.toStringTag](): string;
     [Symbol.toPrimitive](): string;
-    json<T = any>(): Promise<T>;
+    json<T = any>(options?: ProcessOutputJsonSource | ProcessOutputJsonOptions | ((this: any, key: string, value: any) => any), reviver?: (this: any, key: string, value: any) => any): Promise<T>;
     text(encoding?: Encoding): Promise<string>;
     lines(delimiter?: Options['delimiter']): Promise<string[]>;
     buffer(): Promise<Buffer>;
@@ -188,7 +193,7 @@ export declare class ProcessOutput extends Error {
     get duration(): number;
     get [Symbol.toStringTag](): string;
     get ok(): boolean;
-    json<T = any>(): T;
+    json<T = any>(options?: ProcessOutputJsonSource | ProcessOutputJsonOptions | ((this: any, key: string, value: any) => any), reviver?: (this: any, key: string, value: any) => any): T;
     buffer(): Buffer;
     blob(type?: string): Blob;
     text(encoding?: Encoding): string;
