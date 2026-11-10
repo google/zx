@@ -16,9 +16,9 @@ const {stdout} = await $`cmd > ${tmp}; cat ${tmp}`
 
 ## Colors in subprocess
 
-You may see what tools invoked with `await $` don't show colors, compared to
+You may see that tools invoked with `await $` don't show colors, compared to
 what you see in a terminal. This is because, the subprocess does not think it's
-a TTY and the subprocess turns off colors. Usually there is a way force
+a TTY and the subprocess turns off colors. Usually there is a way to force
 the subprocess to add colors.
 
 ```js
