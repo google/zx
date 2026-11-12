@@ -135,7 +135,7 @@ export const proxyOverride = <T extends object>(
 export const toCamelCase = (str: string) =>
   str
     .toLowerCase()
-    .replace(/([a-z])[_-]+([a-z])/g, (_, p1, p2) => p1 + p2.toUpperCase())
+    .replace(/(?<=[a-z])[_-]+([a-z])/g, (_, letter) => letter.toUpperCase())
 
 export const parseBool = (v: string): boolean | string =>
   v === 'true' || (v !== 'false' && v)

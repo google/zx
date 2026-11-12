@@ -123,6 +123,10 @@ describe('util', () => {
     assert.equal(toCamelCase('PREFER_LOCAL'), 'preferLocal')
     assert.equal(toCamelCase('SOME_MORE_BIG_STR'), 'someMoreBigStr')
     assert.equal(toCamelCase('kebab-input-str'), 'kebabInputStr')
+    assert.equal(toCamelCase('A_B_C'), 'aBC')
+    assert.equal(toCamelCase('a-b-c'), 'aBC')
+    assert.equal(toCamelCase('foo-a-b'), 'fooAB')
+    assert.equal(toCamelCase('_A_B'), '_aB')
   })
 
   test('parseBool()', () => {
