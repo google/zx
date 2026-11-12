@@ -333,6 +333,13 @@ describe('goods', () => {
       )
     })
 
+    test('parseArgv() camel-cases adjacent single-letter segments', () => {
+      assert.deepEqual(parseArgv(['--a-b-c', 'value'], { camelCase: true }), {
+        _: [],
+        aBC: 'value',
+      })
+    })
+
     test('updateArgv() works', () => {
       updateArgv(['--foo', 'bar'])
       assert.deepEqual(argv, {
