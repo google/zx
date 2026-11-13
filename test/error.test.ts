@@ -96,6 +96,44 @@ describe('error', () => {
   `
       assert.match(getCallerLocationFromString(stack), /^.*:11:5.*$/)
     })
+
+    test(`getCallerLocationFromString-CJS`, () => {
+      const stack = `Error: zx error
+    at _Fail.getCallerLocation (/Users/user/zx/build/core.cjs:245:34)
+    at $.sync (/Users/user/zx/build/core.cjs:466:23)
+    at main (/Users/user/run.cjs:8:12)
+    at Object.<anonymous> (/Users/user/run.cjs:16:1)
+    at Module._compile (node:internal/modules/cjs/loader:1929:14)
+    at Module.load (node:internal/modules/cjs/loader:1651:32)`
+      assert.equal(
+        getCallerLocationFromString(stack),
+        'main (/Users/user/run.cjs:8:12)'
+      )
+    })
+
+    test(`getCallerLocationFromString-CJS sync`, () => {
+      const stack = `Error: zx error
+    at _Fail.getCallerLocation (/Users/user/zx/build/core.cjs:245:34)
+    at $.sync (/Users/user/zx/build/core.cjs:466:23)
+    at /Users/user/zx/build/core.cjs:462:62
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:65:14)
+    at within (/Users/user/zx/build/core.cjs:454:18)
+    at Proxy.<anonymous> (/Users/user/zx/build/core.cjs:462:18)
+    at main (/Users/user/run.cjs:5:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)`
+      assert.equal(
+        getCallerLocationFromString(stack),
+        'main (/Users/user/run.cjs:5:15)'
+      )
+    })
+
+    test(`getCallerLocationFromString-CJS headless`, () => {
+      const stack = `Error: zx error
+    at _Fail.getCallerLocation (/Users/user/zx/build/core.cjs:245:34)
+    at $.sync (/Users/user/zx/build/core.cjs:466:23)
+    at Module._compile (node:internal/modules/cjs/loader:1929:14)`
+      assert.equal(getCallerLocationFromString(stack), stack.trim())
+    })
   })
 
   // prettier-ignore
