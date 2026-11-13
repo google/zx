@@ -1415,6 +1415,13 @@ describe('core', () => {
       assert.deepEqual(await $`echo '{"key":"value"}'`.json(), { key: 'value' })
     })
 
+    test('json() on a cmd with stderr progress', async () => {
+      const p = $({
+        quiet: true,
+      })`printf 'progress...\n' >&2; echo '{"key":"value"}'`
+      assert.deepEqual(await p.json(), { key: 'value' })
+    })
+
     test('text()', async () => {
       const p = $`echo foo`
       assert.equal(await p.text(), 'foo\n')
@@ -1504,6 +1511,39 @@ describe('core', () => {
     test('json()', async () => {
       const o = new ProcessOutput(null, null, '', '', '{"key":"value"}')
       assert.deepEqual(o.json(), { key: 'value' })
+    })
+
+    test('json() reads stdout when stderr has progress', async () => {
+      const o = new ProcessOutput(
+        null,
+        null,
+        '{"key":"value"}\n',
+        'progress...\n',
+        'progress...\n{"key":"value"}\n'
+      )
+      assert.deepEqual(o.json(), { key: 'value' })
+
+      const blank = new ProcessOutput(
+        null,
+        null,
+        '\n',
+        '{"key":"value"}',
+        '\n{"key":"value"}'
+      )
+      assert.deepEqual(blank.json(), { key: 'value' })
+
+      const broken = new ProcessOutput(
+        null,
+        null,
+        '{"key":',
+        'progress...\n',
+        'progress...\n{"key":'
+      )
+      assert.throws(
+        () => broken.json(),
+        (e) => e instanceof SyntaxError && !e.message.includes('progress'),
+        'a parse failure must describe stdout, not the interleaved stream'
+      )
     })
 
     test('text()', async () => {
