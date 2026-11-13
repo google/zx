@@ -518,8 +518,17 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   get fullCmd(): string {
-    const { prefix = '', postfix = '', cmd } = this._snapshot
-    return prefix + cmd + postfix
+    const { prefix = '', postfix = '', cmd, quote, shell } = this._snapshot
+    let c = cmd
+    if (
+      (quote === quotePowerShell ||
+        (isString(shell) && /(?:powershell|pwsh)(?:\.exe)?$/i.test(shell))) &&
+      !prefix.trim().startsWith('&') &&
+      /^['"]/.test(c.trimStart())
+    ) {
+      c = c.replace(/^\s*/, (m) => m + '& ')
+    }
+    return prefix + c + postfix
   }
 
   get child(): ChildProcess | undefined {

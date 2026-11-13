@@ -42,6 +42,22 @@ _describe('win32', () => {
     })
   })
 
+  test('executes path with spaces in PowerShell (#1551)', async () => {
+    await within(async () => {
+      usePowerShell()
+      const p = await $`${process.execPath} -v`
+      assert.match(p.stdout, /^v\d+/)
+    })
+  })
+
+  test('fullCmd prepends call operator for quoted command in PowerShell (#1551)', async () => {
+    await within(async () => {
+      usePowerShell()
+      const p = $`"C:\\Program Files\\nodejs\\node.exe" -v`
+      assert.match(p.fullCmd, /^&\s+"C:\\Program Files\\nodejs\\node\.exe"/)
+    })
+  })
+
   _testPwsh('should work with pwsh when it is available', async () => {
     await within(async () => {
       usePwsh()
