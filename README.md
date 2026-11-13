@@ -41,17 +41,18 @@ See also [**zx@lite**](https://google.github.io/zx/lite).
 ## Compatibility
 * Linux, macOS, or Windows
 * JavaScript Runtime:
-    * Node.js >= 12.17.0
+    * Node.js >= 12.20.0
     * Bun >= 1.0.0
     * Deno 1.x, 2.x
     * GraalVM Node.js
+    * Electron >= 11
 * [Bash or PowerShell](https://google.github.io/zx/shell)
 * [Both CJS or ESM](https://google.github.io/zx/setup#hybrid) modules in [JS or TS](https://google.github.io/zx/typescript)
 
 
 ## See also
 
-- [MAML](https://maml.dev) — JSON for config, with comments, multiline strings, unquoted keys, and optional commas.
+- [Ant](https://github.com/ant-src/ant) - A small language with TypeScript-like syntax, and goroutine-style concurrency.
 
 ## License
 
