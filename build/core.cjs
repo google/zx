@@ -703,8 +703,12 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     return this._snapshot.cmd;
   }
   get fullCmd() {
-    const { prefix = "", postfix = "", cmd } = this._snapshot;
-    return prefix + cmd + postfix;
+    const { prefix = "", postfix = "", cmd, quote: quote3, shell } = this._snapshot;
+    let c = cmd;
+    if ((quote3 === import_util.quotePowerShell || (0, import_util.isString)(shell) && /(?:powershell|pwsh)(?:\.exe)?$/i.test(shell)) && !prefix.trim().startsWith("&") && /^['"]/.test(c.trimStart())) {
+      c = c.replace(/^\s*/, (m) => m + "& ");
+    }
+    return prefix + c + postfix;
   }
   get child() {
     var _a;
