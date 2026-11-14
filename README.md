@@ -1,5 +1,7 @@
 <h1><img src="https://google.github.io/zx/img/logo.svg" alt="Zx logo" height="32" width="28" valign="middle"> zx</h1>
 
+[ English | [简体中文](https://github.com/google/zx/blob/main/README.zh.md) ]
+
 ```js
 #!/usr/bin/env zx
 
