@@ -42,6 +42,42 @@ _describe('win32', () => {
     })
   })
 
+  test('executes path with spaces in PowerShell (#1551)', async () => {
+    await within(async () => {
+      usePowerShell()
+      const p = await $`${process.execPath} -v`
+      assert.match(p.stdout, /^v\d+/)
+    })
+  })
+
+  test('fullCmd prepends call operator for quoted command in PowerShell (#1551)', async () => {
+    await within(async () => {
+      usePowerShell()
+      const p = $`"C:\\Program Files\\nodejs\\node.exe" -v`
+      assert.match(p.fullCmd, /^&\s+"C:\\Program Files\\nodejs\\node\.exe"/)
+    })
+  })
+
+  test('preserves quoted value in pipeline without prepending call operator in PowerShell (#1551)', async () => {
+    await within(async () => {
+      usePowerShell()
+      const p = $`${'a b'} | Write-Output`
+      assert.doesNotMatch(p.fullCmd, /^&\s+/)
+      const out = await p
+      assert.match(out.stdout, /a b/)
+    })
+  })
+
+  test('preserves quoted value with operator without prepending call operator in PowerShell (#1551)', async () => {
+    await within(async () => {
+      usePowerShell()
+      const p = $`${'a b'} -replace 'a','b'`
+      assert.doesNotMatch(p.fullCmd, /^&\s+/)
+      const out = await p
+      assert.match(out.stdout, /b b/)
+    })
+  })
+
   _testPwsh('should work with pwsh when it is available', async () => {
     await within(async () => {
       usePwsh()

@@ -27,7 +27,7 @@ __export(core_exports, {
   kill: () => kill,
   log: () => log,
   os: () => os,
-  path: () => import_node_path.default,
+  path: () => import_node_path2.default,
   ps: () => import_vendor_core3.ps,
   quote: () => import_util2.quote,
   quotePowerShell: () => import_util2.quotePowerShell,
@@ -45,6 +45,7 @@ var import_node_buffer = require("buffer");
 var import_node_child_process = __toESM(require("child_process"), 1);
 var import_node_events = require("events");
 var import_node_fs = __toESM(require("fs"), 1);
+var import_node_path = __toESM(require("path"), 1);
 var import_node_os = require("os");
 var import_node_process2 = __toESM(require("process"), 1);
 var import_node_util2 = require("util");
@@ -394,7 +395,7 @@ function formatCmd(cmd) {
 var import_vendor_core2 = require("./vendor-core.cjs");
 var import_util = require("./util.cjs");
 var import_internals = require("./internals.cjs");
-var import_node_path = __toESM(require("path"), 1);
+var import_node_path2 = __toESM(require("path"), 1);
 var os = __toESM(require("os"), 1);
 var import_vendor_core3 = require("./vendor-core.cjs");
 var import_util2 = require("./util.cjs");
@@ -485,6 +486,31 @@ function sync$(fn, makeSync) {
     }
   });
 }
+var isPowerShellExecutable = (cmd, cwd) => {
+  const m = cmd.match(/^\s*(?:'((?:[^']|'')*)'|"((?:[^"]|`"|"")*)")/);
+  if (!m) return false;
+  const raw = (m[1] !== void 0 ? m[1].replace(/''/g, "'") : m[2].replace(/`"|""/g, '"')).trim();
+  if (/\.(?:exe|cmd|bat|ps1|com)$/i.test(raw)) return true;
+  try {
+    const p = import_node_path.default.resolve(cwd || ".", raw);
+    if (import_node_fs.default.existsSync(p)) {
+      const stat = import_node_fs.default.statSync(p);
+      if (stat.isFile() && (import_node_process2.default.platform !== "win32" || /\.(?:exe|cmd|bat|ps1|com)$/i.test(p))) {
+        return true;
+      }
+    }
+    if (import_node_process2.default.platform === "win32") {
+      for (const ext of [".exe", ".cmd", ".bat", ".ps1", ".com"]) {
+        const pe = p + ext;
+        if (import_node_fs.default.existsSync(pe) && import_node_fs.default.statSync(pe).isFile()) {
+          return true;
+        }
+      }
+    }
+  } catch (e) {
+  }
+  return false;
+};
 var _ProcessPromise = class _ProcessPromise extends Promise {
   constructor(executor) {
     let resolve;
@@ -703,8 +729,12 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
     return this._snapshot.cmd;
   }
   get fullCmd() {
-    const { prefix = "", postfix = "", cmd } = this._snapshot;
-    return prefix + cmd + postfix;
+    const { prefix = "", postfix = "", cmd, quote: quote3, shell, cwd } = this._snapshot;
+    let c = cmd;
+    if ((quote3 === import_util.quotePowerShell || (0, import_util.isString)(shell) && /(?:powershell|pwsh)(?:\.exe)?$/i.test(shell)) && !prefix.trim().startsWith("&") && !c.trimStart().startsWith("&") && isPowerShellExecutable(c, cwd)) {
+      c = c.replace(/^\s*/, (m) => m + "& ");
+    }
+    return prefix + c + postfix;
   }
   get child() {
     var _a;
