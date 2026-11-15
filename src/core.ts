@@ -805,7 +805,8 @@ export class ProcessPromise extends Promise<ProcessOutput> {
       yield* getLines(chunk, memo, dlmtr)
     }
 
-    if (memo[0]) yield memo[0]
+    const rest = (memo[0] || '') + ((memo as any).decoder?.decode() || '')
+    if (rest) yield rest
 
     await this
   }
@@ -977,7 +978,8 @@ export class ProcessOutput extends Error {
       yield* getLines(chunk, memo, dlmtr)
     }
 
-    if (memo[0]) yield memo[0]
+    const rest = (memo[0] || '') + ((memo as any).decoder?.decode() || '')
+    if (rest) yield rest
   }
 
   [inspect.custom](): string {

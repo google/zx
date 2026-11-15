@@ -47,7 +47,13 @@ function isString(obj) {
 }
 var utf8Decoder = new TextDecoder("utf-8");
 var bufToString = (buf) => isString(buf) ? buf : utf8Decoder.decode(buf);
-var bufArrJoin = (arr) => arr.reduce((acc, buf) => acc + bufToString(buf), "");
+var bufArrJoin = (arr) => {
+  const decoder = new TextDecoder("utf-8");
+  return arr.reduce(
+    (acc, buf) => acc + (isString(buf) ? decoder.decode() + buf : decoder.decode(buf, { stream: true })),
+    ""
+  ) + decoder.decode();
+};
 var getLast = (arr) => arr[arr.length - 1];
 function preferLocalBin(env, ...dirs) {
   const pathKey = import_node_process.default.platform === "win32" ? Object.keys(env).reverse().find((key) => key.toUpperCase() === "PATH") || "Path" : "PATH";
@@ -94,7 +100,10 @@ var proxyOverride = (origin, ...fallbacks) => new Proxy(origin, {
 var toCamelCase = (str) => str.toLowerCase().replace(/([a-z])[_-]+([a-z])/g, (_, p1, p2) => p1 + p2.toUpperCase());
 var parseBool = (v) => v === "true" || v !== "false" && v;
 var getLines = (chunk, next, delimiter) => {
-  const lines = ((next.pop() || "") + bufToString(chunk)).split(delimiter);
+  var _a;
+  const d = (_a = next.decoder) != null ? _a : next.decoder = new TextDecoder("utf-8");
+  const chunkStr = isString(chunk) ? d.decode() + chunk : d.decode(chunk, { stream: true });
+  const lines = ((next.pop() || "") + chunkStr).split(delimiter);
   next.push(lines.pop());
   return lines;
 };

@@ -871,6 +871,7 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
   // Async iterator API
   [Symbol.asyncIterator]() {
     return __asyncGenerator(this, null, function* () {
+      var _a;
       const memo = [];
       const dlmtr = this._snapshot.delimiter || $.delimiter || DLMTR;
       for (const chunk of this._zurk.store.stdout) {
@@ -891,7 +892,8 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
             throw error[0];
         }
       }
-      if (memo[0]) yield memo[0];
+      const rest = (memo[0] || "") + (((_a = memo.decoder) == null ? void 0 : _a.decode()) || "");
+      if (rest) yield rest;
       yield new __await(this);
     });
   }
@@ -1058,11 +1060,13 @@ var _ProcessOutput = class _ProcessOutput extends Error {
   }
   // prettier-ignore
   *[Symbol.iterator](dlmtr = this._dto.delimiter || $.delimiter || DLMTR) {
+    var _a;
     const memo = [];
     for (const chunk of this._dto.store.stdall) {
       yield* __yieldStar((0, import_util.getLines)(chunk, memo, dlmtr));
     }
-    if (memo[0]) yield memo[0];
+    const rest = (memo[0] || "") + (((_a = memo.decoder) == null ? void 0 : _a.decode()) || "");
+    if (rest) yield rest;
   }
   [import_node_util2.inspect.custom]() {
     const codeInfo = _ProcessOutput.getExitCodeInfo(this.exitCode);
