@@ -37,8 +37,19 @@ const utf8Decoder = new TextDecoder('utf-8')
 export const bufToString = (buf: Buffer | string): string =>
   isString(buf) ? buf : utf8Decoder.decode(buf)
 
-export const bufArrJoin = (arr: TSpawnStore[keyof TSpawnStore]): string =>
-  arr.reduce((acc, buf) => acc + bufToString(buf), '')
+export const bufArrJoin = (arr: TSpawnStore[keyof TSpawnStore]): string => {
+  const decoder = new TextDecoder('utf-8')
+  return (
+    arr.reduce(
+      (acc, buf) =>
+        acc +
+        (isString(buf)
+          ? decoder.decode() + buf
+          : decoder.decode(buf, { stream: true })),
+      ''
+    ) + decoder.decode()
+  )
+}
 
 export const getLast = <T>(arr: { length: number; [i: number]: any }): T =>
   arr[arr.length - 1]
@@ -145,7 +156,12 @@ export const getLines = (
   next: (string | undefined)[],
   delimiter: string | RegExp
 ) => {
-  const lines = ((next.pop() || '') + bufToString(chunk)).split(delimiter)
+  const d: TextDecoder =
+    (next as any).decoder ?? ((next as any).decoder = new TextDecoder('utf-8'))
+  const chunkStr = isString(chunk)
+    ? d.decode() + chunk
+    : d.decode(chunk, { stream: true })
+  const lines = ((next.pop() || '') + chunkStr).split(delimiter)
   next.push(lines.pop())
   return lines
 }
