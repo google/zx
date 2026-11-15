@@ -22,6 +22,7 @@ import cp, {
 import { type Encoding } from 'node:crypto'
 import { EventEmitter } from 'node:events'
 import fs from 'node:fs'
+import path from 'node:path'
 import { EOL as _EOL } from 'node:os'
 import process from 'node:process'
 import { type Readable, type Writable } from 'node:stream'
@@ -252,6 +253,36 @@ type PipeMethod = {
   (file: string): PromisifiedStream
   <D extends Writable>(dest: D): PromisifiedStream<D>
   <D extends ProcessPromise>(dest: D): D
+}
+
+const isPowerShellExecutable = (cmd: string, cwd?: string): boolean => {
+  const m = cmd.match(/^\s*(?:'((?:[^']|'')*)'|"((?:[^"]|`"|"")*)")/)
+  if (!m) return false
+  const raw = (
+    m[1] !== undefined ? m[1].replace(/''/g, "'") : m[2].replace(/`"|""/g, '"')
+  ).trim()
+  if (/\.(?:exe|cmd|bat|ps1|com)$/i.test(raw)) return true
+  try {
+    const p = path.resolve(cwd || '.', raw)
+    if (fs.existsSync(p)) {
+      const stat = fs.statSync(p)
+      if (
+        stat.isFile() &&
+        (process.platform !== 'win32' || /\.(?:exe|cmd|bat|ps1|com)$/i.test(p))
+      ) {
+        return true
+      }
+    }
+    if (process.platform === 'win32') {
+      for (const ext of ['.exe', '.cmd', '.bat', '.ps1', '.com']) {
+        const pe = p + ext
+        if (fs.existsSync(pe) && fs.statSync(pe).isFile()) {
+          return true
+        }
+      }
+    }
+  } catch {}
+  return false
 }
 
 export class ProcessPromise extends Promise<ProcessOutput> {
@@ -518,8 +549,18 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   }
 
   get fullCmd(): string {
-    const { prefix = '', postfix = '', cmd } = this._snapshot
-    return prefix + cmd + postfix
+    const { prefix = '', postfix = '', cmd, quote, shell, cwd } = this._snapshot
+    let c = cmd
+    if (
+      (quote === quotePowerShell ||
+        (isString(shell) && /(?:powershell|pwsh)(?:\.exe)?$/i.test(shell))) &&
+      !prefix.trim().startsWith('&') &&
+      !c.trimStart().startsWith('&') &&
+      isPowerShellExecutable(c, cwd)
+    ) {
+      c = c.replace(/^\s*/, (m) => m + '& ')
+    }
+    return prefix + c + postfix
   }
 
   get child(): ChildProcess | undefined {
