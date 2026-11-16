@@ -251,6 +251,7 @@ async function readScriptFromStdin(): Promise<string> {
 async function readScriptFromHttp(remote: string): Promise<string> {
   const res = await fetch(remote)
   if (!res.ok) {
+    await res.body?.cancel?.() // Unread body keeps the process alive
     console.error(`Error: Can't get ${remote}`)
     process.exitCode = 1
     throw new Fail(`Failed to fetch remote script: ${remote} (${res.status})`)

@@ -26,6 +26,7 @@ const modules = [
   ['cli', cli],
   ['index', index],
 ]
+const runtimeDependent = new Set(['fs.openAsBlobSync'])
 const root = path.resolve(new URL(import.meta.url).pathname, '../..')
 const filePath = path.resolve(root, `test/export.test.js`)
 
@@ -48,6 +49,7 @@ for (const [name, ref, apis = Object.keys(ref).sort()] of modules) {
     body += `    assert.equal(typeof ${name}.${r}, '${typeof api}', '${name}.${r}')\n`
     if (typeof api !== 'function' && typeof api !== 'object') continue
     for (const k of Object.keys(api).sort()) {
+      if (runtimeDependent.has(`${r}.${k}`)) continue
       const v = api[k]
       body += `    assert.equal(typeof ${name}.${r}.${k}, '${typeof v}', '${name}.${r}.${k}')\n`
     }

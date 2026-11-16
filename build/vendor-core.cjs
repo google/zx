@@ -1167,28 +1167,17 @@ var LOOKUPS = {
   wmic: {
     cmd: "wmic process get ProcessId,ParentProcessId,CommandLine",
     args: [],
-    parse: (stdout) => parse(removeWmicPrefix(stdout), { format: "win" })
+    parse: (stdout) => parseWmic(removeWmicPrefix(stdout))
   },
   ps: {
     cmd: "ps",
     args: ["-eo", "pid,ppid,args"],
-    parse: (stdout) => parse(stdout, { format: "unix" })
+    parse: (stdout) => parse(stdout)
   },
   pwsh: {
     cmd: "pwsh",
     args: ["-NoProfile", "-Command", '"Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,CommandLine | ConvertTo-Json -Compress"'],
-    parse(stdout) {
-      try {
-        const arr = JSON.parse(stdout);
-        return arr.map((p) => ({
-          ProcessId: [String(p.ProcessId)],
-          ParentProcessId: [String(p.ParentProcessId)],
-          CommandLine: p.CommandLine ? [p.CommandLine] : []
-        }));
-      } catch (e) {
-        return [];
-      }
-    }
+    parse: (stdout) => parsePwsh(stdout)
   }
 };
 var lookup = (query = {}, cb = noop2) => runLookup(query, cb, false);
@@ -1199,12 +1188,18 @@ function runLookup(query, cb, sync) {
   const args = !IS_WIN && query.psargs ? query.psargs.split(/\s+/) : defaultArgs;
   let result = [];
   let error;
-  const handle = (err, { stdout }) => {
+  const handle = (err, { stdout, stderr }) => {
     if (err) {
       error = err;
       return;
     }
-    result = filterProcessList(normalizeOutput(parseOutput(stdout)), query);
+    try {
+      result = filterProcessList(normalizeOutput(parseOutput(stdout)), query);
+    } catch (e) {
+      error = new Error(`${cmd} failed: ${e.message}
+stdout: ${stdout.slice(0, 512)}
+stderr: ${stderr}`);
+    }
   };
   if (sync) {
     exec({ cmd, args, sync: true, callback: handle, run(c) {
@@ -1346,8 +1341,36 @@ var filterProcessList = (processList, query = {}) => {
 };
 var removeWmicPrefix = (stdout) => {
   const s = stdout.indexOf(LOOKUPS.wmic.cmd + import_node_os2.default.EOL);
-  const e = stdout.includes(">") ? stdout.trimEnd().lastIndexOf(import_node_os2.default.EOL) : stdout.length;
+  const e = stdout.trimEnd().endsWith(">") ? stdout.trimEnd().lastIndexOf(import_node_os2.default.EOL) : stdout.length;
   return (s > 0 ? stdout.slice(s + LOOKUPS.wmic.cmd.length, e) : stdout.slice(0, e)).trimStart();
+};
+var parseWmic = (stdout) => {
+  const rows = [];
+  let head = "";
+  for (const line of stdout.split(/\r*\n/).slice(1)) {
+    const m = /\s\s(\d+)\s\s+(\d+)\s*$/.exec(line);
+    if (!m) {
+      head += line + " ";
+      continue;
+    }
+    const cmd = (head + line.slice(0, m.index)).trim();
+    rows.push({ CommandLine: [cmd || "-"], ParentProcessId: [m[1]], ProcessId: [m[2]] });
+    head = "";
+  }
+  if (rows.length === 0) throw new Error("no process rows found");
+  return rows;
+};
+var parsePwsh = (stdout) => {
+  try {
+    const arr = JSON.parse(stdout);
+    return arr.map((p) => ({
+      ProcessId: [String(p.ProcessId)],
+      ParentProcessId: [String(p.ParentProcessId)],
+      CommandLine: p.CommandLine ? [p.CommandLine] : []
+    }));
+  } catch (e) {
+    return [];
+  }
 };
 var isBin = (f) => {
   if (f === "") return false;

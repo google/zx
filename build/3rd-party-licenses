@@ -20,7 +20,7 @@ THIRD PARTY LICENSES
   sindresorhus/merge-streams
   MIT
 
-@webpod/ps@1.2.1
+@webpod/ps@1.3.0
   <unknown>
   git://github.com/webpod/ps.git
   MIT
@@ -60,7 +60,7 @@ fill-range@7.1.1
   jonschlinkert/fill-range
   MIT
 
-fs-extra@11.3.5
+fs-extra@11.4.1
   JP Richardson <jprichardson@gmail.com>
   git+https://github.com/jprichardson/node-fs-extra.git
   MIT
@@ -70,7 +70,7 @@ glob-parent@5.1.2
   gulpjs/glob-parent
   ISC
 
-globby@16.2.0
+globby@16.2.4
   Sindre Sorhus <sindresorhus@gmail.com>
   sindresorhus/globby
   MIT
@@ -140,7 +140,7 @@ which@7.0.0
   git+https://github.com/npm/node-which.git
   ISC
 
-yaml@2.9.0
+yaml@2.9.1
   Eemeli Aro <eemeli@gmail.com>
   github:eemeli/yaml
   ISC

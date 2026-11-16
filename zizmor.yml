@@ -3,5 +3,3 @@ rules:
     config:
       policies:
         '*': hash-pin
-        'actions/*': ref-pin
-        'github/codeql-action/*': ref-pin
