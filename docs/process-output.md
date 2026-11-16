@@ -23,6 +23,7 @@ interface ProcessOutput extends Error {
 
   buffer(): Buffer
 
+  // Parses stdout as JSON, falls back to stdall when stdout is empty
   json<T = any>(): T
 
   blob(type = 'text/plain'): Blob
