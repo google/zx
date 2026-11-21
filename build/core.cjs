@@ -872,14 +872,15 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
   [Symbol.asyncIterator]() {
     return __asyncGenerator(this, null, function* () {
       const memo = [];
+      const decoder = new TextDecoder("utf-8");
       const dlmtr = this._snapshot.delimiter || $.delimiter || DLMTR;
       for (const chunk of this._zurk.store.stdout) {
-        yield* __yieldStar((0, import_util.getLines)(chunk, memo, dlmtr));
+        yield* __yieldStar((0, import_util.getLines)(chunk, memo, dlmtr, decoder));
       }
       try {
         for (var iter = __forAwait(this.stdout || []), more, temp, error; more = !(temp = yield new __await(iter.next())).done; more = false) {
           const chunk = temp.value;
-          yield* __yieldStar((0, import_util.getLines)(chunk, memo, dlmtr));
+          yield* __yieldStar((0, import_util.getLines)(chunk, memo, dlmtr, decoder));
         }
       } catch (temp) {
         error = [temp];
@@ -891,6 +892,8 @@ var _ProcessPromise = class _ProcessPromise extends Promise {
             throw error[0];
         }
       }
+      const tail = decoder.decode();
+      if (tail) yield* __yieldStar((0, import_util.getLines)(tail, memo, dlmtr));
       if (memo[0]) yield memo[0];
       yield new __await(this);
     });
@@ -1059,9 +1062,12 @@ var _ProcessOutput = class _ProcessOutput extends Error {
   // prettier-ignore
   *[Symbol.iterator](dlmtr = this._dto.delimiter || $.delimiter || DLMTR) {
     const memo = [];
+    const decoder = new TextDecoder("utf-8");
     for (const chunk of this._dto.store.stdall) {
-      yield* __yieldStar((0, import_util.getLines)(chunk, memo, dlmtr));
+      yield* __yieldStar((0, import_util.getLines)(chunk, memo, dlmtr, decoder));
     }
+    const tail = decoder.decode();
+    if (tail) yield* __yieldStar((0, import_util.getLines)(tail, memo, dlmtr));
     if (memo[0]) yield memo[0];
   }
   [import_node_util2.inspect.custom]() {

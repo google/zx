@@ -1223,6 +1223,19 @@ describe('core', () => {
         assert.deepEqual(lines, ['PartialLine1', 'Line2', 'PartialLine3'])
       })
 
+      it('should keep multi-byte chars split across stdout chunks', async () => {
+        const script = `const b = Buffer.from('Café 日本\\n')
+const i = b.indexOf(0xe6) + 1
+process.stdout.write(b.subarray(0, i))
+setTimeout(() => process.stdout.write(b.subarray(i)), 50)`
+        const lines = []
+        for await (const line of $`node -e ${script}`) {
+          lines.push(line)
+        }
+
+        assert.deepEqual(lines, ['Café 日本'])
+      })
+
       it('should handle empty stdout', async () => {
         const process = $`echo -n ""`
         const lines = []
@@ -1413,6 +1426,17 @@ describe('core', () => {
 
     test('json()', async () => {
       assert.deepEqual(await $`echo '{"key":"value"}'`.json(), { key: 'value' })
+    })
+
+    test('keeps multi-byte chars split across chunks', async () => {
+      const script = `const b = Buffer.from(JSON.stringify({ s: '日'.repeat(30000) }))
+const i = b.indexOf(0xe6) + 1
+process.stdout.write(b.subarray(0, i))
+setTimeout(() => process.stdout.write(b.subarray(i)), 50)`
+      const p = await $`node -e ${script}`
+
+      assert.equal(p.stdout.includes('\uFFFD'), false)
+      assert.equal(p.json().s, '日'.repeat(30000))
     })
 
     test('text()', async () => {

@@ -29,6 +29,8 @@ import {
   preferLocalBin,
   toCamelCase,
   getLast,
+  bufArrJoin,
+  getLines,
 } from '../build/util.cjs'
 
 describe('util', () => {
@@ -134,5 +136,28 @@ describe('util', () => {
   test('getLast()', () => {
     assert.equal(getLast([1, 2, 3]), 3)
     assert.equal(getLast([]), undefined)
+  })
+
+  test('bufArrJoin() should keep multi-byte chars split across chunks', () => {
+    const buf = Buffer.from('Café 日本\n')
+    const i = buf.indexOf(0xe6) + 1 // inside the 3-byte sequence of 日
+    assert.equal(
+      bufArrJoin([buf.subarray(0, i), buf.subarray(i)]),
+      'Café 日本\n'
+    )
+  })
+
+  test('getLines() should keep multi-byte chars split across chunks', () => {
+    const buf = Buffer.from('Café 日本\nnext\n')
+    const i = buf.indexOf(0xe6) + 1
+    const memo = []
+    const decoder = new TextDecoder('utf-8')
+    const lines = [
+      ...getLines(buf.subarray(0, i), memo, '\n', decoder),
+      ...getLines(buf.subarray(i), memo, '\n', decoder),
+    ]
+
+    assert.deepEqual(lines, ['Café 日本', 'next'])
+    assert.deepEqual(memo, [''])
   })
 })

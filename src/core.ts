@@ -795,15 +795,19 @@ export class ProcessPromise extends Promise<ProcessOutput> {
   // Async iterator API
   async *[Symbol.asyncIterator](): AsyncIterator<string> {
     const memo: (string | undefined)[] = []
+    const decoder = new TextDecoder('utf-8')
     const dlmtr = this._snapshot.delimiter || $.delimiter || DLMTR
 
     for (const chunk of this._zurk!.store.stdout) {
-      yield* getLines(chunk, memo, dlmtr)
+      yield* getLines(chunk, memo, dlmtr, decoder)
     }
 
     for await (const chunk of this.stdout || []) {
-      yield* getLines(chunk, memo, dlmtr)
+      yield* getLines(chunk, memo, dlmtr, decoder)
     }
+
+    const tail = decoder.decode()
+    if (tail) yield* getLines(tail, memo, dlmtr)
 
     if (memo[0]) yield memo[0]
 
@@ -973,9 +977,13 @@ export class ProcessOutput extends Error {
   // prettier-ignore
   *[Symbol.iterator](dlmtr: Options['delimiter'] = this._dto.delimiter || $.delimiter || DLMTR): Iterator<string> {
     const memo: (string | undefined)[] = []
+    const decoder = new TextDecoder('utf-8')
     for (const chunk of this._dto.store.stdall) {
-      yield* getLines(chunk, memo, dlmtr)
+      yield* getLines(chunk, memo, dlmtr, decoder)
     }
+
+    const tail = decoder.decode()
+    if (tail) yield* getLines(tail, memo, dlmtr)
 
     if (memo[0]) yield memo[0]
   }
