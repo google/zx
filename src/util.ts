@@ -37,8 +37,19 @@ const utf8Decoder = new TextDecoder('utf-8')
 export const bufToString = (buf: Buffer | string): string =>
   isString(buf) ? buf : utf8Decoder.decode(buf)
 
-export const bufArrJoin = (arr: TSpawnStore[keyof TSpawnStore]): string =>
-  arr.reduce((acc, buf) => acc + bufToString(buf), '')
+// Chunks arrive at arbitrary byte boundaries, so multi-byte characters may be
+// split between them. A single stateful decoder keeps the incomplete trailing
+// bytes until the next chunk completes the character.
+export const bufArrJoin = (arr: TSpawnStore[keyof TSpawnStore]): string => {
+  const decoder = new TextDecoder('utf-8')
+  let acc = ''
+  for (const chunk of arr) {
+    acc += isString(chunk)
+      ? decoder.decode() + chunk
+      : decoder.decode(chunk, { stream: true })
+  }
+  return acc + decoder.decode()
+}
 
 export const getLast = <T>(arr: { length: number; [i: number]: any }): T =>
   arr[arr.length - 1]
@@ -143,9 +154,13 @@ export const parseBool = (v: string): boolean | string =>
 export const getLines = (
   chunk: Buffer | string,
   next: (string | undefined)[],
-  delimiter: string | RegExp
+  delimiter: string | RegExp,
+  decoder: TextDecoder = new TextDecoder('utf-8')
 ) => {
-  const lines = ((next.pop() || '') + bufToString(chunk)).split(delimiter)
+  const text = isString(chunk)
+    ? decoder.decode() + chunk
+    : decoder.decode(chunk, { stream: true })
+  const lines = ((next.pop() || '') + text).split(delimiter)
   next.push(lines.pop())
   return lines
 }
