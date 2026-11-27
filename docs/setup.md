@@ -42,6 +42,10 @@ deno install -A npm:zx
 # zx requires additional permissions: --allow-read --allow-sys --allow-env --allow-run
 ```
 
+```bash [vlt]
+vlt install zx
+```
+
 ```bash [jsr]
 npx jsr add @webpod/zx
 deno add jsr:@webpod/zx
