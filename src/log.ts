@@ -130,7 +130,7 @@ export const log: Log = function (entry) {
 }
 
 const SPACE_RE = /\s/
-const SYNTAX = '()[]{}<>;:+|&='
+const SYNTAX = '()[]{}<>;|&='
 const CMD_BREAK = '|&;><'
 const RESERVED_WORDS = new Set([
   'if',
