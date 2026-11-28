@@ -139,7 +139,10 @@ export function fetch(
           })(dest as TemplateStringsArray, ...args)
         : dest
       p.then(
-        (r) => responseToReadable(r, rs).pipe(_dest.run?.()),
+        (r) => {
+          _dest.run?.()
+          return responseToReadable(r, rs).pipe(_dest)
+        },
         (err) => _dest.abort?.(err)
       )
       return _dest

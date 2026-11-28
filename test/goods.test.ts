@@ -13,8 +13,9 @@
 // limitations under the License.
 
 import assert from 'node:assert'
+import http from 'node:http'
 import { test, describe, after } from 'node:test'
-import { Duplex } from 'node:stream'
+import { Duplex, Writable } from 'node:stream'
 import { $, chalk, fs, path, dotenv } from '../src/index.ts'
 import {
   echo,
@@ -34,7 +35,7 @@ import {
   tmpfile,
   versions,
 } from '../src/goods.ts'
-import { Writable } from 'node:stream'
+
 import process from 'node:process'
 
 const __dirname = new URL('.', import.meta.url).pathname
@@ -348,21 +349,69 @@ describe('goods', () => {
     assert.match(input, /"name": "zx"/)
   })
 
-  test('fetch()', async () => {
-    const req1 = fetch('https://github.com/')
-    const req2 = fetch('https://github.com/')
-    const req3 = fetch('https://github.com/', { method: 'OPTIONS' })
+  describe('fetch()', () => {
+    test('legacy external fetch', async () => {
+      const req1 = fetch('https://github.com/')
+      const req2 = fetch('https://github.com/')
+      const req3 = fetch('https://github.com/', { method: 'OPTIONS' })
 
-    const p1 = (await req1.pipe`cat`).stdout
-    const p2 = (await req2.pipe($`cat`)).stdout
-    const p3 = (await req3.pipe`cat`).stdout
+      const p1 = (await req1.pipe`cat`).stdout
+      const p2 = (await req2.pipe($`cat`)).stdout
+      const p3 = (await req3.pipe`cat`).stdout
 
-    assert.equal((await req1).status, 200)
-    assert.equal((await req2).status, 200)
-    assert.equal((await req3).status, 404)
-    assert(p1.includes('GitHub'))
-    assert(p2.includes('GitHub'))
-    assert(p3.includes('GitHub'))
+      assert.equal((await req1).status, 200)
+      assert.equal((await req2).status, 200)
+      assert.equal((await req3).status, 404)
+      assert(p1.includes('GitHub'))
+      assert(p2.includes('GitHub'))
+      assert(p3.includes('GitHub'))
+    })
+
+    test('pipe() with local HTTP server', async () => {
+      const payload = 'Hello from zx test server!\n'
+      const server = http.createServer((_, res) => {
+        res.writeHead(200, { 'Content-Type': 'text/plain' })
+        res.end(payload)
+      })
+      await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
+      const url = `http://127.0.0.1:${(server.address() as any).port}`
+
+      try {
+        // 1. Piping an HTTP response into fs.createWriteStream()
+        const file = tempfile('fetch-pipe-test.txt')
+        const ws = fs.createWriteStream(file)
+        const pipedWs = fetch(url).pipe(ws)
+        assert.equal(pipedWs, ws)
+        await new Promise((resolve, reject) => {
+          ws.on('finish', resolve)
+          ws.on('error', reject)
+        })
+        assert.equal(fs.readFileSync(file, 'utf8'), payload)
+
+        // 2. Piping into a custom Node.js Writable stream
+        let collected = ''
+        const customDest = new Writable({
+          write(chunk, _, cb) {
+            collected += chunk.toString()
+            cb()
+          },
+        })
+        const pipedCustom = fetch(url).pipe(customDest)
+        assert.equal(pipedCustom, customDest)
+        await new Promise((resolve, reject) => {
+          customDest.on('finish', resolve)
+          customDest.on('error', reject)
+        })
+        assert.equal(collected, payload)
+
+        // 3. Piping into an existing ProcessPromise destination ($`cat`)
+        const p = fetch(url).pipe($`cat`)
+        const out = await p
+        assert.equal(out.stdout.trim(), payload.trim())
+      } finally {
+        await new Promise((resolve) => server.close(resolve))
+      }
+    })
   })
 
   describe('dotenv', () => {
