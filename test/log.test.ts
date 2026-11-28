@@ -15,8 +15,16 @@
 import assert from 'node:assert'
 import { test, describe, beforeEach, before, after } from 'node:test'
 import { formatCmd, log } from '../src/log.ts'
+import { chalk } from '../src/vendor-core.ts'
 
 describe('log', () => {
+  const prevLevel = chalk.level
+  before(() => {
+    chalk.level = chalk.level || 3
+  })
+  after(() => {
+    chalk.level = prevLevel
+  })
   describe('log()', () => {
     const data = []
     const stream = {
@@ -189,7 +197,21 @@ describe('log', () => {
       ],
       [
         'echo 1+2 | bc',
-        '$ \x1B[92mecho\x1B[39m 1\x1B[31m+\x1B[39m2 \x1B[31m|\x1B[39m\x1B[92m bc\x1B[39m\n',
+        '$ \x1B[92mecho\x1B[39m 1+2 \x1B[31m|\x1B[39m\x1B[92m bc\x1B[39m\n',
+      ],
+      [`npm-run-all test:unit`, '$ \x1B[92mnpm-run-all\x1B[39m test:unit\n'],
+      [`git+ssh://host/path`, '$ \x1B[92mgit+ssh://host/path\x1B[39m\n'],
+      [
+        `g++ -O3 -Wall -o my-bin main.cpp`,
+        '$ \x1B[92mg++\x1B[39m -O3 -Wall -o my-bin main.cpp\n',
+      ],
+      [
+        `npx karma start -f=../../tests/bundles/unit-pure.js`,
+        '$ \x1B[92mnpx\x1B[39m karma start -f\x1B[31m=\x1B[39m../../tests/bundles/unit-pure.js\n',
+      ],
+      [
+        `/Users/user/project/node_modules/.bin/eslint --config /Users/user/project/eslint.config.js ./`,
+        '$ \x1B[92m/Users/user/project/node_modules/.bin/eslint\x1B[39m --config /Users/user/project/eslint.config.js ./\n',
       ],
       [
         'echo test &>> filepath',
